@@ -1,23 +1,15 @@
 ﻿using Avalonia.Controls;
 using ClassIsland.Core.Abstractions.Controls;
-using System;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
 using SystemTools.Settings;
 
 namespace SystemTools.Controls;
 
 public class ThemeSettingsControl : ActionSettingsControlBase<ThemeSettings>
 {
-    private readonly string _filePath;
     private ComboBox _themeComboBox;
 
     public ThemeSettingsControl()
     {
-        var pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
-        _filePath = Path.Combine(pluginDir, "themes.json");
-
         var panel = new StackPanel { Spacing = 10, Margin = new(10) };
 
         panel.Children.Add(new TextBlock
@@ -39,15 +31,16 @@ public class ThemeSettingsControl : ActionSettingsControlBase<ThemeSettings>
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
         });
 
-        _themeComboBox = new ComboBox
+        _themeComboBox = new ComboBox 
         {
             Width = 100,
-            ItemsSource = new[] { "浅色", "深色" },
-            SelectedIndex = 0
+            ItemsSource = new[] { "浅色", "深色" }
         };
 
-        LoadExistingTheme();
-        _themeComboBox.SelectionChanged += async (s, e) => await SaveThemeAsync();
+        _themeComboBox.SelectionChanged += (s, e) =>
+        {
+            Settings.Theme = _themeComboBox.SelectedItem?.ToString() ?? "浅色";
+        };
 
         comboPanel.Children.Add(_themeComboBox);
         panel.Children.Add(comboPanel);
@@ -55,40 +48,9 @@ public class ThemeSettingsControl : ActionSettingsControlBase<ThemeSettings>
         Content = panel;
     }
 
-    private void LoadExistingTheme()
+    protected override void OnInitialized()
     {
-        try
-        {
-            if (File.Exists(_filePath))
-            {
-                var json = File.ReadAllText(_filePath);
-                var settings = JsonSerializer.Deserialize<ThemeSettings>(json);
-                if (settings != null)
-                {
-                    _themeComboBox.SelectedItem = settings.Theme;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"加载 themes.json 失败: {ex.Message}");
-        }
-    }
-
-    private async Task SaveThemeAsync()
-    {
-        try
-        {
-            var settings = new ThemeSettings
-            {
-                Theme = _themeComboBox.SelectedItem?.ToString() ?? "浅色"
-            };
-            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-            await File.WriteAllTextAsync(_filePath, json);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"保存 themes.json 失败: {ex.Message}");
-        }
+        base.OnInitialized();
+        _themeComboBox.SelectedItem = Settings.Theme;
     }
 }

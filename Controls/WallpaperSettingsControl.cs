@@ -1,11 +1,10 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Data;
-using Avalonia.Platform.Storage; 
+using Avalonia.Platform.Storage;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Shared;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using SystemTools.Settings;
 
@@ -13,7 +12,7 @@ namespace SystemTools.Controls;
 
 public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWallpaperSettings>
 {
-    //public ChangeWallpaperSettings Settings => (ChangeWallpaperSettings)SettingsInternal;
+    private TextBox _pathBox;
 
     public ChangeWallpaperSettingsControl()
     {
@@ -25,12 +24,11 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
             FontWeight = Avalonia.Media.FontWeight.Bold
         });
 
-        var pathBox = new TextBox
+        _pathBox = new TextBox
         {
-            Watermark = "输入路径：路径中不得出现中文字符",
-            [!TextBox.TextProperty] = new Binding(nameof(Settings.ImagePath))
+            Watermark = "输入路径：路径中不得出现中文字符"
         };
-        panel.Children.Add(pathBox);
+        panel.Children.Add(_pathBox);
 
         var browseButton = new Button
         {
@@ -45,6 +43,14 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
         Content = panel;
     }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _pathBox[!TextBox.TextProperty] = new Binding(nameof(Settings.ImagePath))
+        {
+            Source = Settings
+        };
+    }
     private async Task BrowseButton_Click()
     {
         try
@@ -76,7 +82,7 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
             var result = await topLevel.StorageProvider.OpenFilePickerAsync(options);
             if (result?.Count > 0)
             {
-                Settings.ImagePath = result[0].Path.LocalPath;
+                Settings.ImagePath = result[0].Path.LocalPath; 
             }
         }
         catch (Exception ex)

@@ -11,7 +11,7 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.TypeContent", "键入内容", "\uE4BE", false)]
-public class TypeContentAction : ActionBase
+public class TypeContentAction : ActionBase<TypeContentSettings>
 {
     private readonly ILogger<TypeContentAction> _logger;
     private readonly string _filePath;
@@ -27,19 +27,19 @@ public class TypeContentAction : ActionBase
     {
         _logger.LogDebug("OnInvoke 开始");
 
-        string content = await LoadContentFromFile();
+        //string content = await LoadContentFromFile();
 
-        if (string.IsNullOrWhiteSpace(content))
+        if (string.IsNullOrWhiteSpace(Settings.Content))
         {
-            _logger.LogWarning("内容为空或空白: '{Content}'", content);
+            _logger.LogWarning("内容为空或空白");
             return;
         }
 
         try
         {
-            _logger.LogInformation("正在键入内容: {Content}", content);
+            _logger.LogInformation("正在键入内容" );
 
-            SetClipboardText(content);
+            SetClipboardText(Settings.Content);
             await Task.Delay(100);
 
             // 模拟 Ctrl+V
@@ -63,7 +63,7 @@ public class TypeContentAction : ActionBase
         _logger.LogDebug("OnInvoke 完成");
     }
 
-    private async Task<string> LoadContentFromFile()
+    /*private async Task<string> LoadContentFromFile()
     {
         try
         {
@@ -79,7 +79,7 @@ public class TypeContentAction : ActionBase
             _logger.LogError(ex, "读取 type.json 文件失败");
         }
         return string.Empty;
-    }
+    }*/
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);

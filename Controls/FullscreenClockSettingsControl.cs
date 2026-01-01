@@ -21,14 +21,14 @@ public class FullscreenClockSettingsControl : ActionSettingsControlBase<Fullscre
         panel.Children.Add(new TextBlock
         {
             Text = "本服务由 QQHKX 提供。您需要联网。",
-            TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+            TextWrapping = TextWrapping.Wrap,
             Foreground = Brushes.Gray
         });
 
         var linkText = new TextBlock
         {
             Text = "该项目仓库：https://github.com/QQHKX/immersive-clock",
-            TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+            TextWrapping = TextWrapping.Wrap,
             Foreground = Brushes.Blue,
             Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand)
         };

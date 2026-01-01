@@ -2,11 +2,8 @@
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SystemTools.Settings;
@@ -14,7 +11,7 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.Shutdown", "计时关机", "\uE4C4",false)]
-public class ShutdownAction : ActionBase
+public class ShutdownAction : ActionBase<ShutdownSettings>
 {
     private readonly ILogger<ShutdownAction> _logger;
     private readonly string _filePath;
@@ -30,24 +27,24 @@ public class ShutdownAction : ActionBase
     {
         _logger.LogDebug("ShutdownAction OnInvoke 开始");
 
-        var settings = await LoadSettingsAsync();
-        if (settings == null) return;
+        //var settings = await LoadSettingsAsync();
+        if (Settings == null) return;
 
-        if (settings.Seconds < 0) return;
+        if (Settings.Seconds < 0) return;
 
         try
         {
             var psi = new ProcessStartInfo
             {
                 FileName = "shutdown",
-                Arguments = $"-s -t {settings.Seconds}",
+                Arguments = $"-s -t {Settings.Seconds}",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
             };
             Process.Start(psi);
 
-            if (!settings.ShowPrompt)
+            if (!Settings.ShowPrompt)
             {
                 await Task.Delay(300);
                 SendKeys.SendWait("{ENTER}");
@@ -62,7 +59,7 @@ public class ShutdownAction : ActionBase
         await base.OnInvoke();
     }
 
-    private async Task<ShutdownSettings> LoadSettingsAsync()
+    /*private async Task<ShutdownSettings> LoadSettingsAsync()
     {
         try
         {
@@ -77,5 +74,5 @@ public class ShutdownAction : ActionBase
             _logger.LogError(ex, "读取 shutdown.json 失败");
         }
         return null;
-    }
+    }*/
 }

@@ -11,7 +11,7 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.SwitchTheme", "切换主题色", "\uF42F",false)]
-public class SwitchThemeAction : ActionBase
+public class SwitchThemeAction : ActionBase<ThemeSettings>
 {
     private readonly ILogger<SwitchThemeAction> _logger;
     private readonly string _filePath;
@@ -27,12 +27,12 @@ public class SwitchThemeAction : ActionBase
     {
         _logger.LogDebug("SwitchThemeAction OnInvoke 开始");
 
-        var settings = await LoadSettingsAsync();
-        if (settings == null) return;
+        //var settings = await LoadSettingsAsync();
+        if (Settings == null) return;
 
         try
         {
-            var regValue = settings.Theme == "浅色" ? "1" : "0";
+            var regValue = Settings.Theme == "浅色" ? "1" : "0";
             var arguments = $@"add ""HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"" /v AppsUseLightTheme /t REG_DWORD /d {regValue} /f";
 
             var psi = new ProcessStartInfo
@@ -55,7 +55,7 @@ public class SwitchThemeAction : ActionBase
         await base.OnInvoke();
     }
 
-    private async Task<ThemeSettings> LoadSettingsAsync()
+    /*private async Task<ThemeSettings> LoadSettingsAsync()
     {
         try
         {
@@ -70,5 +70,5 @@ public class SwitchThemeAction : ActionBase
             _logger.LogError(ex, "读取 themes.json 失败");
         }
         return null;
-    }
+    }*/
 }

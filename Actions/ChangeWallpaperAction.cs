@@ -11,7 +11,7 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.ChangeWallpaper", "切换壁纸", "\uE9BC", false)]
-public class ChangeWallpaperAction : ActionBase
+public class ChangeWallpaperAction : ActionBase<ChangeWallpaperSettings>
 {
     private readonly ILogger<ChangeWallpaperAction> _logger;
 
@@ -22,27 +22,21 @@ public class ChangeWallpaperAction : ActionBase
 
     protected override async Task OnInvoke()
     {
-        if (ActionItem.Settings is not ChangeWallpaperSettings settings)
-        {
-            _logger.LogWarning("Settings 为空或类型不匹配");
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.ImagePath))
+        if (string.IsNullOrWhiteSpace(Settings.ImagePath))
         {
             _logger.LogWarning("图片路径为空");
             return;
         }
 
-        if (!File.Exists(settings.ImagePath))
+        if (!File.Exists(Settings.ImagePath))
         {
-            _logger.LogError("图片文件不存在: {Path}", settings.ImagePath);
-            throw new FileNotFoundException("指定的图片文件不存在", settings.ImagePath);
+            _logger.LogError("图片文件不存在: {Path}", Settings.ImagePath);
+            throw new FileNotFoundException("指定的图片文件不存在", Settings.ImagePath);
         }
 
         try
         {
-            string escapedPath = settings.ImagePath.Replace("\\", "\\\\");
+            string escapedPath = Settings.ImagePath.Replace("\\", "\\\\");
             string script = $@"
 Add-Type @'
 using System;
@@ -77,7 +71,7 @@ public class W{{[DllImport(""user32.dll"", CharSet=CharSet.Auto)]public static e
                 }
 
                 if (process.ExitCode == 0)
-                    _logger.LogInformation("壁纸切换成功: {Path}", settings.ImagePath);
+                    _logger.LogInformation("壁纸切换成功: {Path}", Settings.ImagePath);
                 else
                     _logger.LogWarning("壁纸切换可能失败，退出码: {ExitCode}", process.ExitCode);
             }

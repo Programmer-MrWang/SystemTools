@@ -1,0 +1,18 @@
+# nonk8s
+# 插件清单文件使用 YAML 格式存储。
+# YAML 教程：https://www.runoob.com/w3cnote/yaml-intro.html
+# 插件清单格式：https://docs.classisland.tech/zh-cn/latest/dev/plugins/create-project/#%E6%8F%92%E4%BB%B6%E6%B8%85%E5%8D%95%E6%96%87%E4%BB%B6
+
+id: SystemTools
+name: SystemTools
+description: 提供适用于Windows的一些行动和其他实用工具。
+entranceAssembly: "SystemTools.dll"
+url: https://github.com/Programmer-MrWang/SystemTools
+version: 1.0.0.0
+apiVersion: 2.0.0.0
+author: Programmer-MrWang
+readme: README.md
+icon: icon.png
+repoOwner: Programmer-MrWang
+repoName: SystemTools
+assetsRoot: main

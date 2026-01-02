@@ -22,15 +22,21 @@ public class Plugin : PluginBase
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("系统个性化…", "\uF42F"));
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));
 
+        IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"].Add(new ActionMenuTreeGroup("常用模拟键", "\uEA0B"));
+
         IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"].AddRange([
-            new ActionMenuTreeItem("SystemTools.AltF4", "按下 Alt+F4", "\uEA0B"),
-            new ActionMenuTreeItem("SystemTools.AltTab", "按下 Alt+Tab", "\uEA0B"),
-            new ActionMenuTreeItem("SystemTools.EnterKey", "按下 Enter 键", "\uEA0B"),
-            new ActionMenuTreeItem("SystemTools.EscKey", "按下 Esc 键", "\uEA0B"),
-            new ActionMenuTreeItem("SystemTools.F11Key", "按下 F11 键", "\uEA0B"),
+            new ActionMenuTreeItem("SystemTools.SimulateKeyboard", "模拟键盘", "\uEA0F"),
             new ActionMenuTreeItem("SystemTools.TypeContent", "键入内容", "\uE4BE"),
             new ActionMenuTreeItem("SystemTools.ClickSimulation", "模拟点击", "\uE5C1")
         ]);
+
+            IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"]["常用模拟键"].AddRange([
+                new ActionMenuTreeItem("SystemTools.AltF4", "按下 Alt+F4", "\uEA0B"),
+                new ActionMenuTreeItem("SystemTools.AltTab", "按下 Alt+Tab", "\uEA0B"),
+                new ActionMenuTreeItem("SystemTools.EnterKey", "按下 Enter 键", "\uEA0B"),
+                new ActionMenuTreeItem("SystemTools.EscKey", "按下 Esc 键", "\uEA0B"),
+                new ActionMenuTreeItem("SystemTools.F11Key", "按下 F11 键", "\uEA0B")
+            ]);
 
         IActionService.ActionMenuTree["SystemTools 行动"]["显示设置…"].AddRange([
             new ActionMenuTreeItem("SystemTools.CloneDisplay", "复制屏幕", "\uE635"),
@@ -61,6 +67,8 @@ public class Plugin : PluginBase
         services.AddAction<AltF4Action>();
         services.AddAction<AltTabAction>();
         services.AddAction<F11Action>();
+
+        services.AddAction<SimulateKeyboardAction, SimulateKeyboardSettingsControl>();
         services.AddAction<TypeContentAction, TypeContentSettingsControl>();
         services.AddAction<ClickSimulationAction, ClickSimulationSettingsControl>();
 

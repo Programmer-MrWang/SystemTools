@@ -5,13 +5,13 @@
 		<LangVersion>latest</LangVersion>
 		<UseWindowsForms>true</UseWindowsForms>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<PackageReference Include="ClassIsland.PluginSDK" Version="1.7.106-*" />
 		<PackageReference Include="ClassIsland.Core" Version="1.7.106-*" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<None Update="manifest.yml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -1,33 +1,27 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
-using ClassIsland.Core.Abstractions.Automation;
+﻿using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using SystemTools.Settings;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.SwitchTheme", "切换主题色", "\uF42F",false)]
+[ActionInfo("SystemTools.SwitchTheme", "切换主题色", "\uF42F", false)]
 public class SwitchThemeAction : ActionBase<ThemeSettings>
 {
     private readonly ILogger<SwitchThemeAction> _logger;
-    private readonly string _filePath;
 
     public SwitchThemeAction(ILogger<SwitchThemeAction> logger)
     {
         _logger = logger;
-        var pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
-        _filePath = Path.Combine(pluginDir, "themes.json");
     }
 
     protected override async Task OnInvoke()
     {
         _logger.LogDebug("SwitchThemeAction OnInvoke 开始");
 
-        //var settings = await LoadSettingsAsync();
         if (Settings == null) return;
 
         try
@@ -54,21 +48,4 @@ public class SwitchThemeAction : ActionBase<ThemeSettings>
 
         await base.OnInvoke();
     }
-
-    /*private async Task<ThemeSettings> LoadSettingsAsync()
-    {
-        try
-        {
-            if (File.Exists(_filePath))
-            {
-                var json = await File.ReadAllTextAsync(_filePath);
-                return JsonSerializer.Deserialize<ThemeSettings>(json);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "读取 themes.json 失败");
-        }
-        return null;
-    }*/
 }

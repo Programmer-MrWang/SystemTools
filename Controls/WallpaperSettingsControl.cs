@@ -82,7 +82,7 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
             var result = await topLevel.StorageProvider.OpenFilePickerAsync(options);
             if (result?.Count > 0)
             {
-                Settings.ImagePath = result[0].Path.LocalPath; 
+                Settings.ImagePath = result[0].Path.LocalPath;
             }
         }
         catch (Exception ex)

@@ -1,11 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Threading.Tasks;
-using ClassIsland.Core.Abstractions.Automation;
+﻿using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using SystemTools.Settings;
 
 namespace SystemTools.Actions;
@@ -14,20 +12,15 @@ namespace SystemTools.Actions;
 public class TypeContentAction : ActionBase<TypeContentSettings>
 {
     private readonly ILogger<TypeContentAction> _logger;
-    private readonly string _filePath;
 
     public TypeContentAction(ILogger<TypeContentAction> logger)
     {
         _logger = logger;
-        var pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
-        _filePath = Path.Combine(pluginDir, "type.json");
     }
 
     protected override async Task OnInvoke()
     {
         _logger.LogDebug("OnInvoke 开始");
-
-        //string content = await LoadContentFromFile();
 
         if (string.IsNullOrWhiteSpace(Settings.Content))
         {
@@ -37,12 +30,11 @@ public class TypeContentAction : ActionBase<TypeContentSettings>
 
         try
         {
-            _logger.LogInformation("正在键入内容" );
+            _logger.LogInformation("正在键入内容");
 
             SetClipboardText(Settings.Content);
             await Task.Delay(100);
 
-            // 模拟 Ctrl+V
             keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
             keybd_event(VK_V, 0, 0, UIntPtr.Zero);
@@ -62,24 +54,6 @@ public class TypeContentAction : ActionBase<TypeContentSettings>
         await base.OnInvoke();
         _logger.LogDebug("OnInvoke 完成");
     }
-
-    /*private async Task<string> LoadContentFromFile()
-    {
-        try
-        {
-            if (File.Exists(_filePath))
-            {
-                var json = await File.ReadAllTextAsync(_filePath);
-                var settings = JsonSerializer.Deserialize<TypeContentSettings>(json);
-                return settings?.Content ?? string.Empty;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "读取 type.json 文件失败");
-        }
-        return string.Empty;
-    }*/
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
@@ -131,7 +105,7 @@ public class TypeContentAction : ActionBase<TypeContentSettings>
             var ptr = GlobalLock(hGlobal);
             if (ptr == IntPtr.Zero)
             {
-                GlobalFree(hGlobal); 
+                GlobalFree(hGlobal);
                 throw new Exception($"无法锁定内存，错误码: {Marshal.GetLastWin32Error()}");
             }
 

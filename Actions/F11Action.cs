@@ -1,9 +1,9 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using ClassIsland.Core.Abstractions.Automation;
+﻿using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace SystemTools.Actions;
 
@@ -15,7 +15,7 @@ public class F11Action : ActionBase
     [DllImport("user32.dll", SetLastError = true)]
     private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
-    private const byte VK_ESCAPE = 0x7A;
+    private const byte VK_F11 = 0x7A;
     private const uint KEYEVENTF_KEYUP = 0x0002;
 
     public F11Action(ILogger<F11Action> logger)
@@ -29,9 +29,9 @@ public class F11Action : ActionBase
         {
             _logger.LogInformation("正在模拟按下 F11 键");
 
-            keybd_event(VK_ESCAPE, 0, 0, UIntPtr.Zero);
+            keybd_event(VK_F11, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
-            keybd_event(VK_ESCAPE, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            keybd_event(VK_F11, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
 
             _logger.LogInformation("F11 键已成功发送");
         }

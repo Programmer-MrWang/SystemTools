@@ -19,6 +19,7 @@ public class Plugin : PluginBase
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("模拟操作…", "\uEA0B"));
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("显示设置…", "\uF397"));
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("电源选项…", "\uEDE8"));
+        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("文件操作…", "\uE759"));
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("系统个性化…", "\uF42F"));
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));
 
@@ -26,8 +27,10 @@ public class Plugin : PluginBase
 
         IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"].AddRange([
             new ActionMenuTreeItem("SystemTools.SimulateKeyboard", "模拟键盘", "\uEA0F"),
+            new ActionMenuTreeItem("SystemTools.SimulateMouse", "模拟鼠标", "\uE5C1"),
             new ActionMenuTreeItem("SystemTools.TypeContent", "键入内容", "\uE4BE"),
-            new ActionMenuTreeItem("SystemTools.ClickSimulation", "模拟点击", "\uE5C1")
+            new ActionMenuTreeItem("SystemTools.WindowOperation", "窗口操作", "\uF4B3")
+            //new ActionMenuTreeItem("SystemTools.ClickSimulation", "模拟点击", "\uE5C1")
         ]);
 
             IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"]["常用模拟键"].AddRange([
@@ -52,6 +55,12 @@ public class Plugin : PluginBase
             new ActionMenuTreeItem("SystemTools.LockScreen", "锁定屏幕", "\uEAF0")
         ]);
 
+        IActionService.ActionMenuTree["SystemTools 行动"]["文件操作…"].AddRange([
+            new ActionMenuTreeItem("SystemTools.Copy", "复制", "\uE6AB"),
+            new ActionMenuTreeItem("SystemTools.Move", "移动", "\uE6E7"),
+            new ActionMenuTreeItem("SystemTools.Delete", "删除", "\uE61D")
+        ]);
+
         IActionService.ActionMenuTree["SystemTools 行动"]["系统个性化…"].AddRange([
             new ActionMenuTreeItem("SystemTools.ChangeWallpaper", "切换壁纸", "\uE9BC"),
             new ActionMenuTreeItem("SystemTools.SwitchTheme", "切换主题色", "\uF42F")
@@ -69,8 +78,10 @@ public class Plugin : PluginBase
         services.AddAction<F11Action>();
 
         services.AddAction<SimulateKeyboardAction, SimulateKeyboardSettingsControl>();
+        services.AddAction<SimulateMouseAction, SimulateMouseSettingsControl>();
         services.AddAction<TypeContentAction, TypeContentSettingsControl>();
-        services.AddAction<ClickSimulationAction, ClickSimulationSettingsControl>();
+        services.AddAction<WindowOperationAction, WindowOperationSettingsControl>();
+        //services.AddAction<ClickSimulationAction, ClickSimulationSettingsControl>();
 
         //显示设置…
         services.AddAction<CloneDisplayAction>();
@@ -83,6 +94,11 @@ public class Plugin : PluginBase
         services.AddAction<ShutdownAction, ShutdownSettingsControl>();
         services.AddAction<LockScreenAction>();
         services.AddAction<CancelShutdownAction>();
+
+        //文件操作…
+        services.AddAction<CopyAction, CopySettingsControl>();
+        services.AddAction<MoveAction, MoveSettingsControl>();
+        services.AddAction<DeleteAction, DeleteSettingsControl>();
 
         //系统个性化…
         services.AddAction<ChangeWallpaperAction, ChangeWallpaperSettingsControl>();

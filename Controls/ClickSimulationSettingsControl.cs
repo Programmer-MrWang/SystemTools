@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+﻿/*using Avalonia.Controls;
 using ClassIsland.Core.Abstractions.Controls;
 using System.Threading.Tasks;
 using SystemTools.Settings;
@@ -118,4 +118,4 @@ public class ClickSimulationSettingsControl : ActionSettingsControlBase<ClickSim
             captureForm.Dispose();
         }
     }
-}
+}*/

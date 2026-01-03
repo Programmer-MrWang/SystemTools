@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+﻿/*using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -52,4 +52,4 @@ public class ClickSimulationAction : ActionBase<ClickSimulationSettings>
     [DllImport("user32.dll")] private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
     private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
     private const uint MOUSEEVENTF_LEFTUP = 0x0004;
-}
+}*/

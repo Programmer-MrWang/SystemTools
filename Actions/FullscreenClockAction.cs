@@ -38,9 +38,9 @@ public class FullscreenClockAction : ActionBase
 
             Process.Start(psi);
 
-            _logger.LogInformation("等待1.5秒后发送F11全屏键");
+            _logger.LogInformation("等待3秒后发送F11全屏键");
 
-            await Task.Delay(1500);
+            await Task.Delay(3000);
 
             _logger.LogDebug("发送F11键");
             keybd_event(VK_F11, 0, 0, UIntPtr.Zero);

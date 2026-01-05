@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SystemTools.Actions;
 using SystemTools.Controls;
+using SystemTools.Triggers;
 
 namespace SystemTools;
 
@@ -105,8 +106,11 @@ public class Plugin : PluginBase
         services.AddAction<SwitchThemeAction, ThemeSettingsControl>();
 
         //实用工具…
-        services.AddAction<FullscreenClockAction, FullscreenClockSettingsControl>();    
+        services.AddAction<FullscreenClockAction, FullscreenClockSettingsControl>();
 
 
+
+        //触发器
+        services.AddTrigger<UsbDeviceTrigger, UsbDeviceTriggerSettings>();
     }
 }

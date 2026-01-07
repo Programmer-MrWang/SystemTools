@@ -8,7 +8,7 @@ using SystemTools.Settings;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.SimulateKeyboard", "模拟键盘", "\uE82D", false)]
+[ActionInfo("SystemTools.SimulateKeyboard", "模拟键盘", "\uEA0F", false)]
 public class SimulateKeyboardAction : ActionBase<KeyboardInputSettings>
 {
     private readonly ILogger<SimulateKeyboardAction> _logger;

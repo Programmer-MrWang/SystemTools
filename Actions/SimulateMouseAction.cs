@@ -2,6 +2,8 @@
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SystemTools.Settings;
@@ -30,6 +32,12 @@ public class SimulateMouseAction : ActionBase<MouseInputSettings>
         {
             _logger.LogWarning("没有录制的鼠标操作");
             return;
+        }
+
+        if (Settings.DisableMouseDuringExecution)
+        {
+            await ExecuteBatchFile("jinyongshubiao.bat", "禁用鼠标");
+            await Task.Delay(2000);
         }
 
         try
@@ -133,9 +141,70 @@ public class SimulateMouseAction : ActionBase<MouseInputSettings>
             _logger.LogError(ex, "模拟鼠标失败");
             throw;
         }
+        finally
+        {
+            if (Settings.DisableMouseDuringExecution)
+            {
+                await Task.Delay(1000);
+                await ExecuteBatchFile("huifu.bat", "启用鼠标");
+            }
+        }
 
         await base.OnInvoke();
         _logger.LogDebug("SimulateMouseAction OnInvoke 完成");
+    }
+
+    private async Task ExecuteBatchFile(string batchFileName, string operation)
+    {
+        try
+        {
+            var pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
+            var batchPath = Path.Combine(pluginDir, batchFileName);
+
+            if (!File.Exists(batchPath))
+            {
+                _logger.LogWarning("找不到{Operation}批处理文件: {Path}", operation, batchPath);
+                return;
+            }
+
+            _logger.LogInformation("正在运行{Operation}批处理: {Path}", operation, batchPath);
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = batchPath,
+                WorkingDirectory = pluginDir,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+
+            using var process = Process.Start(psi);
+            if (process == null)
+            {
+                throw new Exception("无法启动批处理进程");
+            }
+
+            string output = await process.StandardOutput.ReadToEndAsync();
+            string error = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            _logger.LogInformation("{Operation}批处理执行完成，退出码: {ExitCode}", operation, process.ExitCode);
+            if (!string.IsNullOrWhiteSpace(output))
+                _logger.LogDebug("批处理输出: {Output}", output);
+            if (!string.IsNullOrWhiteSpace(error))
+                _logger.LogWarning("批处理错误: {Error}", error);
+
+            if (process.ExitCode != 0)
+            {
+                _logger.LogWarning("{Operation}批处理返回非零退出码: {ExitCode}", operation, process.ExitCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "执行{Operation}批处理失败", operation);
+        }
     }
 
     [DllImport("user32.dll")] private static extern bool SetCursorPos(int X, int Y);

@@ -8,7 +8,7 @@ name: SystemTools
 description: 提供适用于Windows的一些行动/触发器 和其他实用工具。
 entranceAssembly: "SystemTools.dll"
 url: https://github.com/Programmer-MrWang/SystemTools
-version: 1.4.0.0
+version: 2.0.0.0
 apiVersion: 2.0.0.0
 author: Programmer-MrWang
 readme: README.md

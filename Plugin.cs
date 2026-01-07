@@ -23,6 +23,7 @@ public class Plugin : PluginBase
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("文件操作…", "\uE759"));
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("系统个性化…", "\uF42F"));
         IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));
+        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实验性功能…", "\uE508"));
 
         IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"].Add(new ActionMenuTreeGroup("常用模拟键", "\uEA0B"));
 
@@ -71,6 +72,11 @@ public class Plugin : PluginBase
             new ActionMenuTreeItem("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2")
         ]);
 
+        IActionService.ActionMenuTree["SystemTools 行动"]["实验性功能…"].AddRange([
+            new ActionMenuTreeItem("SystemTools.DisableMouse", "禁用鼠标", "\uE5C7"),
+            new ActionMenuTreeItem("SystemTools.EnableMouse", "启用鼠标", "\uE5BF")
+        ]);
+
         //模拟操作…
         services.AddAction<EnterKeyAction>();
         services.AddAction<EscAction>();
@@ -108,9 +114,16 @@ public class Plugin : PluginBase
         //实用工具…
         services.AddAction<FullscreenClockAction, FullscreenClockSettingsControl>();
 
+        //实验性功能…
+        services.AddAction<DisableMouseAction, DisableMouseSettingsControl>();
+        services.AddAction<EnableMouseAction>();
 
-
-        //触发器
+        
+        
+        
+        //触发器：USB设备插入时
         services.AddTrigger<UsbDeviceTrigger, UsbDeviceTriggerSettings>();
+        //触发器：按下F9时
+        services.AddTrigger<HotkeyTrigger, HotkeyTriggerSettings>();
     }
 }

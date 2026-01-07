@@ -14,6 +14,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
 {
     private Avalonia.Controls.Button _startButton;
     private Avalonia.Controls.ListBox _actionsListBox;
+    private Avalonia.Controls.CheckBox _disableMouseCheckBox;
     private bool _isRecording;
     private IntPtr _mouseHookId = IntPtr.Zero;
     private IntPtr _keyboardHookId = IntPtr.Zero;
@@ -58,6 +59,17 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         };
         panel.Children.Add(_actionsListBox);
 
+        _disableMouseCheckBox = new Avalonia.Controls.CheckBox
+        {
+            Content = "运行期间禁用鼠标",
+            Margin = new(0, 10, 0, 0)
+        };
+        _disableMouseCheckBox.IsCheckedChanged += (s, e) =>
+        {
+            Settings.DisableMouseDuringExecution = _disableMouseCheckBox.IsChecked ?? false;
+        };
+        panel.Children.Add(_disableMouseCheckBox);
+
         Content = panel;
     }
 
@@ -70,6 +82,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
             _recordedActions.AddRange(Settings.Actions);
             UpdateListBox();
         }
+        _disableMouseCheckBox.IsChecked = Settings.DisableMouseDuringExecution;
     }
 
     private void ToggleRecording()

@@ -12,33 +12,38 @@ namespace SystemTools.Controls;
 
 public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWallpaperSettings>
 {
-    private TextBox _pathBox;
+    private Avalonia.Controls.TextBox _pathBox;
+    private Avalonia.Controls.Button _browseButton;
 
     public ChangeWallpaperSettingsControl()
     {
-        var panel = new StackPanel { Spacing = 10, Margin = new(10) };
+        var panel = new Avalonia.Controls.StackPanel { Spacing = 10, Margin = new(10) };
 
-        panel.Children.Add(new TextBlock
+        panel.Children.Add(new Avalonia.Controls.TextBlock
         {
             Text = "图片路径:",
             FontWeight = Avalonia.Media.FontWeight.Bold
         });
 
-        _pathBox = new TextBox
+        _pathBox = new Avalonia.Controls.TextBox
         {
-            Watermark = "输入路径：路径中不得出现中文字符"
+            Watermark = "请选择壁纸图片文件"
+        };
+        _pathBox.TextChanged += (s, e) =>
+        {
+            Settings.ImagePath = _pathBox.Text ?? "";
         };
         panel.Children.Add(_pathBox);
 
-        var browseButton = new Button
+        _browseButton = new Avalonia.Controls.Button
         {
             Content = "浏览...",
             Width = 100,
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
             Margin = new(0, 5, 0, 0)
         };
-        browseButton.Click += async (sender, e) => await BrowseButton_Click();
-        panel.Children.Add(browseButton);
+        _browseButton.Click += async (sender, e) => await BrowseButton_Click();
+        panel.Children.Add(_browseButton);
 
         Content = panel;
     }
@@ -46,11 +51,9 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _pathBox[!TextBox.TextProperty] = new Binding(nameof(Settings.ImagePath))
-        {
-            Source = Settings
-        };
+        _pathBox.Text = Settings.ImagePath;
     }
+
     private async Task BrowseButton_Click()
     {
         try
@@ -82,7 +85,9 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
             var result = await topLevel.StorageProvider.OpenFilePickerAsync(options);
             if (result?.Count > 0)
             {
-                Settings.ImagePath = result[0].Path.LocalPath;
+                var path = result[0].Path.LocalPath;
+                Settings.ImagePath = path;
+                _pathBox.Text = path;
             }
         }
         catch (Exception ex)

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using ClassIsland.Core.Abstractions.Automation;
+﻿using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using SystemTools.Settings;
 
 namespace SystemTools.Actions;
@@ -22,7 +21,9 @@ public class ChangeWallpaperAction : ActionBase<ChangeWallpaperSettings>
 
     protected override async Task OnInvoke()
     {
-        if (string.IsNullOrWhiteSpace(Settings.ImagePath))
+        _logger.LogDebug("ChangeWallpaperAction OnInvoke 开始");
+
+        if (Settings == null || string.IsNullOrWhiteSpace(Settings.ImagePath))
         {
             _logger.LogWarning("图片路径为空");
             return;
@@ -36,21 +37,13 @@ public class ChangeWallpaperAction : ActionBase<ChangeWallpaperSettings>
 
         try
         {
-            string escapedPath = Settings.ImagePath.Replace("\\", "\\\\");
-            string script = $@"
-Add-Type @'
-using System;
-using System.Runtime.InteropServices;
-public class W{{[DllImport(""user32.dll"", CharSet=CharSet.Auto)]public static extern int SystemParametersInfo(int a, int b, string c, int d);}}
-'@;
-[W]::SystemParametersInfo(20, 0, ""{escapedPath}"", 0x01)".Trim();
-
-            string encodedScript = Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
+            var imagePath = Settings.ImagePath;
+            _logger.LogInformation("正在切换壁纸到: {Path}", imagePath);
 
             var psi = new ProcessStartInfo
             {
                 FileName = "powershell.exe",
-                Arguments = $"-NoProfile -EncodedCommand {encodedScript}",
+                Arguments = $"-NoProfile -Command \"Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class W {{ [DllImport(\\\"user32.dll\\\", CharSet = CharSet.Auto)] public static extern int SystemParametersInfo(int a, int b, string c, int d); }}' -Language CSharp; [W]::SystemParametersInfo(20, 0, '{imagePath.Replace("'", "''")}', 0x01)\"",
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
@@ -59,25 +52,27 @@ public class W{{[DllImport(""user32.dll"", CharSet=CharSet.Auto)]public static e
             };
 
             using var process = Process.Start(psi);
-            if (process != null)
+            if (process == null)
             {
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
-                await process.WaitForExitAsync();
+                throw new Exception("无法启动 PowerShell 进程");
+            }
 
-                if (!string.IsNullOrEmpty(error) && !error.TrimStart().StartsWith("#< CLIXML"))
-                {
-                    _logger.LogWarning("PowerShell 错误: {Error}", error);
-                }
+            string output = await process.StandardOutput.ReadToEndAsync();
+            string error = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
 
-                if (process.ExitCode == 0)
-                    _logger.LogInformation("壁纸切换成功: {Path}", Settings.ImagePath);
-                else
-                    _logger.LogWarning("壁纸切换可能失败，退出码: {ExitCode}", process.ExitCode);
+            if (!string.IsNullOrEmpty(error) && !error.TrimStart().StartsWith("#< CLIXML"))
+            {
+                _logger.LogWarning("PowerShell 错误: {Error}", error);
+            }
+
+            if (process.ExitCode == 0)
+            {
+                _logger.LogInformation("壁纸切换成功: {Path}", imagePath);
             }
             else
             {
-                throw new Exception("无法启动 PowerShell 进程");
+                _logger.LogWarning("壁纸切换可能失败，退出码: {ExitCode}", process.ExitCode);
             }
         }
         catch (Exception ex)
@@ -87,5 +82,6 @@ public class W{{[DllImport(""user32.dll"", CharSet=CharSet.Auto)]public static e
         }
 
         await base.OnInvoke();
+        _logger.LogDebug("ChangeWallpaperAction OnInvoke 完成");
     }
 }

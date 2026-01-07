@@ -7,6 +7,9 @@ public class MouseInputSettings
 {
     [JsonPropertyName("actions")]
     public List<MouseAction> Actions { get; set; } = new();
+
+    [JsonPropertyName("disableMouseDuringExecution")]
+    public bool DisableMouseDuringExecution { get; set; } = false;
 }
 
 public class MouseAction

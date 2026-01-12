@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SystemTools.Actions;
 using SystemTools.Controls;
+//using SystemTools.Rules;
 using SystemTools.Triggers;
 
 namespace SystemTools;
@@ -69,6 +70,7 @@ public class Plugin : PluginBase
         ]);
 
         IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].AddRange([
+            new ActionMenuTreeItem("SystemTools.KillProcess", "退出进程", "\uE0DE"),
             new ActionMenuTreeItem("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2")
         ]);
 
@@ -113,17 +115,23 @@ public class Plugin : PluginBase
 
         //实用工具…
         services.AddAction<FullscreenClockAction, FullscreenClockSettingsControl>();
+        services.AddAction<KillProcessAction, KillProcessSettingsControl>();
 
         //实验性功能…
         services.AddAction<DisableMouseAction, DisableMouseSettingsControl>();
         services.AddAction<EnableMouseAction>();
 
+
         
-        
-        
+
+
         //触发器：USB设备插入时
         services.AddTrigger<UsbDeviceTrigger, UsbDeviceTriggerSettings>();
         //触发器：按下F9时
         services.AddTrigger<HotkeyTrigger, HotkeyTriggerSettings>();
+
+
+        //services.AddRule<ScreenColorRuleSettings, ScreenColorRuleSettingsControl>("SystemTools.ScreenColorRule","屏幕顶部颜色","\uE7C5");
+        //services.AddAction<AdvancedShutdownAction, AdvancedShutdownSettingsControl>();
     }
 }

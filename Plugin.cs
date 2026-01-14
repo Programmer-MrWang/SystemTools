@@ -36,13 +36,13 @@ public class Plugin : PluginBase
             //new ActionMenuTreeItem("SystemTools.ClickSimulation", "模拟点击", "\uE5C1")
         ]);
 
-            IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"]["常用模拟键"].AddRange([
-                new ActionMenuTreeItem("SystemTools.AltF4", "按下 Alt+F4", "\uEA0B"),
-                new ActionMenuTreeItem("SystemTools.AltTab", "按下 Alt+Tab", "\uEA0B"),
-                new ActionMenuTreeItem("SystemTools.EnterKey", "按下 Enter 键", "\uEA0B"),
-                new ActionMenuTreeItem("SystemTools.EscKey", "按下 Esc 键", "\uEA0B"),
-                new ActionMenuTreeItem("SystemTools.F11Key", "按下 F11 键", "\uEA0B")
-            ]);
+        IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"]["常用模拟键"].AddRange([
+            new ActionMenuTreeItem("SystemTools.AltF4", "按下 Alt+F4", "\uEA0B"),
+            new ActionMenuTreeItem("SystemTools.AltTab", "按下 Alt+Tab", "\uEA0B"),
+            new ActionMenuTreeItem("SystemTools.EnterKey", "按下 Enter 键", "\uEA0B"),
+            new ActionMenuTreeItem("SystemTools.EscKey", "按下 Esc 键", "\uEA0B"),
+            new ActionMenuTreeItem("SystemTools.F11Key", "按下 F11 键", "\uEA0B")
+        ]);
 
         IActionService.ActionMenuTree["SystemTools 行动"]["显示设置…"].AddRange([
             new ActionMenuTreeItem("SystemTools.CloneDisplay", "复制屏幕", "\uE635"),
@@ -77,6 +77,10 @@ public class Plugin : PluginBase
         IActionService.ActionMenuTree["SystemTools 行动"]["实验性功能…"].AddRange([
             new ActionMenuTreeItem("SystemTools.DisableMouse", "禁用鼠标", "\uE5C7"),
             new ActionMenuTreeItem("SystemTools.EnableMouse", "启用鼠标", "\uE5BF")
+        ]);
+
+        IActionService.ActionMenuTree["SystemTools 行动"].AddRange([
+            new ActionMenuTreeItem("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7")
         ]);
 
         //模拟操作…
@@ -121,14 +125,16 @@ public class Plugin : PluginBase
         services.AddAction<DisableMouseAction, DisableMouseSettingsControl>();
         services.AddAction<EnableMouseAction>();
 
+        services.AddAction<TriggerCustomTriggerAction, TriggerCustomTriggerSettingsControl>();
 
-        
 
 
         //触发器：USB设备插入时
         services.AddTrigger<UsbDeviceTrigger, UsbDeviceTriggerSettings>();
         //触发器：按下F9时
         services.AddTrigger<HotkeyTrigger, HotkeyTriggerSettings>();
+        //触发器：行动进行时
+        services.AddTrigger<ActionInProgressTrigger, ActionInProgressTriggerSettings>();
 
 
         //services.AddRule<ScreenColorRuleSettings, ScreenColorRuleSettingsControl>("SystemTools.ScreenColorRule","屏幕顶部颜色","\uE7C5");

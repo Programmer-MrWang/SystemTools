@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
-using ClassIsland.Core.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
+using SystemTools.Utils;
 
 namespace SystemTools.Triggers;
 
@@ -22,6 +21,7 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
 
     public override void Loaded()
     {
+        DriveUtils.InitializeDriveRecord(); // 插件加载时初始化盘符记录
         _notificationWindow.Register();
     }
 
@@ -30,13 +30,30 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
         _notificationWindow.Unregister();
     }
 
-    private void OnDeviceArrived(object? sender, EventArgs e)
+    private async void OnDeviceArrived(object? sender, EventArgs e)
     {
         if (DateTime.Now - Settings.LastTriggered < TimeSpan.FromSeconds(1))
             return;
 
-        Settings.LastTriggered = DateTime.Now;
-        Trigger();
+        if (Settings.OnlyUsbStorage)
+        {
+            await Task.Delay(1500);
+
+            var previousDrives = DriveUtils.LoadSavedDrives();
+            var newDrives = DriveUtils.GetNewDrives(previousDrives);
+
+            if (newDrives.Count > 0)
+            {
+                Settings.LastTriggered = DateTime.Now;
+                DriveUtils.SaveDrives(DriveUtils.GetCurrentDrives());
+                Trigger();
+            }
+        }
+        else
+        {
+            Settings.LastTriggered = DateTime.Now;
+            Trigger();
+        }
     }
 
     private class DeviceNotificationWindow : NativeWindow

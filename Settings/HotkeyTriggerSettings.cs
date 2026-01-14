@@ -25,9 +25,10 @@ public class HotkeyTriggerSettings : TriggerSettingsControlBase<HotkeyTriggerCon
 
         panel.Children.Add(new TextBlock
         {
-            Text = "注意：此热键为全局热键，在任何窗口按下F9都会触发。",
+            Text = "警告：该触发器在ClassIsland全局中只能使用一次",
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
-            Foreground = Avalonia.Media.Brushes.Orange
+            Foreground = Avalonia.Media.Brushes.Orange,
+            Margin = new(0, 10, 0, 0)
         });
 
         Content = panel;

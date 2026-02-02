@@ -25,13 +25,6 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
     {
         var panel = new Avalonia.Controls.StackPanel { Spacing = 10, Margin = new(10) };
 
-        panel.Children.Add(new Avalonia.Controls.TextBlock
-        {
-            Text = "模拟键盘输入",
-            FontWeight = Avalonia.Media.FontWeight.Bold,
-            FontSize = 14
-        });
-
         var buttonPanel = new Avalonia.Controls.StackPanel
         {
             Orientation = Avalonia.Layout.Orientation.Horizontal,

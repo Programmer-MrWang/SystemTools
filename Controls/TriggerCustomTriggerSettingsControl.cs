@@ -13,13 +13,6 @@ public class TriggerCustomTriggerSettingsControl : ActionSettingsControlBase<Tri
     {
         var panel = new Avalonia.Controls.StackPanel { Spacing = 10, Margin = new(10) };
 
-        panel.Children.Add(new Avalonia.Controls.TextBlock
-        {
-            Text = "触发指定触发器",
-            FontWeight = Avalonia.Media.FontWeight.Bold,
-            FontSize = 14
-        });
-
         var labelPanel = new Avalonia.Controls.StackPanel
         {
             Orientation = Avalonia.Layout.Orientation.Horizontal,

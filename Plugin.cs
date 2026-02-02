@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SystemTools.Actions;
 using SystemTools.Controls;
-//using SystemTools.Rules;
 using SystemTools.Triggers;
 
 namespace SystemTools;
@@ -70,8 +69,12 @@ public class Plugin : PluginBase
         ]);
 
         IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].AddRange([
+            new ActionMenuTreeItem("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2"),
             new ActionMenuTreeItem("SystemTools.KillProcess", "退出进程", "\uE0DE"),
-            new ActionMenuTreeItem("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2")
+            new ActionMenuTreeItem("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E"),
+            new ActionMenuTreeItem("SystemTools.ScreenShot", "屏幕截图", "\uEEE7"),
+            new ActionMenuTreeItem("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F"),
+            new ActionMenuTreeItem("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD")
         ]);
 
         IActionService.ActionMenuTree["SystemTools 行动"]["实验性功能…"].AddRange([
@@ -79,6 +82,8 @@ public class Plugin : PluginBase
             new ActionMenuTreeItem("SystemTools.EnableMouse", "启用鼠标", "\uE5BF")
         ]);
 
+        
+        
         IActionService.ActionMenuTree["SystemTools 行动"].AddRange([
             new ActionMenuTreeItem("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7")
         ]);
@@ -119,13 +124,21 @@ public class Plugin : PluginBase
 
         //实用工具…
         services.AddAction<FullscreenClockAction, FullscreenClockSettingsControl>();
+        services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
+        services.AddAction<ScreenShotAction, ScreenShotSettingsControl>();
         services.AddAction<KillProcessAction, KillProcessSettingsControl>();
+        services.AddAction<EnableDeviceAction, EnableDeviceSettingsControl>();
+        services.AddAction<DisableDeviceAction, DisableDeviceSettingsControl>();
 
         //实验性功能…
         services.AddAction<DisableMouseAction, DisableMouseSettingsControl>();
         services.AddAction<EnableMouseAction>();
 
+
+        //触发指定触发器
         services.AddAction<TriggerCustomTriggerAction, TriggerCustomTriggerSettingsControl>();
+
+
 
 
 
@@ -138,6 +151,8 @@ public class Plugin : PluginBase
 
 
         //services.AddRule<ScreenColorRuleSettings, ScreenColorRuleSettingsControl>("SystemTools.ScreenColorRule","屏幕顶部颜色","\uE7C5");
-        //services.AddAction<AdvancedShutdownAction, AdvancedShutdownSettingsControl>();
+
+
+        
     }
 }

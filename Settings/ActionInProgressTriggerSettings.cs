@@ -11,13 +11,6 @@ public class ActionInProgressTriggerSettings : TriggerSettingsControlBase<Action
     {
         var panel = new StackPanel { Spacing = 10, Margin = new(10) };
 
-        panel.Children.Add(new TextBlock
-        {
-            Text = "行动进行时触发器",
-            FontWeight = Avalonia.Media.FontWeight.Bold,
-            FontSize = 14
-        });
-
         var inputPanel = new StackPanel
         {
             Orientation = Avalonia.Layout.Orientation.Horizontal,

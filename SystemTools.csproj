@@ -24,6 +24,9 @@
 		<None Update="icon.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="icon-1.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="black.html">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

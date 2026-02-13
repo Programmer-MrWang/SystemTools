@@ -113,10 +113,10 @@
                                 <ci:IconText Glyph="&#xE236;" Text="帮助" />
                             </TabStripItem>
                             <TabStripItem>
-                                <ci:IconText Glyph="&#xE8A5;" Text="插件介绍" />
+                                <ci:IconText Glyph="&#xF19C;" Text="插件介绍" />
                             </TabStripItem>
                             <TabStripItem>
-                                <ci:IconText Glyph="&#xE8BC;" Text="更新日志" />
+                                <ci:IconText Glyph="&#xE163;" Text="更新日志" />
                             </TabStripItem>
                         </TabStrip>
                     </Border>

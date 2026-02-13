@@ -1,0 +1,51 @@
+﻿<ci:SettingsPageBase x:Class="SystemTools.SystemToolsSettingsPage"
+      xmlns="https://github.com/avaloniaui"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:ci="http://classisland.tech/schemas/xaml/core"
+      xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" 
+      d:DesignWidth="800">
+
+    <ScrollViewer>
+        <StackPanel Classes="settings-container animated-intro">
+            <!-- 副标题 -->
+            <Label FontSize="20"
+                   VerticalAlignment="Center"
+                   Foreground="{DynamicResource TextFillColorTertiaryBrush}">
+                SystemTools
+            </Label>
+            
+            <!-- 主标题 -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                <ci:FluentIcon FontSize="56"
+                    Glyph="&#xE078;"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    VerticalAlignment="Center" />
+                <Label VerticalAlignment="Center" FontSize="28">功能 · 主设置</Label>
+            </StackPanel>
+            
+            
+
+            <!-- 实验性功能开关 -->
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE508;}"
+                                       Header="实验性功能"
+                                       IsExpanded="True"
+                                       Description="启用后可以使用实验性功能，不保证其稳定性。">
+                <controls:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableExperimentalFeatures, Mode=TwoWay}" />
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <!-- 底部版权 -->
+            <TextBlock Text="Programmer_Wang ©2026"
+                       Foreground="Gray"
+                       FontSize="12"
+                       HorizontalAlignment="Center"
+                       Margin="0,40,0,0"
+                       Opacity="0.7" />
+        </StackPanel>
+    </ScrollViewer>
+</ci:SettingsPageBase>

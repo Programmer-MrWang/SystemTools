@@ -18,6 +18,9 @@
 		<None Update="manifest.yml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="version.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="README-1.md">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

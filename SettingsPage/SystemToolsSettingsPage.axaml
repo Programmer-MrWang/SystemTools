@@ -11,14 +11,12 @@
 
     <ScrollViewer>
         <StackPanel Classes="settings-container animated-intro">
-            <!-- 副标题 -->
             <Label FontSize="20"
                    VerticalAlignment="Center"
                    Foreground="{DynamicResource TextFillColorTertiaryBrush}">
                 SystemTools
             </Label>
             
-            <!-- 主标题 -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                 <ci:FluentIcon FontSize="56"
                     Glyph="&#xE078;"
@@ -26,8 +24,6 @@
                     VerticalAlignment="Center" />
                 <Label VerticalAlignment="Center" FontSize="28">功能 · 主设置</Label>
             </StackPanel>
-            
-            
 
             <!-- 实验性功能开关 -->
             <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE508;}"
@@ -38,6 +34,42 @@
                     <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableExperimentalFeatures, Mode=TwoWay}" />
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
+
+            <!-- 启用更多功能 -->
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE342;}"
+                                       Header="启用更多功能"
+                                       IsExpanded="True"
+                                       Description="启用更多依赖FFmpeg的更多可选功能">
+
+                <!-- 开关 -->
+                <controls:SettingsExpanderItem Content="启用需要添加依赖的功能">
+                    <controls:SettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFfmpegFeatures, Mode=TwoWay}"
+                                      Click="OnFfmpegToggleClick" />
+                    </controls:SettingsExpanderItem.Footer>
+                </controls:SettingsExpanderItem>
+
+            <!-- 下载按钮 -->
+                <controls:SettingsExpanderItem Content="下载插件所需FFmpeg依赖">
+                    <controls:SettingsExpanderItem.Footer>
+                        <Button Content="点击下载"
+                                Click="OnDownloadFfmpegClick"
+                                IsEnabled="{Binding ViewModel.IsDownloadButtonEnabled}"/>
+                    </controls:SettingsExpanderItem.Footer>
+                </controls:SettingsExpanderItem>
+
+                <!-- 进度显示 -->
+                <StackPanel IsVisible="{Binding ViewModel.ShowDownloadProgress}"
+                            Margin="12,0,12,12"
+                            Spacing="4">
+                    <TextBlock Text="{Binding ViewModel.DownloadStatusText}"
+                               FontSize="12"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    <ProgressBar Value="{Binding ViewModel.DownloadProgress}"
+                                 Maximum="100"
+                                 Height="4"/>
+                </StackPanel>
+                </controls:SettingsExpander>
 
             <!-- 底部版权 -->
             <TextBlock Text="Programmer_Wang ©2026"

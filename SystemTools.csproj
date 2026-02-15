@@ -24,9 +24,6 @@
 		<None Update="README-1.md">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="README-2 - 复制.md">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
 		<None Update="README.md">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
@@ -55,9 +52,6 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="huifu.ps1">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="ffmpeg.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

@@ -61,6 +61,16 @@ public class Plugin : PluginBase
             Console.WriteLine("[SystemTools] 启动完成");
         };
 
+        // ========== 注册 FFmpeg 功能（新增）==========
+        if (GlobalConstants.MainConfig.Data.EnableFfmpegFeatures)
+        {
+            RegisterFfmpegFeatures(services);
+        }
+        else
+        {
+            Console.WriteLine("[SystemTools] FFmpeg功能未启用");
+        }
+
         // ========== 版本检查 ==========
         AppBase.Current.AppStarted += (_, _) =>
         {
@@ -114,6 +124,18 @@ public class Plugin : PluginBase
         services.AddAction<EnableMouseAction>();
     }
 
+    private void RegisterFfmpegFeatures(IServiceCollection services)
+    {
+        Console.WriteLine("[SystemTools] 正在注册 FFmpeg 依赖功能...");
+
+        // FFmpeg 依赖功能
+        services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
+
+        IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].Add(
+            new ActionMenuTreeItem("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E")
+        );
+    }
+
     private void RegisterBaseActions(IServiceCollection services)
     {
         // 模拟操作…
@@ -149,7 +171,7 @@ public class Plugin : PluginBase
         services.AddAction<SwitchThemeAction, ThemeSettingsControl>();
 
         // 实用工具…
-        services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
+        //services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
         services.AddAction<ScreenShotAction, ScreenShotSettingsControl>();
         services.AddAction<KillProcessAction, KillProcessSettingsControl>();
         services.AddAction<EnableDeviceAction, EnableDeviceSettingsControl>();
@@ -237,7 +259,7 @@ public class Plugin : PluginBase
         IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].AddRange([
             new ActionMenuTreeItem("SystemTools.KillProcess", "退出进程", "\uE0DE"),
             new ActionMenuTreeItem("SystemTools.ShowToast", "拉起自定义Windows通知", "\uE3E4"),
-            new ActionMenuTreeItem("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E"),
+            //new ActionMenuTreeItem("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E"),
             new ActionMenuTreeItem("SystemTools.ScreenShot", "屏幕截图", "\uEEE7"),
             new ActionMenuTreeItem("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F"),
             new ActionMenuTreeItem("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD")

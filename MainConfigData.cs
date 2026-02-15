@@ -21,7 +21,22 @@ public class MainConfigData : INotifyPropertyChanged
             if (value == _enableExperimentalFeatures) return;
             _enableExperimentalFeatures = value;
             OnPropertyChanged();
-            RestartPropertyChanged?.Invoke(this, EventArgs.Empty); 
+            RestartPropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    bool _enableFfmpegFeatures;
+
+    [JsonPropertyName("enableFfmpegFeatures")]
+    public bool EnableFfmpegFeatures
+    {
+        get => _enableFfmpegFeatures;
+        set
+        {
+            if (value == _enableFfmpegFeatures) return;
+            _enableFfmpegFeatures = value;
+            OnPropertyChanged();
+            RestartPropertyChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 

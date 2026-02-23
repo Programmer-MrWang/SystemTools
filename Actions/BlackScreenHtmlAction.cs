@@ -22,8 +22,12 @@ public class BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger) : Acti
         try
         {
             string? pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
+            if (string.IsNullOrEmpty(pluginDir))
+            {
+                _logger.LogError("无法获取程序集位置");
+                throw new FileNotFoundException($"无法获取程序集位置");
+            }
             var htmlPath = Path.Combine(pluginDir, "black.html");
-
             if (!File.Exists(htmlPath))
             {
                 _logger.LogError("找不到 black.html 文件: {HtmlPath}", htmlPath);

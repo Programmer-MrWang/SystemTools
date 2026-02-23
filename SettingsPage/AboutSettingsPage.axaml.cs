@@ -149,5 +149,5 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    
+
 }

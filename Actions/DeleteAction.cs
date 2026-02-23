@@ -46,18 +46,27 @@ public class DeleteAction(ILogger<DeleteAction> logger) : ActionBase<DeleteSetti
                     throw new FileNotFoundException("文件不存在", targetPath);
                 }
 
-                psi.Arguments = $"/c del /f \"{targetPath}\"";
-                _logger.LogInformation("执行命令: {Command}", psi.Arguments);
+                //psi.Arguments = $"/c del /f \"{targetPath}\"";
+                //_logger.LogInformation("执行命令: {Command}", psi.Arguments);
 
-                using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
-                await process.WaitForExitAsync();
+                //using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
+                //string output = await process.StandardOutput.ReadToEndAsync();
+                //string error = await process.StandardError.ReadToEndAsync();
+                //await process.WaitForExitAsync();
 
-                if (process.ExitCode != 0)
+                //if (process.ExitCode != 0)
+                //{
+                //    _logger.LogError("删除失败，退出码: {ExitCode}, 错误: {Error}", process.ExitCode, error);
+                //    throw new Exception($"删除失败: {error}");
+                //}
+                try
                 {
-                    _logger.LogError("删除失败，退出码: {ExitCode}, 错误: {Error}", process.ExitCode, error);
-                    throw new Exception($"删除失败: {error}");
+                    await Task.Run(() => File.Delete(targetPath));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "文件移动失败");
+                    throw new Exception($"移动失败: {ex}");
                 }
 
                 _logger.LogInformation("文件删除成功: {Path}", targetPath);

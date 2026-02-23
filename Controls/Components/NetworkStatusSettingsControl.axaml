@@ -1,0 +1,42 @@
+﻿<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.NetworkStatusSettingsControl"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:TypeArguments="settings:NetworkStatusSettings"
+    mc:Ignorable="d">
+    <Grid DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NetworkStatusSettingsControl}}">
+        <ScrollViewer>
+            <StackPanel>
+
+                    <controls:SettingsExpander
+                        Header="延迟检测网址"
+                        Description="要检测的网址（默认 baidu.com）"
+                        IconSource="{ci:FluentIconSource &#xEAB6;}">
+                        <controls:SettingsExpander.Footer>
+                            <TextBox MinWidth="200" 
+                                     Text="{Binding Settings.PingUrl, Mode=TwoWay}" />
+                        </controls:SettingsExpander.Footer>
+                    </controls:SettingsExpander>
+
+                    <controls:SettingsExpander
+                        Header="前缀文本内容"
+                        Description="显示在延迟数值前的前缀文字"
+                        IconSource="{ci:FluentIconSource &#xF171;}">
+                        <controls:SettingsExpander.Footer>
+                            <TextBox MinWidth="150" 
+                                     Text="{Binding Settings.DisplayText, Mode=TwoWay}" />
+                        </controls:SettingsExpander.Footer>
+                    </controls:SettingsExpander>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</ci:ComponentBase>

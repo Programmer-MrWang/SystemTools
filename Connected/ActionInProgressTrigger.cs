@@ -7,6 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Timers;
+using SystemTools.Utils;
 
 namespace SystemTools.Triggers;
 
@@ -22,6 +23,11 @@ public class ActionInProgressTrigger : TriggerBase<ActionInProgressTriggerConfig
         _logger = logger;
 
         var configDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        if (string.IsNullOrEmpty(configDir))
+        {
+            _logger.LogError("无法获取程序运行位置");
+            throw new FileNotFoundException($"无法获取程序运行位置");
+        }
         _autoJsonPath = Path.Combine(configDir, "auto.json");
     }
 

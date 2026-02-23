@@ -11,14 +11,9 @@ namespace SystemTools.Actions;
 /// 仅电脑屏幕
 /// </summary>
 [ActionInfo("SystemTools.InternalDisplay", "仅电脑屏幕", "\uE62F", false)]
-public class InternalDisplayAction : ActionBase
+public class InternalDisplayAction(ILogger<InternalDisplayAction> logger) : ActionBase
 {
-    private readonly ILogger<InternalDisplayAction> _logger;
-
-    public InternalDisplayAction(ILogger<InternalDisplayAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<InternalDisplayAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

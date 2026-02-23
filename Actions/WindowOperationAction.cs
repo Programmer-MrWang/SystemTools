@@ -5,18 +5,14 @@ using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using SystemTools.Settings;
+using Windows.Win32;
 
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.WindowOperation", "窗口操作", "\uF4B3", false)]
-public class WindowOperationAction : ActionBase<WindowOperationSettings>
+public class WindowOperationAction(ILogger<WindowOperationAction> logger) : ActionBase<WindowOperationSettings>
 {
-    private readonly ILogger<WindowOperationAction> _logger;
-
-    public WindowOperationAction(ILogger<WindowOperationAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<WindowOperationAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -24,7 +20,7 @@ public class WindowOperationAction : ActionBase<WindowOperationSettings>
 
         try
         {
-            var hwnd = GetForegroundWindow();
+            var hwnd = PInvoke.GetForegroundWindow();
             if (hwnd == IntPtr.Zero)
             {
                 _logger.LogWarning("未找到活动窗口");
@@ -36,16 +32,16 @@ public class WindowOperationAction : ActionBase<WindowOperationSettings>
             switch (Settings.Operation)
             {
                 case "最大化":
-                    ShowWindow(hwnd, SW_MAXIMIZE);
+                    PInvoke.ShowWindow(hwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_MAXIMIZE);
                     break;
                 case "最小化":
-                    ShowWindow(hwnd, SW_MINIMIZE);
+                    PInvoke.ShowWindow(hwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_MINIMIZE);
                     break;
                 case "向下还原":
-                    ShowWindow(hwnd, SW_RESTORE);
+                    PInvoke.ShowWindow(hwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_RESTORE);
                     break;
                 case "关闭窗口":
-                    PostMessage(hwnd, WM_CLOSE, UIntPtr.Zero, IntPtr.Zero);
+                    PInvoke.PostMessage(hwnd, WM_CLOSE, UIntPtr.Zero, IntPtr.Zero);
                     break;
             }
 
@@ -61,17 +57,17 @@ public class WindowOperationAction : ActionBase<WindowOperationSettings>
         _logger.LogDebug("WindowOperationAction OnInvoke 完成");
     }
 
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetForegroundWindow();
+    //[DllImport("user32.dll")]
+    //private static extern IntPtr GetForegroundWindow();
+    //
+    //[DllImport("user32.dll")]
+    //private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    //
+    //[DllImport("user32.dll")]
+    //private static extern bool PostMessage(IntPtr hWnd, uint msg, UIntPtr wParam, IntPtr lParam);
 
-    [DllImport("user32.dll")]
-    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    [DllImport("user32.dll")]
-    private static extern bool PostMessage(IntPtr hWnd, uint msg, UIntPtr wParam, IntPtr lParam);
-
-    private const int SW_MAXIMIZE = 3;
-    private const int SW_MINIMIZE = 6;
-    private const int SW_RESTORE = 9;
+    //private const int SW_MAXIMIZE = 3;
+    //private const int SW_MINIMIZE = 6;
+    //private const int SW_RESTORE = 9;
     private const uint WM_CLOSE = 0x10;
 }

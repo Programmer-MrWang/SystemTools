@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.Delete", "删除", "\uE61D", false)]
-public class DeleteAction : ActionBase<DeleteSettings>
+public class DeleteAction(ILogger<DeleteAction> logger) : ActionBase<DeleteSettings>
 {
-    private readonly ILogger<DeleteAction> _logger;
-
-    public DeleteAction(ILogger<DeleteAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<DeleteAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -54,9 +49,7 @@ public class DeleteAction : ActionBase<DeleteSettings>
                 psi.Arguments = $"/c del /f \"{targetPath}\"";
                 _logger.LogInformation("执行命令: {Command}", psi.Arguments);
 
-                using var process = Process.Start(psi);
-                if (process == null) throw new Exception("无法启动进程");
-
+                using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
                 string output = await process.StandardOutput.ReadToEndAsync();
                 string error = await process.StandardError.ReadToEndAsync();
                 await process.WaitForExitAsync();
@@ -80,9 +73,7 @@ public class DeleteAction : ActionBase<DeleteSettings>
                 psi.Arguments = $"/c rmdir /s /q \"{targetPath}\"";
                 _logger.LogInformation("执行命令: {Command}", psi.Arguments);
 
-                using var process = Process.Start(psi);
-                if (process == null) throw new Exception("无法启动进程");
-
+                using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
                 string output = await process.StandardOutput.ReadToEndAsync();
                 string error = await process.StandardError.ReadToEndAsync();
                 await process.WaitForExitAsync();

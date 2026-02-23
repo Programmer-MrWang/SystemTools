@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.ChangeWallpaper", "切换壁纸", "\uE9BC", false)]
-public class ChangeWallpaperAction : ActionBase<ChangeWallpaperSettings>
+public class ChangeWallpaperAction(ILogger<ChangeWallpaperAction> logger) : ActionBase<ChangeWallpaperSettings>
 {
-    private readonly ILogger<ChangeWallpaperAction> _logger;
-
-    public ChangeWallpaperAction(ILogger<ChangeWallpaperAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ChangeWallpaperAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -51,12 +46,7 @@ public class ChangeWallpaperAction : ActionBase<ChangeWallpaperSettings>
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            using var process = Process.Start(psi);
-            if (process == null)
-            {
-                throw new Exception("无法启动 PowerShell 进程");
-            }
-
+            using var process = Process.Start(psi) ?? throw new Exception("无法启动 PowerShell 进程");
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();

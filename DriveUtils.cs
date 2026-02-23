@@ -11,31 +11,34 @@ public static class DriveUtils
     private static string GetDriveJsonPath()
     {
         var pluginDir = Path.GetDirectoryName(typeof(DriveUtils).Assembly.Location);
+        if (string.IsNullOrEmpty(pluginDir))
+        {
+            throw new FileNotFoundException($"无法获取DriveUtils程序集位置");
+        }
         return Path.Combine(pluginDir, "drive.json");
     }
 
     public static List<string> GetCurrentDrives()
     {
-        return DriveInfo.GetDrives()
+        return [.. DriveInfo.GetDrives()
             .Where(d => d.IsReady)
-            .Select(d => d.Name.TrimEnd('\\'))
-            .ToList();
+            .Select(d => d.Name.TrimEnd('\\'))];
     }
 
     public static List<string> LoadSavedDrives()
     {
         var path = GetDriveJsonPath();
         if (!File.Exists(path))
-            return new List<string>();
+            return [];
 
         try
         {
             var json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+            return JsonSerializer.Deserialize<List<string>>(json) ?? [];
         }
         catch
         {
-            return new List<string>();
+            return [];
         }
     }
 
@@ -55,6 +58,6 @@ public static class DriveUtils
     public static List<string> GetNewDrives(List<string> previousDrives)
     {
         var currentDrives = GetCurrentDrives();
-        return currentDrives.Except(previousDrives).ToList();
+        return [.. currentDrives.Except(previousDrives)];
     }
 }

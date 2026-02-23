@@ -5,19 +5,15 @@ using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using Windows.Win32;
 
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2", false)]
-public class FullscreenClockAction : ActionBase
+public class FullscreenClockAction(ILogger<FullscreenClockAction> logger) : ActionBase
 {
-    private readonly ILogger<FullscreenClockAction> _logger;
+    private readonly ILogger<FullscreenClockAction> _logger = logger;
     private const string ClockUrl = "https://clock.qqhkx.com/";
-
-    public FullscreenClockAction(ILogger<FullscreenClockAction> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task OnInvoke()
     {
@@ -43,9 +39,9 @@ public class FullscreenClockAction : ActionBase
             await Task.Delay(3000);
 
             _logger.LogDebug("发送F11键");
-            keybd_event(VK_F11, 0, 0, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_F11, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
-            keybd_event(VK_F11, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_F11, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
             _logger.LogInformation("F11全屏键已发送");
         }
@@ -59,9 +55,9 @@ public class FullscreenClockAction : ActionBase
         _logger.LogDebug("FullscreenClockAction OnInvoke 完成");
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
     private const byte VK_F11 = 0x7A;
-    private const uint KEYEVENTF_KEYUP = 0x0002;
+    //private const uint KEYEVENTF_KEYUP = 0x0002;
 }

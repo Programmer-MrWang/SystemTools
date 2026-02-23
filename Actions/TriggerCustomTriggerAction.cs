@@ -11,14 +11,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7", false)]
-public class TriggerCustomTriggerAction : ActionBase<TriggerCustomTriggerSettings>
+public class TriggerCustomTriggerAction(ILogger<TriggerCustomTriggerAction> logger) : ActionBase<TriggerCustomTriggerSettings>
 {
-    private readonly ILogger<TriggerCustomTriggerAction> _logger;
-
-    public TriggerCustomTriggerAction(ILogger<TriggerCustomTriggerAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<TriggerCustomTriggerAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -32,7 +27,12 @@ public class TriggerCustomTriggerAction : ActionBase<TriggerCustomTriggerSetting
 
         try
         {
-            var configDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string? configDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (string.IsNullOrEmpty(configDir))
+            {
+                _logger.LogError("无法获取程序运行位置");
+                throw new FileNotFoundException($"无法获取程序运行位置");
+            }
             var filePath = Path.Combine(configDir, "auto.json");
 
             _logger.LogInformation("正在将触发器ID写入: {Path}", filePath);

@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.Shutdown", "计时关机", "\uE4C4", false)]
-public class ShutdownAction : ActionBase<ShutdownSettings>
+public class ShutdownAction(ILogger<ShutdownAction> logger) : ActionBase<ShutdownSettings>
 {
-    private readonly ILogger<ShutdownAction> _logger;
-
-    public ShutdownAction(ILogger<ShutdownAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ShutdownAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

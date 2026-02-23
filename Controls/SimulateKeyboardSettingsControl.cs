@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using SystemTools.Settings;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace SystemTools.Controls;
 
@@ -15,11 +18,11 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
     private Avalonia.Controls.Button _stopButton;
     private Avalonia.Controls.TextBox _keysTextBox;
     private bool _isRecording;
-    private IntPtr _hookId = IntPtr.Zero;
-    private readonly List<string> _recordedKeys = new();
-    private HookProc _hookProc;
+    private HHOOK _hookId = HHOOK.Null;
+    private readonly List<string> _recordedKeys = [];
+    private HOOKPROC? _hookProc;
 
-    private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+    //private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
     public SimulateKeyboardSettingsControl()
     {
@@ -84,7 +87,7 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
         _keysTextBox.Watermark = "正在录制...";
 
         _hookProc = HookCallback;
-        _hookId = SetHook(_hookProc);
+        _hookId = (HHOOK)SetHook(_hookProc);
     }
 
     private void StopRecording()
@@ -95,21 +98,21 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
         _stopButton.IsVisible = false;
         _keysTextBox.Watermark = "录制的按键将显示在这里";
 
-        UnhookWindowsHookEx(_hookId);
-        _hookId = IntPtr.Zero;
+        PInvoke.UnhookWindowsHookEx(_hookId);
+        _hookId = HHOOK.Null;
         _hookProc = null;
 
-        Settings.Keys = new List<string>(_recordedKeys);
+        Settings.Keys = [.. _recordedKeys];
     }
 
-    private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    private LRESULT HookCallback(int nCode, WPARAM wParam, LPARAM lParam)
     {
         if (nCode >= 0 && _isRecording)
         {
             var hookStruct = Marshal.PtrToStructure<Kbdllhookstruct>(lParam);
             var keyCode = hookStruct.VkCode;
 
-            if (wParam == (IntPtr)0x100)
+            if (wParam == 0x100)
             {
                 var keyName = ((System.Windows.Forms.Keys)keyCode).ToString();
                 _recordedKeys.Add($"{keyCode}:{keyName}");
@@ -121,7 +124,7 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
             }
         }
 
-        return CallNextHookEx(_hookId, nCode, wParam, lParam);
+        return PInvoke.CallNextHookEx(_hookId, nCode, wParam, lParam);
     }
 
     private void UpdateTextBox()
@@ -138,28 +141,26 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
         _keysTextBox.Text = sb.ToString().Trim();
     }
 
-    private IntPtr SetHook(HookProc proc)
+    private IntPtr SetHook(HOOKPROC proc)
     {
-        using (var curProcess = System.Diagnostics.Process.GetCurrentProcess())
-        using (var curModule = curProcess.MainModule)
-        {
-            return SetWindowsHookEx(13, proc, GetModuleHandle(curModule.ModuleName), 0);
-        }
+        using var curProcess = System.Diagnostics.Process.GetCurrentProcess();
+        using var curModule = curProcess.MainModule;
+        return PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, proc, PInvoke.GetModuleHandle(curModule?.ModuleName), 0).DangerousGetHandle();
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern IntPtr SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
+    //
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern bool UnhookWindowsHookEx(IntPtr hHook);
+    //
+    //[DllImport("user32.dll")]
+    //private static extern IntPtr CallNextHookEx(IntPtr hHook, int nCode, IntPtr wParam, IntPtr lParam);
+    //
+    //[DllImport("kernel32.dll")]
+    //private static extern IntPtr GetModuleHandle(string lpModuleName);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool UnhookWindowsHookEx(IntPtr hHook);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr CallNextHookEx(IntPtr hHook, int nCode, IntPtr wParam, IntPtr lParam);
-
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr GetModuleHandle(string lpModuleName);
-
-    private const int WH_KEYBOARD_LL = 13;
+    //private const int WH_KEYBOARD_LL = 13;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct Kbdllhookstruct

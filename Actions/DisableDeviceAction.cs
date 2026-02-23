@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F",false)]
-public class DisableDeviceAction : ActionBase<DisableDeviceSettings>
+public class DisableDeviceAction(ILogger<DisableDeviceAction> logger) : ActionBase<DisableDeviceSettings>
 {
-    private readonly ILogger<DisableDeviceAction> _logger;
-
-    public DisableDeviceAction(ILogger<DisableDeviceAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<DisableDeviceAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

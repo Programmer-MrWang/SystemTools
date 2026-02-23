@@ -7,6 +7,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using SystemTools.Settings;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace SystemTools.Controls;
 
@@ -16,9 +19,9 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
     private Avalonia.Controls.ListBox _actionsListBox;
     private Avalonia.Controls.CheckBox _disableMouseCheckBox;
     private bool _isRecording;
-    private IntPtr _mouseHookId = IntPtr.Zero;
-    private IntPtr _keyboardHookId = IntPtr.Zero;
-    private readonly List<MouseAction> _recordedActions = new();
+    private HHOOK _mouseHookId = HHOOK.Null;
+    private HHOOK _keyboardHookId = HHOOK.Null;
+    private readonly List<MouseAction> _recordedActions = [];
     private readonly Stopwatch _stopwatch = new();
     private long _lastActionTime = 0;
     private bool _isDragging = false;
@@ -26,10 +29,10 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
     private int _dragStartY = 0;
     private MouseAction? _lastDragAction = null;
 
-    private HookProc? _mouseHookProc;
-    private HookProc? _keyboardHookProc;
+    private HOOKPROC? _mouseHookProc;
+    private HOOKPROC? _keyboardHookProc;
 
-    private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+    //private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
     public SimulateMouseSettingsControl()
     {
@@ -108,44 +111,40 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         _mouseHookProc = MouseHookCallback;
         _keyboardHookProc = KeyboardHookCallback;
 
-        var moduleHandle = GetModuleHandle(System.Diagnostics.Process.GetCurrentProcess().MainModule?.ModuleName ?? "");
-        _mouseHookId = SetWindowsHookEx(14, _mouseHookProc, moduleHandle, 0);
-        _keyboardHookId = SetWindowsHookEx(13, _keyboardHookProc, moduleHandle, 0);
+        var moduleHandle = PInvoke.GetModuleHandle(Process.GetCurrentProcess().MainModule?.ModuleName ?? "");
+        _mouseHookId = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_MOUSE_LL, _mouseHookProc, (HINSTANCE)moduleHandle.DangerousGetHandle(), 0);
+        _keyboardHookId = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, _keyboardHookProc, (HINSTANCE)moduleHandle.DangerousGetHandle(), 0);
     }
 
     private void StopRecording()
     {
         _isRecording = false;
         _stopwatch.Stop();
-
-        if (_lastDragAction != null)
-        {
-            _lastDragAction.IsDragEnd = true;
-            _lastDragAction = null;
-        }
+        _lastDragAction?.IsDragEnd = true;
+        _lastDragAction = null;
 
         _startButton.Content = "开始录制鼠标行为";
         _startButton.IsEnabled = true;
 
         if (_mouseHookId != IntPtr.Zero)
         {
-            UnhookWindowsHookEx(_mouseHookId);
-            _mouseHookId = IntPtr.Zero;
+            PInvoke.UnhookWindowsHookEx(_mouseHookId);
+            _mouseHookId = HHOOK.Null;
         }
 
         if (_keyboardHookId != IntPtr.Zero)
         {
-            UnhookWindowsHookEx(_keyboardHookId);
-            _keyboardHookId = IntPtr.Zero;
+            PInvoke.UnhookWindowsHookEx(_keyboardHookId);
+            _keyboardHookId = HHOOK.Null;
         }
 
         _mouseHookProc = null;
         _keyboardHookProc = null;
 
-        Settings.Actions = new List<MouseAction>(_recordedActions);
+        Settings.Actions = [.. _recordedActions];
     }
 
-    private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    private LRESULT MouseHookCallback(int nCode, WPARAM wParam, LPARAM lParam)
     {
         if (nCode >= 0 && _isRecording)
         {
@@ -159,11 +158,8 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
                     _isDragging = true;
                     _dragStartX = hookStruct.Pt.X;
                     _dragStartY = hookStruct.Pt.Y;
-                    if (_lastDragAction != null)
-                    {
-                        _lastDragAction.IsDragEnd = true;
-                        _lastDragAction = null;
-                    }
+                    _lastDragAction?.IsDragEnd = true;
+                    _lastDragAction = null;
                     break;
 
                 case WM_LBUTTONUP:
@@ -207,21 +203,21 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
             }
         }
 
-        return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+        return PInvoke.CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
     }
 
-    private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    private LRESULT KeyboardHookCallback(int nCode, WPARAM wParam, LPARAM lParam)
     {
         if (nCode >= 0 && _isRecording)
         {
             var hookStruct = Marshal.PtrToStructure<Kbdllhookstruct>(lParam);
-            if (hookStruct.VkCode == 27 && wParam == (IntPtr)0x100)
+            if (hookStruct.VkCode == 27 && wParam == 0x100)
             {
                 Dispatcher.UIThread.Post(() => StopRecording());
             }
         }
 
-        return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
+        return PInvoke.CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
     }
 
     private MouseAction AddAction(MouseAction.ActionType type, int x, int y, int scrollDelta, long interval)
@@ -285,17 +281,17 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         _actionsListBox.ItemsSource = items;
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool UnhookWindowsHookEx(IntPtr hHook);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr CallNextHookEx(IntPtr hHook, int nCode, IntPtr wParam, IntPtr lParam);
-
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr GetModuleHandle(string lpModuleName);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern IntPtr SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
+    //
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern bool UnhookWindowsHookEx(IntPtr hHook);
+    //
+    //[DllImport("user32.dll")]
+    //private static extern IntPtr CallNextHookEx(IntPtr hHook, int nCode, IntPtr wParam, IntPtr lParam);
+    //
+    //[DllImport("kernel32.dll")]
+    //private static extern IntPtr GetModuleHandle(string lpModuleName);
 
     private const int WH_MOUSE_LL = 14;
     private const int WH_KEYBOARD_LL = 13;

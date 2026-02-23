@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.Copy", "复制", "\uE6AB", false)]
-public class CopyAction : ActionBase<CopySettings>
+public class CopyAction(ILogger<CopyAction> logger) : ActionBase<CopySettings>
 {
-    private readonly ILogger<CopyAction> _logger;
-
-    public CopyAction(ILogger<CopyAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<CopyAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -67,9 +62,7 @@ public class CopyAction : ActionBase<CopySettings>
                 psi.Arguments = $"/c copy \"{sourcePath}\" \"{destPath}\" /y";
                 _logger.LogInformation("执行命令: {Command}", psi.Arguments);
 
-                using var process = Process.Start(psi);
-                if (process == null) throw new Exception("无法启动进程");
-
+                using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
                 string output = await process.StandardOutput.ReadToEndAsync();
                 string error = await process.StandardError.ReadToEndAsync();
                 await process.WaitForExitAsync();
@@ -107,9 +100,7 @@ public class CopyAction : ActionBase<CopySettings>
                 psi.Arguments = $"\"{sourcePath}\" \"{finalDestPath}\" /e /copyall /r:3 /w:3 /mt:4 /nfl /ndl /np";
                 _logger.LogInformation("执行命令: robocopy \"{Source}\" \"{Destination}\"", sourcePath, finalDestPath);
 
-                using var process = Process.Start(psi);
-                if (process == null) throw new Exception("无法启动进程");
-
+                using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
                 string output = await process.StandardOutput.ReadToEndAsync();
                 string error = await process.StandardError.ReadToEndAsync();
                 await process.WaitForExitAsync();

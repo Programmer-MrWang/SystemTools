@@ -9,14 +9,9 @@ using Microsoft.Extensions.Logging;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.DisableMouse", "禁用鼠标", "\uE5C7", false)]
-public class DisableMouseAction : ActionBase
+public class DisableMouseAction(ILogger<DisableMouseAction> logger) : ActionBase
 {
-    private readonly ILogger<DisableMouseAction> _logger;
-
-    public DisableMouseAction(ILogger<DisableMouseAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<DisableMouseAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -24,7 +19,12 @@ public class DisableMouseAction : ActionBase
 
         try
         {
-            var pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
+            string? pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
+            if (string.IsNullOrEmpty(pluginDir))
+            {
+                _logger.LogError("无法获取程序集位置");
+                throw new FileNotFoundException($"无法获取程序集位置");
+            }
             var batchPath = Path.Combine(pluginDir, "jinyongshubiao.bat");
 
             if (!File.Exists(batchPath))
@@ -46,12 +46,7 @@ public class DisableMouseAction : ActionBase
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            using var process = Process.Start(psi);
-            if (process == null)
-            {
-                throw new Exception("无法启动批处理进程");
-            }
-
+            using var process = Process.Start(psi) ?? throw new Exception("无法启动批处理进程");
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();

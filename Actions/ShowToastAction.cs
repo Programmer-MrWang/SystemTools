@@ -9,14 +9,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.ShowToast", "拉起自定义Windows通知", "\uE3E4", false)]
-public class ShowToastAction : ActionBase<ShowToastSettings>
+public class ShowToastAction(ILogger<ShowToastAction> logger) : ActionBase<ShowToastSettings>
 {
-    private readonly ILogger<ShowToastAction> _logger;
-
-    public ShowToastAction(ILogger<ShowToastAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ShowToastAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

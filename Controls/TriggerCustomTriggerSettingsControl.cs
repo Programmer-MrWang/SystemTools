@@ -47,7 +47,7 @@ public class TriggerCustomTriggerSettingsControl : ActionSettingsControlBase<Tri
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _triggerIdTextBox[!Avalonia.Controls.TextBox.TextProperty] = new Binding(nameof(Settings.TriggerId))
+        _triggerIdTextBox[!TextBox.TextProperty] = new Binding(nameof(Settings.TriggerId))
         {
             Source = Settings
         };

@@ -8,14 +8,9 @@ using System.Threading.Tasks;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.CancelShutdown", "取消关机计划", "\uE4CC", false)]
-public class CancelShutdownAction : ActionBase
+public class CancelShutdownAction(ILogger<CancelShutdownAction> logger) : ActionBase
 {
-    private readonly ILogger<CancelShutdownAction> _logger;
-
-    public CancelShutdownAction(ILogger<CancelShutdownAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<CancelShutdownAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

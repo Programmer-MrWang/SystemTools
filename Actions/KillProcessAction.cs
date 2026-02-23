@@ -9,14 +9,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.KillProcess", "退出进程", "\uE0DE", false)]
-public class KillProcessAction : ActionBase<KillProcessSettings>
+public class KillProcessAction(ILogger<KillProcessAction> logger) : ActionBase<KillProcessSettings>
 {
-    private readonly ILogger<KillProcessAction> _logger;
-
-    public KillProcessAction(ILogger<KillProcessAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<KillProcessAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -49,9 +44,7 @@ public class KillProcessAction : ActionBase<KillProcessSettings>
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            using var process = Process.Start(psi);
-            if (process == null) throw new Exception("无法启动 taskkill 进程");
-
+            using var process = Process.Start(psi) ?? throw new Exception("无法启动 taskkill 进程");
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();

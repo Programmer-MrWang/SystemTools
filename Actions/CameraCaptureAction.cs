@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E",false)]
-public class CameraCaptureAction : ActionBase<CameraCaptureSettings>
+public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBase<CameraCaptureSettings>
 {
-    private readonly ILogger<CameraCaptureAction> _logger;
-
-    public CameraCaptureAction(ILogger<CameraCaptureAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<CameraCaptureAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -37,7 +32,7 @@ public class CameraCaptureAction : ActionBase<CameraCaptureSettings>
 
         try
         {
-            string outputDir = Path.GetDirectoryName(Settings.SavePath);
+            string? outputDir = Path.GetDirectoryName(Settings.SavePath);
             if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
             {
                 _logger.LogInformation("创建输出目录: {Dir}", outputDir);
@@ -51,7 +46,7 @@ public class CameraCaptureAction : ActionBase<CameraCaptureSettings>
                 catch (Exception ex) { _logger.LogWarning(ex, "删除旧文件失败"); }
             }
 
-            string pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
+            string? pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
             string ffmpegPath = Path.Combine(pluginDir ?? AppDomain.CurrentDomain.BaseDirectory, "ffmpeg.exe");
 
             if (!File.Exists(ffmpegPath))

@@ -12,14 +12,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.ScreenShot", "屏幕截图", "\uEEE7",false)]
-public class ScreenShotAction : ActionBase<ScreenShotSettings>
+public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<ScreenShotSettings>
 {
-    private readonly ILogger<ScreenShotAction> _logger;
-
-    public ScreenShotAction(ILogger<ScreenShotAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ScreenShotAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {
@@ -34,7 +29,7 @@ public class ScreenShotAction : ActionBase<ScreenShotSettings>
         try
         {
             string path = Settings.SavePath;
-            string directory = Path.GetDirectoryName(path);
+            string? directory = Path.GetDirectoryName(path);
 
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
@@ -48,7 +43,7 @@ public class ScreenShotAction : ActionBase<ScreenShotSettings>
                 return;
             }
 
-            using (Bitmap bitmap = new Bitmap(screen.Bounds.Width, screen.Bounds.Height))
+            using (Bitmap bitmap = new(screen.Bounds.Width, screen.Bounds.Height))
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.CopyFromScreen(screen.Bounds.X, screen.Bounds.Y, 0, 0, screen.Bounds.Size);

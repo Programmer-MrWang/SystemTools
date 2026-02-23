@@ -20,7 +20,7 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
     private bool _isRecording;
     private HHOOK _hookId = HHOOK.Null;
     private readonly List<string> _recordedKeys = [];
-    private HOOKPROC _hookProc;
+    private HOOKPROC? _hookProc;
 
     //private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -145,7 +145,7 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
     {
         using var curProcess = System.Diagnostics.Process.GetCurrentProcess();
         using var curModule = curProcess.MainModule;
-        return PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, proc, PInvoke.GetModuleHandle(curModule.ModuleName), 0).DangerousGetHandle();
+        return PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, proc, PInvoke.GetModuleHandle(curModule?.ModuleName), 0).DangerousGetHandle();
     }
 
     //[DllImport("user32.dll", SetLastError = true)]

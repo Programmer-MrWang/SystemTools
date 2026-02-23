@@ -29,7 +29,7 @@ public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<Scr
         try
         {
             string path = Settings.SavePath;
-            string directory = Path.GetDirectoryName(path);
+            string? directory = Path.GetDirectoryName(path);
 
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
@@ -43,7 +43,7 @@ public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<Scr
                 return;
             }
 
-            using (Bitmap bitmap = new Bitmap(screen.Bounds.Width, screen.Bounds.Height))
+            using (Bitmap bitmap = new(screen.Bounds.Width, screen.Bounds.Height))
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.CopyFromScreen(screen.Bounds.X, screen.Bounds.Y, 0, 0, screen.Bounds.Size);

@@ -154,7 +154,12 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
     {
         try
         {
-            var pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
+            string? pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
+            if (string.IsNullOrEmpty(pluginDir))
+            {
+                _logger.LogError("无法获取程序集位置");
+                throw new FileNotFoundException($"无法获取程序集位置");
+            }
             var batchPath = Path.Combine(pluginDir, batchFileName);
 
             if (!File.Exists(batchPath))
@@ -176,12 +181,7 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            using var process = Process.Start(psi);
-            if (process == null)
-            {
-                throw new Exception("无法启动批处理进程");
-            }
-
+            using var process = Process.Start(psi) ?? throw new Exception("无法启动批处理进程");
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();

@@ -27,7 +27,12 @@ public class TriggerCustomTriggerAction(ILogger<TriggerCustomTriggerAction> logg
 
         try
         {
-            var configDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string? configDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (string.IsNullOrEmpty(configDir))
+            {
+                _logger.LogError("无法获取程序运行位置");
+                throw new FileNotFoundException($"无法获取程序运行位置");
+            }
             var filePath = Path.Combine(configDir, "auto.json");
 
             _logger.LogInformation("正在将触发器ID写入: {Path}", filePath);

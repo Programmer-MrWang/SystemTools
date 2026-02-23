@@ -44,9 +44,7 @@ public class KillProcessAction(ILogger<KillProcessAction> logger) : ActionBase<K
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            using var process = Process.Start(psi);
-            if (process == null) throw new Exception("无法启动 taskkill 进程");
-
+            using var process = Process.Start(psi) ?? throw new Exception("无法启动 taskkill 进程");
             string output = await process.StandardOutput.ReadToEndAsync();
             string error = await process.StandardError.ReadToEndAsync();
             await process.WaitForExitAsync();

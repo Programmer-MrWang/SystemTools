@@ -49,9 +49,7 @@ public class DeleteAction(ILogger<DeleteAction> logger) : ActionBase<DeleteSetti
                 psi.Arguments = $"/c del /f \"{targetPath}\"";
                 _logger.LogInformation("执行命令: {Command}", psi.Arguments);
 
-                using var process = Process.Start(psi);
-                if (process == null) throw new Exception("无法启动进程");
-
+                using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
                 string output = await process.StandardOutput.ReadToEndAsync();
                 string error = await process.StandardError.ReadToEndAsync();
                 await process.WaitForExitAsync();
@@ -75,9 +73,7 @@ public class DeleteAction(ILogger<DeleteAction> logger) : ActionBase<DeleteSetti
                 psi.Arguments = $"/c rmdir /s /q \"{targetPath}\"";
                 _logger.LogInformation("执行命令: {Command}", psi.Arguments);
 
-                using var process = Process.Start(psi);
-                if (process == null) throw new Exception("无法启动进程");
-
+                using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
                 string output = await process.StandardOutput.ReadToEndAsync();
                 string error = await process.StandardError.ReadToEndAsync();
                 await process.WaitForExitAsync();

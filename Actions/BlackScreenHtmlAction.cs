@@ -1,11 +1,12 @@
-﻿using System;
+﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Attributes;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using ClassIsland.Core.Abstractions.Automation;
-using ClassIsland.Core.Attributes;
-using Microsoft.Extensions.Logging;
+using Windows.Win32;
 
 namespace SystemTools.Actions;
 
@@ -25,7 +26,7 @@ public class BlackScreenHtmlAction : ActionBase
 
         try
         {
-            var pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
+            string? pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
             var htmlPath = Path.Combine(pluginDir, "black.html");
 
             if (!File.Exists(htmlPath))
@@ -56,9 +57,9 @@ public class BlackScreenHtmlAction : ActionBase
             _logger.LogInformation("正在发送F11全屏键");
 
             //模拟F11按键
-            keybd_event(VK_F11, 0, 0, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_F11, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
-            keybd_event(VK_F11, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_F11, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
             _logger.LogInformation("F11键已发送");
         }
@@ -72,9 +73,9 @@ public class BlackScreenHtmlAction : ActionBase
         _logger.LogDebug("BlackScreenHtmlAction OnInvoke 完成");
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
     private const byte VK_F11 = 0x7A;
-    private const uint KEYEVENTF_KEYUP = 0x0002;
+    //private const uint KEYEVENTF_KEYUP = 0x0002;
 }

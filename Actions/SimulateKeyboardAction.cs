@@ -5,6 +5,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using Windows.Win32;
 
 namespace SystemTools.Actions;
 
@@ -38,9 +39,9 @@ public class SimulateKeyboardAction : ActionBase<KeyboardInputSettings>
             {
                 if (byte.TryParse(Settings.Keys[i].Split(':')[0], out byte keyCode))
                 {
-                    keybd_event(keyCode, 0, 0, UIntPtr.Zero);
+                    PInvoke.keybd_event(keyCode, 0, 0, UIntPtr.Zero);
                     await Task.Delay(KEY_PRESS_DELAY);
-                    keybd_event(keyCode, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    PInvoke.keybd_event(keyCode, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
                     if (i < Settings.Keys.Count - 1)
                     {
@@ -61,8 +62,8 @@ public class SimulateKeyboardAction : ActionBase<KeyboardInputSettings>
         _logger.LogDebug("SimulateKeyboardAction OnInvoke 完成");
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
-    private const uint KEYEVENTF_KEYUP = 0x0002;
+    //private const uint KEYEVENTF_KEYUP = 0x0002;
 }

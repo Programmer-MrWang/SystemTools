@@ -1,9 +1,10 @@
-﻿using System;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using ClassIsland.Core.Abstractions.Automation;
+﻿using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using Windows.Win32;
 
 namespace SystemTools.Actions;
 
@@ -12,11 +13,11 @@ public class EscAction : ActionBase
 {
     private readonly ILogger<EscAction> _logger;
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
     private const byte VK_ESCAPE = 0x1B;
-    private const uint KEYEVENTF_KEYUP = 0x0002;
+    //private const uint KEYEVENTF_KEYUP = 0x0002;
 
     public EscAction(ILogger<EscAction> logger)
     {
@@ -29,9 +30,9 @@ public class EscAction : ActionBase
         {
             _logger.LogInformation("正在模拟按下 Esc 键");
 
-            keybd_event(VK_ESCAPE, 0, 0, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_ESCAPE, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
-            keybd_event(VK_ESCAPE, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_ESCAPE, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
             _logger.LogInformation("Esc 键已成功发送");
         }

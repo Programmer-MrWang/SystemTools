@@ -22,14 +22,14 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
         panel.Children.Add(new TextBlock
         {
             Text = "退出进程",
-            FontWeight = Avalonia.Media.FontWeight.Bold,
+            FontWeight = FontWeight.Bold,
             FontSize = 14
         });
 
         panel.Children.Add(new TextBlock
         {
             Text = "进程名:",
-            FontWeight = Avalonia.Media.FontWeight.Bold,
+            FontWeight = FontWeight.Bold,
             Margin = new(0, 5, 0, 0)
         });
 
@@ -68,7 +68,7 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
         {
             Content = "查看正在运行的进程",
             Width = 200,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
+            HorizontalAlignment = HorizontalAlignment.Left,
             Margin = new(0, 10, 0, 0)
         };
         _viewProcessesButton.Click += async (s, e) => await ShowProcessList();
@@ -142,13 +142,13 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
                         new TextBlock
                         {
                             Text = message,
-                            TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                            TextWrapping = TextWrapping.Wrap
                         },
                         new Button
                         {
                             Content = "确定",
                             Width = 100,
-                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center
+                            HorizontalAlignment = HorizontalAlignment.Center
                         }
                     }
                 }
@@ -171,7 +171,7 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
         {
             Text = processList,
             IsReadOnly = true,
-            TextWrapping = Avalonia.Media.TextWrapping.NoWrap,
+            TextWrapping = TextWrapping.NoWrap,
             FontFamily = new Avalonia.Media.FontFamily("Consolas, monospace"),
             FontSize = 12
         };
@@ -184,7 +184,7 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
         {
             Content = "复制全部",
             Width = 100,
-            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left,
+            HorizontalAlignment = HorizontalAlignment.Left,
             Margin = new(10)
         };
         copyButton.Click += async (s, e) =>
@@ -196,7 +196,7 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
         };
 
         var dockPanel = new DockPanel();
-        DockPanel.SetDock(copyButton, Avalonia.Controls.Dock.Top);
+        DockPanel.SetDock(copyButton, Dock.Top);
         dockPanel.Children.Add(copyButton);
         dockPanel.Children.Add(textBox);
 

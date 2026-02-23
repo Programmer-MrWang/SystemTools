@@ -8,6 +8,8 @@ using ClassIsland.Core.Attributes;
 using ClassIsland.Core.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
+using Windows.Win32;
+using Windows.Win32.Foundation;
 
 namespace SystemTools.Triggers;
 
@@ -66,7 +68,7 @@ public class HotkeyTrigger : TriggerBase<HotkeyTriggerConfig>
         {
             CreateHandle(new CreateParams());
 
-            if (!RegisterHotKey(Handle, HOTKEY_ID, 0, VK_F9))
+            if (!PInvoke.RegisterHotKey(new HWND(Handle), HOTKEY_ID, 0, VK_F9))
             {
                 var error = Marshal.GetLastWin32Error();
                 if (error != 0)
@@ -78,7 +80,7 @@ public class HotkeyTrigger : TriggerBase<HotkeyTriggerConfig>
 
         public void UnregisterHotkey()
         {
-            UnregisterHotKey(Handle, HOTKEY_ID);
+            PInvoke.UnregisterHotKey(new HWND(Handle), HOTKEY_ID);
             DestroyHandle();
         }
 
@@ -92,10 +94,10 @@ public class HotkeyTrigger : TriggerBase<HotkeyTriggerConfig>
             base.WndProc(ref m);
         }
 
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+        //[DllImport("user32.dll", SetLastError = true)]
+        //private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+        //
+        //[DllImport("user32.dll", SetLastError = true)]
+        //private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
     }
 }

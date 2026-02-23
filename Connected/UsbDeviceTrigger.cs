@@ -4,10 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
-using Microsoft.Win32.SafeHandles;
 using SystemTools.Utils;
-using Windows.Win32;
-using Windows.Win32.Foundation;
 
 namespace SystemTools.Triggers;
 
@@ -84,10 +81,8 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
 
             var ptr = Marshal.AllocHGlobal(dbi.dbcc_size);
             Marshal.StructureToPtr(dbi, ptr, false);
-            unsafe
-            {
-                _notificationHandle = PInvoke.RegisterDeviceNotification(new SafeProcessHandle(Handle, true), (void*)ptr, 0).DangerousGetHandle();
-            }
+
+            _notificationHandle = RegisterDeviceNotification(Handle, ptr, 0);
             Marshal.FreeHGlobal(ptr);
 
             if (_notificationHandle == IntPtr.Zero)
@@ -98,7 +93,7 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
         {
             if (_notificationHandle != IntPtr.Zero)
             {
-                PInvoke.UnregisterDeviceNotification((Windows.Win32.UI.WindowsAndMessaging.HDEVNOTIFY)_notificationHandle);
+                UnregisterDeviceNotification(_notificationHandle);
                 _notificationHandle = IntPtr.Zero;
             }
 
@@ -119,11 +114,11 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
             base.WndProc(ref m);
         }
 
-        //[DllImport("user32.dll", SetLastError = true)]
-        //private static extern IntPtr RegisterDeviceNotification(IntPtr hRecipient, IntPtr notificationFilter, uint flags);
-        //
-        //[DllImport("user32.dll", SetLastError = true)]
-        //private static extern bool UnregisterDeviceNotification(IntPtr handle);
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr RegisterDeviceNotification(IntPtr hRecipient, IntPtr notificationFilter, uint flags);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool UnregisterDeviceNotification(IntPtr handle);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct DEV_BROADCAST_HDR

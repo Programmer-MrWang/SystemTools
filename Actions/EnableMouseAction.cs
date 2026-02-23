@@ -9,14 +9,9 @@ using Microsoft.Extensions.Logging;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.EnableMouse", "启用鼠标", "\uE5BF", false)]
-public class EnableMouseAction : ActionBase
+public class EnableMouseAction(ILogger<EnableMouseAction> logger) : ActionBase
 {
-    private readonly ILogger<EnableMouseAction> _logger;
-
-    public EnableMouseAction(ILogger<EnableMouseAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<EnableMouseAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

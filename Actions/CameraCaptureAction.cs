@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E",false)]
-public class CameraCaptureAction : ActionBase<CameraCaptureSettings>
+public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBase<CameraCaptureSettings>
 {
-    private readonly ILogger<CameraCaptureAction> _logger;
-
-    public CameraCaptureAction(ILogger<CameraCaptureAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<CameraCaptureAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

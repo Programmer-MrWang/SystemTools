@@ -9,14 +9,9 @@ using Microsoft.Extensions.Logging;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.DisableMouse", "禁用鼠标", "\uE5C7", false)]
-public class DisableMouseAction : ActionBase
+public class DisableMouseAction(ILogger<DisableMouseAction> logger) : ActionBase
 {
-    private readonly ILogger<DisableMouseAction> _logger;
-
-    public DisableMouseAction(ILogger<DisableMouseAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<DisableMouseAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

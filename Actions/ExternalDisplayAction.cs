@@ -11,14 +11,9 @@ namespace SystemTools.Actions;
 /// 仅第二屏幕
 /// </summary>
 [ActionInfo("SystemTools.ExternalDisplay", "仅第二屏幕", "\uE641", false)]
-public class ExternalDisplayAction : ActionBase
+public class ExternalDisplayAction(ILogger<ExternalDisplayAction> logger) : ActionBase
 {
-    private readonly ILogger<ExternalDisplayAction> _logger;
-
-    public ExternalDisplayAction(ILogger<ExternalDisplayAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ExternalDisplayAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

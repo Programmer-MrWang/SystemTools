@@ -12,17 +12,12 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.SimulateMouse", "模拟鼠标", "\uE5C1", false)]
-public class SimulateMouseAction : ActionBase<MouseInputSettings>
+public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBase<MouseInputSettings>
 {
-    private readonly ILogger<SimulateMouseAction> _logger;
+    private readonly ILogger<SimulateMouseAction> _logger = logger;
     private const int MOUSE_DELAY = 20;
     private const int SCROLL_DELAY = 50;
     private bool _isLeftButtonDown = false;
-
-    public SimulateMouseAction(ILogger<SimulateMouseAction> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task OnInvoke()
     {

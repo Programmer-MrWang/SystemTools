@@ -9,21 +9,15 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.AltTab", "按下 Alt+Tab", "\uEA0B", false)]
-public class AltTabAction : ActionBase
+public class AltTabAction(ILogger<AltTabAction> logger) : ActionBase
 {
-    private readonly ILogger<AltTabAction> _logger;
+    private readonly ILogger<AltTabAction> _logger = logger;
 
     //[DllImport("user32.dll", SetLastError = true)]
     //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
     private const byte VK_MENU = 0x12; // Alt 键
     private const byte VK_TAB = 0x09;  // Tab 键
-    //private const uint KEYEVENTF_KEYUP = 0x0002;
-
-    public AltTabAction(ILogger<AltTabAction> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task OnInvoke()
     {

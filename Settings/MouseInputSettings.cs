@@ -6,7 +6,7 @@ namespace SystemTools.Settings;
 public class MouseInputSettings
 {
     [JsonPropertyName("actions")]
-    public List<MouseAction> Actions { get; set; } = new();
+    public List<MouseAction> Actions { get; set; } = [];
 
     [JsonPropertyName("disableMouseDuringExecution")]
     public bool DisableMouseDuringExecution { get; set; } = false;

@@ -11,14 +11,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7", false)]
-public class TriggerCustomTriggerAction : ActionBase<TriggerCustomTriggerSettings>
+public class TriggerCustomTriggerAction(ILogger<TriggerCustomTriggerAction> logger) : ActionBase<TriggerCustomTriggerSettings>
 {
-    private readonly ILogger<TriggerCustomTriggerAction> _logger;
-
-    public TriggerCustomTriggerAction(ILogger<TriggerCustomTriggerAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<TriggerCustomTriggerAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

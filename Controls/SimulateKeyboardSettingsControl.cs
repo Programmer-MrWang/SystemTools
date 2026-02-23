@@ -19,7 +19,7 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
     private Avalonia.Controls.TextBox _keysTextBox;
     private bool _isRecording;
     private HHOOK _hookId = HHOOK.Null;
-    private readonly List<string> _recordedKeys = new();
+    private readonly List<string> _recordedKeys = [];
     private HOOKPROC _hookProc;
 
     //private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
@@ -102,7 +102,7 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
         _hookId = HHOOK.Null;
         _hookProc = null;
 
-        Settings.Keys = new List<string>(_recordedKeys);
+        Settings.Keys = [.. _recordedKeys];
     }
 
     private LRESULT HookCallback(int nCode, WPARAM wParam, LPARAM lParam)

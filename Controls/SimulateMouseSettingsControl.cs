@@ -21,7 +21,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
     private bool _isRecording;
     private HHOOK _mouseHookId = HHOOK.Null;
     private HHOOK _keyboardHookId = HHOOK.Null;
-    private readonly List<MouseAction> _recordedActions = new();
+    private readonly List<MouseAction> _recordedActions = [];
     private readonly Stopwatch _stopwatch = new();
     private long _lastActionTime = 0;
     private bool _isDragging = false;
@@ -120,12 +120,8 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
     {
         _isRecording = false;
         _stopwatch.Stop();
-
-        if (_lastDragAction != null)
-        {
-            _lastDragAction.IsDragEnd = true;
-            _lastDragAction = null;
-        }
+        _lastDragAction?.IsDragEnd = true;
+        _lastDragAction = null;
 
         _startButton.Content = "开始录制鼠标行为";
         _startButton.IsEnabled = true;
@@ -145,7 +141,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         _mouseHookProc = null;
         _keyboardHookProc = null;
 
-        Settings.Actions = new List<MouseAction>(_recordedActions);
+        Settings.Actions = [.. _recordedActions];
     }
 
     private LRESULT MouseHookCallback(int nCode, WPARAM wParam, LPARAM lParam)
@@ -162,11 +158,8 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
                     _isDragging = true;
                     _dragStartX = hookStruct.Pt.X;
                     _dragStartY = hookStruct.Pt.Y;
-                    if (_lastDragAction != null)
-                    {
-                        _lastDragAction.IsDragEnd = true;
-                        _lastDragAction = null;
-                    }
+                    _lastDragAction?.IsDragEnd = true;
+                    _lastDragAction = null;
                     break;
 
                 case WM_LBUTTONUP:

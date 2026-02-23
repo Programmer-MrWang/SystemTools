@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.Delete", "删除", "\uE61D", false)]
-public class DeleteAction : ActionBase<DeleteSettings>
+public class DeleteAction(ILogger<DeleteAction> logger) : ActionBase<DeleteSettings>
 {
-    private readonly ILogger<DeleteAction> _logger;
-
-    public DeleteAction(ILogger<DeleteAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<DeleteAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

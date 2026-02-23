@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.Copy", "复制", "\uE6AB", false)]
-public class CopyAction : ActionBase<CopySettings>
+public class CopyAction(ILogger<CopyAction> logger) : ActionBase<CopySettings>
 {
-    private readonly ILogger<CopyAction> _logger;
-
-    public CopyAction(ILogger<CopyAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<CopyAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

@@ -11,14 +11,9 @@ namespace SystemTools.Actions;
 /// 复制屏幕
 /// </summary>
 [ActionInfo("SystemTools.CloneDisplay", "复制屏幕", "\uE635", false)]
-public class CloneDisplayAction : ActionBase
+public class CloneDisplayAction(ILogger<CloneDisplayAction> logger) : ActionBase
 {
-    private readonly ILogger<CloneDisplayAction> _logger;
-
-    public CloneDisplayAction(ILogger<CloneDisplayAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<CloneDisplayAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

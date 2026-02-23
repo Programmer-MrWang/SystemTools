@@ -10,14 +10,9 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.WindowOperation", "窗口操作", "\uF4B3", false)]
-public class WindowOperationAction : ActionBase<WindowOperationSettings>
+public class WindowOperationAction(ILogger<WindowOperationAction> logger) : ActionBase<WindowOperationSettings>
 {
-    private readonly ILogger<WindowOperationAction> _logger;
-
-    public WindowOperationAction(ILogger<WindowOperationAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<WindowOperationAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

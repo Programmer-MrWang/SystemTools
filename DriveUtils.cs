@@ -26,16 +26,16 @@ public static class DriveUtils
     {
         var path = GetDriveJsonPath();
         if (!File.Exists(path))
-            return new List<string>();
+            return [];
 
         try
         {
             var json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<List<string>>(json) ?? new List<string>();
+            return JsonSerializer.Deserialize<List<string>>(json) ?? [];
         }
         catch
         {
-            return new List<string>();
+            return [];
         }
     }
 

@@ -11,14 +11,9 @@ namespace SystemTools.Actions;
 /// 扩展屏幕
 /// </summary>
 [ActionInfo("SystemTools.ExtendDisplay", "扩展屏幕", "\uE647", false)]
-public class ExtendDisplayAction : ActionBase
+public class ExtendDisplayAction(ILogger<ExtendDisplayAction> logger) : ActionBase
 {
-    private readonly ILogger<ExtendDisplayAction> _logger;
-
-    public ExtendDisplayAction(ILogger<ExtendDisplayAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ExtendDisplayAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

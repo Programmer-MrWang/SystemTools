@@ -9,14 +9,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.KillProcess", "退出进程", "\uE0DE", false)]
-public class KillProcessAction : ActionBase<KillProcessSettings>
+public class KillProcessAction(ILogger<KillProcessAction> logger) : ActionBase<KillProcessSettings>
 {
-    private readonly ILogger<KillProcessAction> _logger;
-
-    public KillProcessAction(ILogger<KillProcessAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<KillProcessAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

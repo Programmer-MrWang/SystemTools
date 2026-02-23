@@ -9,20 +9,14 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.F11Key", "按下 F11 键", "\uEA0B", false)]
-public class F11Action : ActionBase
+public class F11Action(ILogger<F11Action> logger) : ActionBase
 {
-    private readonly ILogger<F11Action> _logger;
+    private readonly ILogger<F11Action> _logger = logger;
 
     //[DllImport("user32.dll", SetLastError = true)]
     //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
     private const byte VK_F11 = 0x7A;
-    //private const uint KEYEVENTF_KEYUP = 0x0002;
-
-    public F11Action(ILogger<F11Action> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task OnInvoke()
     {

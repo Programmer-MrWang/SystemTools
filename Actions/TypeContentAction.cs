@@ -11,14 +11,9 @@ using Windows.Win32.Foundation;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.TypeContent", "键入内容", "\uE4BE", false)]
-public class TypeContentAction : ActionBase<TypeContentSettings>
+public class TypeContentAction(ILogger<TypeContentAction> logger) : ActionBase<TypeContentSettings>
 {
-    private readonly ILogger<TypeContentAction> _logger;
-
-    public TypeContentAction(ILogger<TypeContentAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<TypeContentAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

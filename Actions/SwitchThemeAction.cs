@@ -9,14 +9,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.SwitchTheme", "切换主题色", "\uF42F", false)]
-public class SwitchThemeAction : ActionBase<ThemeSettings>
+public class SwitchThemeAction(ILogger<SwitchThemeAction> logger) : ActionBase<ThemeSettings>
 {
-    private readonly ILogger<SwitchThemeAction> _logger;
-
-    public SwitchThemeAction(ILogger<SwitchThemeAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<SwitchThemeAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

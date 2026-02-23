@@ -10,15 +10,10 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2", false)]
-public class FullscreenClockAction : ActionBase
+public class FullscreenClockAction(ILogger<FullscreenClockAction> logger) : ActionBase
 {
-    private readonly ILogger<FullscreenClockAction> _logger;
+    private readonly ILogger<FullscreenClockAction> _logger = logger;
     private const string ClockUrl = "https://clock.qqhkx.com/";
-
-    public FullscreenClockAction(ILogger<FullscreenClockAction> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task OnInvoke()
     {

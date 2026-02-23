@@ -10,14 +10,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.Move", "移动", "\uE6E7", false)]
-public class MoveAction : ActionBase<MoveSettings>
+public class MoveAction(ILogger<MoveAction> logger) : ActionBase<MoveSettings>
 {
-    private readonly ILogger<MoveAction> _logger;
-
-    public MoveAction(ILogger<MoveAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<MoveAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

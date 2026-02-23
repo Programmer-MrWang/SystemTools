@@ -12,14 +12,9 @@ using SystemTools.Settings;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.ScreenShot", "屏幕截图", "\uEEE7",false)]
-public class ScreenShotAction : ActionBase<ScreenShotSettings>
+public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<ScreenShotSettings>
 {
-    private readonly ILogger<ScreenShotAction> _logger;
-
-    public ScreenShotAction(ILogger<ScreenShotAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ScreenShotAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

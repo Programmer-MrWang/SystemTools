@@ -9,9 +9,9 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.EnterKey", "按下 Enter 键", "\uEA0B", false)]
-public class EnterKeyAction : ActionBase
+public class EnterKeyAction(ILogger<EnterKeyAction> logger) : ActionBase
 {
-    private readonly ILogger<EnterKeyAction> _logger;
+    private readonly ILogger<EnterKeyAction> _logger = logger;
 
     // Windows API 导入
     //[DllImport("user32.dll", SetLastError = true)]
@@ -19,12 +19,6 @@ public class EnterKeyAction : ActionBase
 
     // 常量定义
     private const byte VK_RETURN = 0x0D; // Enter 键的虚拟键码
-    //private const uint KEYEVENTF_KEYUP = 0x0002; // 按键释放标志
-
-    public EnterKeyAction(ILogger<EnterKeyAction> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task OnInvoke()
     {

@@ -11,14 +11,9 @@ using System.Threading.Tasks;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "\uEF53", false)]
-public class RestartAsAdminAction : ActionBase
+public class RestartAsAdminAction(ILogger<RestartAsAdminAction> logger) : ActionBase
 {
-    private readonly ILogger<RestartAsAdminAction> _logger;
-
-    public RestartAsAdminAction(ILogger<RestartAsAdminAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<RestartAsAdminAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

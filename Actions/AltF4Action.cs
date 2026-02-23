@@ -9,21 +9,15 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.AltF4", "按下 Alt+F4", "\uEA0B", false)]
-public class AltF4Action : ActionBase
+public class AltF4Action(ILogger<AltF4Action> logger) : ActionBase
 {
-    private readonly ILogger<AltF4Action> _logger;
+    private readonly ILogger<AltF4Action> _logger = logger;
 
     //[DllImport("user32.dll", SetLastError = true)]
     //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
     private const byte VK_MENU = 0x12; // Alt 键
     private const byte VK_F4 = 0x73;   // F4 键
-    //private const uint KEYEVENTF_KEYUP = 0x0002;
-
-    public AltF4Action(ILogger<AltF4Action> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task OnInvoke()
     {

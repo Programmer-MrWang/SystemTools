@@ -11,14 +11,9 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.BlackScreenHtml", "黑屏html", "\uE643", false)]
-public class BlackScreenHtmlAction : ActionBase
+public class BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger) : ActionBase
 {
-    private readonly ILogger<BlackScreenHtmlAction> _logger;
-
-    public BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<BlackScreenHtmlAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

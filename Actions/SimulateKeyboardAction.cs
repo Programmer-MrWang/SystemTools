@@ -10,16 +10,11 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.SimulateKeyboard", "模拟键盘", "\uEA0F", false)]
-public class SimulateKeyboardAction : ActionBase<KeyboardInputSettings>
+public class SimulateKeyboardAction(ILogger<SimulateKeyboardAction> logger) : ActionBase<KeyboardInputSettings>
 {
-    private readonly ILogger<SimulateKeyboardAction> _logger;
+    private readonly ILogger<SimulateKeyboardAction> _logger = logger;
     private const int KEY_PRESS_DELAY = 20;
     private const int KEY_INTERVAL_DELAY = 100;
-
-    public SimulateKeyboardAction(ILogger<SimulateKeyboardAction> logger)
-    {
-        _logger = logger;
-    }
 
     protected override async Task OnInvoke()
     {

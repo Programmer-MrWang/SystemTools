@@ -136,10 +136,10 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
     }
 }
 
-public partial class SystemToolsSettingsViewModel : ObservableObject
+public partial class SystemToolsSettingsViewModel(MainConfigHandler configHandler) : ObservableObject
 {
     [ObservableProperty]
-    private MainConfigData _settings;
+    private MainConfigData _settings = configHandler.Data;
 
     [ObservableProperty]
     private bool _isDownloadButtonEnabled = true;
@@ -157,11 +157,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
     private const string ExpectedMd5 = "f94fcfa40c9de41d6df09566a51e3130";
     private const string TempFileName = "f94fcfa40c9de41d6df09566a51e3130.exe";
     private const string TargetFileName = "ffmpeg.exe";
-
-    public SystemToolsSettingsViewModel(MainConfigHandler configHandler)
-    {
-        _settings = configHandler.Data;
-    }
 
     public bool CheckFfmpegExists()
     {

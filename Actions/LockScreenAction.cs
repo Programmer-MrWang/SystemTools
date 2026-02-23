@@ -8,14 +8,9 @@ using System.Threading.Tasks;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.LockScreen", "锁定屏幕", "\uEAF0", false)]
-public class LockScreenAction : ActionBase
+public class LockScreenAction(ILogger<LockScreenAction> logger) : ActionBase
 {
-    private readonly ILogger<LockScreenAction> _logger;
-
-    public LockScreenAction(ILogger<LockScreenAction> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<LockScreenAction> _logger = logger;
 
     protected override async Task OnInvoke()
     {

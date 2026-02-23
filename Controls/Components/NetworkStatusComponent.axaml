@@ -1,0 +1,24 @@
+﻿<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.NetworkStatusComponent"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:TypeArguments="settings:NetworkStatusSettings"
+    Loaded="NetworkStatusComponent_OnLoaded"
+    Unloaded="NetworkStatusComponent_OnUnloaded"
+    mc:Ignorable="d">
+    <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:NetworkStatusComponent}}"
+          TextElement.FontSize="{DynamicResource MainWindowBodyFontSize}">
+        <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+            <TextBlock Text="{Binding Settings.DisplayText, Mode=OneWay}" />
+            <TextBlock Text="{Binding StatusText, Mode=OneWay}" 
+                       Foreground="{Binding StatusBrush}" />
+        </StackPanel>
+    </Grid>
+</ci:ComponentBase>

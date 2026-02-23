@@ -5,18 +5,20 @@ using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Attributes;
 using ClassIsland.Core.Controls;
 using ClassIsland.Core.Extensions.Registry;
-using ClassIsland.Core.Helpers;
-using ClassIsland.Core.Models.Automation;
 using ClassIsland.Core.Services.Registry;
 using ClassIsland.Shared;
+using ClassIsland.Core.Helpers;
+using ClassIsland.Core.Models.Automation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using SystemTools.Actions;
+using SystemTools.Models.ComponentSettings;
 using SystemTools.ConfigHandlers;
 using SystemTools.Controls;
+using SystemTools.Controls.Components;
 using SystemTools.Services;
 using SystemTools.Shared;
 using SystemTools.Triggers;
@@ -25,6 +27,8 @@ namespace SystemTools;
 
 public class Plugin : PluginBase
 {
+    private ILogger<Plugin>? _logger;
+
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
         // ========== 初始化配置 ==========
@@ -33,12 +37,15 @@ public class Plugin : PluginBase
         GlobalConstants.Information.PluginVersion = Info.Manifest.Version;
         GlobalConstants.MainConfig = new MainConfigHandler(PluginConfigFolder);
 
-        Console.WriteLine($"[SystemTools] 实验性功能状态: {GlobalConstants.MainConfig.Data.EnableExperimentalFeatures}");
+        services.AddLogging();
 
         // ========== 注册设置页面 ==========
         services.AddSettingsPage<SystemToolsSettingsPage>();
         services.AddSettingsPage<AboutSettingsPage>();
 
+        // ========== 注册组件 ==========
+        services.AddComponent<NetworkStatusComponent, NetworkStatusSettingsControl>();
+        services.AddComponent<LyricsDisplayComponent, LyricsDisplaySettingsControl>();
 
         // ========== 构建行动树 ==========
         BuildBaseActionTree();
@@ -46,29 +53,46 @@ public class Plugin : PluginBase
         // ========== 注册行动和触发器 ==========
         RegisterBaseActions(services);
 
-        // ========== 注册实验性功能 ==========
-        if (GlobalConstants.MainConfig.Data.EnableExperimentalFeatures)
-        {
-            Console.WriteLine("[SystemTools] 正在注册实验性功能...");
-            RegisterExperimentalFeatures(services);
-        }
-        else
-        {
-            Console.WriteLine("[SystemTools] 实验性功能未启用");
-        }
+        var experimentalEnabled = GlobalConstants.MainConfig.Data.EnableExperimentalFeatures;
+        var ffmpegEnabled = GlobalConstants.MainConfig.Data.EnableFfmpegFeatures;
+
         AppBase.Current.AppStarted += (o, args) =>
         {
-            Console.WriteLine("[SystemTools] 启动完成");
+            _logger = IAppHost.GetService<ILogger<Plugin>>();
+
+            _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
+
+            if (experimentalEnabled)
+            {
+                _logger?.LogInformation("[SystemTools]正在注册实验性功能...");
+            }
+            else
+            {
+                _logger?.LogInformation("[SystemTools]实验性功能未启用");
+            }
+
+            if (ffmpegEnabled)
+            {
+                _logger?.LogInformation("[SystemTools]FFmpeg功能已启用");
+            }
+            else
+            {
+                _logger?.LogInformation("[SystemTools]FFmpeg功能未启用");
+            }
+
+            _logger?.LogInformation("[SystemTools]SystemTools 启动完成");
         };
 
-        // ========== 注册 FFmpeg 功能（新增）==========
-        if (GlobalConstants.MainConfig.Data.EnableFfmpegFeatures)
+        // ========== 注册实验性功能 ==========
+        if (experimentalEnabled)
+        {
+            RegisterExperimentalFeatures(services);
+        }
+
+        // ========== 注册 FFmpeg 功能 ==========
+        if (ffmpegEnabled)
         {
             RegisterFfmpegFeatures(services);
-        }
-        else
-        {
-            Console.WriteLine("[SystemTools] FFmpeg功能未启用");
         }
 
         // ========== 版本检查 ==========
@@ -110,7 +134,8 @@ public class Plugin : PluginBase
 
     private void RegisterExperimentalFeatures(IServiceCollection services)
     {
-        // 实验性功能…
+        _logger?.LogInformation("[SystemTools]正在注册实验性功能...");
+
         IActionService.ActionMenuTree["SystemTools 行动"].Add(
             new ActionMenuTreeGroup("实验性功能…", "\uE508")
         );
@@ -126,15 +151,15 @@ public class Plugin : PluginBase
 
     private void RegisterFfmpegFeatures(IServiceCollection services)
     {
-        Console.WriteLine("[SystemTools] 正在注册 FFmpeg 依赖功能...");
+        _logger?.LogInformation("[SystemTools]正在注册 FFmpeg 依赖功能...");
 
-        // FFmpeg 依赖功能
         services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
 
         IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].Add(
             new ActionMenuTreeItem("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E")
         );
     }
+
 
     private void RegisterBaseActions(IServiceCollection services)
     {
@@ -171,8 +196,8 @@ public class Plugin : PluginBase
         services.AddAction<SwitchThemeAction, ThemeSettingsControl>();
 
         // 实用工具…
-        //services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
         services.AddAction<ScreenShotAction, ScreenShotSettingsControl>();
+        services.AddAction<SetVolumeAction, SetVolumeSettingsControl>();
         services.AddAction<KillProcessAction, KillProcessSettingsControl>();
         services.AddAction<EnableDeviceAction, EnableDeviceSettingsControl>();
         services.AddAction<DisableDeviceAction, DisableDeviceSettingsControl>();
@@ -191,6 +216,7 @@ public class Plugin : PluginBase
         services.AddTrigger<UsbDeviceTrigger, UsbDeviceTriggerSettings>();
         services.AddTrigger<HotkeyTrigger, HotkeyTriggerSettings>();
         services.AddTrigger<ActionInProgressTrigger, ActionInProgressTriggerSettings>();
+
     }
 
     #region 菜单构建辅助方法
@@ -259,7 +285,7 @@ public class Plugin : PluginBase
         IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].AddRange([
             new ActionMenuTreeItem("SystemTools.KillProcess", "退出进程", "\uE0DE"),
             new ActionMenuTreeItem("SystemTools.ShowToast", "拉起自定义Windows通知", "\uE3E4"),
-            //new ActionMenuTreeItem("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E"),
+            new ActionMenuTreeItem("SystemTools.SetVolume", "设置系统音量", "\uF013"),
             new ActionMenuTreeItem("SystemTools.ScreenShot", "屏幕截图", "\uEEE7"),
             new ActionMenuTreeItem("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F"),
             new ActionMenuTreeItem("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD")
@@ -304,10 +330,9 @@ public class Plugin : PluginBase
         }
     }
 
-
     private void OnAppStopping(object? sender, EventArgs e)
     {
-        Console.WriteLine("[SystemTools] 应用正在关闭，正在保存配置...");
+        _logger?.LogInformation("[SystemTools]关闭插件SystemTools，保存配置...");
         GlobalConstants.MainConfig?.Save();
     }
 

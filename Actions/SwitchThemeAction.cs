@@ -1,6 +1,7 @@
 ﻿using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using Microsoft.Win32;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -21,19 +22,21 @@ public class SwitchThemeAction(ILogger<SwitchThemeAction> logger) : ActionBase<T
 
         try
         {
-            var regValue = Settings.Theme == "浅色" ? "1" : "0";
-            var arguments = $@"add ""HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"" /v AppsUseLightTheme /t REG_DWORD /d {regValue} /f";
+            var regValue = Settings.Theme == "浅色" ? 1 : 0;
+            //var arguments = $@"add ""HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"" /v AppsUseLightTheme /t REG_DWORD /d {regValue} /f";
 
-            var psi = new ProcessStartInfo
-            {
-                FileName = "reg",
-                Arguments = arguments,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                Verb = "runas"
-            };
-
-            Process.Start(psi);
+            using RegistryKey registryKey= Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            registryKey.SetValue("AppsUseLightTheme",regValue,RegistryValueKind.DWord);
+            //var psi = new ProcessStartInfo
+            //{
+            //    FileName = "reg",
+            //    Arguments = arguments,
+            //    UseShellExecute = false,
+            //    CreateNoWindow = true,
+            //    Verb = "runas"
+            //};
+            //
+            //Process.Start(psi);
         }
         catch (Exception ex)
         {

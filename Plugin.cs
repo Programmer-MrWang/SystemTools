@@ -25,6 +25,14 @@ using SystemTools.Triggers;
 
 namespace SystemTools;
 
+/*
+  _________                 __                  ___________              .__           
+ /   _____/___.__.  _______/  |_   ____    _____\__    ___/____    ____  |  |    ______
+ \_____  \<   |  | /  ___/\   __\_/ __ \  /     \ |    |  /  _ \  /  _ \ |  |   /  ___/
+ /        \\___  | \___ \  |  |  \  ___/ |  Y Y  \|    | (  <_> )(  <_> )|  |__ \___ \ 
+/_______  // ____|/____  > |__|   \___  >|__|_|  /|____|  \____/  \____/ |____//____  >
+        \/ \/          \/             \/       \/                                   \/ 
+*/
 public class Plugin : PluginBase
 {
     private ILogger<Plugin>? _logger;
@@ -94,6 +102,9 @@ public class Plugin : PluginBase
         {
             RegisterFfmpegFeatures(services);
         }
+
+        // ========== 注册热键服务（单例） ==========
+        services.AddSingleton<IHotkeyService, HotkeyService>();
 
         // ========== 版本检查 ==========
         AppBase.Current.AppStarted += (_, _) =>

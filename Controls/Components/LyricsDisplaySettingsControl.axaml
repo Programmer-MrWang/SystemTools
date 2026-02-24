@@ -21,7 +21,7 @@
                   IsClosable="True"
                   Severity="Warning"
                   Margin="0,0,0,12"
-                  Message="使用前请确保音乐软件已启用桌面歌词显示（横排/单行）,且不贴近屏幕上侧边缘&#x0A;您可通过调整桌面歌词的长/宽 和下方的 缩放设置 以达到最佳效果（一般需手动缩短桌面歌词长度）&#x0A;不建议使用组件宽度限制，这可能会导致歌词显示不完整。" />
+                  Message="使用前请确保音乐软件已启用桌面歌词显示（横排/单行/关闭翻译）且不贴近屏幕上侧边缘&#x0A;您可通过调整桌面歌词的 长/宽 和下方的 缩放设置 以达到最佳效果（一般需手动缩短桌面歌词长度）&#x0A;不建议使用组件宽度限制，这可能会导致歌词显示不完整" />
 
                 <!-- 音乐软件选择 -->
                 <controls:SettingsExpander
@@ -36,6 +36,7 @@
                             <ComboBoxItem>酷狗音乐</ComboBoxItem>
                             <ComboBoxItem>汽水音乐</ComboBoxItem>
                             <ComboBoxItem IsEnabled="False" Foreground="Gray">酷我音乐(尚未适配)</ComboBoxItem>
+                            <ComboBoxItem IsEnabled="False" Foreground="Gray">Apple Music(将不会适配)</ComboBoxItem>
                         </ComboBox>
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
@@ -57,7 +58,7 @@
                <!-- 歌词刷新率设置 -->
                <controls:SettingsExpander
                     Header="歌词刷新率"
-                    Description="对于配置较低电脑建议提高数值，但会导致歌词显示延迟；建议100；重启 ClassIsland 以应用该设置。"
+                    Description="对于配置较低电脑建议提高数值，但会导致歌词显示延迟；建议100；重启 ClassIsland 以应用该设置"
                     Margin="0,6,0,0"
                     IconSource="{ci:FluentIconSource &#xE8E1;}">
                    <controls:SettingsExpander.Footer>
@@ -71,8 +72,8 @@
 
                  <!-- 保持歌词窗口置底 -->
                <controls:SettingsExpander
-                    Header="保持歌词窗口置底"
-                    Description="强制将歌词窗口置底（每80ms/暂不适用网易云音乐）；请在上侧调整好样式再使用此功能！"
+                    Header="保持歌词窗口置底（BETA）"
+                    Description="强制将歌词窗口置底（每80ms/暂不适用网易云音乐）;请在上侧调整好样式再使用此功能！"
                     Margin="0,6,0,0"
                     IconSource="{ci:FluentIconSource &#xF4AB;}">
                    <controls:SettingsExpander.Footer>
@@ -80,19 +81,10 @@
                    </controls:SettingsExpander.Footer>
                </controls:SettingsExpander>
 
-             <!-- 底部版权 -->
-            <TextBlock Text="Added by SystemTools"
-                       Foreground="Gray"
-                       FontSize="12"
-                       HorizontalAlignment="Center"
-                       Margin="0,40,0,0"
-                       Opacity="0.7" />
-            <TextBlock Text="Programmer_Wang ©2026"
-                       Foreground="Gray"
-                       FontSize="12"
-                       HorizontalAlignment="Center"
-                       Margin="0,40,0,0"
-                       Opacity="0.7" />
+                <Label HorizontalAlignment="Center"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}">
+                Added by SystemTools
+            </Label>
             </StackPanel>
         </ScrollViewer>
     </Grid>

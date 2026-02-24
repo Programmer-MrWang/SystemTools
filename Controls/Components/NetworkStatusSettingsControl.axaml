@@ -18,7 +18,7 @@
 
                     <controls:SettingsExpander
                         Header="延迟检测网址"
-                        Description="要检测的网址（默认 baidu.com）"
+                        Description="要检测的网址,默认 https://baidu.com"
                         IconSource="{ci:FluentIconSource &#xEAB6;}">
                         <controls:SettingsExpander.Footer>
                             <TextBox MinWidth="200" 
@@ -36,19 +36,10 @@
                         </controls:SettingsExpander.Footer>
                     </controls:SettingsExpander>
 
-                <!-- 底部版权 -->
-            <TextBlock Text="Added by SystemTools"
-                       Foreground="Gray"
-                       FontSize="12"
-                       HorizontalAlignment="Center"
-                       Margin="0,40,0,0"
-                       Opacity="0.7" />
-            <TextBlock Text="Programmer_Wang ©2026"
-                       Foreground="Gray"
-                       FontSize="12"
-                       HorizontalAlignment="Center"
-                       Margin="0,40,0,0"
-                       Opacity="0.7" />
+                <Label HorizontalAlignment="Center"
+                   Foreground="{DynamicResource MaterialDesignBodyLight}">
+                Added by SystemTools
+            </Label>
             </StackPanel>
         </ScrollViewer>
     </Grid>

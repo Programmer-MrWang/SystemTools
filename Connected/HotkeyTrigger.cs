@@ -1,103 +1,94 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
-using System.Windows.Forms;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
-using ClassIsland.Core.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
-using Windows.Win32;
-using Windows.Win32.Foundation;
+using SystemTools.Services;
 
 namespace SystemTools.Triggers;
 
-[TriggerInfo("SystemTools.HotkeyTrigger", "按下F9时", "\uEA0B")]
+[TriggerInfo("SystemTools.HotkeyTrigger", "按下自定义热键时", "\uEA0B")]
 public class HotkeyTrigger : TriggerBase<HotkeyTriggerConfig>
 {
     private readonly ILogger<HotkeyTrigger> _logger;
-    private readonly HotkeyWindow _hotkeyWindow;
+    private readonly IHotkeyService _hotkeyService;
+    private int _hotkeyId = -1;
 
-    public HotkeyTrigger(ILogger<HotkeyTrigger> logger)
+    public HotkeyTrigger(ILogger<HotkeyTrigger> logger, IHotkeyService hotkeyService)
     {
         _logger = logger;
-        _hotkeyWindow = new HotkeyWindow();
-        _hotkeyWindow.HotkeyPressed += OnHotkeyPressed;
+        _hotkeyService = hotkeyService;
     }
 
     public override void Loaded()
     {
-        try
-        {
-            _hotkeyWindow.RegisterHotkey();
-            _logger.LogInformation("F9热键注册成功");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "注册F9热键失败");
-            throw;
-        }
+        _hotkeyService.HotkeyPressed += OnHotkeyPressed;
+
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
+
+        RegisterHotkey();
     }
 
     public override void UnLoaded()
     {
-        _hotkeyWindow.UnregisterHotkey();
-        _logger.LogDebug("F9热键已注销");
+        _hotkeyService.HotkeyPressed -= OnHotkeyPressed;
+        Settings.PropertyChanged -= OnSettingsPropertyChanged;
+
+        UnregisterHotkey();
+
+        _logger.LogDebug("热键触发器已卸载");
     }
 
-    private void OnHotkeyPressed(object? sender, EventArgs e)
+    private void RegisterHotkey()
     {
+        UnregisterHotkey();
+
+        var modifiers = Settings.ModifierKeys;
+        var vk = Settings.VirtualKey;
+
+        if (vk == 0)
+        {
+            vk = 0x78;
+            modifiers = 0;
+        }
+
+        _hotkeyId = _hotkeyService.RegisterHotkey(modifiers, vk);
+
+        _logger.LogInformation("热键触发器已加载，监听: {Hotkey}",
+            _hotkeyService.GetHotkeyDisplay(modifiers, vk));
+    }
+
+    private void UnregisterHotkey()
+    {
+        if (_hotkeyId >= 0)
+        {
+            _hotkeyService.UnregisterHotkey(_hotkeyId);
+            _hotkeyId = -1;
+        }
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        // 当热键相关属性变更时，重新注册
+        if (e.PropertyName == nameof(HotkeyTriggerConfig.ModifierKeys) ||
+            e.PropertyName == nameof(HotkeyTriggerConfig.VirtualKey))
+        {
+            _logger.LogInformation("热键配置已变更，重新注册热键");
+            RegisterHotkey();
+        }
+    }
+
+    private void OnHotkeyPressed(object? sender, HotkeyEventArgs e)
+    {
+        // 检查是否是注册的热键
+        if (e.ModifierKeys != Settings.ModifierKeys || e.VirtualKey != Settings.VirtualKey)
+            return;
+
+        // 防抖动
         if (DateTime.Now - Settings.LastTriggered < TimeSpan.FromMilliseconds(500))
             return;
 
         Settings.LastTriggered = DateTime.Now;
-        _logger.LogInformation("检测到F9键按下，触发自动化");
+        _logger.LogInformation("热键 {Hotkey} 按下，触发自动化", Settings.HotkeyDisplay);
         Trigger();
-    }
-
-    private class HotkeyWindow : NativeWindow
-    {
-        private const int WM_HOTKEY = 0x0312;
-        private const int HOTKEY_ID = 0x9000;
-        private const uint VK_F9 = 0x78;
-
-        public event EventHandler? HotkeyPressed;
-
-        public void RegisterHotkey()
-        {
-            CreateHandle(new CreateParams());
-
-            if (!PInvoke.RegisterHotKey(new HWND(Handle), HOTKEY_ID, 0, VK_F9))
-            {
-                var error = Marshal.GetLastWin32Error();
-                if (error != 0)
-                {
-                    throw new Win32Exception(error, "注册热键失败");
-                }
-            }
-        }
-
-        public void UnregisterHotkey()
-        {
-            PInvoke.UnregisterHotKey(new HWND(Handle), HOTKEY_ID);
-            DestroyHandle();
-        }
-
-        protected override void WndProc(ref Message m)
-        {
-            if (m.Msg == WM_HOTKEY && (int)m.WParam == HOTKEY_ID)
-            {
-                HotkeyPressed?.Invoke(this, EventArgs.Empty);
-            }
-
-            base.WndProc(ref m);
-        }
-
-        //[DllImport("user32.dll", SetLastError = true)]
-        //private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-        //
-        //[DllImport("user32.dll", SetLastError = true)]
-        //private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
     }
 }

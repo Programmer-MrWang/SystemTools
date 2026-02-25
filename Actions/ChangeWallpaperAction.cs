@@ -42,7 +42,7 @@ public class ChangeWallpaperAction(ILogger<ChangeWallpaperAction> logger) : Acti
             unsafe
             {
                 void* uniVoidPtr = (void*)uniPtr;
-                result=PInvoke.SystemParametersInfo(Windows.Win32.UI.WindowsAndMessaging.SYSTEM_PARAMETERS_INFO_ACTION.SPI_SETDESKWALLPAPER, 0, uniVoidPtr, Windows.Win32.UI.WindowsAndMessaging.SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS.SPIF_UPDATEINIFILE | Windows.Win32.UI.WindowsAndMessaging.SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS.SPIF_SENDCHANGE);// 如果返回值为0，则说明设置失败
+                result=PInvoke.SystemParametersInfo(Windows.Win32.UI.WindowsAndMessaging.SYSTEM_PARAMETERS_INFO_ACTION.SPI_SETDESKWALLPAPER, 0, uniVoidPtr, Windows.Win32.UI.WindowsAndMessaging.SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS.SPIF_UPDATEINIFILE | Windows.Win32.UI.WindowsAndMessaging.SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS.SPIF_SENDCHANGE);
             }
             Marshal.FreeHGlobal(uniPtr);
             if (!result) throw new Win32Exception(Marshal.GetLastWin32Error(),"SystemParametersInfo失败");

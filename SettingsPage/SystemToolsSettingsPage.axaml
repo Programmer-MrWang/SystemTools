@@ -52,7 +52,7 @@
             <!-- 下载按钮 -->
                 <controls:SettingsExpanderItem Content="下载插件所需FFmpeg依赖">
                     <controls:SettingsExpanderItem.Footer>
-                        <Button Content="点击下载"
+                        <Button Content="点击下载（190 MB）"
                                 Click="OnDownloadFfmpegClick"
                                 IsEnabled="{Binding ViewModel.IsDownloadButtonEnabled}"/>
                     </controls:SettingsExpanderItem.Footer>

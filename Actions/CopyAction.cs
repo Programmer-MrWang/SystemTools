@@ -78,8 +78,8 @@ public class CopyAction(ILogger<CopyAction> logger) : ActionBase<CopySettings>
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "文件移动失败");
-                    throw new Exception($"移动失败: {ex}");
+                    _logger.LogError(ex, "文件复制失败");
+                    throw new Exception($"复制失败: {ex}");
                 }
 
                 _logger.LogInformation("文件复制成功: {Source} -> {Destination}", sourcePath, destPath);

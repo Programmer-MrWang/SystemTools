@@ -9,7 +9,7 @@ using SystemTools.Settings;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F",false)]
+[ActionInfo("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F", false)]
 public class DisableDeviceAction(ILogger<DisableDeviceAction> logger) : ActionBase<DisableDeviceSettings>
 {
     private readonly ILogger<DisableDeviceAction> _logger = logger;

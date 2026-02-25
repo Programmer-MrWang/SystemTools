@@ -9,7 +9,7 @@ using SystemTools.Settings;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E",false)]
+[ActionInfo("SystemTools.CameraCapture", "摄像头抓拍", "\uE39E", false)]
 public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBase<CameraCaptureSettings>
 {
     private readonly ILogger<CameraCaptureAction> _logger = logger;

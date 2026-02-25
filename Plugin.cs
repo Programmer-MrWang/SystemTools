@@ -222,7 +222,7 @@ public class Plugin : PluginBase
         // 重启ClassIsland到管理员身份
         services.AddAction<RestartAsAdminAction>();
 
-        
+
         // 触发器们
         services.AddTrigger<UsbDeviceTrigger, UsbDeviceTriggerSettings>();
         services.AddTrigger<HotkeyTrigger, HotkeyTriggerSettings>();

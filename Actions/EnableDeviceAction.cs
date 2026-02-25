@@ -9,7 +9,7 @@ using SystemTools.Settings;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD",false)]
+[ActionInfo("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD", false)]
 public class EnableDeviceAction(ILogger<EnableDeviceAction> logger) : ActionBase<EnableDeviceSettings>
 {
     private readonly ILogger<EnableDeviceAction> _logger = logger;

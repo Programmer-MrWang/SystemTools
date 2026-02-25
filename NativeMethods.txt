@@ -20,3 +20,4 @@ GlobalAlloc
 GlobalLock
 GlobalUnlock
 GlobalFree
+SystemParametersInfo

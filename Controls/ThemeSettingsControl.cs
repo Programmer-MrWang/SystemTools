@@ -31,7 +31,7 @@ public class ThemeSettingsControl : ActionSettingsControlBase<ThemeSettings>
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
         });
 
-        _themeComboBox = new ComboBox 
+        _themeComboBox = new ComboBox
         {
             Width = 100,
             ItemsSource = new[] { "浅色", "深色" }

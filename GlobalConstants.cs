@@ -8,7 +8,6 @@ namespace SystemTools.Shared;
 public static class GlobalConstants
 {
     public static string? PluginConfigFolder { get; set; }
-
     public static ConfigHandlers.MainConfigHandler? MainConfig { get; set; }
 
     public static class HostInterfaces
@@ -23,6 +22,8 @@ public static class GlobalConstants
     }
 
     public static bool ShowChangelogOnOpen { get; set; } = false;
+    
+    // ========== 公告相关 ==========
+    public const string StaticAnnouncement = "插件社区Q群 ClassIsPlugins 现已建立! 点击下方按钮, 即刻加入!";
+    public const string QqGroupUrl = "https://qm.qq.com/q/ekIoRJh34Q";
 }
-
-

@@ -21,13 +21,11 @@ public class MainConfigHandler
 
         GlobalConstants.MainConfig = this;
     }
+    
 
     void SubscribeToChanges()
     {
-        Data.PropertyChanged += (sender, args) =>
-        {
-            Save();
-        };
+        Data.PropertyChanged += (sender, args) => { Save(); };
     }
 
     public void Save()

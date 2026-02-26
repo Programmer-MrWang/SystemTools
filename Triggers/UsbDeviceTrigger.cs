@@ -115,7 +115,8 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
         }
 
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern IntPtr RegisterDeviceNotification(IntPtr hRecipient, IntPtr notificationFilter, uint flags);
+        private static extern IntPtr RegisterDeviceNotification(IntPtr hRecipient, IntPtr notificationFilter,
+            uint flags);
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool UnregisterDeviceNotification(IntPtr handle);

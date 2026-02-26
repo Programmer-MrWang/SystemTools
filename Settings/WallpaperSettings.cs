@@ -4,6 +4,5 @@ namespace SystemTools.Settings;
 
 public class ChangeWallpaperSettings
 {
-    [JsonPropertyName("imagePath")]
-    public string ImagePath { get; set; } = string.Empty;
+    [JsonPropertyName("imagePath")] public string ImagePath { get; set; } = string.Empty;
 }

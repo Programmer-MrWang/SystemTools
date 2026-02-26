@@ -4,6 +4,5 @@ namespace SystemTools.Settings;
 
 public class WindowOperationSettings
 {
-    [JsonPropertyName("operation")]
-    public string Operation { get; set; } = "最大化";
+    [JsonPropertyName("operation")] public string Operation { get; set; } = "最大化";
 }

@@ -85,6 +85,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
             _recordedActions.AddRange(Settings.Actions);
             UpdateListBox();
         }
+
         _disableMouseCheckBox.IsChecked = Settings.DisableMouseDuringExecution;
     }
 
@@ -112,8 +113,10 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         _keyboardHookProc = KeyboardHookCallback;
 
         var moduleHandle = PInvoke.GetModuleHandle(Process.GetCurrentProcess().MainModule?.ModuleName ?? "");
-        _mouseHookId = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_MOUSE_LL, _mouseHookProc, (HINSTANCE)moduleHandle.DangerousGetHandle(), 0);
-        _keyboardHookId = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, _keyboardHookProc, (HINSTANCE)moduleHandle.DangerousGetHandle(), 0);
+        _mouseHookId = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_MOUSE_LL, _mouseHookProc,
+            (HINSTANCE)moduleHandle.DangerousGetHandle(), 0);
+        _keyboardHookId = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, _keyboardHookProc,
+            (HINSTANCE)moduleHandle.DangerousGetHandle(), 0);
     }
 
     private void StopRecording()
@@ -163,7 +166,8 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
                     break;
 
                 case WM_LBUTTONUP:
-                    if (_isDragging && (Math.Abs(hookStruct.Pt.X - _dragStartX) > 5 || Math.Abs(hookStruct.Pt.Y - _dragStartY) > 5))
+                    if (_isDragging && (Math.Abs(hookStruct.Pt.X - _dragStartX) > 5 ||
+                                        Math.Abs(hookStruct.Pt.Y - _dragStartY) > 5))
                     {
                         AddAction(MouseAction.ActionType.DragMove, hookStruct.Pt.X, hookStruct.Pt.Y, 0, interval, true);
                         _lastDragAction = null;
@@ -172,6 +176,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
                     {
                         AddAction(MouseAction.ActionType.LeftClick, hookStruct.Pt.X, hookStruct.Pt.Y, 0, interval);
                     }
+
                     _isDragging = false;
                     _lastActionTime = currentTime;
                     break;
@@ -195,10 +200,12 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
                 case WM_MOUSEMOVE:
                     if (_isDragging && interval > 50)
                     {
-                        var action = AddAction(MouseAction.ActionType.DragMove, hookStruct.Pt.X, hookStruct.Pt.Y, 0, interval);
+                        var action = AddAction(MouseAction.ActionType.DragMove, hookStruct.Pt.X, hookStruct.Pt.Y, 0,
+                            interval);
                         _lastDragAction = action;
                         _lastActionTime = currentTime;
                     }
+
                     break;
             }
         }
@@ -225,7 +232,8 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         return AddAction(type, x, y, scrollDelta, interval, false);
     }
 
-    private MouseAction AddAction(MouseAction.ActionType type, int x, int y, int scrollDelta, long interval, bool isDragEnd)
+    private MouseAction AddAction(MouseAction.ActionType type, int x, int y, int scrollDelta, long interval,
+        bool isDragEnd)
     {
         var action = new MouseAction
         {
@@ -240,10 +248,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         _recordedActions.Add(action);
         _lastDragAction = isDragEnd ? null : _lastDragAction;
 
-        Dispatcher.UIThread.Post(() =>
-        {
-            UpdateListBox();
-        });
+        Dispatcher.UIThread.Post(() => { UpdateListBox(); });
 
         return action;
     }

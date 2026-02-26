@@ -4,6 +4,5 @@ namespace SystemTools.Settings;
 
 public class KillProcessSettings
 {
-    [JsonPropertyName("processName")]
-    public string ProcessName { get; set; } = string.Empty;
+    [JsonPropertyName("processName")] public string ProcessName { get; set; } = string.Empty;
 }

@@ -45,6 +45,7 @@ public class DeleteAction(ILogger<DeleteAction> logger) : ActionBase<DeleteSetti
                     _logger.LogError("文件不存在: {Path}", targetPath);
                     throw new FileNotFoundException("文件不存在", targetPath);
                 }
+
                 try
                 {
                     await Task.Run(() => File.Delete(targetPath));

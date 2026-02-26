@@ -36,7 +36,8 @@ public class SimulateKeyboardAction(ILogger<SimulateKeyboardAction> logger) : Ac
                 {
                     PInvoke.keybd_event(keyCode, 0, 0, UIntPtr.Zero);
                     await Task.Delay(KEY_PRESS_DELAY);
-                    PInvoke.keybd_event(keyCode, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                    PInvoke.keybd_event(keyCode, 0,
+                        Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
                     if (i < Settings.Keys.Count - 1)
                     {

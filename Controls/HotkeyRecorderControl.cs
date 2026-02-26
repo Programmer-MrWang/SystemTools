@@ -172,9 +172,9 @@ public class HotkeyRecorderControl : Border
     private bool IsModifierKey(Key key)
     {
         return key is Key.LeftCtrl or Key.RightCtrl or
-               Key.LeftAlt or Key.RightAlt or
-               Key.LeftShift or Key.RightShift or
-               Key.LWin or Key.RWin;
+            Key.LeftAlt or Key.RightAlt or
+            Key.LeftShift or Key.RightShift or
+            Key.LWin or Key.RWin;
     }
 
     private uint AvaloniaKeyToVirtualKey(Key key)
@@ -264,6 +264,7 @@ public class HotkeyRecorderControl : Border
         {
             CancelRecording();
         }
+
         base.OnDetachedFromVisualTree(e);
     }
 }

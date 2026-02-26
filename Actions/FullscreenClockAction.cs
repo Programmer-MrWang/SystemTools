@@ -41,7 +41,8 @@ public class FullscreenClockAction(ILogger<FullscreenClockAction> logger) : Acti
             _logger.LogDebug("发送F11键");
             PInvoke.keybd_event(VK_F11, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
-            PInvoke.keybd_event(VK_F11, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_F11, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
+                UIntPtr.Zero);
 
             _logger.LogInformation("F11全屏键已发送");
         }

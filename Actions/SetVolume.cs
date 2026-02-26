@@ -36,7 +36,9 @@ public class SetVolumeAction(ILogger<SetVolumeAction> logger) : ActionBase<SetVo
 
 [ComImport]
 [Guid("BCDE0395-E52F-467C-8E3D-C4579291692E")]
-internal class MMDeviceEnumeratorCom { }
+internal class MMDeviceEnumeratorCom
+{
+}
 
 [ComImport]
 [Guid("A95664D2-9614-4F35-A746-DE8DB63617E6")]
@@ -56,7 +58,8 @@ internal interface IMMDeviceEnumerator
 internal interface IMMDevice
 {
     [PreserveSig]
-    int Activate(ref Guid iid, CLSCTX clsCtx, IntPtr activationParams, [MarshalAs(UnmanagedType.IUnknown)] out object interfacePointer);
+    int Activate(ref Guid iid, CLSCTX clsCtx, IntPtr activationParams,
+        [MarshalAs(UnmanagedType.IUnknown)] out object interfacePointer);
 }
 
 [Guid("5CDF2C82-841E-4546-9722-0CF74078229A")]

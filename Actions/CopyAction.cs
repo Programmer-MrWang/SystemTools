@@ -18,7 +18,8 @@ public class CopyAction(ILogger<CopyAction> logger) : ActionBase<CopySettings>
     {
         _logger.LogDebug("CopyAction OnInvoke 开始");
 
-        if (Settings == null || string.IsNullOrWhiteSpace(Settings.SourcePath) || string.IsNullOrWhiteSpace(Settings.DestinationPath))
+        if (Settings == null || string.IsNullOrWhiteSpace(Settings.SourcePath) ||
+            string.IsNullOrWhiteSpace(Settings.DestinationPath))
         {
             _logger.LogWarning("路径为空");
             return;

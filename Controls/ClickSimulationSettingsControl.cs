@@ -119,3 +119,4 @@ public class ClickSimulationSettingsControl : ActionSettingsControlBase<ClickSim
         }
     }
 }*/
+

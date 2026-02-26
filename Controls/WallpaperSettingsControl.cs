@@ -29,10 +29,7 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
         {
             Watermark = "请选择壁纸图片文件"
         };
-        _pathBox.TextChanged += (s, e) =>
-        {
-            Settings.ImagePath = _pathBox.Text ?? "";
-        };
+        _pathBox.TextChanged += (s, e) => { Settings.ImagePath = _pathBox.Text ?? ""; };
         panel.Children.Add(_pathBox);
 
         _browseButton = new Avalonia.Controls.Button

@@ -187,6 +187,7 @@ public class HotkeyTriggerSettings : TriggerSettingsControlBase<HotkeyTriggerCon
             _currentHotkeyText.Text = $"当前热键: {Settings.HotkeyDisplay}";
         }
     }
+
     private void OnHotkeyRecorded(object? sender, HotkeyRecordedEventArgs e)
     {
         if (Settings == null) return;

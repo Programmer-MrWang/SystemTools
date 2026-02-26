@@ -66,7 +66,8 @@ public class HotkeyService : IHotkeyService, IDisposable
                     _hotkeyWindow.CreateHandle(new CreateParams());
                 }
 
-                if (!PInvoke.RegisterHotKey(new HWND(_hotkeyWindow.Handle), id, (HOT_KEY_MODIFIERS)(uint)modifierKeys, virtualKey))
+                if (!PInvoke.RegisterHotKey(new HWND(_hotkeyWindow.Handle), id, (HOT_KEY_MODIFIERS)(uint)modifierKeys,
+                        virtualKey))
                 {
                     var error = Marshal.GetLastWin32Error();
                     throw new Win32Exception(error, $"注册热键 {display} 失败");
@@ -124,6 +125,7 @@ public class HotkeyService : IHotkeyService, IDisposable
                 if (info.ModifierKeys == modifierKeys && info.VirtualKey == virtualKey)
                     return true;
             }
+
             return false;
         }
     }
@@ -144,6 +146,7 @@ public class HotkeyService : IHotkeyService, IDisposable
                 _suspendedHotkeys[kvp.Key] = kvp.Value;
                 _logger.LogDebug("临时注销热键: {Hotkey}", kvp.Value.Display);
             }
+
             _registeredHotkeys.Clear();
         }
     }
@@ -158,7 +161,8 @@ public class HotkeyService : IHotkeyService, IDisposable
             foreach (var kvp in _suspendedHotkeys)
             {
                 var info = kvp.Value;
-                if (PInvoke.RegisterHotKey(new HWND(_hotkeyWindow.Handle), kvp.Key, (HOT_KEY_MODIFIERS)(uint)info.ModifierKeys, info.VirtualKey))
+                if (PInvoke.RegisterHotKey(new HWND(_hotkeyWindow.Handle), kvp.Key,
+                        (HOT_KEY_MODIFIERS)(uint)info.ModifierKeys, info.VirtualKey))
                 {
                     _registeredHotkeys[kvp.Key] = info;
                     _logger.LogDebug("恢复热键注册: {Hotkey}", info.Display);
@@ -168,6 +172,7 @@ public class HotkeyService : IHotkeyService, IDisposable
                     _logger.LogError("恢复热键注册失败: {Hotkey}", info.Display);
                 }
             }
+
             _suspendedHotkeys.Clear();
         }
     }
@@ -274,6 +279,7 @@ public class HotkeyService : IHotkeyService, IDisposable
             {
                 PInvoke.UnregisterHotKey(new HWND(_hotkeyWindow.Handle), id);
             }
+
             _registeredHotkeys.Clear();
             _hotkeyWindow.Dispose();
         }
@@ -303,6 +309,7 @@ public class HotkeyService : IHotkeyService, IDisposable
                     HotkeyId = (int)m.WParam
                 });
             }
+
             base.WndProc(ref m);
         }
 

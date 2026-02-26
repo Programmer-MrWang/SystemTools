@@ -79,10 +79,7 @@ public static class VersionCheckService
                 await PlatformServices.DesktopToastService.ShowToastAsync(
                     title,
                     message,
-                    () =>
-                    {
-                        NavigateToChangelog();
-                    }
+                    () => { NavigateToChangelog(); }
                 );
             });
         });

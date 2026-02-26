@@ -17,7 +17,7 @@ public class AltTabAction(ILogger<AltTabAction> logger) : ActionBase
     //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
     private const byte VK_MENU = 0x12; // Alt 键
-    private const byte VK_TAB = 0x09;  // Tab 键
+    private const byte VK_TAB = 0x09; // Tab 键
 
     protected override async Task OnInvoke()
     {
@@ -34,11 +34,13 @@ public class AltTabAction(ILogger<AltTabAction> logger) : ActionBase
             await Task.Delay(20);
 
             // 释放 Tab
-            PInvoke.keybd_event(VK_TAB, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_TAB, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
+                UIntPtr.Zero);
             await Task.Delay(20);
 
             // 释放 Alt
-            PInvoke.keybd_event(VK_MENU, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_MENU, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
+                UIntPtr.Zero);
 
             _logger.LogInformation("Alt+Tab 已成功发送");
         }

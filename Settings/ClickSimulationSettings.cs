@@ -10,3 +10,4 @@ public class ClickSimulationSettings
     [JsonPropertyName("y")]
     public int Y { get; set; } = 0;
 }*/
+

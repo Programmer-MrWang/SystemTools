@@ -24,8 +24,9 @@ public class SwitchThemeAction(ILogger<SwitchThemeAction> logger) : ActionBase<T
         {
             var regValue = Settings.Theme == "浅色" ? 1 : 0;
 
-            using RegistryKey registryKey= Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            registryKey.SetValue("AppsUseLightTheme",regValue,RegistryValueKind.DWord);
+            using RegistryKey registryKey =
+                Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            registryKey.SetValue("AppsUseLightTheme", regValue, RegistryValueKind.DWord);
             _logger.LogInformation("切换主题成功");
         }
         catch (Exception ex)

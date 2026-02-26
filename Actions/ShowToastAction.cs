@@ -31,10 +31,7 @@ public class ShowToastAction(ILogger<ShowToastAction> logger) : ActionBase<ShowT
             await PlatformServices.DesktopToastService.ShowToastAsync(
                 title ?? "SystemTools",
                 content ?? string.Empty,
-                () =>
-                {
-                    _logger.LogInformation("用户点击了通知");
-                }
+                () => { _logger.LogInformation("用户点击了通知"); }
             );
 
             _logger.LogInformation("已显示通知: {Title}", title);

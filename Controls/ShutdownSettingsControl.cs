@@ -40,10 +40,7 @@ public class ShutdownSettingsControl : ActionSettingsControlBase<ShutdownSetting
             Increment = 10
         };
 
-        _secondsInput.ValueChanged += (s, e) =>
-        {
-            Settings.Seconds = (int)(_secondsInput.Value ?? 60);
-        };
+        _secondsInput.ValueChanged += (s, e) => { Settings.Seconds = (int)(_secondsInput.Value ?? 60); };
 
         secondsPanel.Children.Add(_secondsInput);
         panel.Children.Add(secondsPanel);
@@ -54,10 +51,7 @@ public class ShutdownSettingsControl : ActionSettingsControlBase<ShutdownSetting
             Margin = new Avalonia.Thickness(0, 5, 0, 0)
         };
 
-        _promptCheckBox.IsCheckedChanged += (s, e) =>
-        {
-            Settings.ShowPrompt = !(_promptCheckBox.IsChecked ?? false);
-        };
+        _promptCheckBox.IsCheckedChanged += (s, e) => { Settings.ShowPrompt = !(_promptCheckBox.IsChecked ?? false); };
 
         panel.Children.Add(_promptCheckBox);
 

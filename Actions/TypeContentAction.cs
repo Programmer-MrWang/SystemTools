@@ -36,9 +36,11 @@ public class TypeContentAction(ILogger<TypeContentAction> logger) : ActionBase<T
             await Task.Delay(20);
             PInvoke.keybd_event(VK_V, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
-            PInvoke.keybd_event(VK_V, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_V, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
+                UIntPtr.Zero);
             await Task.Delay(20);
-            PInvoke.keybd_event(VK_CONTROL, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_CONTROL, 0,
+                Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
 
             _logger.LogInformation("内容已键入成功");
         }
@@ -80,7 +82,9 @@ public class TypeContentAction(ILogger<TypeContentAction> logger) : ActionBase<T
     //private static extern IntPtr GlobalFree(IntPtr hMem);
 
     private const byte VK_CONTROL = 0x11;
+
     private const byte VK_V = 0x56;
+
     //private const uint KEYEVENTF_KEYUP = 0x0002;
     private const uint CF_UNICODETEXT = 13;
     //private const uint GMEM_MOVEABLE = 0x0002;
@@ -95,7 +99,8 @@ public class TypeContentAction(ILogger<TypeContentAction> logger) : ActionBase<T
             PInvoke.EmptyClipboard();
 
             var bytes = (text.Length + 1) * 2;
-            var hGlobal = PInvoke.GlobalAlloc(Windows.Win32.System.Memory.GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE, (nuint)bytes);
+            var hGlobal = PInvoke.GlobalAlloc(Windows.Win32.System.Memory.GLOBAL_ALLOC_FLAGS.GMEM_MOVEABLE,
+                (nuint)bytes);
             if (hGlobal == IntPtr.Zero)
                 throw new Exception($"无法分配内存，错误码: {Marshal.GetLastWin32Error()}");
             unsafe

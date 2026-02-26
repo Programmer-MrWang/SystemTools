@@ -25,6 +25,7 @@ public class EnableMouseAction(ILogger<EnableMouseAction> logger) : ActionBase
                 _logger.LogError("无法获取程序集位置");
                 throw new FileNotFoundException($"无法获取程序集位置");
             }
+
             var batchPath = Path.Combine(pluginDir, "huifu.bat");
 
             if (!File.Exists(batchPath))

@@ -53,3 +53,4 @@ public class ClickSimulationAction : ActionBase<ClickSimulationSettings>
     private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
     private const uint MOUSEEVENTF_LEFTUP = 0x0004;
 }*/
+

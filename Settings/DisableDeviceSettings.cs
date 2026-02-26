@@ -4,6 +4,5 @@ namespace SystemTools.Settings;
 
 public class DisableDeviceSettings
 {
-    [JsonPropertyName("deviceId")]
-    public string DeviceId { get; set; } = string.Empty;
+    [JsonPropertyName("deviceId")] public string DeviceId { get; set; } = string.Empty;
 }

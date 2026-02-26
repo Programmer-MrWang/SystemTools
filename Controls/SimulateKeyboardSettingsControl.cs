@@ -117,10 +117,7 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
                 var keyName = ((System.Windows.Forms.Keys)keyCode).ToString();
                 _recordedKeys.Add($"{keyCode}:{keyName}");
 
-                Dispatcher.UIThread.Post(() =>
-                {
-                    UpdateTextBox();
-                });
+                Dispatcher.UIThread.Post(() => { UpdateTextBox(); });
             }
         }
 
@@ -138,6 +135,7 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
                 sb.Append(parts[1]).Append(" ");
             }
         }
+
         _keysTextBox.Text = sb.ToString().Trim();
     }
 
@@ -145,7 +143,9 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
     {
         using var curProcess = System.Diagnostics.Process.GetCurrentProcess();
         using var curModule = curProcess.MainModule;
-        return PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, proc, PInvoke.GetModuleHandle(curModule?.ModuleName), 0).DangerousGetHandle();
+        return PInvoke
+            .SetWindowsHookEx(WINDOWS_HOOK_ID.WH_KEYBOARD_LL, proc, PInvoke.GetModuleHandle(curModule?.ModuleName), 0)
+            .DangerousGetHandle();
     }
 
     //[DllImport("user32.dll", SetLastError = true)]

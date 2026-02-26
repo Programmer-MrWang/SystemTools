@@ -5,6 +5,5 @@ namespace SystemTools.Settings;
 
 public class KeyboardInputSettings
 {
-    [JsonPropertyName("keys")]
-    public List<string> Keys { get; set; } = [];
+    [JsonPropertyName("keys")] public List<string> Keys { get; set; } = [];
 }

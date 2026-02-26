@@ -51,55 +51,80 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
                     case MouseAction.ActionType.LeftClick:
                         if (_isLeftButtonDown)
                         {
-                            PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X, action.Y, 0, UIntPtr.Zero);
+                            PInvoke.mouse_event(
+                                Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X,
+                                action.Y, 0, UIntPtr.Zero);
                             _isLeftButtonDown = false;
                             await Task.Delay(MOUSE_DELAY);
                         }
+
                         PInvoke.SetCursorPos(action.X, action.Y);
                         await Task.Delay(MOUSE_DELAY);
-                        PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTDOWN, action.X, action.Y, 0, UIntPtr.Zero);
+                        PInvoke.mouse_event(
+                            Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTDOWN, action.X,
+                            action.Y, 0, UIntPtr.Zero);
                         await Task.Delay(MOUSE_DELAY);
-                        PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X, action.Y, 0, UIntPtr.Zero);
+                        PInvoke.mouse_event(
+                            Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X,
+                            action.Y, 0, UIntPtr.Zero);
                         break;
 
                     case MouseAction.ActionType.RightClick:
                         if (_isLeftButtonDown)
                         {
-                            PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X, action.Y, 0, UIntPtr.Zero);
+                            PInvoke.mouse_event(
+                                Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X,
+                                action.Y, 0, UIntPtr.Zero);
                             _isLeftButtonDown = false;
                             await Task.Delay(MOUSE_DELAY);
                         }
+
                         PInvoke.SetCursorPos(action.X, action.Y);
                         await Task.Delay(MOUSE_DELAY);
-                        PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_RIGHTDOWN, action.X, action.Y, 0, UIntPtr.Zero);
+                        PInvoke.mouse_event(
+                            Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_RIGHTDOWN, action.X,
+                            action.Y, 0, UIntPtr.Zero);
                         await Task.Delay(MOUSE_DELAY);
-                        PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_RIGHTUP, action.X, action.Y, 0, UIntPtr.Zero);
+                        PInvoke.mouse_event(
+                            Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_RIGHTUP, action.X,
+                            action.Y, 0, UIntPtr.Zero);
                         break;
 
                     case MouseAction.ActionType.MiddleClick:
                         if (_isLeftButtonDown)
                         {
-                            PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X, action.Y, 0, UIntPtr.Zero);
+                            PInvoke.mouse_event(
+                                Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X,
+                                action.Y, 0, UIntPtr.Zero);
                             _isLeftButtonDown = false;
                             await Task.Delay(MOUSE_DELAY);
                         }
+
                         PInvoke.SetCursorPos(action.X, action.Y);
                         await Task.Delay(MOUSE_DELAY);
-                        PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_MIDDLEDOWN, action.X, action.Y, 0, UIntPtr.Zero);
+                        PInvoke.mouse_event(
+                            Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_MIDDLEDOWN, action.X,
+                            action.Y, 0, UIntPtr.Zero);
                         await Task.Delay(MOUSE_DELAY);
-                        PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_MIDDLEUP, action.X, action.Y, 0, UIntPtr.Zero);
+                        PInvoke.mouse_event(
+                            Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_MIDDLEUP, action.X,
+                            action.Y, 0, UIntPtr.Zero);
                         break;
 
                     case MouseAction.ActionType.Scroll:
                         if (_isLeftButtonDown)
                         {
-                            PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X, action.Y, 0, UIntPtr.Zero);
+                            PInvoke.mouse_event(
+                                Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X,
+                                action.Y, 0, UIntPtr.Zero);
                             _isLeftButtonDown = false;
                             await Task.Delay(MOUSE_DELAY);
                         }
+
                         PInvoke.SetCursorPos(action.X, action.Y);
                         await Task.Delay(MOUSE_DELAY);
-                        PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_WHEEL, 0, 0, action.ScrollDelta, UIntPtr.Zero);
+                        PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_WHEEL,
+                            0, 0, action.ScrollDelta, UIntPtr.Zero);
                         break;
 
                     case MouseAction.ActionType.DragMove:
@@ -107,7 +132,9 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
                         {
                             PInvoke.SetCursorPos(action.X, action.Y);
                             await Task.Delay(MOUSE_DELAY);
-                            PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTDOWN, action.X, action.Y, 0, UIntPtr.Zero);
+                            PInvoke.mouse_event(
+                                Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTDOWN,
+                                action.X, action.Y, 0, UIntPtr.Zero);
                             _isLeftButtonDown = true;
                         }
                         else
@@ -118,9 +145,12 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
 
                         if (action.IsDragEnd && _isLeftButtonDown)
                         {
-                            PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X, action.Y, 0, UIntPtr.Zero);
+                            PInvoke.mouse_event(
+                                Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, action.X,
+                                action.Y, 0, UIntPtr.Zero);
                             _isLeftButtonDown = false;
                         }
+
                         break;
                 }
             }
@@ -128,7 +158,8 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
             if (_isLeftButtonDown)
             {
                 var lastAction = Settings.Actions[Settings.Actions.Count - 1];
-                PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP, lastAction.X, lastAction.Y, 0, UIntPtr.Zero);
+                PInvoke.mouse_event(Windows.Win32.UI.Input.KeyboardAndMouse.MOUSE_EVENT_FLAGS.MOUSEEVENTF_LEFTUP,
+                    lastAction.X, lastAction.Y, 0, UIntPtr.Zero);
                 _isLeftButtonDown = false;
             }
         }
@@ -160,6 +191,7 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
                 _logger.LogError("无法获取程序集位置");
                 throw new FileNotFoundException($"无法获取程序集位置");
             }
+
             var batchPath = Path.Combine(pluginDir, batchFileName);
 
             if (!File.Exists(batchPath))

@@ -27,6 +27,7 @@ public class BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger) : Acti
                 _logger.LogError("无法获取程序集位置");
                 throw new FileNotFoundException($"无法获取程序集位置");
             }
+
             var htmlPath = Path.Combine(pluginDir, "black.html");
             if (!File.Exists(htmlPath))
             {
@@ -58,7 +59,8 @@ public class BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger) : Acti
             //模拟F11按键
             PInvoke.keybd_event(VK_F11, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
-            PInvoke.keybd_event(VK_F11, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_F11, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
+                UIntPtr.Zero);
 
             _logger.LogInformation("F11键已发送");
         }

@@ -26,7 +26,8 @@ public class EscAction(ILogger<EscAction> logger) : ActionBase
 
             PInvoke.keybd_event(VK_ESCAPE, 0, 0, UIntPtr.Zero);
             await Task.Delay(20);
-            PInvoke.keybd_event(VK_ESCAPE, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+            PInvoke.keybd_event(VK_ESCAPE, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
+                UIntPtr.Zero);
 
             _logger.LogInformation("Esc 键已成功发送");
         }

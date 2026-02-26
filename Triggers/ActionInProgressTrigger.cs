@@ -28,6 +28,7 @@ public class ActionInProgressTrigger : TriggerBase<ActionInProgressTriggerConfig
             _logger.LogError("无法获取程序运行位置");
             throw new FileNotFoundException($"无法获取程序运行位置");
         }
+
         _autoJsonPath = Path.Combine(configDir, "auto.json");
     }
 
@@ -47,6 +48,7 @@ public class ActionInProgressTrigger : TriggerBase<ActionInProgressTriggerConfig
             _checkTimer.Dispose();
             _checkTimer = null;
         }
+
         _logger.LogDebug("行动进行时触发器已停止");
     }
 

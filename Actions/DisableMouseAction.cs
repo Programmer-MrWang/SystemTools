@@ -25,6 +25,7 @@ public class DisableMouseAction(ILogger<DisableMouseAction> logger) : ActionBase
                 _logger.LogError("无法获取程序集位置");
                 throw new FileNotFoundException($"无法获取程序集位置");
             }
+
             var batchPath = Path.Combine(pluginDir, "jinyongshubiao.bat");
 
             if (!File.Exists(batchPath))

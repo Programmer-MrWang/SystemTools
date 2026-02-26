@@ -51,7 +51,7 @@ public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<Scr
                 bitmap.Save(fullPath, ImageFormat.Png);
             }
 
-            _logger.LogInformation("屏幕截图已保存到: {FileName}", fileName);
+            _logger.LogInformation("屏幕截图已保存: {FileName}", fileName);
         }
         catch (Exception ex)
         {

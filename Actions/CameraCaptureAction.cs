@@ -38,7 +38,6 @@ public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBa
                 Directory.CreateDirectory(Settings.SaveFolder);
             }
 
-            // 自动生成文件名：摄像头抓拍+时间（YYYY-MM-DD-HH-MM-SS）
             string fileName = $"摄像头抓拍{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.png";
             string fullPath = Path.Combine(Settings.SaveFolder, fileName);
 

@@ -20,7 +20,7 @@ public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<Scr
     {
         _logger.LogDebug("ScreenShotAction OnInvoke 开始");
 
-        if (string.IsNullOrWhiteSpace(Settings.SavePath))
+        if (string.IsNullOrWhiteSpace(Settings.SaveFolder))
         {
             _logger.LogWarning("保存路径为空");
             return;
@@ -28,13 +28,14 @@ public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<Scr
 
         try
         {
-            string path = Settings.SavePath;
-            string? directory = Path.GetDirectoryName(path);
-
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            if (!Directory.Exists(Settings.SaveFolder))
             {
-                Directory.CreateDirectory(directory);
+                _logger.LogInformation("创建保存目录: {Dir}", Settings.SaveFolder);
+                Directory.CreateDirectory(Settings.SaveFolder);
             }
+
+            string fileName = $"屏幕截图{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.png";
+            string fullPath = Path.Combine(Settings.SaveFolder, fileName);
 
             var screen = Screen.PrimaryScreen;
             if (screen == null)
@@ -47,10 +48,10 @@ public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<Scr
             using (Graphics graphics = Graphics.FromImage(bitmap))
             {
                 graphics.CopyFromScreen(screen.Bounds.X, screen.Bounds.Y, 0, 0, screen.Bounds.Size);
-                bitmap.Save(path, ImageFormat.Png);
+                bitmap.Save(fullPath, ImageFormat.Png);
             }
 
-            _logger.LogInformation("屏幕截图已保存到: {Path}", path);
+            _logger.LogInformation("屏幕截图已保存到: {FileName}", fileName);
         }
         catch (Exception ex)
         {

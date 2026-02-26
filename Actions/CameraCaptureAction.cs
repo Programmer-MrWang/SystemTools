@@ -18,7 +18,7 @@ public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBa
     {
         _logger.LogDebug("CameraCaptureAction OnInvoke 开始");
 
-        if (string.IsNullOrWhiteSpace(Settings.SavePath))
+        if (string.IsNullOrWhiteSpace(Settings.SaveFolder))
         {
             _logger.LogWarning("保存路径为空");
             throw new Exception("保存路径不能为空");
@@ -32,19 +32,18 @@ public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBa
 
         try
         {
-            string? outputDir = Path.GetDirectoryName(Settings.SavePath);
-            if (!string.IsNullOrEmpty(outputDir) && !Directory.Exists(outputDir))
+            if (!Directory.Exists(Settings.SaveFolder))
             {
-                _logger.LogInformation("创建输出目录: {Dir}", outputDir);
-                Directory.CreateDirectory(outputDir);
+                _logger.LogInformation("创建保存目录: {Dir}", Settings.SaveFolder);
+                Directory.CreateDirectory(Settings.SaveFolder);
             }
 
-            if (File.Exists(Settings.SavePath))
-            {
-                _logger.LogDebug("删除已存在的文件: {Path}", Settings.SavePath);
-                try { File.Delete(Settings.SavePath); }
-                catch (Exception ex) { _logger.LogWarning(ex, "删除旧文件失败"); }
-            }
+            // 自动生成文件名：摄像头抓拍+时间（YYYY-MM-DD-HH-MM-SS）
+            string fileName = $"摄像头抓拍{DateTime.Now:yyyy-MM-dd-HH-mm-ss}.png";
+            string fullPath = Path.Combine(Settings.SaveFolder, fileName);
+
+            _logger.LogInformation("正在抓拍摄像头 '{Device}' 图像到: {Path}",
+                Settings.DeviceName, fullPath);
 
             string? pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
             string ffmpegPath = Path.Combine(pluginDir ?? AppDomain.CurrentDomain.BaseDirectory, "ffmpeg.exe");
@@ -54,13 +53,10 @@ public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBa
                 throw new Exception($"找不到 ffmpeg.exe: {ffmpegPath}");
             }
 
-            _logger.LogInformation("正在抓拍摄像头 '{Device}' 图像到: {Path}",
-                Settings.DeviceName, Settings.SavePath);
-
             var psi = new ProcessStartInfo
             {
                 FileName = ffmpegPath,
-                Arguments = $"-f dshow -i video=\"{Settings.DeviceName}\" -frames:v 1 -y \"{Settings.SavePath}\"",
+                Arguments = $"-f dshow -i video=\"{Settings.DeviceName}\" -frames:v 1 -y \"{fullPath}\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
@@ -77,12 +73,12 @@ public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBa
 
                 if (process.ExitCode == 0)
                 {
-                    _logger.LogInformation("摄像头抓拍成功");
+                    _logger.LogInformation("摄像头抓拍成功: {FileName}", fileName);
                 }
                 else
                 {
-                    _logger.LogWarning("FFmpeg 失败，退出码: {ExitCode}, 输出: {Output}, 错误: {Error}",
-                        process.ExitCode, output, error);
+                    _logger.LogWarning("FFmpeg 失败，退出码: {ExitCode}, 错误: {Error}",
+                        process.ExitCode, error);
                     throw new Exception($"摄像头抓拍失败: {error}");
                 }
             }

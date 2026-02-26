@@ -11,39 +11,39 @@ namespace SystemTools.Controls;
 
 public class ScreenShotSettingsControl : ActionSettingsControlBase<ScreenShotSettings>
 {
-    private TextBox _pathBox;
+    private TextBox _folderPathBox;
 
     public ScreenShotSettingsControl()
     {
-        var panel = new Avalonia.Controls.StackPanel { Spacing = 10, Margin = new(10) };
+        var panel = new StackPanel { Spacing = 10, Margin = new(10) };
 
-        panel.Children.Add(new Avalonia.Controls.TextBlock
+        panel.Children.Add(new TextBlock
         {
             Text = "屏幕截图",
             FontWeight = Avalonia.Media.FontWeight.Bold,
             FontSize = 14
         });
 
-        var pathPanel = new Avalonia.Controls.StackPanel
+        var pathPanel = new StackPanel
         {
             Orientation = Avalonia.Layout.Orientation.Horizontal,
             Spacing = 10
         };
 
-        _pathBox = new TextBox
+        _folderPathBox = new TextBox
         {
-            Watermark = "选择保存路径",
-            Width = 300
+            Watermark = "点击\"浏览...\"以选择保存文件夹",
+            Width = 300,
+            IsReadOnly = true
         };
-        _pathBox.TextChanged += (s, e) => Settings.SavePath = _pathBox.Text ?? "";
-        pathPanel.Children.Add(_pathBox);
+        pathPanel.Children.Add(_folderPathBox);
 
-        var browseButton = new Avalonia.Controls.Button
+        var browseButton = new Button
         {
             Content = "浏览...",
             Width = 80
         };
-        browseButton.Click += async (s, e) => await BrowseButton_Click();
+        browseButton.Click += async (s, e) => await BrowseFolder_Click();
         pathPanel.Children.Add(browseButton);
 
         panel.Children.Add(pathPanel);
@@ -54,10 +54,10 @@ public class ScreenShotSettingsControl : ActionSettingsControlBase<ScreenShotSet
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _pathBox.Text = Settings.SavePath;
+        _folderPathBox.Text = Settings.SaveFolder;
     }
 
-    private async Task BrowseButton_Click()
+    private async Task BrowseFolder_Click()
     {
         try
         {
@@ -69,38 +69,23 @@ public class ScreenShotSettingsControl : ActionSettingsControlBase<ScreenShotSet
                 return;
             }
 
-            var options = new FilePickerSaveOptions
+            var options = new FolderPickerOpenOptions
             {
-                Title = "保存屏幕截图",
-                DefaultExtension = "png",
-                FileTypeChoices = new[]
-                {
-                    new FilePickerFileType("PNG图片")
-                    {
-                        Patterns = new[] { "*.png" }
-                    },
-                    new FilePickerFileType("JPEG图片")
-                    {
-                        Patterns = new[] { "*.jpg", "*.jpeg" }
-                    },
-                    new FilePickerFileType("所有文件")
-                    {
-                        Patterns = new[] { "*" }
-                    }
-                }
+                Title = "选择截图保存文件夹",
+                AllowMultiple = false
             };
 
-            var result = await topLevel.StorageProvider.SaveFilePickerAsync(options);
-            if (result != null)
+            var result = await topLevel.StorageProvider.OpenFolderPickerAsync(options);
+            if (result != null && result.Count > 0)
             {
-                Settings.SavePath = result.Path.LocalPath;
-                _pathBox.Text = result.Path.LocalPath;
+                Settings.SaveFolder = result[0].Path.LocalPath;
+                _folderPathBox.Text = Settings.SaveFolder;
             }
         }
         catch (Exception ex)
         {
             var logger = IAppHost.TryGetService<ILogger<ScreenShotSettingsControl>>();
-            logger?.LogError(ex, "选择保存路径失败");
+            logger?.LogError(ex, "选择保存文件夹失败");
         }
     }
 }

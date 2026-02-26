@@ -4,6 +4,6 @@ namespace SystemTools.Settings;
 
 public class ScreenShotSettings
 {
-    [JsonPropertyName("savePath")]
-    public string SavePath { get; set; } = string.Empty;
+    [JsonPropertyName("saveFolder")]
+    public string SaveFolder { get; set; } = string.Empty;
 }

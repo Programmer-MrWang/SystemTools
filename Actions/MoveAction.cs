@@ -18,7 +18,8 @@ public class MoveAction(ILogger<MoveAction> logger) : ActionBase<MoveSettings>
     {
         _logger.LogDebug("MoveAction OnInvoke 开始");
 
-        if (Settings == null || string.IsNullOrWhiteSpace(Settings.SourcePath) || string.IsNullOrWhiteSpace(Settings.DestinationPath))
+        if (Settings == null || string.IsNullOrWhiteSpace(Settings.SourcePath) ||
+            string.IsNullOrWhiteSpace(Settings.DestinationPath))
         {
             _logger.LogWarning("路径为空");
             return;
@@ -94,7 +95,8 @@ public class MoveAction(ILogger<MoveAction> logger) : ActionBase<MoveSettings>
 
                 psi.FileName = "robocopy.exe";
                 psi.Arguments = $"\"{sourcePath}\" \"{finalDestPath}\" /e /move /copyall /r:3 /w:3 /mt:4 /nfl /ndl /np";
-                _logger.LogInformation("执行命令: robocopy \"{Source}\" \"{Destination}\" /move", sourcePath, finalDestPath);
+                _logger.LogInformation("执行命令: robocopy \"{Source}\" \"{Destination}\" /move", sourcePath,
+                    finalDestPath);
 
                 using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
                 string output = await process.StandardOutput.ReadToEndAsync();

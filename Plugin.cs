@@ -22,17 +22,18 @@ using SystemTools.Controls.Components;
 using SystemTools.Services;
 using SystemTools.Shared;
 using SystemTools.Triggers;
+using System.Collections.Generic;
 
 namespace SystemTools;
-
 /*
-  _________                 __                  ___________              .__           
- /   _____/___.__.  _______/  |_   ____    _____\__    ___/____    ____  |  |    ______
- \_____  \<   |  | /  ___/\   __\_/ __ \  /     \ |    |  /  _ \  /  _ \ |  |   /  ___/
- /        \\___  | \___ \  |  |  \  ___/ |  Y Y  \|    | (  <_> )(  <_> )|  |__ \___ \ 
-/_______  // ____|/____  > |__|   \___  >|__|_|  /|____|  \____/  \____/ |____//____  >
-        \/ \/          \/             \/       \/                                   \/ 
+            _________                 __                  ___________              .__
+          /   _____/___.__.  _______/  |_   ____    _____\__    ___/____    ____  |  |    ______
+          \_____  \<   |  | /  ___/\   __\_/ __ \  /     \ |    |  /  _ \  /  _ \ |  |   /  ___/
+          /        \\___  | \___ \  |  |  \  ___/ |  Y Y  \|    | (  <_> )(  <_> )|  |__ \___ \
+         /_______  // ____|/____  > |__|   \___  >|__|_|  /|____|  \____/  \____/ |____//____  >
+                \/ \/          \/             \/       \/                                   \/
 */
+
 public class Plugin : PluginBase
 {
     private ILogger<Plugin>? _logger;
@@ -51,15 +52,13 @@ public class Plugin : PluginBase
         services.AddSettingsPage<SystemToolsSettingsPage>();
         services.AddSettingsPage<AboutSettingsPage>();
 
-        // ========== 注册组件 ==========
-        services.AddComponent<NetworkStatusComponent, NetworkStatusSettingsControl>();
-        services.AddComponent<LyricsDisplayComponent, LyricsDisplaySettingsControl>();
-
-        // ========== 构建行动树 ==========
+        // ========== 构建行动树（根据配置）==========
         BuildBaseActionTree();
 
-        // ========== 注册行动和触发器 ==========
+        // ========== 注册行动、触发器和组件（根据配置）==========
         RegisterBaseActions(services);
+        RegisterBaseTriggers(services);
+        RegisterBaseComponents(services);
 
         var experimentalEnabled = GlobalConstants.MainConfig.Data.EnableExperimentalFeatures;
         var ffmpegEnabled = GlobalConstants.MainConfig.Data.EnableFfmpegFeatures;
@@ -69,25 +68,7 @@ public class Plugin : PluginBase
             _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
-
-            if (experimentalEnabled)
-            {
-                _logger?.LogInformation("[SystemTools]正在注册实验性功能...");
-            }
-            else
-            {
-                _logger?.LogInformation("[SystemTools]实验性功能未启用");
-            }
-
-            if (ffmpegEnabled)
-            {
-                _logger?.LogInformation("[SystemTools]FFmpeg功能已启用");
-            }
-            else
-            {
-                _logger?.LogInformation("[SystemTools]FFmpeg功能未启用");
-            }
-
+            _logger?.LogInformation("[SystemTools]FFmpeg功能状态: {Status}", ffmpegEnabled);
             _logger?.LogInformation("[SystemTools]SystemTools 启动完成");
         };
 
@@ -103,44 +84,105 @@ public class Plugin : PluginBase
             RegisterFfmpegFeatures(services);
         }
 
-        // ========== 注册热键服务（单例） ==========
+        // ========== 注册热键服务 ==========
         services.AddSingleton<IHotkeyService, HotkeyService>();
 
         // ========== 版本检查 ==========
-        AppBase.Current.AppStarted += (_, _) =>
-        {
-            VersionCheckService.CheckAndNotify();
-        };
+        AppBase.Current.AppStarted += (_, _) => { VersionCheckService.CheckAndNotify(); };
 
         // ========== 订阅关闭事件 ==========
         AppBase.Current.AppStopping += OnAppStopping;
 
+        // ========== 注册设置页面分组 ==========
         AppBase.Current.AppStarted += (_, _) => RegisterSettingsPageGroup(services);
     }
 
-    private void BuildBaseActionTree()
+    #region 注册方法
+
+    private void RegisterBaseActions(IServiceCollection services)
     {
-        IActionService.ActionMenuTree.Add(new ActionMenuTreeGroup("SystemTools 行动", "\uE079"));
-        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("模拟操作…", "\uEA0B"));
-        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("显示设置…", "\uF397"));
-        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("电源选项…", "\uEDE8"));
-        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("文件操作…", "\uE759"));
-        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("系统个性化…", "\uF42F"));
-        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));
-        IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("其他工具…", "\uE32C"));
+        var config = GlobalConstants.MainConfig!.Data;
 
-        BuildSimulationMenu();
-        BuildDisplayMenu();
-        BuildPowerMenu();
-        BuildFileMenu();
-        BuildPersonalizationMenu();
-        BuildUtilityMenu();
-        BuildOtherMenu();
+        // 模拟操作
+        RegisterActionIfEnabled<SimulateKeyboardAction, SimulateKeyboardSettingsControl>(services, config,
+            "SystemTools.SimulateKeyboard");
+        RegisterActionIfEnabled<SimulateMouseAction, SimulateMouseSettingsControl>(services, config,
+            "SystemTools.SimulateMouse");
+        RegisterActionIfEnabled<TypeContentAction, TypeContentSettingsControl>(services, config,
+            "SystemTools.TypeContent");
+        RegisterActionIfEnabled<WindowOperationAction, WindowOperationSettingsControl>(services, config,
+            "SystemTools.WindowOperation");
 
-        IActionService.ActionMenuTree["SystemTools 行动"].AddRange([
-            new ActionMenuTreeItem("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7"),
-            new ActionMenuTreeItem("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "\uEF53"),
-        ]);
+        // 常用按键
+        RegisterActionIfEnabled<EnterKeyAction>(services, config, "SystemTools.EnterKey");
+        RegisterActionIfEnabled<EscAction>(services, config, "SystemTools.EscKey");
+        RegisterActionIfEnabled<AltF4Action>(services, config, "SystemTools.AltF4");
+        RegisterActionIfEnabled<AltTabAction>(services, config, "SystemTools.AltTab");
+        RegisterActionIfEnabled<F11Action>(services, config, "SystemTools.F11Key");
+
+        // 显示设置
+        RegisterActionIfEnabled<CloneDisplayAction>(services, config, "SystemTools.CloneDisplay");
+        RegisterActionIfEnabled<ExtendDisplayAction>(services, config, "SystemTools.ExtendDisplay");
+        RegisterActionIfEnabled<InternalDisplayAction>(services, config, "SystemTools.InternalDisplay");
+        RegisterActionIfEnabled<ExternalDisplayAction>(services, config, "SystemTools.ExternalDisplay");
+        RegisterActionIfEnabled<BlackScreenHtmlAction>(services, config, "SystemTools.BlackScreenHtml");
+
+        // 电源选项
+        RegisterActionIfEnabled<ShutdownAction, ShutdownSettingsControl>(services, config, "SystemTools.Shutdown");
+        RegisterActionIfEnabled<LockScreenAction>(services, config, "SystemTools.LockScreen");
+        RegisterActionIfEnabled<CancelShutdownAction>(services, config, "SystemTools.CancelShutdown");
+
+        // 文件操作
+        RegisterActionIfEnabled<CopyAction, CopySettingsControl>(services, config, "SystemTools.Copy");
+        RegisterActionIfEnabled<MoveAction, MoveSettingsControl>(services, config, "SystemTools.Move");
+        RegisterActionIfEnabled<DeleteAction, DeleteSettingsControl>(services, config, "SystemTools.Delete");
+
+        // 系统个性化
+        RegisterActionIfEnabled<ChangeWallpaperAction, ChangeWallpaperSettingsControl>(services, config,
+            "SystemTools.ChangeWallpaper");
+        RegisterActionIfEnabled<SwitchThemeAction, ThemeSettingsControl>(services, config, "SystemTools.SwitchTheme");
+
+        // 实用工具（基础）
+        RegisterActionIfEnabled<ScreenShotAction, ScreenShotSettingsControl>(services, config,
+            "SystemTools.ScreenShot");
+        RegisterActionIfEnabled<SetVolumeAction, SetVolumeSettingsControl>(services, config, "SystemTools.SetVolume");
+        RegisterActionIfEnabled<KillProcessAction, KillProcessSettingsControl>(services, config,
+            "SystemTools.KillProcess");
+        RegisterActionIfEnabled<EnableDeviceAction, EnableDeviceSettingsControl>(services, config,
+            "SystemTools.EnableDevice");
+        RegisterActionIfEnabled<DisableDeviceAction, DisableDeviceSettingsControl>(services, config,
+            "SystemTools.DisableDevice");
+        RegisterActionIfEnabled<ShowToastAction, ShowToastSettingsControl>(services, config, "SystemTools.ShowToast");
+
+        // 其他工具
+        RegisterActionIfEnabled<FullscreenClockAction, FullscreenClockSettingsControl>(services, config,
+            "SystemTools.FullscreenClock");
+
+        // 独立行动
+        RegisterActionIfEnabled<TriggerCustomTriggerAction, TriggerCustomTriggerSettingsControl>(services, config,
+            "SystemTools.TriggerCustomTrigger");
+        RegisterActionIfEnabled<RestartAsAdminAction>(services, config, "SystemTools.RestartAsAdmin");
+    }
+
+    private void RegisterBaseTriggers(IServiceCollection services)
+    {
+        var config = GlobalConstants.MainConfig!.Data;
+
+        RegisterTriggerIfEnabled<UsbDeviceTrigger, UsbDeviceTriggerSettings>(services, config,
+            "SystemTools.UsbDeviceTrigger");
+        RegisterTriggerIfEnabled<HotkeyTrigger, HotkeyTriggerSettings>(services, config, "SystemTools.HotkeyTrigger");
+        RegisterTriggerIfEnabled<ActionInProgressTrigger, ActionInProgressTriggerSettings>(services, config,
+            "SystemTools.ActionInProgressTrigger");
+    }
+
+    private void RegisterBaseComponents(IServiceCollection services)
+    {
+        var config = GlobalConstants.MainConfig!.Data;
+
+        RegisterComponentIfEnabled<NetworkStatusComponent, NetworkStatusSettingsControl>(services, config,
+            "SystemTools.NetworkStatus");
+        RegisterComponentIfEnabled<LyricsDisplayComponent, LyricsDisplaySettingsControl>(services, config,
+            "SystemTools.LyricsDisplay");
     }
 
     private void RegisterExperimentalFeatures(IServiceCollection services)
@@ -171,150 +213,279 @@ public class Plugin : PluginBase
         );
     }
 
+    #endregion
 
-    private void RegisterBaseActions(IServiceCollection services)
+    #region 条件注册辅助方法
+
+    private void RegisterActionIfEnabled<TAction>(IServiceCollection services, MainConfigData config, string actionId)
+        where TAction : ClassIsland.Core.Abstractions.Automation.ActionBase
     {
-        // 模拟操作…
-        services.AddAction<EnterKeyAction>();
-        services.AddAction<EscAction>();
-        services.AddAction<AltF4Action>();
-        services.AddAction<AltTabAction>();
-        services.AddAction<F11Action>();
-        services.AddAction<SimulateKeyboardAction, SimulateKeyboardSettingsControl>();
-        services.AddAction<SimulateMouseAction, SimulateMouseSettingsControl>();
-        services.AddAction<TypeContentAction, TypeContentSettingsControl>();
-        services.AddAction<WindowOperationAction, WindowOperationSettingsControl>();
-
-        // 显示设置…
-        services.AddAction<CloneDisplayAction>();
-        services.AddAction<ExtendDisplayAction>();
-        services.AddAction<InternalDisplayAction>();
-        services.AddAction<ExternalDisplayAction>();
-        services.AddAction<BlackScreenHtmlAction>();
-
-        // 电源选项…
-        services.AddAction<ShutdownAction, ShutdownSettingsControl>();
-        services.AddAction<LockScreenAction>();
-        services.AddAction<CancelShutdownAction>();
-
-        // 文件操作…
-        services.AddAction<CopyAction, CopySettingsControl>();
-        services.AddAction<MoveAction, MoveSettingsControl>();
-        services.AddAction<DeleteAction, DeleteSettingsControl>();
-
-        // 系统个性化…
-        services.AddAction<ChangeWallpaperAction, ChangeWallpaperSettingsControl>();
-        services.AddAction<SwitchThemeAction, ThemeSettingsControl>();
-
-        // 实用工具…
-        services.AddAction<ScreenShotAction, ScreenShotSettingsControl>();
-        services.AddAction<SetVolumeAction, SetVolumeSettingsControl>();
-        services.AddAction<KillProcessAction, KillProcessSettingsControl>();
-        services.AddAction<EnableDeviceAction, EnableDeviceSettingsControl>();
-        services.AddAction<DisableDeviceAction, DisableDeviceSettingsControl>();
-        services.AddAction<ShowToastAction, ShowToastSettingsControl>();
-
-        //其他工具…
-        services.AddAction<FullscreenClockAction, FullscreenClockSettingsControl>();
-
-        // 触发指定触发器
-        services.AddAction<TriggerCustomTriggerAction, TriggerCustomTriggerSettingsControl>();
-        // 重启ClassIsland到管理员身份
-        services.AddAction<RestartAsAdminAction>();
-
-
-        // 触发器们
-        services.AddTrigger<UsbDeviceTrigger, UsbDeviceTriggerSettings>();
-        services.AddTrigger<HotkeyTrigger, HotkeyTriggerSettings>();
-        services.AddTrigger<ActionInProgressTrigger, ActionInProgressTriggerSettings>();
-
+        if (config.IsActionEnabled(actionId))
+        {
+            services.AddAction<TAction>();
+        }
     }
 
-    #region 菜单构建辅助方法
-
-    private void BuildSimulationMenu()
+    private void RegisterActionIfEnabled<TAction, TSettingsControl>(IServiceCollection services, MainConfigData config,
+        string actionId)
+        where TAction : ClassIsland.Core.Abstractions.Automation.ActionBase
+        where TSettingsControl : ClassIsland.Core.Abstractions.Controls.ActionSettingsControlBase
     {
-        IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"].Add(
-            new ActionMenuTreeGroup("常用模拟键", "\uEA0B")
-        );
-
-        IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"].AddRange([
-            new ActionMenuTreeItem("SystemTools.SimulateKeyboard", "模拟键盘", "\uEA0F"),
-            new ActionMenuTreeItem("SystemTools.SimulateMouse", "模拟鼠标", "\uE5C1"),
-            new ActionMenuTreeItem("SystemTools.TypeContent", "键入内容", "\uE4BE"),
-            new ActionMenuTreeItem("SystemTools.WindowOperation", "窗口操作", "\uF4B3")
-        ]);
-
-        IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"]["常用模拟键"].AddRange([
-            new ActionMenuTreeItem("SystemTools.AltF4", "按下 Alt+F4", "\uEA0B"),
-            new ActionMenuTreeItem("SystemTools.AltTab", "按下 Alt+Tab", "\uEA0B"),
-            new ActionMenuTreeItem("SystemTools.EnterKey", "按下 Enter 键", "\uEA0B"),
-            new ActionMenuTreeItem("SystemTools.EscKey", "按下 Esc 键", "\uEA0B"),
-            new ActionMenuTreeItem("SystemTools.F11Key", "按下 F11 键", "\uEA0B")
-        ]);
+        if (config.IsActionEnabled(actionId))
+        {
+            services.AddAction<TAction, TSettingsControl>();
+        }
     }
 
-    private void BuildDisplayMenu()
+    private void RegisterTriggerIfEnabled<TTrigger, TSettings>(IServiceCollection services, MainConfigData config,
+        string triggerId)
+        where TTrigger : ClassIsland.Core.Abstractions.Automation.TriggerBase
+        where TSettings : ClassIsland.Core.Abstractions.Controls.TriggerSettingsControlBase
     {
-        IActionService.ActionMenuTree["SystemTools 行动"]["显示设置…"].AddRange([
-            new ActionMenuTreeItem("SystemTools.CloneDisplay", "复制屏幕", "\uE635"),
-            new ActionMenuTreeItem("SystemTools.ExtendDisplay", "扩展屏幕", "\uE647"),
-            new ActionMenuTreeItem("SystemTools.InternalDisplay", "仅电脑屏幕", "\uE62F"),
-            new ActionMenuTreeItem("SystemTools.ExternalDisplay", "仅第二屏幕", "\uE641"),
-            new ActionMenuTreeItem("SystemTools.BlackScreenHtml", "黑屏html", "\uE643")
-        ]);
+        if (config.IsTriggerEnabled(triggerId))
+        {
+            services.AddTrigger<TTrigger, TSettings>();
+        }
     }
 
-    private void BuildPowerMenu()
+    private void RegisterComponentIfEnabled<TComponent, TSettingsControl>(IServiceCollection services,
+        MainConfigData config, string componentId)
+        where TComponent : ClassIsland.Core.Abstractions.Controls.ComponentBase
+        where TSettingsControl : ClassIsland.Core.Abstractions.Controls.ComponentBase
     {
-        IActionService.ActionMenuTree["SystemTools 行动"]["电源选项…"].AddRange([
-            new ActionMenuTreeItem("SystemTools.Shutdown", "计时关机", "\uE4C4"),
-            new ActionMenuTreeItem("SystemTools.CancelShutdown", "取消关机计划", "\uE4CC"),
-            new ActionMenuTreeItem("SystemTools.LockScreen", "锁定屏幕", "\uEAF0")
-        ]);
-    }
-
-    private void BuildFileMenu()
-    {
-        IActionService.ActionMenuTree["SystemTools 行动"]["文件操作…"].AddRange([
-            new ActionMenuTreeItem("SystemTools.Copy", "复制", "\uE6AB"),
-            new ActionMenuTreeItem("SystemTools.Move", "移动", "\uE6E7"),
-            new ActionMenuTreeItem("SystemTools.Delete", "删除", "\uE61D")
-        ]);
-    }
-
-    private void BuildPersonalizationMenu()
-    {
-        IActionService.ActionMenuTree["SystemTools 行动"]["系统个性化…"].AddRange([
-            new ActionMenuTreeItem("SystemTools.ChangeWallpaper", "切换壁纸", "\uE9BC"),
-            new ActionMenuTreeItem("SystemTools.SwitchTheme", "切换主题色", "\uF42F")
-        ]);
-    }
-
-    private void BuildUtilityMenu()
-    {
-        IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].AddRange([
-            new ActionMenuTreeItem("SystemTools.KillProcess", "退出进程", "\uE0DE"),
-            new ActionMenuTreeItem("SystemTools.ShowToast", "拉起自定义Windows通知", "\uE3E4"),
-            new ActionMenuTreeItem("SystemTools.SetVolume", "设置系统音量", "\uF013"),
-            new ActionMenuTreeItem("SystemTools.ScreenShot", "屏幕截图", "\uEEE7"),
-            new ActionMenuTreeItem("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F"),
-            new ActionMenuTreeItem("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD")
-        ]);
-    }
-
-    private void BuildOtherMenu()
-    {
-        IActionService.ActionMenuTree["SystemTools 行动"]["其他工具…"].AddRange([
-            new ActionMenuTreeItem("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2")
-        ]);
+        if (config.IsComponentEnabled(componentId))
+        {
+            services.AddComponent<TComponent, TSettingsControl>();
+        }
     }
 
     #endregion
 
+    #region 菜单构建
+
+    private void BuildBaseActionTree()
+    {
+        var config = GlobalConstants.MainConfig!.Data;
+
+        IActionService.ActionMenuTree.Add(new ActionMenuTreeGroup("SystemTools 行动", "\uE079"));
+
+        // 模拟操作
+        if (HasAnyActionEnabled(config, "SystemTools.SimulateKeyboard", "SystemTools.SimulateMouse",
+                "SystemTools.TypeContent", "SystemTools.WindowOperation", "SystemTools.EnterKey",
+                "SystemTools.EscKey", "SystemTools.AltF4", "SystemTools.AltTab", "SystemTools.F11Key"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("模拟操作…", "\uEA0B"));
+            BuildSimulationMenu(config);
+        }
+
+        // 显示设置
+        if (HasAnyActionEnabled(config, "SystemTools.CloneDisplay", "SystemTools.ExtendDisplay",
+                "SystemTools.InternalDisplay", "SystemTools.ExternalDisplay", "SystemTools.BlackScreenHtml"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("显示设置…", "\uF397"));
+            BuildDisplayMenu(config);
+        }
+
+        // 电源选项
+        if (HasAnyActionEnabled(config, "SystemTools.Shutdown", "SystemTools.LockScreen", "SystemTools.CancelShutdown"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("电源选项…", "\uEDE8"));
+            BuildPowerMenu(config);
+        }
+
+        // 文件操作
+        if (HasAnyActionEnabled(config, "SystemTools.Copy", "SystemTools.Move", "SystemTools.Delete"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("文件操作…", "\uE759"));
+            BuildFileMenu(config);
+        }
+
+        // 系统个性化
+        if (HasAnyActionEnabled(config, "SystemTools.ChangeWallpaper", "SystemTools.SwitchTheme"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("系统个性化…", "\uF42F"));
+            BuildPersonalizationMenu(config);
+        }
+
+        // 实用工具
+        if (HasAnyActionEnabled(config, "SystemTools.ScreenShot", "SystemTools.SetVolume", "SystemTools.KillProcess",
+                "SystemTools.EnableDevice", "SystemTools.DisableDevice", "SystemTools.ShowToast"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));
+            BuildUtilityMenu(config);
+        }
+
+        // 其他工具
+        if (config.IsActionEnabled("SystemTools.FullscreenClock"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("其他工具…", "\uE32C"));
+            BuildOtherMenu(config);
+        }
+
+        // 独立行动项
+        var standaloneActions = new List<ActionMenuTreeItem>();
+        if (config.IsActionEnabled("SystemTools.TriggerCustomTrigger"))
+            standaloneActions.Add(new ActionMenuTreeItem("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7"));
+        if (config.IsActionEnabled("SystemTools.RestartAsAdmin"))
+            standaloneActions.Add(new ActionMenuTreeItem("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "\uEF53"));
+
+        if (standaloneActions.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].AddRange(standaloneActions);
+        }
+    }
+
+    private bool HasAnyActionEnabled(MainConfigData config, params string[] actionIds)
+    {
+        return actionIds.Any(id => config.IsActionEnabled(id));
+    }
+
+    private void BuildSimulationMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.IsActionEnabled("SystemTools.SimulateKeyboard"))
+            items.Add(new ActionMenuTreeItem("SystemTools.SimulateKeyboard", "模拟键盘", "\uEA0F"));
+        if (config.IsActionEnabled("SystemTools.SimulateMouse"))
+            items.Add(new ActionMenuTreeItem("SystemTools.SimulateMouse", "模拟鼠标", "\uE5C1"));
+        if (config.IsActionEnabled("SystemTools.TypeContent"))
+            items.Add(new ActionMenuTreeItem("SystemTools.TypeContent", "键入内容", "\uE4BE"));
+        if (config.IsActionEnabled("SystemTools.WindowOperation"))
+            items.Add(new ActionMenuTreeItem("SystemTools.WindowOperation", "窗口操作", "\uF4B3"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"].AddRange(items);
+        }
+
+        // 常用模拟键子菜单
+        var commonKeys = new List<ActionMenuTreeItem>();
+        if (config.IsActionEnabled("SystemTools.AltF4"))
+            commonKeys.Add(new ActionMenuTreeItem("SystemTools.AltF4", "按下 Alt+F4", "\uEA0B"));
+        if (config.IsActionEnabled("SystemTools.AltTab"))
+            commonKeys.Add(new ActionMenuTreeItem("SystemTools.AltTab", "按下 Alt+Tab", "\uEA0B"));
+        if (config.IsActionEnabled("SystemTools.EnterKey"))
+            commonKeys.Add(new ActionMenuTreeItem("SystemTools.EnterKey", "按下 Enter 键", "\uEA0B"));
+        if (config.IsActionEnabled("SystemTools.EscKey"))
+            commonKeys.Add(new ActionMenuTreeItem("SystemTools.EscKey", "按下 Esc 键", "\uEA0B"));
+        if (config.IsActionEnabled("SystemTools.F11Key"))
+            commonKeys.Add(new ActionMenuTreeItem("SystemTools.F11Key", "按下 F11 键", "\uEA0B"));
+
+        if (commonKeys.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"].Add(new ActionMenuTreeGroup("常用模拟键", "\uEA0B"));
+            IActionService.ActionMenuTree["SystemTools 行动"]["模拟操作…"]["常用模拟键"].AddRange(commonKeys);
+        }
+    }
+
+    private void BuildDisplayMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.IsActionEnabled("SystemTools.CloneDisplay"))
+            items.Add(new ActionMenuTreeItem("SystemTools.CloneDisplay", "复制屏幕", "\uE635"));
+        if (config.IsActionEnabled("SystemTools.ExtendDisplay"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ExtendDisplay", "扩展屏幕", "\uE647"));
+        if (config.IsActionEnabled("SystemTools.InternalDisplay"))
+            items.Add(new ActionMenuTreeItem("SystemTools.InternalDisplay", "仅电脑屏幕", "\uE62F"));
+        if (config.IsActionEnabled("SystemTools.ExternalDisplay"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ExternalDisplay", "仅第二屏幕", "\uE641"));
+        if (config.IsActionEnabled("SystemTools.BlackScreenHtml"))
+            items.Add(new ActionMenuTreeItem("SystemTools.BlackScreenHtml", "黑屏html", "\uE643"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["显示设置…"].AddRange(items);
+        }
+    }
+
+    private void BuildPowerMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.IsActionEnabled("SystemTools.Shutdown"))
+            items.Add(new ActionMenuTreeItem("SystemTools.Shutdown", "计时关机", "\uE4C4"));
+        if (config.IsActionEnabled("SystemTools.CancelShutdown"))
+            items.Add(new ActionMenuTreeItem("SystemTools.CancelShutdown", "取消关机计划", "\uE4CC"));
+        if (config.IsActionEnabled("SystemTools.LockScreen"))
+            items.Add(new ActionMenuTreeItem("SystemTools.LockScreen", "锁定屏幕", "\uEAF0"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["电源选项…"].AddRange(items);
+        }
+    }
+
+    private void BuildFileMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.IsActionEnabled("SystemTools.Copy"))
+            items.Add(new ActionMenuTreeItem("SystemTools.Copy", "复制", "\uE6AB"));
+        if (config.IsActionEnabled("SystemTools.Move"))
+            items.Add(new ActionMenuTreeItem("SystemTools.Move", "移动", "\uE6E7"));
+        if (config.IsActionEnabled("SystemTools.Delete"))
+            items.Add(new ActionMenuTreeItem("SystemTools.Delete", "删除", "\uE61D"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["文件操作…"].AddRange(items);
+        }
+    }
+
+    private void BuildPersonalizationMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.IsActionEnabled("SystemTools.ChangeWallpaper"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ChangeWallpaper", "切换壁纸", "\uE9BC"));
+        if (config.IsActionEnabled("SystemTools.SwitchTheme"))
+            items.Add(new ActionMenuTreeItem("SystemTools.SwitchTheme", "切换主题色", "\uF42F"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["系统个性化…"].AddRange(items);
+        }
+    }
+
+    private void BuildUtilityMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.IsActionEnabled("SystemTools.KillProcess"))
+            items.Add(new ActionMenuTreeItem("SystemTools.KillProcess", "退出进程", "\uE0DE"));
+        if (config.IsActionEnabled("SystemTools.ScreenShot"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ScreenShot", "屏幕截图", "\uEEE7"));
+        if (config.IsActionEnabled("SystemTools.SetVolume"))
+            items.Add(new ActionMenuTreeItem("SystemTools.SetVolume", "设置系统音量", "\uF013"));
+        if (config.IsActionEnabled("SystemTools.ShowToast"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ShowToast", "拉起自定义Windows通知", "\uE3E4"));
+        if (config.IsActionEnabled("SystemTools.DisableDevice"))
+            items.Add(new ActionMenuTreeItem("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F"));
+        if (config.IsActionEnabled("SystemTools.EnableDevice"))
+            items.Add(new ActionMenuTreeItem("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["实用工具…"].AddRange(items);
+        }
+    }
+
+    private void BuildOtherMenu(MainConfigData config)
+    {
+        if (config.IsActionEnabled("SystemTools.FullscreenClock"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["其他工具…"].Add(
+                new ActionMenuTreeItem("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2"));
+        }
+    }
+
+    #endregion
+
+    #region 设置页面分组
+
     private void RegisterSettingsPageGroup(IServiceCollection services)
     {
-
         if (InjectServices.TryGetAddSettingsPageGroupMethod(out var addSettingsPageGroupMethod))
         {
             addSettingsPageGroupMethod.Invoke(
@@ -324,7 +495,7 @@ public class Plugin : PluginBase
             var groupIdProperty = InjectServices.GetSettingsPageInfoGroupIdProperty();
 
             foreach (var info in SettingsWindowRegistryService.Registered
-                .Where(info => info.Id.StartsWith("systemtools.settings")))
+                         .Where(info => info.Id.StartsWith("systemtools.settings")))
             {
                 groupIdProperty?.SetValue(info, "systemtools.settings");
             }
@@ -333,7 +504,7 @@ public class Plugin : PluginBase
         {
             var nameField = InjectServices.GetSettingsPageInfoNameField();
             foreach (var info in SettingsWindowRegistryService.Registered
-                .Where(info => info.Id.StartsWith("systemtools.settings")))
+                         .Where(info => info.Id.StartsWith("systemtools.settings")))
             {
                 var currentName = (string?)nameField.GetValue(info);
                 nameField.SetValue(info, "SystemTools 设置 - " + currentName);
@@ -341,10 +512,11 @@ public class Plugin : PluginBase
         }
     }
 
+    #endregion
+
     private void OnAppStopping(object? sender, EventArgs e)
     {
         _logger?.LogInformation("[SystemTools]关闭插件SystemTools，保存配置...");
         GlobalConstants.MainConfig?.Save();
     }
-
 }

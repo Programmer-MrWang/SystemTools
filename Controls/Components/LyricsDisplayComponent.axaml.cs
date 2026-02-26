@@ -40,6 +40,7 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
     // 计算属性
     public double ScaledWidth => _originalWidth * Settings.ImageScale;
     public double ScaledHeight => _originalHeight * Settings.ImageScale;
+
     public Avalonia.Media.Imaging.Bitmap? LyricsBitmap
     {
         get => _lyricsBitmap;
@@ -170,7 +171,9 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                     SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
             }
         }
-        catch { }
+        catch
+        {
+        }
     }
 
     private void CaptureLyricsWindow()
@@ -213,14 +216,16 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
 
                 Rectangle cropArea;
                 if (Settings.SelectedMusicSoftware == MusicSoftware.QishuiMusic)
-                {   //汽水音乐
+                {
+                    //汽水音乐
                     int cropTop = (int)(height * 0.15);
                     int cropBottom = (int)(height * 0.57);
                     int croppedHeight = height - cropTop - cropBottom;
                     cropArea = new Rectangle(0, cropTop, width, croppedHeight);
                 }
                 else
-                {   //其他
+                {
+                    //其他
                     int cropTop = height / 4;
                     int croppedHeight = height - cropTop;
                     cropArea = new Rectangle(0, cropTop, width, croppedHeight);

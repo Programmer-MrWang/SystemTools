@@ -13,13 +13,14 @@
     Loaded="LyricsDisplayComponent_OnLoaded"
     Unloaded="LyricsDisplayComponent_OnUnloaded"
     mc:Ignorable="d">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:LyricsDisplayComponent}}">
+    <Grid
+        DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:LyricsDisplayComponent}}">
         <Image x:Name="LyricsImage"
-       Source="{Binding LyricsBitmap}"
-       Width="{Binding ScaledWidth}"
-       Height="{Binding ScaledHeight}"
-       Stretch="Uniform"
-       HorizontalAlignment="Center"
-       VerticalAlignment="Center" />
+               Source="{Binding LyricsBitmap}"
+               Width="{Binding ScaledWidth}"
+               Height="{Binding ScaledHeight}"
+               Stretch="Uniform"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center" />
     </Grid>
 </ci:ComponentBase>

@@ -13,11 +13,12 @@
     Loaded="NetworkStatusComponent_OnLoaded"
     Unloaded="NetworkStatusComponent_OnUnloaded"
     mc:Ignorable="d">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:NetworkStatusComponent}}"
-          TextElement.FontSize="{DynamicResource MainWindowBodyFontSize}">
+    <Grid
+        DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:NetworkStatusComponent}}"
+        TextElement.FontSize="{DynamicResource MainWindowBodyFontSize}">
         <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
             <TextBlock Text="{Binding Settings.DisplayText, Mode=OneWay}" />
-            <TextBlock Text="{Binding StatusText, Mode=OneWay}" 
+            <TextBlock Text="{Binding StatusText, Mode=OneWay}"
                        Foreground="{Binding StatusBrush}" />
         </StackPanel>
     </Grid>

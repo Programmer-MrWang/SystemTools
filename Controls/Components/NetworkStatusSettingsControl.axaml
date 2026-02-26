@@ -8,38 +8,78 @@
     xmlns:local="clr-namespace:SystemTools.Controls.Components"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    xmlns:converters="clr-namespace:SystemTools.Converters"
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:TypeArguments="settings:NetworkStatusSettings"
     mc:Ignorable="d">
-    <Grid DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NetworkStatusSettingsControl}}">
+    <ci:ComponentBase.Resources>
+        <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+    </ci:ComponentBase.Resources>
+    <Grid
+        DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NetworkStatusSettingsControl}}">
         <ScrollViewer>
             <StackPanel>
 
-                    <controls:SettingsExpander
-                        Header="延迟检测网址"
-                        Description="要检测的网址,默认 https://baidu.com"
-                        IconSource="{ci:FluentIconSource &#xEAB6;}">
-                        <controls:SettingsExpander.Footer>
-                            <TextBox MinWidth="200" 
-                                     Text="{Binding Settings.PingUrl, Mode=TwoWay}" />
-                        </controls:SettingsExpander.Footer>
-                    </controls:SettingsExpander>
+                <controls:SettingsExpander
+                    Header="延迟检测网址"
+                    Description="要检测的网址,默认 https://baidu.com"
+                    IconSource="{ci:FluentIconSource &#xEAB6;}">
+                    <controls:SettingsExpander.Footer>
+                        <TextBox MinWidth="200"
+                                 Text="{Binding Settings.PingUrl, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
 
-                    <controls:SettingsExpander
-                        Header="前缀文本内容"
-                        Description="显示在延迟数值前的前缀文字"
-                        IconSource="{ci:FluentIconSource &#xF171;}">
-                        <controls:SettingsExpander.Footer>
-                            <TextBox MinWidth="150" 
-                                     Text="{Binding Settings.DisplayText, Mode=TwoWay}" />
-                        </controls:SettingsExpander.Footer>
-                    </controls:SettingsExpander>
+                <controls:SettingsExpander
+                    Description="选择网络延迟检测方式"
+                    IconSource="{ci:FluentIconSource &#xE923;}">
+                    <controls:SettingsExpander.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="检测模式" 
+                                       VerticalAlignment="Center"/>
+                            <Button Theme="{StaticResource TransparentButton}"
+                                    VerticalAlignment="Center"
+                                    Padding="1"
+                                    ToolTip.Tip="自动：自动检查并使用适用于您的检测方式&#x0A;ICMP模式：精确且占用低但不兼容TUN代理&#x0A;HTTP模式：兼容所有代理但延迟和占用略高  ">
+                                <ci:FluentIcon Glyph="&#xEE31;" 
+                                               FontSize="13"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            </Button>
+                        </StackPanel>
+                    </controls:SettingsExpander.Header>
+    
+                    <controls:SettingsExpander.Footer>
+                        <ComboBox MinWidth="120"
+                                  SelectedItem="{Binding Settings.DetectMode, Mode=TwoWay}">
+                            <ComboBox.Items>
+                                <settings:NetworkDetectMode>Auto</settings:NetworkDetectMode>
+                                <settings:NetworkDetectMode>Icmp</settings:NetworkDetectMode>
+                                <settings:NetworkDetectMode>Http</settings:NetworkDetectMode>
+                            </ComboBox.Items>
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type settings:NetworkDetectMode}">
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander
+                    Header="前缀文本内容"
+                    Description="显示在延迟数值前的前缀文字"
+                    IconSource="{ci:FluentIconSource &#xF171;}">
+                    <controls:SettingsExpander.Footer>
+                        <TextBox MinWidth="150"
+                                 Text="{Binding Settings.DisplayText, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
 
                 <Label HorizontalAlignment="Center"
-                   Foreground="{DynamicResource MaterialDesignBodyLight}">
-                Added by SystemTools
-            </Label>
+                       Foreground="{DynamicResource MaterialDesignBodyLight}">
+                    Added by SystemTools
+                </Label>
             </StackPanel>
         </ScrollViewer>
     </Grid>

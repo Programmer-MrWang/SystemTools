@@ -1,15 +1,15 @@
 ﻿<ci:SettingsPageBase x:Class="SystemTools.AboutSettingsPage"
-      xmlns="https://github.com/avaloniaui"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:ci="http://classisland.tech/schemas/xaml/core"
-      xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-      xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
-      xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" 
-      d:DesignWidth="800">
+                     xmlns="https://github.com/avaloniaui"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:ci="http://classisland.tech/schemas/xaml/core"
+                     xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+                     xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
+                     xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
+                     mc:Ignorable="d"
+                     d:DesignHeight="450"
+                     d:DesignWidth="800">
 
     <ScrollViewer>
         <StackPanel Classes="settings-container animated-intro">
@@ -18,33 +18,33 @@
                    Foreground="{DynamicResource TextFillColorTertiaryBrush}">
                 SystemTools
             </Label>
-            
+
             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                 <ci:FluentIcon FontSize="56"
-                    Glyph="&#xE9E3;"
-                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                    VerticalAlignment="Center" />
+                               Glyph="&#xE9E3;"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               VerticalAlignment="Center" />
                 <Label VerticalAlignment="Center" FontSize="28">本插件 · 关于</Label>
             </StackPanel>
-            
+
             <!-- 信息卡片 -->
             <Border ClipToBounds="True" CornerRadius="4" Margin="0,0,0,12">
                 <controls:SettingsExpanderItem>
                     <Grid HorizontalAlignment="Stretch" Margin="12">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        
+
                         <Image Grid.Column="0"
                                x:Name="PluginIcon"
                                Height="55"
                                Width="55"
                                Margin="0,-2,12,0"
                                VerticalAlignment="Center"
-                               Stretch="Uniform"/>
-                        
+                               Stretch="Uniform" />
+
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock>
                                 <Run Text="SystemTools" FontSize="24" />
@@ -52,15 +52,15 @@
                             </TextBlock>
                             <TextBlock Text="Copyright © 2026 Programmer_Wang"
                                        FontSize="12"
-                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                             <TextBlock Text="Licensed under GNU GPLv3"
                                        FontSize="10"
-                                       Foreground="Gray"/>
+                                       Foreground="Gray" />
                         </StackPanel>
-                        
+
                         <!-- 链接 -->
-                        <StackPanel Grid.Column="2" 
-                                    Orientation="Horizontal" 
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Horizontal"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Top">
                             <Button Padding="8,5"
@@ -69,46 +69,68 @@
                                     ToolTip.Tip="SystemTools插件 - GitHub 仓库"
                                     Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
                                     CommandParameter="https://github.com/Programmer-MrWang/SystemTools">
-                                <ci:LucideIcon Glyph="&#xE0EA;" 
+                                <ci:LucideIcon Glyph="&#xE0EA;"
                                                Foreground="{DynamicResource MaterialDesignBody}"
-                                               FontSize="18"/>
+                                               FontSize="18" />
                             </Button>
                             <Button Padding="8,5"
-                                   BorderBrush="Transparent"
-                                   Background="Transparent"
-                                   ToolTip.Tip="沉浸式时钟 - GitHub 仓库"
-                                   Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
-                                   CommandParameter="https://github.com/QQHKX/Immersive-clock">
-                                   <ci:FluentIcon Glyph="&#xE4D2;" 
-                                   Foreground="{DynamicResource MaterialDesignBody}"
-                                   FontSize="18"/>
-                           </Button>
-                           <Button Padding="8,5"
-                                   BorderBrush="Transparent"
-                                   Background="Transparent"
-                                   ToolTip.Tip="FFmpeg - GitHub 仓库"
-                                   Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
-                                   CommandParameter="https://github.com/FFmpeg/FFmpeg">
-                                   <ci:FluentIcon Glyph="&#xF36D;" 
-                                   Foreground="{DynamicResource MaterialDesignBody}"
-                                   FontSize="18"/>
-                           </Button>
+                                    BorderBrush="Transparent"
+                                    Background="Transparent"
+                                    ToolTip.Tip="沉浸式时钟 - GitHub 仓库"
+                                    Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
+                                    CommandParameter="https://github.com/QQHKX/Immersive-clock">
+                                <ci:FluentIcon Glyph="&#xE4D2;"
+                                               Foreground="{DynamicResource MaterialDesignBody}"
+                                               FontSize="18" />
+                            </Button>
+                            <Button Padding="8,5"
+                                    BorderBrush="Transparent"
+                                    Background="Transparent"
+                                    ToolTip.Tip="FFmpeg - GitHub 仓库"
+                                    Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
+                                    CommandParameter="https://github.com/FFmpeg/FFmpeg">
+                                <ci:FluentIcon Glyph="&#xF36D;"
+                                               Foreground="{DynamicResource MaterialDesignBody}"
+                                               FontSize="18" />
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </controls:SettingsExpanderItem>
             </Border>
+            
+            <controls:InfoBar x:Name="AnnouncementBar" 
+                              IsOpen="False" 
+                              IsVisible="True" 
+                              Severity="Success" 
+                              Message="{Binding StaticAnnouncement}"
+                              Closed="AnnouncementBar_OnClosed"
+                              Margin="0,0,0,12">
+                <Button Padding="8,5,8,5"
+                        Margin="0,-15,0,5"
+                        BorderBrush="Transparent"
+                        Background="#306bcc5f"
+                        Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
+                        CommandParameter="{Binding QqGroupUrl}">
+                    <StackPanel Orientation="Horizontal">
+                        <ci:LucideIcon Glyph="&#xE574;"
+                                       Foreground="{DynamicResource MaterialDesignBody}"
+                                       FontSize="18"/>
+                        <Label Margin="0,0,0,3" Content="加入群组"/>
+                    </StackPanel>
+                </Button>
+            </controls:InfoBar>
 
             <!-- 标签页 -->
             <Border ClipToBounds="True" CornerRadius="4">
                 <Grid RowDefinitions="Auto,*">
-                    <Border Grid.Row="0" 
+                    <Border Grid.Row="0"
                             Background="{DynamicResource LayerOnMicaBaseAltFillColorDefaultBrush}"
                             BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                             BorderThickness="0,0,0,1">
 
-                        <TabStrip Classes="compact" 
-                                Theme="{StaticResource TabStripStyle}"
-                                SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+                        <TabStrip Classes="compact"
+                                  Theme="{StaticResource TabStripStyle}"
+                                  SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
                             <TabStripItem>
                                 <ci:IconText Glyph="&#xE236;" Text="帮助" />
                             </TabStripItem>
@@ -120,7 +142,7 @@
                             </TabStripItem>
                         </TabStrip>
                     </Border>
-                    
+
                     <!-- Markdown 内容 -->
                     <controls:SettingsExpanderItem Grid.Row="1">
                         <mdxaml:MarkdownScrollViewer
@@ -128,7 +150,7 @@
                             Margin="6,4,6,4"
                             Markdown="{Binding CurrentMarkdownContent}">
                             <mdxaml:MarkdownScrollViewer.Styles>
-                                <StyleInclude Source="avares://ClassIsland.Core/Themes/RichTextStyles.axaml"/>
+                                <StyleInclude Source="avares://ClassIsland.Core/Themes/RichTextStyles.axaml" />
                             </mdxaml:MarkdownScrollViewer.Styles>
                         </mdxaml:MarkdownScrollViewer>
                     </controls:SettingsExpanderItem>

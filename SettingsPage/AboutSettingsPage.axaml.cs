@@ -1,8 +1,7 @@
-﻿using Avalonia.Controls;
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
+using FluentAvalonia.UI.Controls;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -24,7 +23,24 @@ public partial class AboutSettingsPage : SettingsPageBase
         LoadPluginIcon();
 
         CheckAutoSwitchTab();
+        InitializeAnnouncementBar();
     }
+
+    private void InitializeAnnouncementBar()
+    {
+        AnnouncementBar.IsOpen = GlobalConstants.StaticAnnouncement != 
+                                GlobalConstants.MainConfig?.Data.LastAcceptedAnnouncement;
+    }
+
+    private void AnnouncementBar_OnClosed(InfoBar sender, InfoBarClosedEventArgs args)
+    {
+        if (GlobalConstants.MainConfig?.Data != null)
+        {
+            GlobalConstants.MainConfig.Data.LastAcceptedAnnouncement = GlobalConstants.StaticAnnouncement;
+            GlobalConstants.MainConfig.Save();
+        }
+    }
+
     private void CheckAutoSwitchTab()
     {
         if (GlobalConstants.ShowChangelogOnOpen)
@@ -101,6 +117,9 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
         }
     }
 
+    public string StaticAnnouncement => GlobalConstants.StaticAnnouncement;
+    public string QqGroupUrl => GlobalConstants.QqGroupUrl;
+
     private readonly string[] _markdownFiles =
     {
         "README-1.md",
@@ -148,6 +167,4 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
-
-
 }

@@ -42,6 +42,20 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
     
+    bool _lyricifyLiteWarningDismissed;
+
+    [JsonPropertyName("lyricifyLiteWarningDismissed")]
+    public bool LyricifyLiteWarningDismissed
+    {
+        get => _lyricifyLiteWarningDismissed;
+        set
+        {
+            if (value == _lyricifyLiteWarningDismissed) return;
+            _lyricifyLiteWarningDismissed = value;
+            OnPropertyChanged();
+        }
+    }
+    
     // ========== 公告相关 ==========
     /*string _lastAcceptedAnnouncement = string.Empty;
 

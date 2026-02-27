@@ -31,7 +31,8 @@
                     IconSource="{ci:FluentIconSource &#xE342;}">
                     <controls:SettingsExpander.Footer>
                         <ComboBox MinWidth="150"
-                                  SelectedIndex="{Binding Settings.SelectedMusicSoftware, Mode=TwoWay}">
+                                  SelectedIndex="{Binding Settings.SelectedMusicSoftware, Mode=TwoWay}"
+                                  SelectionChanged="MusicSoftwareComboBox_SelectionChanged">
                             <ComboBoxItem>QQ音乐</ComboBoxItem>
                             <ComboBoxItem>网易云音乐</ComboBoxItem>
                             <ComboBoxItem>酷狗音乐</ComboBoxItem>

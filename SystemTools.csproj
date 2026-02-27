@@ -55,5 +55,35 @@
         <None Update="huifu.ps1">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Update="images\PixPin_2026-02-27_17-42-25.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="images\PixPin_2026-02-27_17-42-58.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="images\PixPin_2026-02-27_17-43-16.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="images\PixPin_2026-02-27_17-43-42.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="images\PixPin_2026-02-27_17-43-55.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="images\PixPin_2026-02-27_17-44-02.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="images\PixPin_2026-02-27_17-44-28.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="images\PixPin_2026-02-27_17-54-41.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="images\PixPin_2026-02-27_17-58-10.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Lyricify Lite - README.md">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 </Project>

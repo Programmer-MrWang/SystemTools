@@ -9,6 +9,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using SystemTools.Models.ComponentSettings;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Gdi;
 using Bitmap = System.Drawing.Bitmap;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
@@ -56,60 +59,60 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
     }
 
     // Win32 API
-    [DllImport("user32.dll", SetLastError = true)]
-    static extern IntPtr FindWindow(string? lpClassName, string? lpWindowName);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //static extern IntPtr FindWindow(string? lpClassName, string? lpWindowName);
 
-    [DllImport("user32.dll")]
-    static extern bool PrintWindow(IntPtr hwnd, IntPtr hdcBlt, int nFlags);
+    //[DllImport("user32.dll")]
+    //static extern bool PrintWindow(IntPtr hwnd, IntPtr hdcBlt, int nFlags);
 
-    [DllImport("user32.dll")]
-    static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+    //[DllImport("user32.dll")]
+    //static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
-    [DllImport("gdi32.dll")]
-    static extern IntPtr CreateCompatibleDC(IntPtr hDC);
+    //[DllImport("gdi32.dll")]
+    //static extern IntPtr CreateCompatibleDC(IntPtr hDC);
 
-    [DllImport("gdi32.dll")]
-    static extern bool DeleteDC(IntPtr hdc);
+    //[DllImport("gdi32.dll")]
+    //static extern bool DeleteDC(IntPtr hdc);
 
-    [DllImport("gdi32.dll")]
-    static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
+    //[DllImport("gdi32.dll")]
+    //static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
 
-    [DllImport("gdi32.dll")]
-    static extern bool DeleteObject(IntPtr hObject);
+    //[DllImport("gdi32.dll")]
+    //static extern bool DeleteObject(IntPtr hObject);
 
-    [DllImport("user32.dll")]
-    static extern IntPtr GetDC(IntPtr hWnd);
+    //[DllImport("user32.dll")]
+    //static extern IntPtr GetDC(IntPtr hWnd);
 
-    [DllImport("user32.dll")]
-    static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+    //[DllImport("user32.dll")]
+    //static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
-    [DllImport("user32.dll")]
-    static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+    //[DllImport("user32.dll")]
+    //static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
 
-    [DllImport("user32.dll")]
-    static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+    //[DllImport("user32.dll")]
+    //static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
-    [DllImport("user32.dll")]
-    static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+    //[DllImport("user32.dll")]
+    //static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
     delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
     static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
-    const uint SWP_NOSIZE = 0x0001;
-    const uint SWP_NOMOVE = 0x0002;
-    const uint SWP_NOACTIVATE = 0x0010;
+    //const uint SWP_NOSIZE = 0x0001;
+    //const uint SWP_NOMOVE = 0x0002;
+    //const uint SWP_NOACTIVATE = 0x0010;
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct RECT
-    {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
-    }
+    //[StructLayout(LayoutKind.Sequential)]
+    //public struct RECT
+    //{
+    //    public int Left;
+    //    public int Top;
+    //    public int Right;
+    //    public int Bottom;
+    //}
 
     public LyricsDisplayComponent()
     {
@@ -177,13 +180,13 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
             }
             else
             {
-                _lyricsWindowHandle = FindWindow(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
+                _lyricsWindowHandle = PInvoke.FindWindow(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
             }
 
             if (_lyricsWindowHandle != IntPtr.Zero)
             {
-                SetWindowPos(_lyricsWindowHandle, HWND_BOTTOM, 0, 0, 0, 0,
-                    SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+                PInvoke.SetWindowPos(new HWND(_lyricsWindowHandle), (HWND)HWND_BOTTOM, 0, 0, 0, 0,
+                    Windows.Win32.UI.WindowsAndMessaging.SET_WINDOW_POS_FLAGS.SWP_NOSIZE | Windows.Win32.UI.WindowsAndMessaging.SET_WINDOW_POS_FLAGS.SWP_NOMOVE | Windows.Win32.UI.WindowsAndMessaging.SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE);
             }
         }
         catch
@@ -208,7 +211,7 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                 }
                 else
                 {
-                    _targetWindowHandle = FindWindow(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
+                    _targetWindowHandle = PInvoke.FindWindow(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
                 }
             }
 
@@ -218,9 +221,9 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                 return;
             }
 
-            GetWindowRect(_targetWindowHandle, out RECT rect);
-            int width = rect.Right - rect.Left;
-            int height = rect.Bottom - rect.Top;
+            PInvoke.GetWindowRect(new HWND(_targetWindowHandle), out RECT rect);
+            int width = rect.right - rect.left;
+            int height = rect.bottom - rect.top;
 
             if (width <= 0 || height <= 0)
             {
@@ -233,7 +236,7 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                 using (Graphics g = Graphics.FromImage(originalBmp))
                 {
                     IntPtr hdc = g.GetHdc();
-                    PrintWindow(_targetWindowHandle, hdc, 0x2);
+                    PInvoke.PrintWindow(new HWND(_targetWindowHandle), new HDC(hdc), (Windows.Win32.Storage.Xps.PRINT_WINDOW_FLAGS)0x2);
                     g.ReleaseHdc(hdc);
                 }
 
@@ -275,20 +278,22 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
     private IntPtr FindWindowByClassPrefix(string classPrefix, string? windowTitle)
     {
         IntPtr foundHandle = IntPtr.Zero;
-        
-        EnumWindows((hWnd, lParam) =>
+
+        PInvoke.EnumWindows((hWnd, lParam) =>
         {
-            var classNameBuilder = new StringBuilder(256);
-            GetClassName(hWnd, classNameBuilder, 256);
-            string className = classNameBuilder.ToString();
+            Span<char> buffer = stackalloc char[256];
+            int length=PInvoke.GetClassName(hWnd, buffer);
+            if (length == 0) return false;
+            string className = new(buffer.Slice(0, length));
             
             if (className.StartsWith(classPrefix))
             {
                 if (windowTitle != null)
                 {
-                    var titleBuilder = new StringBuilder(256);
-                    GetWindowText(hWnd, titleBuilder, 256);
-                    string title = titleBuilder.ToString();
+                    Span<char> buffer2 = stackalloc char[256];
+                    int length2=PInvoke.GetWindowText(hWnd, buffer2);
+                    if (length2 == 0) return false;
+                    string title = new(buffer2.Slice(0, length2));
                     
                     if (title == windowTitle)
                     {

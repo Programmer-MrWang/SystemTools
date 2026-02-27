@@ -21,3 +21,16 @@ GlobalLock
 GlobalUnlock
 GlobalFree
 SystemParametersInfo
+FindWindow
+PrintWindow
+GetWindowRect
+GetDC
+CreateCompatibleDC
+DeleteDC
+SelectObject
+DeleteObject
+ReleaseDC
+SetWindowPos
+EnumWindows
+GetClassName
+GetWindowText

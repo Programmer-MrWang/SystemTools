@@ -1,9 +1,11 @@
-﻿using System;
+﻿﻿using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
+using ClassIsland.Core.Helpers;
 using FluentAvalonia.UI.Controls;
+using Markdown.Avalonia;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -39,7 +41,7 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
 
             var dialog = new ContentDialog
             {
-                Title = "提示",
+                Title = "帮助",
                 Content = "在使用适配 Lyricify Lite 的功能前，强烈建议您阅读相关使用方法！\n 点击“不再提示”后您仍可以在本插件“关于”页面查看相关帮助。",
                 CloseButtonText = "关闭",
                 SecondaryButtonText = "已了解，不再提示",
@@ -65,7 +67,7 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
         }
     }
 
-    private void OpenLyricifyLiteReadme()
+    private async void OpenLyricifyLiteReadme()
     {
         try
         {
@@ -73,23 +75,42 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
                 GlobalConstants.Information.PluginFolder,
                 "Lyricify Lite - README.md");
 
-            if (File.Exists(readmePath))
+            string content = File.Exists(readmePath) 
+                ? File.ReadAllText(readmePath)
+                : "**未找到文件**\n\n未找到 Lyricify Lite - README.md 文件，请检查插件目录。";
+
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel == null) return;
+
+            var markdownViewer = new MarkdownScrollViewer
             {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = readmePath,
-                    UseShellExecute = true
-                });
-            }
-            else
+                Markdown = content,
+                Engine = MarkdownConvertHelper.Engine,
+                MaxHeight = 370
+            };
+            
+            var border = new Border
             {
-                ShowSimpleMessage("错误", "未找到 Lyricify Lite - README.md 文件，请检查插件目录。");
-            }
+                Child = markdownViewer,
+                Padding = new Avalonia.Thickness(24, 0, 24, 0),
+                MaxHeight = 377,
+                Width = 550
+            };
+
+            var dialog = new ContentDialog
+            {
+                Title = "Lyricify Lite 适配帮助",
+                Content = border,
+                PrimaryButtonText = "了解",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            await dialog.ShowAsync(topLevel);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"打开文件失败: {ex.Message}");
-            ShowSimpleMessage("错误", $"无法打开文件: {ex.Message}");
+            Debug.WriteLine($"显示帮助失败: {ex.Message}");
+            ShowSimpleMessage("错误", $"无法显示帮助: {ex.Message}");
         }
     }
 
@@ -104,7 +125,7 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
             {
                 Title = title,
                 Content = message,
-                PrimaryButtonText = "确定",
+                PrimaryButtonText = "了解",
                 DefaultButton = ContentDialogButton.Primary
             };
 

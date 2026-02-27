@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SystemTools.Models.ComponentSettings;
 
@@ -7,9 +8,9 @@ public enum MusicSoftware
     QQMusic,
     NetEaseCloudMusic,
     KugouMusic,
-
     //KuwoMusic,
-    QishuiMusic
+    QishuiMusic,
+    LyricifyLite
 }
 
 public partial class LyricsDisplaySettings : ObservableObject
@@ -23,6 +24,7 @@ public partial class LyricsDisplaySettings : ObservableObject
     [ObservableProperty] private bool _keepLyricsWindowBottom = false;
 
     [ObservableProperty] private MusicSoftware _selectedMusicSoftware = MusicSoftware.QQMusic;
+    
 
     public string TargetWindowClassName => SelectedMusicSoftware switch
     {
@@ -31,6 +33,7 @@ public partial class LyricsDisplaySettings : ObservableObject
         MusicSoftware.KugouMusic => "kugou_ui",
         //MusicSoftware.KuwoMusic => "KwDeskLyricWnd",
         MusicSoftware.QishuiMusic => "Chrome_WidgetWin_1",
+        MusicSoftware.LyricifyLite => "HwndWrapper",
         _ => "TXGuiFoundation"
     };
 

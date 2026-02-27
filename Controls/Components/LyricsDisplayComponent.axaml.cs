@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using Avalonia.Threading;
+﻿using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
 using System;
@@ -8,14 +7,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using SystemTools.Models.ComponentSettings;
 using Bitmap = System.Drawing.Bitmap;
-using Color = System.Drawing.Color;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
-using Point = System.Drawing.Point;
 using Rectangle = System.Drawing.Rectangle;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
-using Size = System.Drawing.Size;
 
 namespace SystemTools.Controls.Components;
 
@@ -88,6 +85,17 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
 
     [DllImport("user32.dll")]
     static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+    [DllImport("user32.dll")]
+    static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+
+    [DllImport("user32.dll")]
+    static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+    delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
     static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
     const uint SWP_NOSIZE = 0x0001;
@@ -163,7 +171,14 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
     {
         try
         {
-            _lyricsWindowHandle = FindWindow(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
+            if (Settings.SelectedMusicSoftware == MusicSoftware.LyricifyLite)
+            {
+                _lyricsWindowHandle = FindWindowByClassPrefix(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
+            }
+            else
+            {
+                _lyricsWindowHandle = FindWindow(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
+            }
 
             if (_lyricsWindowHandle != IntPtr.Zero)
             {
@@ -186,7 +201,15 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
             }
             else
             {
-                _targetWindowHandle = FindWindow(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
+                // Lyricify Lite 使用前缀匹配
+                if (Settings.SelectedMusicSoftware == MusicSoftware.LyricifyLite)
+                {
+                    _targetWindowHandle = FindWindowByClassPrefix(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
+                }
+                else
+                {
+                    _targetWindowHandle = FindWindow(Settings.TargetWindowClassName, Settings.TargetWindowTitle);
+                }
             }
 
             if (_targetWindowHandle == IntPtr.Zero)
@@ -217,7 +240,7 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                 Rectangle cropArea;
                 if (Settings.SelectedMusicSoftware == MusicSoftware.QishuiMusic)
                 {
-                    //汽水音乐
+                    // 汽水音乐
                     int cropTop = (int)(height * 0.15);
                     int cropBottom = (int)(height * 0.57);
                     int croppedHeight = height - cropTop - cropBottom;
@@ -225,7 +248,7 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                 }
                 else
                 {
-                    //其他
+                    // 其他
                     int cropTop = height / 4;
                     int croppedHeight = height - cropTop;
                     cropArea = new Rectangle(0, cropTop, width, croppedHeight);
@@ -247,6 +270,43 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
         {
             LyricsBitmap = null;
         }
+    }
+
+    private IntPtr FindWindowByClassPrefix(string classPrefix, string? windowTitle)
+    {
+        IntPtr foundHandle = IntPtr.Zero;
+        
+        EnumWindows((hWnd, lParam) =>
+        {
+            var classNameBuilder = new StringBuilder(256);
+            GetClassName(hWnd, classNameBuilder, 256);
+            string className = classNameBuilder.ToString();
+            
+            if (className.StartsWith(classPrefix))
+            {
+                if (windowTitle != null)
+                {
+                    var titleBuilder = new StringBuilder(256);
+                    GetWindowText(hWnd, titleBuilder, 256);
+                    string title = titleBuilder.ToString();
+                    
+                    if (title == windowTitle)
+                    {
+                        foundHandle = hWnd;
+                        return false;
+                    }
+                }
+                else
+                {
+                    foundHandle = hWnd;
+                    return false;
+                }
+            }
+            
+            return true;
+        }, IntPtr.Zero);
+        
+        return foundHandle;
     }
 
     private void ProcessBlackPixels(Bitmap bitmap)

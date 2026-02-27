@@ -42,8 +42,22 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
     
+    bool _lyricifyLiteWarningDismissed;
+
+    [JsonPropertyName("lyricifyLiteWarningDismissed")]
+    public bool LyricifyLiteWarningDismissed
+    {
+        get => _lyricifyLiteWarningDismissed;
+        set
+        {
+            if (value == _lyricifyLiteWarningDismissed) return;
+            _lyricifyLiteWarningDismissed = value;
+            OnPropertyChanged();
+        }
+    }
+    
     // ========== 公告相关 ==========
-    string _lastAcceptedAnnouncement = string.Empty;
+    /*string _lastAcceptedAnnouncement = string.Empty;
 
     [JsonPropertyName("lastAcceptedAnnouncement")]
     public string LastAcceptedAnnouncement
@@ -55,7 +69,7 @@ public class MainConfigData : INotifyPropertyChanged
             _lastAcceptedAnnouncement = value;
             OnPropertyChanged();
         }
-    }
+    }*/
 
     // 行动功能启用状态（Key: 行动ID, Value: 是否启用）
     [JsonPropertyName("enabledActions")] public Dictionary<string, bool> EnabledActions { get; set; } = new();

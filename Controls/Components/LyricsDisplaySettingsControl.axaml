@@ -31,12 +31,14 @@
                     IconSource="{ci:FluentIconSource &#xE342;}">
                     <controls:SettingsExpander.Footer>
                         <ComboBox MinWidth="150"
-                                  SelectedIndex="{Binding Settings.SelectedMusicSoftware, Mode=TwoWay}">
+                                  SelectedIndex="{Binding Settings.SelectedMusicSoftware, Mode=TwoWay}"
+                                  SelectionChanged="MusicSoftwareComboBox_SelectionChanged">
                             <ComboBoxItem>QQ音乐</ComboBoxItem>
                             <ComboBoxItem>网易云音乐</ComboBoxItem>
                             <ComboBoxItem>酷狗音乐</ComboBoxItem>
                             <ComboBoxItem>汽水音乐</ComboBoxItem>
-                            <ComboBoxItem IsEnabled="False" Foreground="Gray">酷我音乐(尚未适配)</ComboBoxItem>
+                            <ComboBoxItem>Lyricify Lite</ComboBoxItem>
+                            <ComboBoxItem IsEnabled="False" Foreground="Gray">酷我音乐(将不会适配)</ComboBoxItem>
                             <ComboBoxItem IsEnabled="False" Foreground="Gray">Apple Music(将不会适配)</ComboBoxItem>
                         </ComboBox>
                     </controls:SettingsExpander.Footer>

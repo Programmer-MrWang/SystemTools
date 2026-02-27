@@ -23,10 +23,10 @@ public partial class AboutSettingsPage : SettingsPageBase
         LoadPluginIcon();
 
         CheckAutoSwitchTab();
-        InitializeAnnouncementBar();
+        //InitializeAnnouncementBar();
     }
 
-    private void InitializeAnnouncementBar()
+    /*private void InitializeAnnouncementBar()
     {
         AnnouncementBar.IsOpen = GlobalConstants.StaticAnnouncement != 
                                 GlobalConstants.MainConfig?.Data.LastAcceptedAnnouncement;
@@ -39,7 +39,7 @@ public partial class AboutSettingsPage : SettingsPageBase
             GlobalConstants.MainConfig.Data.LastAcceptedAnnouncement = GlobalConstants.StaticAnnouncement;
             GlobalConstants.MainConfig.Save();
         }
-    }
+    }*/
 
     private void CheckAutoSwitchTab()
     {

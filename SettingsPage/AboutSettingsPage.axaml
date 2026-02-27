@@ -98,7 +98,7 @@
                 </controls:SettingsExpanderItem>
             </Border>
             
-            <controls:InfoBar x:Name="AnnouncementBar" 
+            <!--<controls:InfoBar x:Name="AnnouncementBar" 
                               IsOpen="False" 
                               IsVisible="True" 
                               Severity="Success" 
@@ -118,7 +118,7 @@
                         <Label Margin="0,0,0,3" Content="加入群组"/>
                     </StackPanel>
                 </Button>
-            </controls:InfoBar>
+            </controls:InfoBar>-->
 
             <!-- 标签页 -->
             <Border ClipToBounds="True" CornerRadius="4">

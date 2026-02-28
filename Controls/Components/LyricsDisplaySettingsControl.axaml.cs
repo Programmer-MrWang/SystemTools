@@ -1,6 +1,5 @@
-﻿﻿using System;
+﻿using System;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Helpers;
@@ -42,10 +41,10 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
             var dialog = new ContentDialog
             {
                 Title = "帮助",
-                Content = "在使用适配 Lyricify Lite 的功能前，强烈建议您阅读相关使用方法！\n 点击“不再提示”后您仍可以在本插件“关于”页面查看相关帮助。",
-                CloseButtonText = "关闭",
-                SecondaryButtonText = "已了解，不再提示",
+                Content = "     在使用适配 Lyricify Lite 的功能前，强烈建议您阅读相关使用方法！        \n\n     点击“不再提示”后您仍可以在本插件“关于”页面查看相关帮助。",
                 PrimaryButtonText = "前往了解…",
+                CloseButtonText = "以后再说",
+                SecondaryButtonText = "关闭并不再显示",
                 DefaultButton = ContentDialogButton.Primary
             };
 

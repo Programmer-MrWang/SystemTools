@@ -8,37 +8,39 @@
 
 1.设置为”桌面歌词“模式
 
-<img src=".\images\PixPin_2026-02-27_17-42-25.png" alt="PixPin_2026-02-27_17-42-25" style="zoom:90%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/551117c41953cb1ec9475f292e6e3495.png)
 
 2.”歌词"选项卡：禁用”中文翻译“
 
-<img src=".\images\PixPin_2026-02-27_17-42-58.png" alt="PixPin_2026-02-27_17-42-58" style="zoom:75%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/b8ed7e26601435f1bdb1eb0b2c7a4a63.png)
 
 3.”桌面歌词”选项卡：启用”隐藏翻译和音译“；禁用“双行模式”、“自动隐藏”、“阴影效果”；“歌词对齐”选择“居中”
 
-<img src=".\images\PixPin_2026-02-27_17-43-42.png" alt="PixPin_2026-02-27_17-43-42" style="zoom:75%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/656d5894a52b8a344409afc55e2336c4.png)
 
-<img src=".\images\PixPin_2026-02-27_17-43-16.png" alt="PixPin_2026-02-27_17-43-16" style="zoom:75%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/30da528a90873d45f9052510341c201c.png)
 
-<img src=".\images\PixPin_2026-02-27_17-43-55.png" alt="PixPin_2026-02-27_17-43-55" style="zoom:75%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/39e4bb8fe6661359bdf1a61cedc5e6e2.png)
 
-<img src=".\images\PixPin_2026-02-27_17-44-28.png" alt="PixPin_2026-02-27_17-44-28" style="zoom:75%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/7fa5df1ab173fa6cebe0d3080170371d.png)
 
-<img src=".\images\PixPin_2026-02-27_17-44-16.png" alt="PixPin_2026-02-27_17-44-16" style="zoom:75%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/81227944686ef830b2c7f0779c4b7fb0.png)
 
 **可选：**
 
 1.”桌面歌词”选项卡：关闭“歌词切换动画”：支持显示相应动画但可能在切换时会有阴影
 
-<img src=".\images\PixPin_2026-02-27_17-54-41.png" alt="PixPin_2026-02-27_17-54-41" style="zoom:75%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/13d30f7e32e57c5336aa324c27ca495a.png)
 
 2.锁定桌面歌词：避免鼠标移入时黑色背景显现
 
-<img src=".\images\PixPin_2026-02-27_17-58-10.png" alt="PixPin_2026-02-27_17-58-10" style="zoom:75%;" />
+![截图](https://livefile.xesimg.com/programme/python_assets/1ac31568c8016a06a9196217694fd597.png)
 
 .
 
-Lyricify Lite 官方问题解决文档：[ [GitHub](https://github.com/WXRIW/Lyricify-App/blob/main/docs/Lyricify Lite/README.md) ]
+.
+
+## Lyricify Lite 官方问题解决文档：[ [GitHub](https://github.com/WXRIW/Lyricify-App/blob/main/docs/Lyricify%20Lite/README.md) ]
 
 App 支持列表
 
@@ -46,34 +48,36 @@ App 支持列表
 
 | 名称 | SMTC 支持情况 | 曲目匹配 | 备注 |
 | :-: | :-: | :-: | :-: |
-| HyPlayer | 完美 | 完美 |  |
-| LyricEase | 完美 | 完美 |  |
-| Spotify | 完美 | 较好 | 建议使用 [Lyricify 4](https://apps.microsoft.com/store/detail/9P4WB75RHWCH?launch=true&mode=full) |
+| HyPlayer | 完美 | 完美 | - |
+| LyricEase | 完美 | 完美 | - |
+| Spotify | 完美 | 较好 | 建议 [Lyricify 4](https://apps.microsoft.com/store/detail/9P4WB75RHWCH?launch=true&mode=full) |
 | Apple Music | 一般 | 一般 | 可优化时间轴 |
-| Tidal | 完美 | 较好 |  |
-| QQ 音乐 | 完美 | 较好 | [插件](https://github.com/apoint123/QQMusic-ID-Injector)实现完美匹配 |
-| QQ 音乐 UWP | 一般 | 较好 |  |
-| 网易云音乐 | 完美 | 完美 | 需安装额外[插件](https://github.com/apoint123/inflink-rs/) |
-| 网易云音乐 UWP | 无时间轴信息 | 较好 |  |
-| 酷狗音乐 | 无时间轴信息 | 较好 |  |
-| 汽水音乐 | 完美 | 较好 |  |
+| Tidal | 完美 | 较好 | - |
+| QQ 音乐 | 完美 | 较好 | [插件](https://github.com/apoint123/QQMusic-ID-Injector)实现匹配 |
+| QQ 音乐 UWP | 一般 | 较好 | - |
+| 网易云音乐 | 完美 | 完美 | 需额外[插件](https://github.com/apoint123/inflink-rs/) |
+| 网易云音乐 UWP | 无时间轴信息 | 较好 | - |
+| 酷狗音乐 | 无时间轴信息 | 较好 | - |
+| 汽水音乐 | 完美 | 较好 | - |
 | Media Player | 良好 | 一般 | 原 Groove Music |
-| Foobar 2000 | 一般 | 一般 | 时间可[插件](https://github.com/ungive/foo_mediacontrol)提供 |
-| PotPlayer | 良好 | 较差 |  |
-| AIMP | 一般 |  一般 | 需安装额外[插件](https://www.aimp.ru/?do=catalog&rec_id=1097) |
-| Salt Player | 良好 |  一般 |  |
-| LX Music | 良好 |  一般 |  |
-| MusicPlayer2 | 良好 |  一般 |  |
+| Foobar 2000 | 一般 | 一般 | 时间[插件](https://github.com/ungive/foo_mediacontrol)提供 |
+| PotPlayer | 良好 | 较差 | - |
+| AIMP | 一般 |  一般 | 需额外[插件](https://www.aimp.ru/?do=catalog&rec_id=1097) |
+| Salt Player | 良好 |  一般 | - |
+| LX Music | 良好 |  一般 | - |
+| MusicPlayer2 | 良好 |  一般 | - |
 | Google Chrome | 良好 | 一般 | 默认不启用 |
 | Microsoft Edge | 良好 | 一般 | 默认不启用 |
 
 **注意：**
 
-.       .请确保相关 app 已更新至最新版本，部分旧版本可能并不支持 SMTC。Spotify 用户建议使用 Lyricify 4，不建议使用 Lyricify Lite，点击查看[具体原因](#spotify-用户应使用-lyricify-4)。
+.       .请确保相关 app 已更新至最新版本，部分旧版本可能并不支持 SMTC。Spotify 用户建议使用 Lyricify 4，而非 Lyricify Lite，查看[具体原因](#spotify-用户应使用-lyricify-4)。
 
-.       .对于 SMTC 无时间轴信息的 app，Lyricify Lite 将使用内置定时器更新歌词进度，所以在手动修改播放进度后，Lyricify Lite 无法更新播放进度，歌词会发生前后错位。
+.       .对于 SMTC 无时间轴信息的 app，Lyricify Lite 将使用内置定时器更新歌词进度，所以在手动修改播放进度后，歌词会发生前后错位。
 
-.       .所有接入 SMTC 的应用均支持 Lyricify Lite，未在上表中列出的 app 并不代表不支持 Lyricify Lite。
+.       .所有接入 SMTC 的应用均支持 Lyricify Lite，未在上表中列出的不代表不支持。
+
+.
 
 .
 

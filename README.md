@@ -4,6 +4,13 @@
 
 # SystemTools
 
+[![GitHub](https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white)](https://github.com/Programmer-MrWang/SystemTools)
+[![GitLab](https://img.shields.io/badge/GitLab-FC6D26?logo=gitlab&logoColor=fff)](https://gitlab.com/Programmer-MrWang/SystemTools)
+
+![另类](https://repobeats.axiom.co/api/embed/d7ed2cf283c8ab3457f5a01ec214c458d0e34190.svg)
+
+**为 ClassIsland 提供多彩而丰富的更多 组件/行动/触发器/实用工具！**
+
 ![GitHub Forks](https://img.shields.io/github/forks/Programmer-MrWang/SystemTools)
 ![GitHub Watchers](https://img.shields.io/github/watchers/Programmer-MrWang/SystemTools)
 ![GitHub Repo Stars](https://img.shields.io/github/stars/Programmer-MrWang/SystemTools)
@@ -21,10 +28,8 @@
 ![GitHub Commits Since Latest Release](https://img.shields.io/github/commits-since/Programmer-MrWang/SystemTools/latest)
 ![GitHub Created At](https://img.shields.io/github/created-at/Programmer-MrWang/SystemTools)
 
-![另类](https://repobeats.axiom.co/api/embed/d7ed2cf283c8ab3457f5a01ec214c458d0e34190.svg “Repobeats 分析图像”)
-</div>
 
-> 提供多彩而丰富的更多 组件/行动/触发器/实用工具！
+</div>
 
 - 本仓库已开启 Discussions 板块！欢迎您在其中提出疑问、展示您的使用、提出功能请求！
 

@@ -4,11 +4,24 @@
 
 # SystemTools
 
+![GitHub Forks](https://img.shields.io/github/forks/Programmer-MrWang/SystemTools)
+![GitHub Watchers](https://img.shields.io/github/watchers/Programmer-MrWang/SystemTools)
+![GitHub Repo Stars](https://img.shields.io/github/stars/Programmer-MrWang/SystemTools)
+
 ![GitHub License](https://img.shields.io/github/license/Programmer-MrWang/SystemTools)
 ![GitHub top language](https://img.shields.io/github/languages/top/Programmer-MrWang/SystemTools)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Programmer-MrWang/SystemTools/total?label=%E6%80%BB%E4%B8%8B%E8%BD%BD%E9%87%8F)
-![GitHub Repo stars](https://img.shields.io/github/stars/Programmer-MrWang/SystemTools)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Programmer-MrWang/SystemTools/total)
 
+![GitHub Release Date](https://img.shields.io/github/release-date-pre/Programmer-MrWang/SystemTools)
+![GitHub Release](https://img.shields.io/github/v/release/Programmer-MrWang/SystemTools?include_prereleases)
+![GitHub Repo Size](https://img.shields.io/github/repo-size/Programmer-MrWang/SystemTools)
+[![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FProgrammer-MrWang%2FSystemTools&countColor=%23263759&style=flat)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2FProgrammer-MrWang%2FSystemTools)
+
+![GitHub Commit Activity](https://img.shields.io/github/commit-activity/t/Programmer-MrWang/SystemTools)
+![GitHub Commits Since Latest Release](https://img.shields.io/github/commits-since/Programmer-MrWang/SystemTools/latest)
+![GitHub Created At](https://img.shields.io/github/created-at/Programmer-MrWang/SystemTools)
+
+![另类](https://repobeats.axiom.co/api/embed/d7ed2cf283c8ab3457f5a01ec214c458d0e34190.svg “Repobeats 分析图像”)
 </div>
 
 > 提供多彩而丰富的更多 组件/行动/触发器/实用工具！

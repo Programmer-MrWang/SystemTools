@@ -35,7 +35,6 @@ namespace SystemTools;
          /_______  // ____|/____  > |__|   \___  >|__|_|  /|____|  \____/  \____/ |____//____  >
                 \/ \/          \/             \/       \/                                   \/
 */
-
 public class Plugin : PluginBase
 {
     private ILogger<Plugin>? _logger;
@@ -55,7 +54,16 @@ public class Plugin : PluginBase
 
         services.AddLogging();
         
-        // ========== 注册人脸识别验证器 ==========
+        // ========== 注册可选人脸识别 ==========
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            if (GlobalConstants.MainConfig.Data.EnableFaceRecognition)
+            {
+                services.AddAuthorizeProvider<FaceRecognitionAuthorizer>();
+                _logger?.LogInformation("[SystemTools]人脸识别认证器已注册");
+            }
+        }
+
         
         // ========== 注册设置页面 ==========
         services.AddSettingsPage<SystemToolsSettingsPage>();

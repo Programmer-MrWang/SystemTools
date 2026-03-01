@@ -184,6 +184,24 @@
                                     IsEnabled="{Binding ViewModel.IsDownloadButtonEnabled}" />
                         </controls:SettingsExpanderItem.Footer>
                     </controls:SettingsExpanderItem>
+                    
+                    <!-- 人脸识别开关 -->
+                    <controls:SettingsExpanderItem Content="启用人脸识别验证功能">
+                        <controls:SettingsExpanderItem.Footer>
+                            <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFaceRecognition, Mode=TwoWay}"
+                                          Click="OnFaceRecognitionToggleClick" />
+                        </controls:SettingsExpanderItem.Footer>
+                    </controls:SettingsExpanderItem>
+
+                    <!-- 人脸识别模型下载按钮 -->
+                    <controls:SettingsExpanderItem Content="下载人脸识别验证模型">
+                        <controls:SettingsExpanderItem.Footer>
+                            <Button Content="点击下载（138 MB）"
+                                    Width="165"
+                                    Click="OnDownloadFaceModelsClick"
+                                    IsEnabled="{Binding ViewModel.IsDownloadButtonEnabled}" />
+                        </controls:SettingsExpanderItem.Footer>
+                    </controls:SettingsExpanderItem>
 
                     <StackPanel IsVisible="{Binding ViewModel.ShowDownloadProgress}"
                                 Margin="12,0,12,12"

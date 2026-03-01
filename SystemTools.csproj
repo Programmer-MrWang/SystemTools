@@ -4,20 +4,21 @@
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <UseWindowsForms>true</UseWindowsForms>
-        <Platforms>Any CPU</Platforms>
+        <Platforms>x64</Platforms>
     </PropertyGroup>
     
     <ItemGroup>
         <PackageReference Include="ClassIsland.PluginSDK" Version="2.0.0.1"/>
         <PackageReference Include="ClassIsland.Core" Version="2.0.0.1"/>
+        <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260228" />
+        <PackageReference Include="OpenCvSharp4" Version="4.9.0.20240103" />
         <PackageReference Include="OpenCvSharp4.Extensions" Version="4.5.3.20211225" />
-        <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260228" />
+        <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.9.0.20240103" />
         <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
         <PackageReference Include="System.Management" Version="11.0.0-preview.1.26104.118" />
     </ItemGroup>

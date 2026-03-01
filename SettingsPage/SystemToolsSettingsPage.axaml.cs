@@ -25,15 +25,22 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
                                                                    "SystemTools"));
 
         ViewModel = new SystemToolsSettingsViewModel(GlobalConstants.MainConfig);
-
         DataContext = this;
         InitializeComponent();
-
+        
         if (ViewModel.CheckFfmpegExists()) ViewModel.IsDownloadButtonEnabled = false;
-
+        UpdateDownloadButtonState();
         ViewModel.InitializeFeatureItems();
 
         ViewModel.Settings.RestartPropertyChanged += OnRestartPropertyChanged;
+    }
+    
+    private void UpdateDownloadButtonState()
+    {
+        bool ffmpegExists = ViewModel.CheckFfmpegExists();
+        bool faceModelsExists = ViewModel.CheckFaceModelsExists();
+
+        ViewModel.IsDownloadButtonEnabled = !(ffmpegExists && faceModelsExists);
     }
 
     public SystemToolsSettingsViewModel ViewModel { get; }
@@ -94,6 +101,46 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
         await dialog.ShowAsync();
     }
+    
+    private async void OnFaceRecognitionToggleClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not ToggleSwitch toggle) return;
+
+        if (toggle.IsChecked == true)
+        {
+            if (!ViewModel.CheckFaceModelsExists())
+            {
+                toggle.IsChecked = false;
+                var dialog = new ContentDialog
+                {
+                    Title = "提示",
+                    Content = "请您先下载人脸识别验证模型！",
+                    PrimaryButtonText = "确定",
+                    DefaultButton = ContentDialogButton.Primary
+                };
+                await dialog.ShowAsync();
+            }
+            else
+            {
+                RequestRestart();
+            }
+        }
+        else
+        {
+            RequestRestart();
+        }
+    }
+    
+    private async void OnDownloadFaceModelsClick(object? sender, RoutedEventArgs e)
+    {
+        var success = await ViewModel.DownloadFaceModelsAsync(ShowErrorDialogAsync, ShowMd5ErrorDialogAsync);
+    
+        if (success)
+        {
+            ViewModel.IsDownloadButtonEnabled = !ViewModel.CheckFaceModelsExists();
+        }
+    }
+
 
     private async void OnDownloadFfmpegClick(object? sender, RoutedEventArgs e)
     {

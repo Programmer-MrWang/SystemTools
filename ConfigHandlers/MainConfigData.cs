@@ -56,6 +56,21 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
     
+    bool _enableFaceRecognition;
+
+    [JsonPropertyName("enableFaceRecognition")]
+    public bool EnableFaceRecognition
+    {
+        get => _enableFaceRecognition;
+        set
+        {
+            if (value == _enableFaceRecognition) return;
+            _enableFaceRecognition = value;
+            OnPropertyChanged();
+            RestartPropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+    
     // ========== 公告相关 ==========
     /*string _lastAcceptedAnnouncement = string.Empty;
 

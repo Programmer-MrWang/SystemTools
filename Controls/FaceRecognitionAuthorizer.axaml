@@ -1,0 +1,67 @@
+<ci:AuthorizeProviderControlBase x:TypeArguments="settings:FaceRecognitionSettings"
+                                 x:Class="SystemTools.Controls.FaceRecognitionAuthorizer"
+                                 xmlns="https://github.com/avaloniaui"
+                                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                 xmlns:ci="http://classisland.tech/schemas/xaml/core"
+                                 xmlns:settings="clr-namespace:SystemTools.Settings"
+                                 xmlns:local="clr-namespace:SystemTools.Controls">
+
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="10"
+                DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FaceRecognitionAuthorizer}}">
+        
+        <!-- 预览 -->
+        <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" 
+                BorderThickness="2" CornerRadius="8" ClipToBounds="True" Width="320" Height="240">
+            <Image x:Name="CameraPreview" Stretch="UniformToFill" />
+        </Border>
+
+        <!-- 录入人脸模式 -->
+        <StackPanel IsVisible="{Binding IsEditingMode}" Spacing="8">
+            <Border Background="#3f00eff1" CornerRadius="4" Padding="8">
+                <StackPanel Orientation="Horizontal">
+                    <ci:FluentIcon Glyph="&#xECF7;" Margin="0,0,5,0"/>
+                    <TextBlock Text="在面部对准摄像头后按下捕获按钮" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="未检测到人脸，请重试" 
+                       Foreground="OrangeRed" 
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding Settings.OperationFinished}"/>
+
+            <Button Click="OnCaptureClick" IsEnabled="{Binding !Settings.Operating}" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" IsVisible="{Binding Settings.Operating}">
+                        <ProgressBar IsIndeterminate="True" Width="16" Height="16" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="正在处理..." />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" IsVisible="{Binding !Settings.Operating}">
+                        <ci:FluentIcon Glyph="&#xECED;" Margin="0,0,5,0"/>
+                        <!-- 无配置时显示 -->
+                        <TextBlock Text="捕获并保存人脸" IsVisible="{Binding Settings.FaceTemplate, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
+                        <!-- 已有配置时显示 -->
+                        <TextBlock Text="重新捕获并注册人脸信息" IsVisible="{Binding Settings.FaceTemplate, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <!-- 验证模式 -->
+        <StackPanel IsVisible="{Binding !IsEditingMode}" Spacing="8">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <ci:FluentIcon Glyph="&#xED2B;" Margin="0,0,5,0"/>
+                <TextBlock Text="人脸识别验证中..." FontSize="16" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <ProgressBar IsIndeterminate="True" Height="2" IsVisible="{Binding !Settings.OperationFinished}"/>
+
+            <Label IsVisible="{Binding Settings.OperationFinished}" HorizontalAlignment="Center">
+                 <TextBlock Text="识别失败，请调整位置或重试" Foreground="OrangeRed" />
+            </Label>
+            
+            <Button Click="OnManualVerifyClick" Content="手动重新扫描" 
+                    HorizontalAlignment="Center" Theme="{StaticResource MaterialDesignFlatButton}"/>
+        </StackPanel>
+    </StackPanel>
+</ci:AuthorizeProviderControlBase>

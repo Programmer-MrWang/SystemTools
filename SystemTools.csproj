@@ -6,7 +6,7 @@
         <UseWindowsForms>true</UseWindowsForms>
         <Platforms>Any CPU</Platforms>
     </PropertyGroup>
-
+    
     <ItemGroup>
         <PackageReference Include="ClassIsland.PluginSDK" Version="2.0.0.1"/>
         <PackageReference Include="ClassIsland.Core" Version="2.0.0.1"/>
@@ -15,7 +15,11 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="System.Drawing.Common" Version="8.0.0"/>
+        <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260228" />
+        <PackageReference Include="OpenCvSharp4.Extensions" Version="4.5.3.20211225" />
+        <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.13.0.20260228" />
+        <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+        <PackageReference Include="System.Management" Version="11.0.0-preview.1.26104.118" />
     </ItemGroup>
 
     <ItemGroup>
@@ -54,33 +58,6 @@
         </None>
         <None Update="huifu.ps1">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-42-25.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-42-58.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-43-16.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-43-42.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-43-55.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-44-02.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-44-28.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-54-41.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="images\PixPin_2026-02-27_17-58-10.png">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="Lyricify Lite - README.md">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>

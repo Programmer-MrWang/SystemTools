@@ -58,61 +58,9 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    // Win32 API
-    //[DllImport("user32.dll", SetLastError = true)]
-    //static extern IntPtr FindWindow(string? lpClassName, string? lpWindowName);
-
-    //[DllImport("user32.dll")]
-    //static extern bool PrintWindow(IntPtr hwnd, IntPtr hdcBlt, int nFlags);
-
-    //[DllImport("user32.dll")]
-    //static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-    //[DllImport("gdi32.dll")]
-    //static extern IntPtr CreateCompatibleDC(IntPtr hDC);
-
-    //[DllImport("gdi32.dll")]
-    //static extern bool DeleteDC(IntPtr hdc);
-
-    //[DllImport("gdi32.dll")]
-    //static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
-
-    //[DllImport("gdi32.dll")]
-    //static extern bool DeleteObject(IntPtr hObject);
-
-    //[DllImport("user32.dll")]
-    //static extern IntPtr GetDC(IntPtr hWnd);
-
-    //[DllImport("user32.dll")]
-    //static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
-
-    //[DllImport("user32.dll")]
-    //static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-
-    //[DllImport("user32.dll")]
-    //static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
-
-    //[DllImport("user32.dll", SetLastError = true)]
-    //static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
-
-    //[DllImport("user32.dll")]
-    //static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
     delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
     static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
-    //const uint SWP_NOSIZE = 0x0001;
-    //const uint SWP_NOMOVE = 0x0002;
-    //const uint SWP_NOACTIVATE = 0x0010;
-
-    //[StructLayout(LayoutKind.Sequential)]
-    //public struct RECT
-    //{
-    //    public int Left;
-    //    public int Top;
-    //    public int Right;
-    //    public int Bottom;
-    //}
 
     public LyricsDisplayComponent()
     {

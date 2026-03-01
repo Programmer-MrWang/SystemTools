@@ -117,8 +117,8 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
         }
     }
 
-    public string StaticAnnouncement => GlobalConstants.StaticAnnouncement;
-    public string QqGroupUrl => GlobalConstants.QqGroupUrl;
+    //public string StaticAnnouncement => GlobalConstants.StaticAnnouncement;
+    //public string QqGroupUrl => GlobalConstants.QqGroupUrl;
 
     private readonly string[] _markdownFiles =
     {

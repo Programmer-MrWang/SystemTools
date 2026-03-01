@@ -143,14 +143,13 @@
 
 - 高级计时关机（好大的饼！一个假期都没实现！）
 
-#### ……（欢迎据班级电脑实际使用情况提出更多功能请求）
+### ……欢迎据班级电脑实际使用情况提出更多功能请求
+
 ---
 
-# 声明
-
-## 贡献者
-
-感谢以下人员对本仓库做出的贡献：
+## 声明
+### 贡献者：
+**感谢以下人员对本仓库做出的贡献：**
 
 <a href="https://github.com/Programmer-MrWang/SystemTools/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=Programmer-MrWang/SystemTools" />

@@ -1,0 +1,40 @@
+﻿using Microsoft.Extensions.Logging;
+using SystemTools.ConfigHandlers;
+using Microsoft.Extensions.Logging.Console;
+using System.Reflection;
+
+namespace SystemTools.Shared;
+
+public static class GlobalConstants
+{
+    public static string? PluginConfigFolder { get; set; }
+    public static ConfigHandlers.MainConfigHandler? MainConfig { get; set; }
+
+    public static class HostInterfaces
+    {
+        public static ILogger<Plugin>? PluginLogger;
+    }
+
+    public static class Information
+    {
+        public static string PluginFolder { get; set; } = string.Empty;
+        public static string PluginVersion { get; set; } = "???";
+    }
+
+    public static bool ShowChangelogOnOpen { get; set; } = false;
+    
+    // ========== 公告相关 ==========
+    //public const string StaticAnnouncement = "插件社区Q群 ClassIsPlugins 现已建立! 点击下方按钮, 即刻加入!";
+    //public const string QqGroupUrl = "https://qm.qq.com/q/ekIoRJh34Q";
+    
+    public static class Assets {
+        public static readonly string AsciiLogo = """
+                                                     _________                 __                  ___________              .__
+                                                   /   _____/___.__.  _______/  |_   ____    _____\__    ___/____    ____  |  |    ______
+                                                   \_____  \<   |  | /  ___/\   __\_/ __ \  /     \ |    |  /  _ \  /  _ \ |  |   /  ___/
+                                                   /        \\___  | \___ \  |  |  \  ___/ |  Y Y  \|    | (  <_> )(  <_> )|  |__ \___ \
+                                                  /_______  // ____|/____  > |__|   \___  >|__|_|  /|____|  \____/  \____/ |____//____  >
+                                                         \/ \/          \/             \/       \/                                   \/
+                                                  """;
+    }
+}

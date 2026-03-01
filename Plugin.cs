@@ -23,6 +23,8 @@ using SystemTools.Services;
 using SystemTools.Shared;
 using SystemTools.Triggers;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace SystemTools;
 /*
@@ -41,13 +43,20 @@ public class Plugin : PluginBase
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
         // ========== 初始化配置 ==========
+        Console.WriteLine("[SystemTools]-------------------------------------------------------------------\r\n" 
+                          + GlobalConstants.Assets.AsciiLogo
+                          + "\r\n Copyright (C) 2026 Programmer_MrWang \r\n Licensed under GNU AGPLv3. \r\n" 
+                          + "正在初始化SystemTools配置...-----------------------------------------------------------");
+        
         GlobalConstants.PluginConfigFolder = PluginConfigFolder;
         GlobalConstants.Information.PluginFolder = Info.PluginFolderPath;
         GlobalConstants.Information.PluginVersion = Info.Manifest.Version;
         GlobalConstants.MainConfig = new MainConfigHandler(PluginConfigFolder);
 
         services.AddLogging();
-
+        
+        // ========== 注册人脸识别验证器 ==========
+        
         // ========== 注册设置页面 ==========
         services.AddSettingsPage<SystemToolsSettingsPage>();
         services.AddSettingsPage<AboutSettingsPage>();

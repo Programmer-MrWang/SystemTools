@@ -2,7 +2,7 @@
   "profiles": {
     "ClassIsland 插件": {
       "commandName": "Executable",
-      "executablePath": "F:\\ci\\Newest\\ClassIsland.exe",
+      "executablePath": "F:\\ci\\Newest\\app-2.0.2.0-0\\ClassIsland.Desktop.exe",
       "commandLineArgs": "-epp $(TargetDir)",
       "workingDirectory": "F:\\ci\\Newest\\"
     }

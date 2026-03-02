@@ -8,12 +8,17 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
+using Avalonia.Styling;
 using SystemTools.Settings;
 using SystemTools.Views;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.AdvancedShutdown", "高级计时关机", "\uE4C4", false)]
+[ActionInfo("SystemTools.AdvancedShutdown", "高级计时关机", "\uF357", false)]
 public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : ActionBase<AdvancedShutdownSettings>
 {
     private const string HostProcessName = "ClassIsland.Desktop";
@@ -86,6 +91,27 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         EnsureWatchdogRunning();
     }
 
+    void AssignProgressAnimator(ProgressBar bar,TimeSpan targetTime, TimeSpan totalTime) {
+        new Animation {
+            Children = {
+                new KeyFrame {
+                    Cue = new Cue(0),
+                    Setters = {
+                        new Setter(RangeBase.ValueProperty, 3000.0 * targetTime.TotalMilliseconds/totalTime.TotalMilliseconds)
+                    }
+                },
+                new KeyFrame {
+                    Cue = new Cue(1),
+                    Setters = {
+                        new Setter(RangeBase.ValueProperty, 0.0),
+                    }
+                }
+            },
+            Duration = targetTime,
+            FillMode = FillMode.Forward
+        }.RunAsync(bar);
+    }
+    
     private void ExtendShutdown(int extendMinutes)
     {
         var safeExtendMinutes = Math.Max(1, extendMinutes);
@@ -290,13 +316,14 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         countdownTimer.Tick += (_, _) =>
         {
             textBlock.Text = BuildCountdownText();
-            progressBar.Value = BuildCountdownProgress();
+            //progressBar.Value = BuildCountdownProgress();
 
             if (!IsPlanActive())
             {
                 CloseMainDialogProgrammatically();
             }
         };
+        AssignProgressAnimator(progressBar,_shutdownAt - DateTimeOffset.Now, TimeSpan.FromSeconds(_totalScheduledSeconds));
         countdownTimer.Start();
 
         dialog.Closed += (_, _) =>

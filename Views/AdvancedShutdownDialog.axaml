@@ -7,6 +7,7 @@
         CanResize="False"
         SystemDecorations="Full"
         WindowStartupLocation="CenterScreen"
+        Topmost="True"
         Title="高级计时关机">
     <Border Margin="14" Padding="16" CornerRadius="12"
             Background="{DynamicResource LayerFillColorAltBrush}">
@@ -27,7 +28,7 @@
                                FontSize="20"
                                FontWeight="Bold"
                                Text="将在2分00秒后关机……" />
-                    <ProgressBar x:Name="CountdownProgressBarElement" Height="6" Minimum="0" Maximum="100" Value="100" />
+                    <ProgressBar x:Name="CountdownProgressBarElement" Height="6" Minimum="0" Maximum="3000" Value="3000" />
                 </StackPanel>
             </Border>
 

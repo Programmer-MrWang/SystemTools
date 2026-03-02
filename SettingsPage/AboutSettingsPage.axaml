@@ -130,6 +130,27 @@
                                                            HorizontalAlignment="Stretch"
                                                            ActionIconSource="{ci:FluentIconSource &#xEC2E;} "
                                                            IsClickEnabled="True"/>
+                                <controls:SettingsExpander Header="反馈渠道" IconSource="{ci:FluentIconSource &#xE3F6;}"
+                                                            IsExpanded="True">
+                                    <controls:SettingsExpanderItem
+                                        Click="UriNavigationCommands_OnClick"
+                                        CommandParameter="https://github.com/Programmer-MrWang/SystemTools/issues/new"
+                                        Content="问题反馈/功能建议"
+                                        ActionIconSource="{ci:FluentIconSource &#xEC2E;} "
+                                        IsClickEnabled="True"/>
+                                    <controls:SettingsExpanderItem
+                                        Click="UriNavigationCommands_OnClick"
+                                        CommandParameter="https://v.wjx.cn/vm/rjA0NBq.aspx#"
+                                        Content="调研问卷"
+                                        ActionIconSource="{ci:FluentIconSource &#xEC2E;} "
+                                        IsClickEnabled="True"/>
+                                    <controls:SettingsExpanderItem
+                                        Click="UriNavigationCommands_OnClick"
+                                        CommandParameter="https://qm.qq.com/q/fEUW3A9zR6"
+                                        Content="插件社群"
+                                        ActionIconSource="{ci:FluentIconSource &#xEC2E;} "
+                                        IsClickEnabled="True"/>
+                                </controls:SettingsExpander>
                             </StackPanel>
 
                             <mdxaml:MarkdownScrollViewer 

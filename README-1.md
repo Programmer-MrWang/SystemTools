@@ -119,9 +119,7 @@
 </a>
 
 - 该插件仅适用于Windows。
-- **这个插件适用于 ClassIsland 2.x（≥2.0.0.1）版本。**
 - LGPLv3 许可。[LICENSE](./LICENSE)
-- 开发者：[@Programmer-MrWang](https://github.com/Programmer-MrWang)/与Kimi AI共同编写。
 - 其他工具“沉浸式时钟”服务由 QQHKX 提供。
 
 > [“沉浸式时钟”网址](https://clock.qqhkx.com/)  |

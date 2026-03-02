@@ -2,7 +2,7 @@
 
 ### 新增：
 
-- **[组件]**: **网络延迟检测**，新增 自动/ICMP/HTTP 三种检测模式，支持不同情景下的延迟检测 https://github.com/Programmer-MrWang/SystemTools/issues/6
+- **[组件]**: **网络延迟检测**，新增 自动/ICMP/HTTP 三种检测模式，支持不同情景下的延迟检测
 
 - **[组件]**: **音乐软件歌词显示**，新增适配 Lyricify Lite 桌面歌词并提供设置帮助
 

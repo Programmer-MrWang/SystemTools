@@ -11,6 +11,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using ClassIsland.Core.Abstractions.Services;
+using ClassIsland.Shared;
 using SystemTools.Shared;
 
 namespace SystemTools;
@@ -29,6 +31,17 @@ public partial class AboutSettingsPage : SettingsPageBase
         LoadPluginIcon();
 
         CheckAutoSwitchTab();
+    }
+    
+    private void UriNavigationCommands_OnClick(object sender, RoutedEventArgs e)
+    {
+        var url = e.Source switch
+        {
+            SettingsExpanderItem s => s.CommandParameter?.ToString(),
+            Button s => s.CommandParameter?.ToString(),
+            _ => "classisland://app/test/"
+        };
+        IAppHost.TryGetService<IUriNavigationService>()?.NavigateWrapped(new Uri(url));
     }
 
     private void CheckAutoSwitchTab()

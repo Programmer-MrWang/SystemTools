@@ -38,6 +38,7 @@ namespace SystemTools;
 public class Plugin : PluginBase
 {
     private ILogger<Plugin>? _logger;
+    private bool _faceRecognitionRegistered = false;
 
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
@@ -59,11 +60,17 @@ public class Plugin : PluginBase
         {
             if (GlobalConstants.MainConfig.Data.EnableFaceRecognition)
             {
-                services.AddAuthorizeProvider<FaceRecognitionAuthorizer>();
-                _logger?.LogInformation("[SystemTools]人脸识别认证器已注册");
+                if (CheckFaceRecognitionFilesExist())
+                {
+                    services.AddAuthorizeProvider<FaceRecognitionAuthorizer>();
+                    _faceRecognitionRegistered = true;
+                }
+                else
+                {
+                    _faceRecognitionRegistered = false;
+                }
             }
         }
-
         
         // ========== 注册设置页面 ==========
         services.AddSettingsPage<SystemToolsSettingsPage>();
@@ -86,6 +93,17 @@ public class Plugin : PluginBase
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
             _logger?.LogInformation("[SystemTools]FFmpeg功能状态: {Status}", ffmpegEnabled);
+            if (GlobalConstants.MainConfig.Data.EnableFaceRecognition)
+            {
+                if (_faceRecognitionRegistered)
+                {
+                    _logger?.LogInformation("[SystemTools]人脸识别认证器已注册");
+                }
+                else
+                {
+                    _logger?.LogWarning("[SystemTools]人脸识别功能已启用，但缺少必要的文件或文件夹（Models、runtimes、OpenCvSharp.Extensions.dll、OpenCvSharp.dll、DlibDotNet.dll），已跳过注册。");
+                }
+            }
             _logger?.LogInformation("[SystemTools]SystemTools 启动完成");
         };
 
@@ -113,6 +131,35 @@ public class Plugin : PluginBase
         // ========== 注册设置页面分组 ==========
         AppBase.Current.AppStarted += (_, _) => RegisterSettingsPageGroup(services);
     }
+    
+    #region 人脸识别文件检查
+
+    private bool CheckFaceRecognitionFilesExist()
+    {
+        try
+        {
+            var pluginFolder = GlobalConstants.Information.PluginFolder;
+            var requiredPaths = new[]
+            {
+                Path.Combine(pluginFolder, "Models"),
+                Path.Combine(pluginFolder, "runtimes"),
+                Path.Combine(pluginFolder, "OpenCvSharp.Extensions.dll"),
+                Path.Combine(pluginFolder, "OpenCvSharp.dll"),
+                Path.Combine(pluginFolder, "DlibDotNet.dll")
+            };
+
+            return requiredPaths.All(p => 
+                p.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) 
+                    ? File.Exists(p) 
+                    : Directory.Exists(p));
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    #endregion
 
     #region 注册方法
 

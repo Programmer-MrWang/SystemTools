@@ -9,6 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:controls1="clr-namespace:SystemTools.Controls"
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:TypeArguments="settings:LyricsDisplaySettings"
@@ -75,12 +76,15 @@
 
                 <!-- 保持歌词窗口置底 -->
                 <controls:SettingsExpander
-                    Header="保持歌词窗口置底（BETA）"
+                    Header="保持歌词窗口置底"
                     Description="强制将歌词窗口置底（每80ms/暂不适用网易云音乐）;请在上侧调整好样式再使用此功能！"
                     Margin="0,6,0,0"
                     IconSource="{ci:FluentIconSource &#xF4AB;}">
                     <controls:SettingsExpander.Footer>
+                        <StackPanel Orientation="Horizontal">
+                            <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
                         <ToggleSwitch IsChecked="{Binding Settings.KeepLyricsWindowBottom, Mode=TwoWay}" />
+                        </StackPanel>
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 

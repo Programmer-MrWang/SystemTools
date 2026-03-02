@@ -27,15 +27,15 @@ public class CameraCaptureService : IDisposable
         _capture.FrameHeight = height;
         
         _cts = new CancellationTokenSource();
-        _captureTask = Task.Run(CaptureLoop, _cts.Token);
+        var token = _cts.Token;
+        _captureTask = Task.Run(() => CaptureLoop(token), token);
         
         return true;
     }
 
-    private async Task CaptureLoop()
+    private async Task CaptureLoop(CancellationToken token)
     {
         using var frame = new Mat();
-        var token = _cts?.Token ?? CancellationToken.None;
         
         while (!token.IsCancellationRequested)
         {

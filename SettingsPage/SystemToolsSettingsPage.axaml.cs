@@ -27,23 +27,21 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
         ViewModel = new SystemToolsSettingsViewModel(GlobalConstants.MainConfig);
         DataContext = this;
         InitializeComponent();
-        
-        if (ViewModel.CheckFfmpegExists()) ViewModel.IsDownloadButtonEnabled = false;
-        UpdateDownloadButtonState();
+
+        // 初始化时更新下载按钮状态
+        UpdateDownloadButtonStates();
+
         ViewModel.InitializeFeatureItems();
-
         ViewModel.Settings.RestartPropertyChanged += OnRestartPropertyChanged;
-    }
-    
-    private void UpdateDownloadButtonState()
-    {
-        bool ffmpegExists = ViewModel.CheckFfmpegExists();
-        bool faceModelsExists = ViewModel.CheckFaceModelsExists();
-
-        ViewModel.IsDownloadButtonEnabled = !(ffmpegExists && faceModelsExists);
     }
 
     public SystemToolsSettingsViewModel ViewModel { get; }
+
+    private void UpdateDownloadButtonStates()
+    {
+        ViewModel.IsFfmpegDownloadEnabled = !ViewModel.CheckFfmpegExists();
+        ViewModel.IsFaceModelsDownloadEnabled = !ViewModel.CheckFaceModelsExists();
+    }
 
     private void OnRestartPropertyChanged(object? sender, EventArgs e)
     {
@@ -72,7 +70,8 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
                 ViewModel.Settings.EnableFfmpegFeatures = true;
                 ViewModel.Settings.RestartPropertyChanged += OnRestartPropertyChanged;
 
-                ViewModel.IsDownloadButtonEnabled = false;
+                // 关闭功能时，允许重新下载（按钮启用状态由文件存在决定）
+                ViewModel.IsFfmpegDownloadEnabled = !ViewModel.CheckFfmpegExists();
 
                 RequestRestart();
             }
@@ -83,7 +82,8 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
             ViewModel.Settings.EnableFfmpegFeatures = false;
             ViewModel.Settings.RestartPropertyChanged += OnRestartPropertyChanged;
 
-            ViewModel.IsDownloadButtonEnabled = !ViewModel.CheckFfmpegExists();
+            // 关闭功能时，允许重新下载（按钮启用状态由文件存在决定）
+            ViewModel.IsFfmpegDownloadEnabled = !ViewModel.CheckFfmpegExists();
 
             RequestRestart();
         }
@@ -101,7 +101,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
         await dialog.ShowAsync();
     }
-    
+
     private async void OnFaceRecognitionToggleClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not ToggleSwitch toggle) return;
@@ -130,23 +130,26 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
             RequestRestart();
         }
     }
-    
+
     private async void OnDownloadFaceModelsClick(object? sender, RoutedEventArgs e)
     {
         var success = await ViewModel.DownloadFaceModelsAsync(ShowErrorDialogAsync, ShowMd5ErrorDialogAsync);
-    
+
         if (success)
         {
-            ViewModel.IsDownloadButtonEnabled = !ViewModel.CheckFaceModelsExists();
+            // 下载成功后，根据文件存在状态更新按钮（已在 ViewModel 的 finally 中处理，但这里可再次调用以确保）
+            UpdateDownloadButtonStates();
         }
     }
-
 
     private async void OnDownloadFfmpegClick(object? sender, RoutedEventArgs e)
     {
         var success = await ViewModel.DownloadFfmpegAsync(ShowErrorDialogAsync, ShowMd5ErrorDialogAsync);
 
-        if (success) ViewModel.IsDownloadButtonEnabled = false;
+        if (success)
+        {
+            UpdateDownloadButtonStates();
+        }
     }
 
     private async Task ShowErrorDialogAsync()

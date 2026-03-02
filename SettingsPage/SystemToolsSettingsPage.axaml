@@ -7,6 +7,7 @@
                      xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
                      xmlns:systemTools="clr-namespace:SystemTools"
                      xmlns:behavior="clr-namespace:System.Windows.Forms.Design.Behavior;assembly=System.Windows.Forms.Design"
+                     xmlns:controls1="clr-namespace:SystemTools.Controls"
                      mc:Ignorable="d"
                      d:DesignHeight="450"
                      d:DesignWidth="800">
@@ -159,7 +160,11 @@
                                            Header="实验性功能"
                                            Description="启用后可以使用实验性功能，不保证其稳定性。">
                     <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableExperimentalFeatures, Mode=TwoWay}" />
+                        <StackPanel Orientation="Horizontal">
+                            <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
+                            <ToggleSwitch
+                                IsChecked="{Binding ViewModel.Settings.EnableExperimentalFeatures, Mode=TwoWay}" />
+                        </StackPanel>
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
@@ -167,9 +172,9 @@
                 <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE071;}"
                                            Header="启用扩展功能"
                                            IsExpanded="True"
-                                           Description="启用需要依赖FFmpeg的更多可选功能">
+                                           Description="启用需要下载依赖的更多可选功能">
 
-                    <controls:SettingsExpanderItem Content="启用需要添加依赖的功能">
+                    <controls:SettingsExpanderItem Content="启用需要添加FFmpeg依赖的功能">
                         <controls:SettingsExpanderItem.Footer>
                             <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFfmpegFeatures, Mode=TwoWay}"
                                           Click="OnFfmpegToggleClick" />
@@ -181,11 +186,10 @@
                             <Button Content="点击下载（190 MB）"
                                     Width="165"
                                     Click="OnDownloadFfmpegClick"
-                                    IsEnabled="{Binding ViewModel.IsDownloadButtonEnabled}" />
+                                    IsEnabled="{Binding ViewModel.IsFfmpegDownloadEnabled}" />
                         </controls:SettingsExpanderItem.Footer>
                     </controls:SettingsExpanderItem>
-                    
-                    <!-- 人脸识别开关 -->
+
                     <controls:SettingsExpanderItem Content="启用人脸识别验证功能">
                         <controls:SettingsExpanderItem.Footer>
                             <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFaceRecognition, Mode=TwoWay}"
@@ -193,13 +197,12 @@
                         </controls:SettingsExpanderItem.Footer>
                     </controls:SettingsExpanderItem>
 
-                    <!-- 人脸识别模型下载按钮 -->
-                    <controls:SettingsExpanderItem Content="下载人脸识别验证模型">
+                    <controls:SettingsExpanderItem Content="下载人脸识别验证模型及运行时">
                         <controls:SettingsExpanderItem.Footer>
                             <Button Content="点击下载（138 MB）"
                                     Width="165"
                                     Click="OnDownloadFaceModelsClick"
-                                    IsEnabled="{Binding ViewModel.IsDownloadButtonEnabled}" />
+                                    IsEnabled="{Binding ViewModel.IsFaceModelsDownloadEnabled}" />
                         </controls:SettingsExpanderItem.Footer>
                     </controls:SettingsExpanderItem>
 

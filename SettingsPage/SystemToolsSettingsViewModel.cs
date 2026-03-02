@@ -41,30 +41,28 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
 {
     [ObservableProperty] private MainConfigData _settings;
 
-    [ObservableProperty] private bool _isDownloadButtonEnabled = true;
+    // 两个独立的下载按钮启用状态
+    [ObservableProperty] private bool _isFfmpegDownloadEnabled = true;
+    [ObservableProperty] private bool _isFaceModelsDownloadEnabled = true;
 
     [ObservableProperty] private bool _showDownloadProgress = false;
-
     [ObservableProperty] private double _downloadProgress = 0;
-
     [ObservableProperty] private string _downloadStatusText = string.Empty;
 
     [ObservableProperty] private ObservableCollection<UnifiedFeatureItem> _featureItems = new();
 
     // Drawer 相关属性
     [ObservableProperty] private bool _isFeatureDrawerOpen = false;
-
     [ObservableProperty] private object? _featureDrawerContent;
 
     private readonly MainConfigHandler _configHandler;
 
     private const string DownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/f94fcfa40c9de41d6df09566a51e3130.exe";
-
     private const string ExpectedMd5 = "f94fcfa40c9de41d6df09566a51e3130";
     private const string TempFileName = "f94fcfa40c9de41d6df09566a51e3130.exe";
     private const string TargetFileName = "ffmpeg.exe";
-    
+
     private const string FaceModelsUrl = "https://livefile.xesimg.com/programme/python_assets/915f822a03487c4e5761b4fcf8f206cc.zip";
     private const string FaceModelsMd5 = "915f822a03487c4e5761b4fcf8f206cc";
     private const string FaceZipFileName = "FaceModels.zip";
@@ -198,11 +196,19 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
         }
     }
 
+    public bool CheckFaceModelsExists()
+    {
+        var modelDir = Path.Combine(GlobalConstants.Information.PluginFolder, "Models");
+        return Directory.Exists(modelDir) &&
+               File.Exists(Path.Combine(modelDir, "shape_predictor_68_face_landmarks.dat")) &&
+               File.Exists(Path.Combine(modelDir, "dlib_face_recognition_resnet_model_v1.dat"));
+    }
+
     public async Task<bool> DownloadFfmpegAsync(Func<Task> onError, Func<Task> onMd5Error)
     {
-        if (!IsDownloadButtonEnabled) return false;
+        if (!IsFfmpegDownloadEnabled) return false;
 
-        IsDownloadButtonEnabled = false;
+        IsFfmpegDownloadEnabled = false;
         ShowDownloadProgress = true;
         DownloadProgress = 0;
         DownloadStatusText = "正在下载 - 0%";
@@ -246,7 +252,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
             {
                 File.Delete(tempPath);
                 await onMd5Error();
-                IsDownloadButtonEnabled = true;
                 return false;
             }
 
@@ -273,11 +278,11 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
             }
 
             await onError();
-            IsDownloadButtonEnabled = true;
             return false;
         }
         finally
         {
+            IsFfmpegDownloadEnabled = !CheckFfmpegExists();
             if (!ShowDownloadProgress)
             {
                 DownloadProgress = 0;
@@ -285,116 +290,102 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
             }
         }
     }
-    
-    public bool CheckFaceModelsExists()
-    {
-        var modelDir = Path.Combine(GlobalConstants.Information.PluginFolder, "Models");
-        return Directory.Exists(modelDir) && 
-               File.Exists(Path.Combine(modelDir, "shape_predictor_68_face_landmarks.dat")) &&
-               File.Exists(Path.Combine(modelDir, "dlib_face_recognition_resnet_model_v1.dat"));
-    }
-    
+
     public async Task<bool> DownloadFaceModelsAsync(Func<Task> onError, Func<Task> onMd5Error)
-{
-    if (!IsDownloadButtonEnabled) return false;
-
-    IsDownloadButtonEnabled = false;
-    ShowDownloadProgress = true;
-    DownloadProgress = 0;
-
-    var pluginFolder = GlobalConstants.Information.PluginFolder;
-    var zipPath = Path.Combine(pluginFolder, FaceZipFileName);
-
-    try
     {
-        // 1. 下载
-        using var httpClient = new HttpClient();
-        using var response = await httpClient.GetAsync(FaceModelsUrl, HttpCompletionOption.ResponseHeadersRead);
-        response.EnsureSuccessStatusCode();
+        if (!IsFaceModelsDownloadEnabled) return false;
 
-        var totalBytes = response.Content.Headers.ContentLength ?? -1L;
-        var downloadedBytes = 0L;
+        IsFaceModelsDownloadEnabled = false;
+        ShowDownloadProgress = true;
+        DownloadProgress = 0;
 
-        await using (var contentStream = await response.Content.ReadAsStreamAsync())
-        await using (var fileStream = new FileStream(zipPath, FileMode.Create))
+        var pluginFolder = GlobalConstants.Information.PluginFolder;
+        var zipPath = Path.Combine(pluginFolder, FaceZipFileName);
+
+        try
         {
-            var buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+            using var httpClient = new HttpClient();
+            using var response = await httpClient.GetAsync(FaceModelsUrl, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+            var downloadedBytes = 0L;
+
+            await using (var contentStream = await response.Content.ReadAsStreamAsync())
+            await using (var fileStream = new FileStream(zipPath, FileMode.Create))
             {
-                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                downloadedBytes += bytesRead;
-                if (totalBytes > 0)
+                var buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
                 {
-                    await UpdateProgressAsync((double)downloadedBytes / totalBytes * 100);
+                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                    downloadedBytes += bytesRead;
+                    if (totalBytes > 0)
+                    {
+                        await UpdateProgressAsync((double)downloadedBytes / totalBytes * 100);
+                    }
                 }
             }
-        }
 
-        // 2. MD5 校验
-        await UpdateStatusAsync("正在校验模型 MD5…");
-        var actualMd5 = await CalculateMd5Async(zipPath);
-        if (!string.Equals(actualMd5, FaceModelsMd5, StringComparison.OrdinalIgnoreCase))
+            await UpdateStatusAsync("正在校验模型 MD5…");
+            var actualMd5 = await CalculateMd5Async(zipPath);
+            if (!string.Equals(actualMd5, FaceModelsMd5, StringComparison.OrdinalIgnoreCase))
+            {
+                File.Delete(zipPath);
+                await onMd5Error();
+                return false;
+            }
+
+            await UpdateStatusAsync("正在解压模型文件…");
+            await Task.Run(() =>
+            {
+                if (Directory.Exists(Path.Combine(pluginFolder, "temp_extract")))
+                    Directory.Delete(Path.Combine(pluginFolder, "temp_extract"), true);
+
+                ZipFile.ExtractToDirectory(zipPath, pluginFolder, true);
+            });
+
+            await UpdateStatusAsync("正在整理文件结构…");
+            await Task.Run(() =>
+            {
+                string sourceDir = Path.Combine(pluginFolder, "新建文件夹");
+                if (Directory.Exists(sourceDir))
+                {
+                    foreach (var dir in Directory.GetDirectories(sourceDir))
+                    {
+                        var dest = Path.Combine(pluginFolder, Path.GetFileName(dir));
+                        if (Directory.Exists(dest)) Directory.Delete(dest, true);
+                        Directory.Move(dir, dest);
+                    }
+                    foreach (var file in Directory.GetFiles(sourceDir))
+                    {
+                        var dest = Path.Combine(pluginFolder, Path.GetFileName(file));
+                        if (File.Exists(dest)) File.Delete(dest);
+                        File.Move(file, dest);
+                    }
+                    Directory.Delete(sourceDir, true);
+                }
+            });
+
+            if (File.Exists(zipPath)) File.Delete(zipPath);
+
+            await UpdateStatusAsync("处理完成！");
+            await Task.Delay(1000);
+            ShowDownloadProgress = false;
+            return true;
+        }
+        catch (Exception ex)
         {
-            File.Delete(zipPath);
-            await onMd5Error();
+            System.Diagnostics.Debug.WriteLine($"[SystemTools] 下载模型失败: {ex.Message}");
+            if (File.Exists(zipPath)) File.Delete(zipPath);
+            await onError();
             return false;
         }
-
-        // 3. 解压
-        await UpdateStatusAsync("正在解压模型文件…");
-        await Task.Run(() => 
+        finally
         {
-            if (Directory.Exists(Path.Combine(pluginFolder, "temp_extract")))
-                Directory.Delete(Path.Combine(pluginFolder, "temp_extract"), true);
-            
-            ZipFile.ExtractToDirectory(zipPath, pluginFolder, true);
-        });
-
-        // 4. 处理“新建文件夹”逻辑
-        await UpdateStatusAsync("正在整理文件结构…");
-        await Task.Run(() =>
-        {
-            string sourceDir = Path.Combine(pluginFolder, "新建文件夹");
-            if (Directory.Exists(sourceDir))
-            {
-                // 移动内容到根目录
-                foreach (var dir in Directory.GetDirectories(sourceDir))
-                {
-                    var dest = Path.Combine(pluginFolder, Path.GetFileName(dir));
-                    if (Directory.Exists(dest)) Directory.Delete(dest, true);
-                    Directory.Move(dir, dest);
-                }
-                foreach (var file in Directory.GetFiles(sourceDir))
-                {
-                    var dest = Path.Combine(pluginFolder, Path.GetFileName(file));
-                    if (File.Exists(dest)) File.Delete(dest);
-                    File.Move(file, dest);
-                }
-                Directory.Delete(sourceDir, true);
-            }
-        });
-
-        // 5. 清理
-        if (File.Exists(zipPath)) File.Delete(zipPath);
-
-        await UpdateStatusAsync("处理完成！");
-        await Task.Delay(1000);
-        ShowDownloadProgress = false;
-        return true;
+            IsFaceModelsDownloadEnabled = !CheckFaceModelsExists();
+        }
     }
-    catch (Exception ex)
-    {
-        System.Diagnostics.Debug.WriteLine($"[SystemTools] 下载模型失败: {ex.Message}");
-        if (File.Exists(zipPath)) File.Delete(zipPath);
-        await onError();
-        return false;
-    }
-    finally
-    {
-        IsDownloadButtonEnabled = true;
-    }
-}
 
     private async Task UpdateProgressAsync(double progress)
     {

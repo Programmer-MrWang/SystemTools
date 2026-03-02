@@ -1,4 +1,4 @@
-﻿## SystemTools v2.4.1.0 - 2026.3.1更新
+﻿## SystemTools v2.4.2.0 - 2026.3.3更新
 
 ### 新增：
 
@@ -14,14 +14,20 @@
 > 
 > 位于 *[ 主设置 > 启用功能选项 ]*
 
+- **[验证器]**: 新增 **人脸识别验证器**
+
+> 需在 *[ SystemTools 设置 > 主设置 ]* 中点击下载依赖并启用 **[启用需要添加依赖的功能]** 才能使用
+>
+> 在应用设置中 *[ 集控选项 > 密码保护限制 > 认证方式 ]* 使用
+
 ### Bug 修复：
 
-- **[行动]**: 更正 **屏幕截图** 和 **摄像头抓拍** 文件保存命名逻辑 https://github.com/Programmer-MrWang/SystemTools/issues/7
+- **[行动]**: 更正 **屏幕截图** 和 **摄像头抓拍** 文件保存命名逻辑
 
 ### 调整：
 
-- **[代码]**: 对 LyricsDisplayComponent 进行 cswin32 改造 https://github.com/Programmer-MrWang/SystemTools/pull/8
-- **[代码]**: 将 KillProcessAction 替换为内置实现 https://github.com/Programmer-MrWang/SystemTools/pull/8
+- **[代码]**: 对 LyricsDisplayComponent 进行 cswin32 改造
+- **[代码]**: 将 KillProcessAction 替换为内置实现
 
 ---
 > **感谢您使用 SystemTools 插件！欢迎您的Star！**

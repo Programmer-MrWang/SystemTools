@@ -4,16 +4,15 @@ using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using SystemTools.Services;
 
 namespace SystemTools.Actions;
 
-/// <summary>
-/// 复制屏幕
-/// </summary>
 [ActionInfo("SystemTools.CloneDisplay", "复制屏幕", "\uE635", false)]
-public class CloneDisplayAction(ILogger<CloneDisplayAction> logger) : ActionBase
+public class CloneDisplayAction(ILogger<CloneDisplayAction> logger, IProcessRunner processRunner) : ActionBase
 {
     private readonly ILogger<CloneDisplayAction> _logger = logger;
+    private readonly IProcessRunner _processRunner = processRunner;
 
     protected override async Task OnInvoke()
     {
@@ -28,26 +27,12 @@ public class CloneDisplayAction(ILogger<CloneDisplayAction> logger) : ActionBase
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardError = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            using var process = Process.Start(processInfo);
-            if (process != null)
-            {
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
-
-                await process.WaitForExitAsync();
-
-                _logger.LogInformation("复制屏幕命令已执行，退出码: {ExitCode}", process.ExitCode);
-
-                if (!string.IsNullOrEmpty(error))
-                    _logger.LogWarning("错误输出: {Error}", error);
-            }
-            else
-            {
-                throw new Exception("无法启动 DisplaySwitch.exe 进程");
-            }
+            await _processRunner.RunAsync(processInfo, "复制屏幕(DisplaySwitch)");
+            _logger.LogInformation("复制屏幕命令执行完成");
         }
         catch (Exception ex)
         {

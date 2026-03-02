@@ -6,15 +6,17 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using SystemTools.Services;
 using SystemTools.Settings;
 using Windows.Win32;
 
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.SimulateMouse", "模拟鼠标", "\uE5C1", false)]
-public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBase<MouseInputSettings>
+public class SimulateMouseAction(ILogger<SimulateMouseAction> logger, IProcessRunner processRunner) : ActionBase<MouseInputSettings>
 {
     private readonly ILogger<SimulateMouseAction> _logger = logger;
+    private readonly IProcessRunner _processRunner = processRunner;
     private const int MOUSE_DELAY = 20;
     private const int SCROLL_DELAY = 50;
     private bool _isLeftButtonDown = false;
@@ -213,21 +215,10 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            using var process = Process.Start(psi) ?? throw new Exception("无法启动批处理进程");
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
-
-            _logger.LogInformation("{Operation}批处理执行完成，退出码: {ExitCode}", operation, process.ExitCode);
-            if (!string.IsNullOrWhiteSpace(output))
-                _logger.LogDebug("批处理输出: {Output}", output);
-            if (!string.IsNullOrWhiteSpace(error))
-                _logger.LogWarning("批处理错误: {Error}", error);
-
-            if (process.ExitCode != 0)
-            {
-                _logger.LogWarning("{Operation}批处理返回非零退出码: {ExitCode}", operation, process.ExitCode);
-            }
+            await _processRunner.RunAsync(
+                psi,
+                operationName: $"{operation}批处理",
+                timeout: TimeSpan.FromMinutes(2));
         }
         catch (Exception ex)
         {

@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using SystemTools.Services;
 
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.EnableMouse", "启用鼠标", "\uE5BF", false)]
-public class EnableMouseAction(ILogger<EnableMouseAction> logger) : ActionBase
+public class EnableMouseAction(ILogger<EnableMouseAction> logger, IProcessRunner processRunner) : ActionBase
 {
     private readonly ILogger<EnableMouseAction> _logger = logger;
+    private readonly IProcessRunner _processRunner = processRunner;
 
     protected override async Task OnInvoke()
     {
@@ -23,7 +25,7 @@ public class EnableMouseAction(ILogger<EnableMouseAction> logger) : ActionBase
             if (string.IsNullOrEmpty(pluginDir))
             {
                 _logger.LogError("无法获取程序集位置");
-                throw new FileNotFoundException($"无法获取程序集位置");
+                throw new FileNotFoundException("无法获取程序集位置");
             }
 
             var batchPath = Path.Combine(pluginDir, "huifu.bat");
@@ -33,8 +35,6 @@ public class EnableMouseAction(ILogger<EnableMouseAction> logger) : ActionBase
                 _logger.LogError("找不到启用鼠标批处理文件: {Path}", batchPath);
                 throw new FileNotFoundException($"找不到启用鼠标批处理文件: {batchPath}");
             }
-
-            _logger.LogInformation("正在运行启用鼠标批处理: {Path}", batchPath);
 
             var psi = new ProcessStartInfo
             {
@@ -47,21 +47,7 @@ public class EnableMouseAction(ILogger<EnableMouseAction> logger) : ActionBase
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            using var process = Process.Start(psi) ?? throw new Exception("无法启动批处理进程");
-            string output = await process.StandardOutput.ReadToEndAsync();
-            string error = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
-
-            _logger.LogInformation("启用鼠标批处理执行完成，退出码: {ExitCode}", process.ExitCode);
-            if (!string.IsNullOrWhiteSpace(output))
-                _logger.LogDebug("批处理输出: {Output}", output);
-            if (!string.IsNullOrWhiteSpace(error))
-                _logger.LogWarning("批处理错误: {Error}", error);
-
-            if (process.ExitCode != 0)
-            {
-                _logger.LogWarning("批处理返回非零退出码: {ExitCode}", process.ExitCode);
-            }
+            await _processRunner.RunAsync(psi, "启用鼠标批处理", timeout: TimeSpan.FromMinutes(2));
         }
         catch (Exception ex)
         {

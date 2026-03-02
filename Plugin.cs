@@ -54,6 +54,7 @@ public class Plugin : PluginBase
         GlobalConstants.MainConfig = new MainConfigHandler(PluginConfigFolder);
 
         services.AddLogging();
+        services.AddSingleton<IProcessRunner, ProcessRunner>();
         
         // ========== 注册可选人脸识别 ==========
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

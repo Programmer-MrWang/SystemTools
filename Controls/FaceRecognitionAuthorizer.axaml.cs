@@ -56,7 +56,7 @@ public partial class FaceRecognitionAuthorizer : AuthorizeProviderControlBase<Fa
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     Settings.OperationFinished = true;
-                });
+            });
                 return;
             }
 
@@ -87,7 +87,7 @@ public partial class FaceRecognitionAuthorizer : AuthorizeProviderControlBase<Fa
     private void OnFrameCaptured(object? sender, Mat frame)
     {
         var oldFrame = _currentFrame;
-        _currentFrame = frame;
+        _currentFrame = frame.Clone();
         oldFrame?.Dispose();
 
         if (_isDrawing) return;
@@ -169,13 +169,17 @@ public partial class FaceRecognitionAuthorizer : AuthorizeProviderControlBase<Fa
             using var snapshot = _currentFrame.Clone();
             var encoding = await Task.Run(() =>
             {
-                try
-                {
-                    byte[] rgbBytes = MatToRgbBytes(snapshot);
-                    return _faceService.ExtractFaceEncoding(rgbBytes, snapshot.Width, snapshot.Height);
-                }
-                catch { return null; }
-            });
+                    try
+                    {
+                        byte[] rgbBytes = MatToRgbBytes(snapshot);
+                        return _faceService.ExtractFaceEncoding(rgbBytes, snapshot.Width, snapshot.Height);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"提取人脸特征失败: {ex}");
+                        return null;
+                    }
+                });
 
             if (encoding != null)
             {
@@ -234,6 +238,7 @@ public partial class FaceRecognitionAuthorizer : AuthorizeProviderControlBase<Fa
             }
             catch (OperationCanceledException)
             {
+                System.Diagnostics.Debug.WriteLine("人脸验证已取消");
             }
             catch (Exception ex)
             {

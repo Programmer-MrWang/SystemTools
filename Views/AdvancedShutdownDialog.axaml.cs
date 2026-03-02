@@ -10,11 +10,11 @@ public partial class AdvancedShutdownDialog : Window
         InitializeComponent();
     }
 
-    public TextBlock CountdownTextBlock => this.FindControl<TextBlock>(nameof(CountdownTextBlock));
-    public ProgressBar CountdownProgressBar => this.FindControl<ProgressBar>(nameof(CountdownProgressBar));
-    public Button ReadButton => this.FindControl<Button>(nameof(ReadButton));
-    public Button CancelPlanButton => this.FindControl<Button>(nameof(CancelPlanButton));
-    public Button ExtendButton => this.FindControl<Button>(nameof(ExtendButton));
+    public TextBlock CountdownTextBlock => this.FindControl<TextBlock>("CountdownTextBlockElement")!;
+    public ProgressBar CountdownProgressBar => this.FindControl<ProgressBar>("CountdownProgressBarElement")!;
+    public Button ReadButton => this.FindControl<Button>("ReadButtonElement")!;
+    public Button CancelPlanButton => this.FindControl<Button>("CancelPlanButtonElement")!;
+    public Button ExtendButton => this.FindControl<Button>("ExtendButtonElement")!;
 
     private void InitializeComponent()
     {

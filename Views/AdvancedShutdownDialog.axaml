@@ -23,11 +23,11 @@
             <Border Grid.Row="1" Padding="12" CornerRadius="8"
                     Background="{DynamicResource SystemFillColorAttentionBackgroundBrush}">
                 <StackPanel Spacing="6">
-                    <TextBlock x:Name="CountdownTextBlock"
+                    <TextBlock x:Name="CountdownTextBlockElement"
                                FontSize="20"
                                FontWeight="Bold"
                                Text="将在2分00秒后关机……" />
-                    <ProgressBar x:Name="CountdownProgressBar" Height="6" Minimum="0" Maximum="100" Value="100" />
+                    <ProgressBar x:Name="CountdownProgressBarElement" Height="6" Minimum="0" Maximum="100" Value="100" />
                 </StackPanel>
             </Border>
 
@@ -37,9 +37,9 @@
                        Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
 
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                <Button x:Name="ReadButton" Content="已阅" MinWidth="84" />
-                <Button x:Name="CancelPlanButton" Content="取消计划" MinWidth="92" />
-                <Button x:Name="ExtendButton" Content="延长时间" MinWidth="92" Classes="accent" />
+                <Button x:Name="ReadButtonElement" Content="已阅" MinWidth="84" />
+                <Button x:Name="CancelPlanButtonElement" Content="取消计划" MinWidth="92" />
+                <Button x:Name="ExtendButtonElement" Content="延长时间" MinWidth="92" Classes="accent" />
             </StackPanel>
         </Grid>
     </Border>

@@ -15,9 +15,9 @@ public partial class ExtendShutdownDialog : Window
         CancelButton.Click += OnCancelButtonClick;
     }
 
-    public NumericUpDown MinutesInput => this.FindControl<NumericUpDown>(nameof(MinutesInput));
-    public Button ConfirmButton => this.FindControl<Button>(nameof(ConfirmButton));
-    public Button CancelButton => this.FindControl<Button>(nameof(CancelButton));
+    public NumericUpDown MinutesInput => this.FindControl<NumericUpDown>("MinutesInputElement")!;
+    public Button ConfirmButton => this.FindControl<Button>("ConfirmButtonElement")!;
+    public Button CancelButton => this.FindControl<Button>("CancelButtonElement")!;
 
     private void OnConfirmButtonClick(object? sender, RoutedEventArgs e)
     {

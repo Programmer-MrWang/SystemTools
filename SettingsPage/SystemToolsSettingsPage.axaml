@@ -149,9 +149,12 @@
                                            Header="启用功能选项"
                                            Description="选择需要本插件要启用的功能">
                     <controls:SettingsExpander.Footer>
-                        <Button Content="管理启用的功能..."
-                                Width="165"
-                                Click="OnManageFeaturesClick" />
+                        <StackPanel Orientation="Horizontal">
+                            <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
+                            <Button Content="管理启用的功能..."
+                                    Width="165"
+                                    Click="OnManageFeaturesClick" />
+                        </StackPanel>
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
@@ -174,14 +177,14 @@
                                            IsExpanded="True"
                                            Description="启用需要下载依赖的更多可选功能">
 
-                    <controls:SettingsExpanderItem Content="启用需要添加FFmpeg依赖的功能">
+                    <controls:SettingsExpanderItem Content="启用需要添加 FFmpeg 依赖的功能">
                         <controls:SettingsExpanderItem.Footer>
                             <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFfmpegFeatures, Mode=TwoWay}"
                                           Click="OnFfmpegToggleClick" />
                         </controls:SettingsExpanderItem.Footer>
                     </controls:SettingsExpanderItem>
 
-                    <controls:SettingsExpanderItem Content="下载插件所需FFmpeg依赖">
+                    <controls:SettingsExpanderItem Content="下载插件所需 FFmpeg 依赖">
                         <controls:SettingsExpanderItem.Footer>
                             <Button Content="点击下载（190 MB）"
                                     Width="165"

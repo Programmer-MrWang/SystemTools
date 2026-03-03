@@ -5,14 +5,16 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using SystemTools.Services;
 using SystemTools.Settings;
 
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.Copy", "复制", "\uE6AB", false)]
-public class CopyAction(ILogger<CopyAction> logger) : ActionBase<CopySettings>
+public class CopyAction(ILogger<CopyAction> logger, IProcessRunner processRunner) : ActionBase<CopySettings>
 {
     private readonly ILogger<CopyAction> _logger = logger;
+    private readonly IProcessRunner _processRunner = processRunner;
 
     protected override async Task OnInvoke()
     {
@@ -24,16 +26,6 @@ public class CopyAction(ILogger<CopyAction> logger) : ActionBase<CopySettings>
             _logger.LogWarning("路径为空");
             return;
         }
-
-        var psi = new ProcessStartInfo
-        {
-            FileName = "cmd.exe",
-            CreateNoWindow = true,
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            WindowStyle = ProcessWindowStyle.Hidden
-        };
 
         try
         {
@@ -60,16 +52,7 @@ public class CopyAction(ILogger<CopyAction> logger) : ActionBase<CopySettings>
                     Directory.CreateDirectory(destDir);
                 }
 
-                try
-                {
-                    await Task.Run(() => File.Copy(sourcePath, destPath, true));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "文件复制失败");
-                    throw new Exception($"复制失败: {ex}");
-                }
-
+                await Task.Run(() => File.Copy(sourcePath, destPath, true));
                 _logger.LogInformation("文件复制成功: {Source} -> {Destination}", sourcePath, destPath);
             }
             else
@@ -93,21 +76,22 @@ public class CopyAction(ILogger<CopyAction> logger) : ActionBase<CopySettings>
                     Directory.Delete(finalDestPath, true);
                 }
 
-                psi.FileName = "robocopy.exe";
-                psi.Arguments = $"\"{sourcePath}\" \"{finalDestPath}\" /e /copyall /r:3 /w:3 /mt:4 /nfl /ndl /np";
-                _logger.LogInformation("执行命令: robocopy \"{Source}\" \"{Destination}\"", sourcePath, finalDestPath);
-
-                using var process = Process.Start(psi) ?? throw new Exception("无法启动进程");
-                string output = await process.StandardOutput.ReadToEndAsync();
-                string error = await process.StandardError.ReadToEndAsync();
-                await process.WaitForExitAsync();
-
-                if (process.ExitCode >= 8)
+                var psi = new ProcessStartInfo
                 {
-                    _logger.LogError("robocopy 失败，退出码: {ExitCode}, 输出: {Output}, 错误: {Error}",
-                        process.ExitCode, output, error);
-                    throw new Exception($"robocopy 失败，退出码: {process.ExitCode}");
-                }
+                    FileName = "robocopy.exe",
+                    Arguments = $"\"{sourcePath}\" \"{finalDestPath}\" /e /copyall /r:3 /w:3 /mt:4 /nfl /ndl /np",
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+
+                await _processRunner.RunAsync(
+                    psi,
+                    operationName: "复制文件夹(robocopy)",
+                    successExitCodes: new[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+                    timeout: TimeSpan.FromMinutes(10));
 
                 _logger.LogInformation("文件夹复制成功: {Source} -> {Destination}", sourcePath, finalDestPath);
             }

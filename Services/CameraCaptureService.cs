@@ -1,5 +1,6 @@
 using OpenCvSharp;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,29 +27,55 @@ public class CameraCaptureService : IDisposable
         _capture.FrameHeight = height;
         
         _cts = new CancellationTokenSource();
-        _captureTask = Task.Run(CaptureLoop, _cts.Token);
+        var token = _cts.Token;
+        _captureTask = Task.Run(() => CaptureLoop(token), token);
         
         return true;
     }
 
-    private void CaptureLoop()
+    private async Task CaptureLoop(CancellationToken token)
     {
         using var frame = new Mat();
         
-        while (_cts?.IsCancellationRequested == false)
+        while (!token.IsCancellationRequested)
         {
-            if (_capture?.Read(frame) == true && !frame.Empty())
+            if (_capture?.Read(frame) == true && !frame.Empty() && FrameCaptured != null)
             {
-                FrameCaptured?.Invoke(this, frame.Clone());
+                try
+                {
+                    // 由服务层管理原始帧生命周期；订阅方如需跨线程/跨作用域使用应自行 Clone。
+                    using var snapshot = frame.Clone();
+                    FrameCaptured.Invoke(this, snapshot);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[SystemTools] FrameCaptured 处理异常: {ex}");
+                }
             }
-            Thread.Sleep(33);
+
+            try
+            {
+                await Task.Delay(33, token);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
         }
     }
 
     public void Stop()
     {
         _cts?.Cancel();
-        _captureTask?.Wait(500);
+
+        try
+        {
+            _captureTask?.Wait(1000);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[SystemTools] 等待摄像头采集任务结束失败: {ex}");
+        }
         
         try
         {
@@ -61,10 +88,17 @@ public class CameraCaptureService : IDisposable
                 _capture.Dispose();
             }
         }
-        catch { /* 防止硬件已被拔出等异常导致报错 */ }
+        catch (Exception ex)
+        {
+            // 防止硬件已被拔出等异常导致报错
+            Debug.WriteLine($"[SystemTools] 停止摄像头时出现异常: {ex}");
+        }
         finally
         {
             _capture = null;
+            _captureTask = null;
+            _cts?.Dispose();
+            _cts = null;
         }
     }
 

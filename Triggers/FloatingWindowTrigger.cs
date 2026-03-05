@@ -22,6 +22,7 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
     public override void Loaded()
     {
         Settings.PropertyChanged += OnSettingsChanged;
+        EnsureButtonId();
         _floatingWindowService.RegisterTrigger(this);
     }
 
@@ -35,6 +36,25 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
     {
         _logger.LogInformation("从悬浮窗触发触发器: {ButtonId}", Settings.ButtonId);
         Trigger();
+    }
+
+    public string GetButtonId()
+    {
+        EnsureButtonId();
+        return Settings.ButtonId;
+    }
+
+    public string GetIcon()
+    {
+        return Settings.Icon;
+    }
+
+    private void EnsureButtonId()
+    {
+        if (string.IsNullOrWhiteSpace(Settings.ButtonId))
+        {
+            Settings.ButtonId = Guid.NewGuid().ToString("N");
+        }
     }
 
     private void OnSettingsChanged(object? sender, PropertyChangedEventArgs e)

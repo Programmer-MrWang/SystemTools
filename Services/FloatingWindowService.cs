@@ -53,12 +53,7 @@ public class FloatingWindowService
 
     public void RegisterTrigger(FloatingWindowTrigger trigger)
     {
-        if (string.IsNullOrWhiteSpace(trigger.Settings.ButtonId))
-        {
-            trigger.Settings.ButtonId = Guid.NewGuid().ToString("N");
-        }
-
-        _entries[trigger] = new FloatingWindowEntry(trigger.Settings.ButtonId, trigger.Settings.Icon,
+        _entries[trigger] = new FloatingWindowEntry(trigger.GetButtonId(), trigger.GetIcon(),
             trigger.TriggerFromFloatingWindow);
 
         NotifyEntriesChanged();
@@ -105,9 +100,6 @@ public class FloatingWindowService
             Height = 1,
             ShowActivated = false,
             Topmost = true,
-            ExtendClientAreaToDecorationsHint = true,
-            ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.NoChrome,
-            ExtendClientAreaTitleBarHeightHint = -1,
             SystemDecorations = SystemDecorations.None,
             Background = Brushes.Transparent,
             CanResize = false,

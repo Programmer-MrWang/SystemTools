@@ -86,7 +86,68 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }*/
 
-    // 行动功能启用状态（Key: 行动ID, Value: 是否启用）
+
+
+    bool _showFloatingWindow = true;
+
+    [JsonPropertyName("showFloatingWindow")]
+    public bool ShowFloatingWindow
+    {
+        get => _showFloatingWindow;
+        set
+        {
+            if (value == _showFloatingWindow) return;
+            _showFloatingWindow = value;
+            OnPropertyChanged();
+        }
+    }
+
+    bool _floatingWindowHorizontal;
+
+    [JsonPropertyName("floatingWindowHorizontal")]
+    public bool FloatingWindowHorizontal
+    {
+        get => _floatingWindowHorizontal;
+        set
+        {
+            if (value == _floatingWindowHorizontal) return;
+            _floatingWindowHorizontal = value;
+            OnPropertyChanged();
+        }
+    }
+
+    [JsonPropertyName("floatingWindowButtonOrder")]
+    public List<string> FloatingWindowButtonOrder { get; set; } = new();
+
+    int _floatingWindowPositionX = 100;
+
+    [JsonPropertyName("floatingWindowPositionX")]
+    public int FloatingWindowPositionX
+    {
+        get => _floatingWindowPositionX;
+        set
+        {
+            if (value == _floatingWindowPositionX) return;
+            _floatingWindowPositionX = value;
+            OnPropertyChanged();
+        }
+    }
+
+    int _floatingWindowPositionY = 100;
+
+    [JsonPropertyName("floatingWindowPositionY")]
+    public int FloatingWindowPositionY
+    {
+        get => _floatingWindowPositionY;
+        set
+        {
+            if (value == _floatingWindowPositionY) return;
+            _floatingWindowPositionY = value;
+            OnPropertyChanged();
+        }
+    }
+
+        // 行动功能启用状态（Key: 行动ID, Value: 是否启用）
     [JsonPropertyName("enabledActions")] public Dictionary<string, bool> EnabledActions { get; set; } = new();
 
     // 触发器功能启用状态

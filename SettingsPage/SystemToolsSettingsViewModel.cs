@@ -10,6 +10,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using SystemTools.Shared;
+using SystemTools.Services;
 
 namespace SystemTools;
 
@@ -37,6 +38,12 @@ public partial class UnifiedFeatureItem : ObservableObject
     };
 }
 
+public partial class FloatingTriggerItem : ObservableObject
+{
+    [ObservableProperty] private string _buttonId = string.Empty;
+    [ObservableProperty] private string _icon = string.Empty;
+}
+
 public partial class SystemToolsSettingsViewModel : ObservableObject
 {
     [ObservableProperty] private MainConfigData _settings;
@@ -56,6 +63,10 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
     [ObservableProperty] private object? _featureDrawerContent;
 
     private readonly MainConfigHandler _configHandler;
+    private readonly FloatingWindowService _floatingWindowService;
+
+    [ObservableProperty] private ObservableCollection<FloatingTriggerItem> _floatingTriggers = new();
+    [ObservableProperty] private FloatingTriggerItem? _selectedFloatingTrigger;
 
     private const string DownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/f94fcfa40c9de41d6df09566a51e3130.exe";
@@ -67,10 +78,12 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
     private const string FaceModelsMd5 = "915f822a03487c4e5761b4fcf8f206cc";
     private const string FaceZipFileName = "FaceModels.zip";
 
-    public SystemToolsSettingsViewModel(MainConfigHandler configHandler)
+    public SystemToolsSettingsViewModel(MainConfigHandler configHandler, FloatingWindowService floatingWindowService)
     {
         _configHandler = configHandler;
+        _floatingWindowService = floatingWindowService;
         _settings = configHandler.Data;
+        _floatingWindowService.EntriesChanged += (_, _) => RefreshFloatingTriggers();
     }
 
     public void InitializeFeatureItems()
@@ -98,7 +111,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
         {
             ("SystemTools.UsbDeviceTrigger", "USB设备插入时"),
             ("SystemTools.HotkeyTrigger", "按下F9时"),
-            ("SystemTools.ActionInProgressTrigger", "行动进行时"),
+("SystemTools.ActionInProgressTrigger", "行动进行时"),
+            ("SystemTools.FloatingWindowTrigger", "从悬浮窗触发"),
         };
         foreach (var (id, name) in triggers)
         {
@@ -182,7 +196,61 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
         _configHandler.Save();
     }
 
-    public bool CheckFfmpegExists()
+
+
+    public void RefreshFloatingTriggers()
+    {
+        var entries = _floatingWindowService.Entries;
+        var order = Settings.FloatingWindowButtonOrder;
+        var sorted = entries
+            .OrderBy(x =>
+            {
+                var i = order.IndexOf(x.ButtonId);
+                return i < 0 ? int.MaxValue : i;
+            })
+            .ThenBy(x => x.ButtonId)
+            .ToList();
+
+        FloatingTriggers.Clear();
+        foreach (var entry in sorted)
+        {
+            FloatingTriggers.Add(new FloatingTriggerItem
+            {
+                ButtonId = entry.ButtonId,
+                Icon = entry.Icon
+            });
+        }
+
+        Settings.FloatingWindowButtonOrder = FloatingTriggers.Select(x => x.ButtonId).ToList();
+        _configHandler.Save();
+    }
+
+    public void MoveSelectedFloatingTrigger(int delta)
+    {
+        if (SelectedFloatingTrigger == null)
+        {
+            return;
+        }
+
+        var oldIndex = FloatingTriggers.IndexOf(SelectedFloatingTrigger);
+        if (oldIndex < 0)
+        {
+            return;
+        }
+
+        var newIndex = Math.Clamp(oldIndex + delta, 0, FloatingTriggers.Count - 1);
+        if (newIndex == oldIndex)
+        {
+            return;
+        }
+
+        FloatingTriggers.Move(oldIndex, newIndex);
+        Settings.FloatingWindowButtonOrder = FloatingTriggers.Select(x => x.ButtonId).ToList();
+        _configHandler.Save();
+        _floatingWindowService.UpdateWindowState();
+    }
+
+        public bool CheckFfmpegExists()
     {
         try
         {

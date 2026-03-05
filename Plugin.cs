@@ -20,6 +20,7 @@ using SystemTools.ConfigHandlers;
 using SystemTools.Controls;
 using SystemTools.Controls.Components;
 using SystemTools.Services;
+using SystemTools.Settings;
 using SystemTools.Shared;
 using SystemTools.Triggers;
 using System.Collections.Generic;
@@ -54,6 +55,7 @@ public class Plugin : PluginBase
         GlobalConstants.MainConfig = new MainConfigHandler(PluginConfigFolder);
 
         services.AddLogging();
+        services.AddSingleton<FloatingWindowService>();
         
         // ========== 注册可选人脸识别 ==========
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -89,6 +91,7 @@ public class Plugin : PluginBase
 
         AppBase.Current.AppStarted += (o, args) =>
         {
+            IAppHost.GetService<FloatingWindowService>().Start();
             _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
@@ -239,6 +242,8 @@ public class Plugin : PluginBase
         RegisterTriggerIfEnabled<HotkeyTrigger, HotkeyTriggerSettings>(services, config, "SystemTools.HotkeyTrigger");
         RegisterTriggerIfEnabled<ActionInProgressTrigger, ActionInProgressTriggerSettings>(services, config,
             "SystemTools.ActionInProgressTrigger");
+        RegisterTriggerIfEnabled<FloatingWindowTrigger, FloatingWindowTriggerSettings>(services, config,
+            "SystemTools.FloatingWindowTrigger");
     }
 
     private void RegisterBaseComponents(IServiceCollection services)
@@ -584,6 +589,7 @@ public class Plugin : PluginBase
 
     private void OnAppStopping(object? sender, EventArgs e)
     {
+        IAppHost.GetService<FloatingWindowService>().Stop();
         _logger?.LogInformation("[SystemTools]关闭插件SystemTools，保存配置...");
         GlobalConstants.MainConfig?.Save();
     }

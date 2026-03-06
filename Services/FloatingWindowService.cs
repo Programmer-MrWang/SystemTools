@@ -23,6 +23,7 @@ public class FloatingWindowService
     private bool _pointerPressed;
     private bool _dragInitiated;
     private Point _pointerDownPoint;
+    private PointerPressedEventArgs? _lastPressedArgs;
 
     public event EventHandler? EntriesChanged;
 
@@ -258,6 +259,7 @@ public class FloatingWindowService
         _pointerPressed = true;
         _dragInitiated = false;
         _pointerDownPoint = e.GetPosition(_window);
+        _lastPressedArgs = e;
     }
 
     private void OnPointerMoved(object? sender, PointerEventArgs e)
@@ -277,13 +279,17 @@ public class FloatingWindowService
         }
 
         _dragInitiated = true;
-        _window.BeginMoveDrag(e);
+        if (_lastPressedArgs != null)
+        {
+            _window.BeginMoveDrag(_lastPressedArgs);
+        }
     }
 
     private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
         _pointerPressed = false;
         _dragInitiated = false;
+        _lastPressedArgs = null;
         SavePosition();
     }
 

@@ -198,7 +198,7 @@ public class FloatingWindowService
             var nameBlock = new TextBlock
             {
                 Text = string.IsNullOrWhiteSpace(entry.Name) ? "触发" : entry.Name,
-                FontSize = 10 * scale,
+                FontSize = 12 * scale,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.Wrap,

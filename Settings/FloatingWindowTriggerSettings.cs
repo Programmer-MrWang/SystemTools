@@ -1,11 +1,13 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Media;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Controls;
 using FluentAvalonia.UI.Controls;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using SystemTools.Triggers;
 
@@ -18,17 +20,8 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
 
     private readonly TextBox _iconTextBox;
     private readonly TextBox _nameTextBox;
+    private readonly List<string> _iconTokens = new();
 
-    private readonly WrapPanel _iconWrapPanel = new()
-    {
-        Orientation = Orientation.Horizontal,
-        ItemWidth = 36,
-        ItemHeight = 36,
-        HorizontalAlignment = HorizontalAlignment.Stretch,
-        VerticalAlignment = VerticalAlignment.Top
-    };
-
-    private bool _iconsLoaded;
     private ContentDialog? _iconPickerDialog;
 
     public FloatingWindowTriggerSettings()
@@ -89,59 +82,101 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             return;
         }
 
-        if (!_iconsLoaded)
-        {
-            LoadIcons();
-            _iconsLoaded = true;
-        }
+        EnsureIconsLoaded();
 
         _iconPickerDialog = new ContentDialog
         {
             Title = "选择悬浮窗图标",
             PrimaryButtonText = "关闭",
             DefaultButton = ContentDialogButton.Primary,
-            Content = new Border
-            {
-                Padding = new Thickness(8),
-                Child = new ScrollViewer
-                {
-                    Height = 520,
-                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
-                    Content = _iconWrapPanel
-                }
-            }
+            Content = BuildIconPickerContent()
         };
 
         await _iconPickerDialog.ShowAsync(topLevel);
         _iconPickerDialog = null;
     }
 
-    private void LoadIcons()
+    private Control BuildIconPickerContent()
     {
+        var itemsControl = new ItemsControl
+        {
+            ItemsSource = _iconTokens
+        };
+
+        itemsControl.ItemsPanel = new FuncTemplate<Panel>(() => new WrapPanel
+        {
+            Orientation = Orientation.Horizontal,
+            ItemWidth = 36,
+            ItemHeight = 36,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Top
+        });
+
+        itemsControl.ItemTemplate = new FuncDataTemplate<string?>((token, _) => BuildIconButton(token));
+
+        return new Border
+        {
+            Padding = new Thickness(8),
+            Child = new ScrollViewer
+            {
+                Height = 520,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                Content = itemsControl
+            }
+        };
+    }
+
+    private Control BuildIconButton(string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return new Border { Width = 34, Height = 34 };
+        }
+
+        var iconButton = new Button
+        {
+            Width = 34,
+            Height = 34,
+            Margin = new Thickness(1),
+            ToolTip = token,
+            Padding = new Thickness(0),
+            Content = new FluentIcon
+            {
+                Glyph = ToGlyph(token),
+                FontSize = 16,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            }
+        };
+
+        iconButton.Click += (_, _) => SelectIcon(token);
+        return iconButton;
+    }
+
+    private static string ToGlyph(string token)
+    {
+        if (token.Length > 2 && (token.StartsWith("/u", StringComparison.OrdinalIgnoreCase) || token.StartsWith("\\u", StringComparison.OrdinalIgnoreCase)))
+        {
+            if (int.TryParse(token[2..], System.Globalization.NumberStyles.HexNumber, null, out var code))
+            {
+                return char.ConvertFromUtf32(code);
+            }
+        }
+
+        return token;
+    }
+
+    private void EnsureIconsLoaded()
+    {
+        if (_iconTokens.Count > 0)
+        {
+            return;
+        }
+
         for (var code = IconCodeStart; code <= IconCodeEnd; code++)
         {
-            var token = $"/u{code:X4}";
-            var glyph = char.ConvertFromUtf32(code);
-
-            var iconButton = new Button
-            {
-                Width = 34,
-                Height = 34,
-                Margin = new Thickness(1),
-                ToolTip = token,
-                Padding = new Thickness(0),
-                Content = new FluentIcon
-                {
-                    Glyph = glyph,
-                    FontSize = 16,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                }
-            };
-
-            iconButton.Click += (_, _) => SelectIcon(token);
-            _iconWrapPanel.Children.Add(iconButton);
+            _iconTokens.Add($"/u{code:X4}");
         }
     }
 

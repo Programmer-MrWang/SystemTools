@@ -120,7 +120,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
         };
 
         listBox.ItemsPanel = new FuncTemplate<Panel>(() => new VirtualizingStackPanel());
-        listBox.ItemTemplate = new FuncDataTemplate<IconRow>((row, _) => BuildRowPanel(row));
+        listBox.ItemTemplate = new FuncDataTemplate<IconRow?>((row, _) => BuildRowPanel(row));
 
         var drawerContent = new StackPanel
         {
@@ -150,7 +150,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
         };
     }
 
-    private Control BuildRowPanel(IconRow row)
+    private Control BuildRowPanel(IconRow? row)
     {
         var wrapPanel = new WrapPanel
         {
@@ -160,8 +160,17 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
 
+        if (row?.Icons == null || row.Icons.Count == 0)
+        {
+            return wrapPanel;
+        }
+
         foreach (var icon in row.Icons)
         {
+            if (icon == null || string.IsNullOrWhiteSpace(icon.Token) || string.IsNullOrEmpty(icon.Glyph))
+            {
+                continue;
+            }
             var iconButton = new Button
             {
                 Width = 34,

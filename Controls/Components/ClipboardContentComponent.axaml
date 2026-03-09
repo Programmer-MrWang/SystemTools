@@ -15,8 +15,8 @@
     mc:Ignorable="d">
     <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:ClipboardContentComponent}}">
         <TextBlock Text="{Binding ClipboardContent}"
-                   TextWrapping="Wrap"
-                   MaxWidth="360"
-                   MaxHeight="220" />
+                   VerticalAlignment="Center"
+                   TextWrapping="NoWrap"
+                   TextTrimming="CharacterEllipsis" />
     </Grid>
 </ci:ComponentBase>

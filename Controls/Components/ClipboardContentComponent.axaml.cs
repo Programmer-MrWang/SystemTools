@@ -3,6 +3,7 @@ using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
 using System;
 using System.ComponentModel;
+using System.Linq;
 using SystemTools.Models.ComponentSettings;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
 
@@ -63,6 +64,18 @@ public partial class ClipboardContentComponent : ComponentBase<ClipboardContentS
         _ = RefreshClipboardAsync();
     }
 
+    private static string NormalizeToSingleLine(string text)
+    {
+        var singleLine = string.Join(" ",
+            text.Split(["\r\n", "\n", "\r"], StringSplitOptions.None)
+                .Select(x => x.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x)));
+
+        return string.IsNullOrWhiteSpace(singleLine)
+            ? "（剪切板为空或当前内容不是文本）"
+            : singleLine;
+    }
+
     private async System.Threading.Tasks.Task RefreshClipboardAsync()
     {
         try
@@ -79,10 +92,15 @@ public partial class ClipboardContentComponent : ComponentBase<ClipboardContentS
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                _lastClipboardText = text;
+                ClipboardContent = "（剪切板为空或当前内容不是文本）";
+                return;
+            }
+
             _lastClipboardText = text;
-            ClipboardContent = string.IsNullOrEmpty(text)
-                ? "（剪切板为空或当前内容不是文本）"
-                : text;
+            ClipboardContent = NormalizeToSingleLine(text);
         }
         catch
         {

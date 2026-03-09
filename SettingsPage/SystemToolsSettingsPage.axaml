@@ -189,7 +189,7 @@
 
                     <StackPanel Margin="12,0,12,12" Spacing="8">
                         <Grid>
-                        <TextBlock Text="您可在下方通过拖拽调整行内按钮顺序或添加行已实现纵列排布等功能。"
+                        <TextBlock Text="您可在下方通过拖拽调整行内按钮顺序或添加行以实现纵列排布等功能。"
                                    HorizontalAlignment="Left"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}" />

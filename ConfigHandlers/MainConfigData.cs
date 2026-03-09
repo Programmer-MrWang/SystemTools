@@ -119,6 +119,9 @@ public class MainConfigData : INotifyPropertyChanged
     [JsonPropertyName("floatingWindowButtonOrder")]
     public List<string> FloatingWindowButtonOrder { get; set; } = new();
 
+    [JsonPropertyName("floatingWindowButtonRows")]
+    public List<List<string>> FloatingWindowButtonRows { get; set; } = new();
+
 
     double _floatingWindowScale = 1.0;
 

@@ -176,16 +176,24 @@ public class FloatingWindowService
 
         var scale = Math.Clamp(_configHandler.Data.FloatingWindowScale, 0.5, 2.0);
 
-        _stackPanel.Orientation = _configHandler.Data.FloatingWindowHorizontal
-            ? Orientation.Horizontal
-            : Orientation.Vertical;
+        _stackPanel.Orientation = Orientation.Vertical;
         _stackPanel.Spacing = 6 * scale;
         _stackPanel.Margin = new Thickness(6 * scale);
+        _stackPanel.HorizontalAlignment = HorizontalAlignment.Center;
 
         _stackPanel.Children.Clear();
 
-        foreach (var entry in GetOrderedEntries())
+        foreach (var rowEntries in GetOrderedRows())
         {
+            var rowPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 6 * scale,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            foreach (var entry in rowEntries)
+            {
             var iconBlock = new FluentIcon
             {
                 Glyph = ConvertIcon(entry.Icon),
@@ -231,21 +239,73 @@ public class FloatingWindowService
             };
 
             button.Click += (_, _) => entry.TriggerAction();
-            _stackPanel.Children.Add(button);
+                rowPanel.Children.Add(button);
+            }
+
+            if (rowPanel.Children.Count > 0)
+            {
+                _stackPanel.Children.Add(rowPanel);
+            }
         }
     }
 
-    private List<FloatingWindowEntry> GetOrderedEntries()
+    private List<List<FloatingWindowEntry>> GetOrderedRows()
     {
-        var order = _configHandler.Data.FloatingWindowButtonOrder ?? new List<string>();
-        var values = _entries.Values.ToList();
-        return values.OrderBy(x =>
+        var values = _entries.Values.ToDictionary(x => x.ButtonId, x => x);
+        var order = _configHandler.Data.FloatingWindowButtonOrder ?? [];
+
+        var orderedIds = values.Keys
+            .OrderBy(id =>
             {
-                var index = order.IndexOf(x.ButtonId);
+                var index = order.IndexOf(id);
                 return index < 0 ? int.MaxValue : index;
             })
-            .ThenBy(x => x.ButtonId)
+            .ThenBy(id => id)
             .ToList();
+
+        var used = new HashSet<string>();
+        var rows = new List<List<FloatingWindowEntry>>();
+
+        foreach (var row in _configHandler.Data.FloatingWindowButtonRows ?? [])
+        {
+            var items = row
+                .Where(id => values.ContainsKey(id) && used.Add(id))
+                .Select(id => values[id])
+                .ToList();
+            if (items.Count > 0)
+            {
+                rows.Add(items);
+            }
+        }
+
+        var missing = orderedIds
+            .Where(id => !used.Contains(id))
+            .Select(id => values[id])
+            .ToList();
+
+        if (rows.Count == 0)
+        {
+            rows.Add(missing);
+        }
+        else
+        {
+            rows[0].AddRange(missing);
+        }
+
+        if (rows.Count == 0)
+        {
+            rows.Add([]);
+        }
+
+        _configHandler.Data.FloatingWindowButtonRows = rows
+            .Select(r => r.Select(x => x.ButtonId).ToList())
+            .ToList();
+        _configHandler.Data.FloatingWindowButtonOrder = rows
+            .SelectMany(r => r)
+            .Select(x => x.ButtonId)
+            .ToList();
+
+        return rows;
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)

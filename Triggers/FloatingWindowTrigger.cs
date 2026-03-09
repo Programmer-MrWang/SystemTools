@@ -7,7 +7,7 @@ using SystemTools.Services;
 
 namespace SystemTools.Triggers;
 
-[TriggerInfo("SystemTools.FloatingWindowTrigger", "从悬浮窗触发", "\uE7C3")]
+[TriggerInfo("SystemTools.FloatingWindowTrigger", "从悬浮窗触发", "\uEA37")]
 public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
 {
     private readonly FloatingWindowService _floatingWindowService;

@@ -33,7 +33,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
 
         panel.Children.Add(new TextBlock
         {
-            Text = "悬浮窗按钮图标（示例：/uE7C3）",
+            Text = "悬浮窗按钮图标（/uXXXX）",
             TextWrapping = TextWrapping.Wrap
         });
 
@@ -59,17 +59,17 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
 
         panel.Children.Add(new TextBlock
         {
-            Text = "悬浮窗按钮名称（显示在图标下方）",
+            Text = "悬浮窗按钮名称",
             TextWrapping = TextWrapping.Wrap
         });
 
-        _nameTextBox = new TextBox { Watermark = "例如：快捷抽取" };
+        _nameTextBox = new TextBox { Watermark = "例如：按钮1" };
         _nameTextBox.TextChanged += (_, _) => { Settings.ButtonName = _nameTextBox.Text ?? string.Empty; };
         panel.Children.Add(_nameTextBox);
 
         panel.Children.Add(new TextBlock
         {
-            Text = "每个“从悬浮窗触发”触发器会在浮窗里生成一个按钮。",
+            Text = "您可在 SystemTools 主设置页面中 进一步设置悬浮窗样式。",
             TextWrapping = TextWrapping.Wrap,
             Foreground = Brushes.Gray
         });

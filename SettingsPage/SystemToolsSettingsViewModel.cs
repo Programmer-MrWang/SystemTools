@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using SystemTools.ConfigHandlers;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System;
 using System.IO.Compression;
 using System.Linq;
@@ -45,6 +46,11 @@ public partial class FloatingTriggerItem : ObservableObject
     [ObservableProperty] private string _buttonName = string.Empty;
 }
 
+public partial class FloatingTriggerRow : ObservableObject
+{
+    [ObservableProperty] private ObservableCollection<FloatingTriggerItem> _buttons = new();
+}
+
 public partial class SystemToolsSettingsViewModel : ObservableObject
 {
     [ObservableProperty] private MainConfigData _settings;
@@ -66,8 +72,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
     private readonly MainConfigHandler _configHandler;
     private readonly FloatingWindowService _floatingWindowService;
 
-    [ObservableProperty] private ObservableCollection<FloatingTriggerItem> _floatingTriggers = new();
-    [ObservableProperty] private FloatingTriggerItem? _selectedFloatingTrigger;
+    [ObservableProperty] private ObservableCollection<FloatingTriggerRow> _floatingTriggerRows = new();
 
     private const string DownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/f94fcfa40c9de41d6df09566a51e3130.exe";
@@ -202,55 +207,149 @@ public partial class SystemToolsSettingsViewModel : ObservableObject
 
     public void RefreshFloatingTriggers()
     {
-        var entries = _floatingWindowService.Entries;
-        var order = Settings.FloatingWindowButtonOrder;
-        var sorted = entries
-            .OrderBy(x =>
+        var entries = _floatingWindowService.Entries.ToDictionary(x => x.ButtonId, x => x);
+        var legacyOrder = Settings.FloatingWindowButtonOrder ?? [];
+
+        var orderedIds = entries.Keys
+            .OrderBy(id =>
             {
-                var i = order.IndexOf(x.ButtonId);
+                var i = legacyOrder.IndexOf(id);
                 return i < 0 ? int.MaxValue : i;
             })
-            .ThenBy(x => x.ButtonId)
+            .ThenBy(id => id)
             .ToList();
 
-        FloatingTriggers.Clear();
-        foreach (var entry in sorted)
+        var used = new HashSet<string>();
+        var normalizedRows = new List<List<string>>();
+
+        foreach (var row in Settings.FloatingWindowButtonRows ?? [])
         {
-            FloatingTriggers.Add(new FloatingTriggerItem
+            var normalizedRow = row
+                .Where(id => entries.ContainsKey(id) && used.Add(id))
+                .ToList();
+            if (normalizedRow.Count > 0)
             {
-                ButtonId = entry.ButtonId,
-                Icon = entry.Icon,
-                ButtonName = entry.Name
-            });
+                normalizedRows.Add(normalizedRow);
+            }
         }
 
-        Settings.FloatingWindowButtonOrder = FloatingTriggers.Select(x => x.ButtonId).ToList();
-        _configHandler.Save();
+        var missing = orderedIds.Where(id => !used.Contains(id)).ToList();
+        if (normalizedRows.Count == 0)
+        {
+            normalizedRows.Add(missing);
+        }
+        else
+        {
+            normalizedRows[0].AddRange(missing);
+        }
+
+        if (normalizedRows.Count == 0)
+        {
+            normalizedRows.Add([]);
+        }
+
+        FloatingTriggerRows.Clear();
+        foreach (var row in normalizedRows)
+        {
+            var vmRow = new FloatingTriggerRow();
+            foreach (var id in row)
+            {
+                var entry = entries[id];
+                vmRow.Buttons.Add(new FloatingTriggerItem
+                {
+                    ButtonId = entry.ButtonId,
+                    Icon = entry.Icon,
+                    ButtonName = entry.Name
+                });
+            }
+            FloatingTriggerRows.Add(vmRow);
+        }
+
+        PersistFloatingTriggerRows(updateWindow: false);
     }
 
-    public void MoveSelectedFloatingTrigger(int delta)
+    public void AddFloatingTriggerRow()
     {
-        if (SelectedFloatingTrigger == null)
+        FloatingTriggerRows.Add(new FloatingTriggerRow());
+        PersistFloatingTriggerRows();
+    }
+
+    public bool RemoveFloatingTriggerRow(FloatingTriggerRow row)
+    {
+        var index = FloatingTriggerRows.IndexOf(row);
+        if (index < 0 || FloatingTriggerRows.Count <= 1)
         {
-            return;
+            return false;
         }
 
-        var oldIndex = FloatingTriggers.IndexOf(SelectedFloatingTrigger);
-        if (oldIndex < 0)
+        var targetRow = index > 0 ? FloatingTriggerRows[index - 1] : FloatingTriggerRows[index + 1];
+        foreach (var item in row.Buttons)
         {
-            return;
+            targetRow.Buttons.Add(item);
         }
 
-        var newIndex = Math.Clamp(oldIndex + delta, 0, FloatingTriggers.Count - 1);
-        if (newIndex == oldIndex)
+        FloatingTriggerRows.RemoveAt(index);
+        PersistFloatingTriggerRows();
+        return true;
+    }
+
+    public bool MoveFloatingTrigger(string buttonId, int targetRowIndex, int targetIndex)
+    {
+        if (string.IsNullOrWhiteSpace(buttonId) || FloatingTriggerRows.Count == 0)
         {
-            return;
+            return false;
         }
 
-        FloatingTriggers.Move(oldIndex, newIndex);
-        Settings.FloatingWindowButtonOrder = FloatingTriggers.Select(x => x.ButtonId).ToList();
+        targetRowIndex = Math.Clamp(targetRowIndex, 0, FloatingTriggerRows.Count - 1);
+        var sourceRow = FloatingTriggerRows.FirstOrDefault(r => r.Buttons.Any(b => b.ButtonId == buttonId));
+        if (sourceRow == null)
+        {
+            return false;
+        }
+
+        var item = sourceRow.Buttons.First(b => b.ButtonId == buttonId);
+        var sourceIndex = sourceRow.Buttons.IndexOf(item);
+        var destinationRow = FloatingTriggerRows[targetRowIndex];
+
+        if (ReferenceEquals(sourceRow, destinationRow))
+        {
+            if (targetIndex > sourceIndex)
+            {
+                targetIndex--;
+            }
+            targetIndex = Math.Clamp(targetIndex, 0, destinationRow.Buttons.Count - 1);
+            if (targetIndex == sourceIndex)
+            {
+                return false;
+            }
+
+            sourceRow.Buttons.Move(sourceIndex, targetIndex);
+            PersistFloatingTriggerRows();
+            return true;
+        }
+
+        sourceRow.Buttons.RemoveAt(sourceIndex);
+        targetIndex = Math.Clamp(targetIndex, 0, destinationRow.Buttons.Count);
+        destinationRow.Buttons.Insert(targetIndex, item);
+        PersistFloatingTriggerRows();
+        return true;
+    }
+
+    public void PersistFloatingTriggerRows(bool updateWindow = true)
+    {
+        Settings.FloatingWindowButtonRows = FloatingTriggerRows
+            .Select(row => row.Buttons.Select(x => x.ButtonId).ToList())
+            .ToList();
+        Settings.FloatingWindowButtonOrder = FloatingTriggerRows
+            .SelectMany(row => row.Buttons)
+            .Select(x => x.ButtonId)
+            .ToList();
         _configHandler.Save();
-        _floatingWindowService.UpdateWindowState();
+
+        if (updateWindow)
+        {
+            _floatingWindowService.UpdateWindowState();
+        }
     }
 
         public bool CheckFfmpegExists()

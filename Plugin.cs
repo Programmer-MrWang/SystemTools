@@ -409,7 +409,7 @@ public class Plugin : PluginBase
         // 悬浮窗设置
         if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ShowFloatingWindow"))
         {
-            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("悬浮窗设置…", "\uEDDB"));
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("悬浮窗设置…", "\uEA37"));
             BuildFloatingWindowMenu(config);
         }
 

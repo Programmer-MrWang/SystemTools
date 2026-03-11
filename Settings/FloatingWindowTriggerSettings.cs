@@ -37,7 +37,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             TextWrapping = TextWrapping.Wrap
         });
 
-        _iconTextBox = new TextBox { Watermark = "/uE7C3", HorizontalAlignment = HorizontalAlignment.Stretch };
+        _iconTextBox = new TextBox { Watermark = "/uEA73", HorizontalAlignment = HorizontalAlignment.Stretch };
         _iconTextBox.TextChanged += (_, _) => { Settings.Icon = _iconTextBox.Text ?? string.Empty; };
 
         var iconRow = new Grid
@@ -69,7 +69,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
 
         panel.Children.Add(new TextBlock
         {
-            Text = "您可在 SystemTools 主设置页面中 进一步设置悬浮窗样式。",
+            Text = "您可在 SystemTools 悬浮窗编辑页面中 进一步设置悬浮窗样式。\n若勾选“启用恢复”则可通过再次点按按钮实现恢复。",
             TextWrapping = TextWrapping.Wrap,
             Foreground = Brushes.Gray
         });

@@ -14,15 +14,9 @@ public class ShowFloatingWindowSettingsControl : ActionSettingsControlBase<ShowF
     {
         var panel = new StackPanel { Spacing = 10, Margin = new(10) };
 
-        panel.Children.Add(new TextBlock
-        {
-            Text = "悬浮窗设置",
-            FontSize = 14
-        });
-
         _toggleCheckBox = new CheckBox
         {
-            Content = "开启悬浮窗（取消勾选则关闭）",
+            Content = "显示悬浮窗",
             IsChecked = true
         };
 

@@ -9,7 +9,7 @@ using SystemTools.Shared;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.ShowFloatingWindow", "显示悬浮窗", "\uEDDB", false)]
+[ActionInfo("SystemTools.ShowFloatingWindow", "显示悬浮窗", "\uEA37", false)]
 public class ShowFloatingWindowAction(
     ILogger<ShowFloatingWindowAction> logger,
     FloatingWindowService floatingWindowService) : ActionBase<ShowFloatingWindowSettings>

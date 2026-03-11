@@ -1,0 +1,29 @@
+<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.LocalQuoteComponent"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:TypeArguments="settings:LocalQuoteSettings"
+    Loaded="LocalQuoteComponent_OnLoaded"
+    Unloaded="LocalQuoteComponent_OnUnloaded"
+    mc:Ignorable="d">
+    <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:LocalQuoteComponent}}">
+        <TextBlock Text="{Binding CurrentQuote}"
+                   Opacity="{Binding TextOpacity}"
+                   TextWrapping="NoWrap"
+                   TextTrimming="CharacterEllipsis"
+                   VerticalAlignment="Center">
+            <TextBlock.Transitions>
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.25" />
+                </Transitions>
+            </TextBlock.Transitions>
+        </TextBlock>
+    </Grid>
+</ci:ComponentBase>

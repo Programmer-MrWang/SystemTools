@@ -274,6 +274,8 @@ public class Plugin : PluginBase
             "SystemTools.LyricsDisplay");
         RegisterComponentIfEnabled<ClipboardContentComponent, ClipboardContentSettingsControl>(services, config,
             "SystemTools.ClipboardContent");
+        RegisterComponentIfEnabled<LocalQuoteComponent, LocalQuoteSettingsControl>(services, config,
+            "SystemTools.LocalQuote");
     }
 
     private void RegisterExperimentalFeatures(IServiceCollection services)

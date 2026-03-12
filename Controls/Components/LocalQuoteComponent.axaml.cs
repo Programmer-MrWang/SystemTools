@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
@@ -6,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using SystemTools.Models.ComponentSettings;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
 
@@ -19,12 +21,22 @@ namespace SystemTools.Controls.Components;
 )]
 public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, INotifyPropertyChanged
 {
+    private static readonly Thickness StableMargin = new(0);
+    private static readonly Thickness EnterFromBottomMargin = new(0, 12, 0, -12);
+    private static readonly Thickness ExitToTopMargin = new(0, -12, 0, 12);
+
     private readonly DispatcherTimer _carouselTimer;
     private readonly List<string> _quotes = [];
     private int _currentIndex = -1;
     private string _loadedPath = string.Empty;
+    private bool _isAnimating;
+
     private string _currentQuote = "（请先在组件设置中选择 txt 文件）";
-    private double _textOpacity = 1;
+    private string _nextQuote = string.Empty;
+    private double _currentTextOpacity = 1;
+    private double _nextTextOpacity;
+    private Thickness _currentTextMargin = StableMargin;
+    private Thickness _nextTextMargin = EnterFromBottomMargin;
 
     public string CurrentQuote
     {
@@ -36,13 +48,53 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         }
     }
 
-    public double TextOpacity
+    public string NextQuote
     {
-        get => _textOpacity;
+        get => _nextQuote;
         set
         {
-            _textOpacity = value;
-            OnPropertyChanged(nameof(TextOpacity));
+            _nextQuote = value;
+            OnPropertyChanged(nameof(NextQuote));
+        }
+    }
+
+    public double CurrentTextOpacity
+    {
+        get => _currentTextOpacity;
+        set
+        {
+            _currentTextOpacity = value;
+            OnPropertyChanged(nameof(CurrentTextOpacity));
+        }
+    }
+
+    public double NextTextOpacity
+    {
+        get => _nextTextOpacity;
+        set
+        {
+            _nextTextOpacity = value;
+            OnPropertyChanged(nameof(NextTextOpacity));
+        }
+    }
+
+    public Thickness CurrentTextMargin
+    {
+        get => _currentTextMargin;
+        set
+        {
+            _currentTextMargin = value;
+            OnPropertyChanged(nameof(CurrentTextMargin));
+        }
+    }
+
+    public Thickness NextTextMargin
+    {
+        get => _nextTextMargin;
+        set
+        {
+            _nextTextMargin = value;
+            OnPropertyChanged(nameof(NextTextMargin));
         }
     }
 
@@ -90,7 +142,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
     private void OnCarouselTicked(object? sender, EventArgs e)
     {
-        if (_quotes.Count == 0)
+        if (_quotes.Count == 0 || _isAnimating)
         {
             return;
         }
@@ -115,6 +167,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         _quotes.Clear();
         _currentIndex = -1;
         _loadedPath = path;
+        ResetAnimationVisualState();
 
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -166,14 +219,34 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
         if (!Settings.EnableAnimation)
         {
-            TextOpacity = 1;
+            ResetAnimationVisualState();
             CurrentQuote = next;
             return;
         }
 
-        TextOpacity = 0;
-        await System.Threading.Tasks.Task.Delay(120);
+        _isAnimating = true;
+        NextQuote = next;
+        NextTextOpacity = 0;
+        NextTextMargin = EnterFromBottomMargin;
+
+        await Task.Delay(20);
+        CurrentTextOpacity = 0;
+        CurrentTextMargin = ExitToTopMargin;
+        NextTextOpacity = 1;
+        NextTextMargin = StableMargin;
+
+        await Task.Delay(260);
         CurrentQuote = next;
-        TextOpacity = 1;
+        ResetAnimationVisualState();
+        _isAnimating = false;
+    }
+
+    private void ResetAnimationVisualState()
+    {
+        CurrentTextOpacity = 1;
+        CurrentTextMargin = StableMargin;
+        NextTextOpacity = 0;
+        NextTextMargin = EnterFromBottomMargin;
+        NextQuote = string.Empty;
     }
 }

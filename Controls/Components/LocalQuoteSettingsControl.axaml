@@ -33,7 +33,7 @@
 
                 <controls:SettingsExpander
                     Header="启用动画"
-                    Description="切换句子时使用淡入淡出动画"
+                    Description="切换句子时使用翻页动画"
                     IconSource="{ci:FluentIconSource &#xE768;}">
                     <controls:SettingsExpander.Footer>
                         <ToggleSwitch IsChecked="{Binding Settings.EnableAnimation, Mode=TwoWay}" />

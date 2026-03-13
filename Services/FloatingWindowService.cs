@@ -287,7 +287,7 @@ public class FloatingWindowService
         }
 
         var scale = Math.Clamp(_configHandler.Data.FloatingWindowScale, 0.5, 2.0);
-        var iconSize = Math.Clamp(_configHandler.Data.FloatingWindowIconSize, 8, 30) * scale;
+        var iconSize = Math.Clamp(_configHandler.Data.FloatingWindowIconSize, 15, 50) * scale;
         var textSize = Math.Clamp(_configHandler.Data.FloatingWindowTextSize, 8, 30) * scale;
         var opacity = Math.Clamp(_configHandler.Data.FloatingWindowOpacity, 10, 100);
         var alpha = (byte)Math.Round(255 * (opacity / 100.0));
@@ -779,30 +779,6 @@ public class FloatingWindowService
             _winEventProc = OnWinEvent;
         }
 
-        if (_foregroundHook == IntPtr.Zero)
-        {
-            _foregroundHook = SetWinEventHook(
-                EventSystemForeground,
-                EventSystemForeground,
-                IntPtr.Zero,
-                _winEventProc,
-                0,
-                0,
-                WinEventOutOfContext | WinEventSkipOwnProcess);
-        }
-
-        if (_reorderHook == IntPtr.Zero)
-        {
-            _reorderHook = SetWinEventHook(
-                EventObjectReorder,
-                EventObjectReorder,
-                IntPtr.Zero,
-                _winEventProc,
-                0,
-                0,
-                WinEventOutOfContext | WinEventSkipOwnProcess);
-        }
-
         LayerRecheck50MsTimer.Tick -= OnLayerRecheck50MsTimerTick;
         LayerRecheck50MsTimer.Tick += OnLayerRecheck50MsTimerTick;
         LayerRecheck1MsTimer.Tick -= OnLayerRecheck1MsTimerTick;
@@ -827,8 +803,85 @@ public class FloatingWindowService
     private void RefreshLayerRecheckMode()
     {
         var mode = _configHandler.Data.FloatingWindowLayerRecheckMode;
+        var useReorderHook = mode == 0;
+        var useForegroundHook = mode == 1;
+
+        if (useForegroundHook)
+        {
+            EnsureForegroundHook();
+        }
+        else
+        {
+            RemoveForegroundHook();
+        }
+
+        if (useReorderHook)
+        {
+            EnsureReorderHook();
+        }
+        else
+        {
+            RemoveReorderHook();
+        }
+
         LayerRecheck50MsTimer.IsEnabled = mode == 2;
         LayerRecheck1MsTimer.IsEnabled = mode == 3;
+    }
+
+    private void EnsureForegroundHook()
+    {
+        if (_foregroundHook != IntPtr.Zero || _winEventProc == null)
+        {
+            return;
+        }
+
+        _foregroundHook = SetWinEventHook(
+            EventSystemForeground,
+            EventSystemForeground,
+            IntPtr.Zero,
+            _winEventProc,
+            0,
+            0,
+            WinEventOutOfContext | WinEventSkipOwnProcess);
+    }
+
+    private void EnsureReorderHook()
+    {
+        if (_reorderHook != IntPtr.Zero || _winEventProc == null)
+        {
+            return;
+        }
+
+        _reorderHook = SetWinEventHook(
+            EventObjectReorder,
+            EventObjectReorder,
+            IntPtr.Zero,
+            _winEventProc,
+            0,
+            0,
+            WinEventOutOfContext | WinEventSkipOwnProcess);
+    }
+
+    private void RemoveForegroundHook()
+    {
+        if (_foregroundHook == IntPtr.Zero)
+        {
+            return;
+        }
+
+        UnhookWinEvent(_foregroundHook);
+        _foregroundHook = default;
+    }
+
+    private void RemoveReorderHook()
+    {
+        if (_reorderHook == IntPtr.Zero)
+        {
+            return;
+        }
+
+        UnhookWinEvent(_reorderHook);
+        _reorderHook = default;
     }
 
     private void OnLayerRecheck50MsTimerTick(object? sender, EventArgs e)
@@ -855,18 +908,17 @@ public class FloatingWindowService
             return;
         }
 
+        var mode = _configHandler.Data.FloatingWindowLayerRecheckMode;
+        var shouldRecheck = (@event == EventObjectReorder && mode == 0) ||
+                            (@event == EventSystemForeground && mode == 1);
+        if (!shouldRecheck)
+        {
+            return;
+        }
+
         Dispatcher.UIThread.Post(() =>
         {
-            var mode = _configHandler.Data.FloatingWindowLayerRecheckMode;
-            if (@event == EventSystemForeground && mode == 1)
-            {
-                RecheckWindowLayer();
-            }
-
-            if (@event == EventObjectReorder && mode == 0)
-            {
-                RecheckWindowLayer();
-            }
+            RecheckWindowLayer();
         });
     }
 

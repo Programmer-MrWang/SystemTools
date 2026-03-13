@@ -177,7 +177,7 @@ public class MainConfigData : INotifyPropertyChanged
         get => _floatingWindowIconSize;
         set
         {
-            var clamped = Math.Clamp(value, 8, 30);
+            var clamped = Math.Clamp(value, 15, 50);
             if (clamped == _floatingWindowIconSize) return;
             _floatingWindowIconSize = clamped;
             OnPropertyChanged();

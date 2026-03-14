@@ -113,6 +113,24 @@
                         </StackPanel>
                     </controls:SettingsExpanderItem.Footer>
                 </controls:SettingsExpanderItem>
+
+                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xE790;}"
+                                               Content="主题"
+                                               Description="设置悬浮窗主题">
+                    <controls:SettingsExpanderItem.Footer>
+                        <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowTheme, Mode=TwoWay}">
+                            <ComboBoxItem>
+                                <ci:IconText Glyph="&#xE5CB;" Text="跟随ClassIsland" />
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <ci:IconText Glyph="&#xF465;" Text="明亮" />
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <ci:IconText Glyph="&#xF44B;" Text="黑暗" />
+                            </ComboBoxItem>
+                        </ComboBox>
+                    </controls:SettingsExpanderItem.Footer>
+                </controls:SettingsExpanderItem>
             </controls:SettingsExpander>
 
 

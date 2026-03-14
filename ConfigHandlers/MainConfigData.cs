@@ -199,6 +199,21 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    int _floatingWindowTheme = 0;
+
+    [JsonPropertyName("floatingWindowTheme")]
+    public int FloatingWindowTheme
+    {
+        get => _floatingWindowTheme;
+        set
+        {
+            var normalized = value is 1 or 2 ? value : 0;
+            if (normalized == _floatingWindowTheme) return;
+            _floatingWindowTheme = normalized;
+            OnPropertyChanged();
+        }
+    }
+
     int _floatingWindowPositionX = 100;
 
     [JsonPropertyName("floatingWindowPositionX")]

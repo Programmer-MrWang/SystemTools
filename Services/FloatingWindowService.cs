@@ -28,6 +28,7 @@ public class FloatingWindowService
     private const uint WinEventSkipOwnProcess = 2;
     private static readonly HWND HwndBottom = new(1);
     private static readonly HWND HwndTopmost = new(-1);
+    private const int SmMaximumTouches = 95;
 
     private readonly MainConfigHandler _configHandler;
     private readonly Dictionary<FloatingWindowTrigger, FloatingWindowEntry> _entries = new();
@@ -43,7 +44,7 @@ public class FloatingWindowService
     private readonly Dictionary<string, double> _buttonWidthCache = new();
     private bool _allowWindowClose;
     private bool _restoringFromMinimized;
-    private bool _isTouchInputMode;
+    private bool _isTouchDeviceDetected;
     private bool _touchDragAllowed;
     private PixelPoint _touchDragStartScreenPoint;
     private PixelPoint _touchDragStartWindowPosition;
@@ -63,6 +64,9 @@ public class FloatingWindowService
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+    [DllImport("user32.dll")]
+    private static extern int GetSystemMetrics(int nIndex);
 
     public event EventHandler? EntriesChanged;
 
@@ -176,16 +180,26 @@ public class FloatingWindowService
 
     private void OnApplicationPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
-        if (string.Equals(e.Property?.Name, "ActualThemeVariant", StringComparison.Ordinal))
+        if (string.Equals(e.Property?.Name, "ActualThemeVariant", StringComparison.Ordinal)
+            && _configHandler.Data.FloatingWindowTheme == 0)
         {
             Dispatcher.UIThread.Post(RefreshWindowButtons);
         }
     }
 
+    private ThemeVariant ResolveWindowThemeVariant()
+    {
+        return _configHandler.Data.FloatingWindowTheme switch
+        {
+            1 => ThemeVariant.Light,
+            2 => ThemeVariant.Dark,
+            _ => _window?.ActualThemeVariant ?? Application.Current?.ActualThemeVariant ?? ThemeVariant.Dark
+        };
+    }
+
     private bool IsLightTheme()
     {
-        var theme = _window?.ActualThemeVariant ?? Application.Current?.ActualThemeVariant;
-        return theme == ThemeVariant.Light;
+        return ResolveWindowThemeVariant() == ThemeVariant.Light;
     }
 
     private void EnsureWindow()
@@ -196,6 +210,7 @@ public class FloatingWindowService
         }
 
         _allowWindowClose = false;
+        _isTouchDeviceDetected = IsTouchCapableDevice();
         _stackPanel = new StackPanel { Margin = new Thickness(6), Spacing = 6 };
         _window = new Window
         {
@@ -339,7 +354,7 @@ public class FloatingWindowService
 
         _stackPanel.Children.Clear();
 
-        if (_isTouchInputMode)
+        if (_isTouchDeviceDetected)
         {
             _touchDragHandle = CreateTouchDragHandle(scale, contentForeground);
             _stackPanel.Children.Add(_touchDragHandle);
@@ -536,9 +551,9 @@ public class FloatingWindowService
 
         UpdateInputMode(e.Pointer.Type);
 
-        if (_isTouchInputMode)
+        if (_isTouchDeviceDetected)
         {
-            if (!IsEventFromTouchDragHandle(e.Source))
+            if (e.Pointer.Type != PointerType.Touch || !IsEventFromTouchDragHandle(e.Source))
             {
                 _touchDragAllowed = false;
                 return;
@@ -571,9 +586,9 @@ public class FloatingWindowService
 
         UpdateInputMode(e.Pointer.Type);
 
-        if (_isTouchInputMode)
+        if (_isTouchDeviceDetected)
         {
-            if (!_touchDragAllowed)
+            if (e.Pointer.Type != PointerType.Touch || !_touchDragAllowed)
             {
                 return;
             }
@@ -618,8 +633,13 @@ public class FloatingWindowService
 
         UpdateInputMode(e.Pointer.Type);
 
-        if (_isTouchInputMode)
+        if (_isTouchDeviceDetected)
         {
+            if (e.Pointer.Type != PointerType.Touch)
+            {
+                return;
+            }
+
             var wasTouchDragging = _touchDragAllowed;
             _touchDragAllowed = false;
             if (!wasTouchDragging)
@@ -682,15 +702,26 @@ public class FloatingWindowService
         return false;
     }
 
+    private static bool IsTouchCapableDevice()
+    {
+        try
+        {
+            return GetSystemMetrics(SmMaximumTouches) > 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private void UpdateInputMode(PointerType pointerType)
     {
-        var isTouchMode = pointerType == PointerType.Touch;
-        if (isTouchMode == _isTouchInputMode)
+        if (pointerType != PointerType.Touch || _isTouchDeviceDetected)
         {
             return;
         }
 
-        _isTouchInputMode = isTouchMode;
+        _isTouchDeviceDetected = true;
         _pointerPressed = false;
         _dragInitiated = false;
         _lastPressedArgs = null;

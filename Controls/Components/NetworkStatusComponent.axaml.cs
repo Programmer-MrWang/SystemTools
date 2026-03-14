@@ -22,16 +22,13 @@ namespace SystemTools.Controls.Components;
 )]
 public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSettings>, INotifyPropertyChanged
 {
-    private const int AutoModeIcmpRetryInterval = 60;
-
     private readonly DispatcherTimer _timer;
     private readonly HttpClient _httpClient;
     private readonly SemaphoreSlim _checkSemaphore = new(1, 1);
 
     private string _statusText = "--";
     private IBrush _statusBrush = new SolidColorBrush(Colors.Gray);
-    private bool _autoModeUseHttp;
-    private int _httpDetectCountSinceIcmp;
+    private bool _autoModeForceHttpUntilRestart;
 
     public string StatusText
     {
@@ -95,8 +92,6 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
     {
         if (e.PropertyName == nameof(Settings.DetectMode))
         {
-            _autoModeUseHttp = false;
-            _httpDetectCountSinceIcmp = 0;
             _ = CheckNetworkStatusAsync();
             return;
         }
@@ -145,40 +140,19 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
                     break;
                 case NetworkDetectMode.Auto:
                 default:
-                    if (!_autoModeUseHttp)
+                    if (!_autoModeForceHttpUntilRestart)
                     {
                         var autoIcmpResult = await TryIcmpPingAsync(url);
                         if (autoIcmpResult.Success)
                         {
-                            _httpDetectCountSinceIcmp = 0;
                             delay = autoIcmpResult.Delay;
-                        }
-                        else
-                        {
-                            _autoModeUseHttp = true;
-                            _httpDetectCountSinceIcmp = 0;
-                            delay = await TryHttpPingAsync(url);
-                        }
-                    }
-                    else
-                    {
-                        _httpDetectCountSinceIcmp++;
-
-                        if (_httpDetectCountSinceIcmp >= AutoModeIcmpRetryInterval)
-                        {
-                            _httpDetectCountSinceIcmp = 0;
-                            var retryIcmpResult = await TryIcmpPingAsync(url);
-                            if (retryIcmpResult.Success)
-                            {
-                                _autoModeUseHttp = false;
-                                delay = retryIcmpResult.Delay;
-                                break;
-                            }
+                            break;
                         }
 
-                        delay = await TryHttpPingAsync(url);
+                        _autoModeForceHttpUntilRestart = true;
                     }
 
+                    delay = await TryHttpPingAsync(url);
                     break;
             }
 
@@ -218,7 +192,7 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
             {
                 if (reply.RoundtripTime <= 0)
                 {
-                    return IcmpProbeResult.Fail("错误");
+                    return IcmpProbeResult.Fail("0ms");
                 }
 
                 return IcmpProbeResult.Ok(reply.RoundtripTime);

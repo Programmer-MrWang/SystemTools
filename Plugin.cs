@@ -298,6 +298,8 @@ public class Plugin : PluginBase
             "SystemTools.ClipboardContent");
         RegisterComponentIfEnabled<LocalQuoteComponent, LocalQuoteSettingsControl>(services, config,
             "SystemTools.LocalQuote");
+        RegisterComponentIfEnabled<BetterSlideComponent, BetterSlideSettingsControl>(services, config,
+            "SystemTools.BetterSlideContainer");
     }
 
     private void RegisterExperimentalFeatures(IServiceCollection services)

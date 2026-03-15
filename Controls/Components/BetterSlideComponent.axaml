@@ -1,0 +1,127 @@
+<ci:ComponentBase x:Class="SystemTools.Controls.Components.BetterSlideComponent"
+                  x:TypeArguments="settings:BetterSlideComponentSettings"
+                  xmlns="https://github.com/avaloniaui"
+                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                  xmlns:local="clr-namespace:SystemTools.Controls.Components"
+                  xmlns:ci="http://classisland.tech/schemas/xaml/core"
+                  xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+                  mc:Ignorable="d"
+                  ClipToBounds="False"
+                  AttachedToVisualTree="BetterSlideComponent_OnAttachedToVisualTree"
+                  DetachedFromVisualTree="BetterSlideComponent_OnDetachedFromVisualTree"
+                  d:DesignHeight="450"
+                  d:DesignWidth="800">
+    <ci:ComponentBase.Styles>
+        <Style Selector="ListBoxItem > ContentPresenter#ItemPresenter">
+            <Setter Property="IsVisible" Value="False"/>
+            <Setter Property="Opacity" Value="0"/>
+        </Style>
+
+        <Style Selector="ListBoxItem[IsSelected=True] > ContentPresenter#ItemPresenter">
+            <Setter Property="IsVisible" Value="True"/>
+            <Setter Property="Opacity" Value="1"/>
+            <Setter Property="TranslateTransform.Y" Value="0"/>
+        </Style>
+
+        <Style Selector="ListBox[(local|BetterSlideComponent.IsAnimationEnabled)=True][(local|BetterSlideComponent.AnimationMode)=0] ListBoxItem[IsSelected=True] > ContentPresenter#ItemPresenter">
+            <Style.Animations>
+                <Animation Duration="00:00:00.25" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Setter Property="TranslateTransform.Y" Value="-30"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1"/>
+                        <Setter Property="TranslateTransform.Y" Value="0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="ListBox[(local|BetterSlideComponent.IsAnimationEnabled)=True][(local|BetterSlideComponent.AnimationMode)=1] ListBoxItem[IsSelected=True] > ContentPresenter#ItemPresenter">
+            <Style.Animations>
+                <Animation Duration="00:00:00.3" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="55%">
+                        <Setter Property="Opacity" Value="1"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="80%">
+                        <Setter Property="Opacity" Value="0.4"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </ci:ComponentBase.Styles>
+
+    <Grid x:Name="GridRoot"
+          d:DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:BetterSlideComponent}}"
+          RowDefinitions="*,Auto">
+        <ListBox x:Name="MainListBox"
+                 Grid.Row="0"
+                 Margin="-6 0"
+                 ClipToBounds="False"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ItemsSource="{Binding Settings.Children}"
+                 local:BetterSlideComponent.IsAnimationEnabled="{Binding Settings.IsAnimationEnabled}"
+                 local:BetterSlideComponent.AnimationMode="{Binding Settings.AnimationMode}">
+            <ListBox.Styles>
+                <Style Selector="ScrollViewer">
+                    <Setter Property="VerticalScrollBarVisibility" Value="Disabled" />
+                </Style>
+            </ListBox.Styles>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemContainerTheme>
+                <ControlTheme TargetType="ListBoxItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <ContentPresenter x:Name="ItemPresenter"
+                                                  Content="{Binding $parent[ListBoxItem].Content}"
+                                                  ContentTemplate="{Binding $parent[ListBoxItem].ContentTemplate}">
+                                    <ContentPresenter.RenderTransform>
+                                        <TransformGroup>
+                                            <TranslateTransform Y="0"/>
+                                        </TransformGroup>
+                                    </ContentPresenter.RenderTransform>
+                                </ContentPresenter>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                </ControlTheme>
+            </ListBox.ItemContainerTheme>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <ci:ComponentPresenter IsOnMainWindow="True"
+                                               Settings="{Binding}"
+                                               HidingRules="{Binding HidingRules, Mode=OneWay}"
+                                               HideOnRule="{Binding HideOnRule, Mode=OneWay}"
+                                               VerticalAlignment="Stretch"
+                                               MaxHeight="{DynamicResource IslandContainerHeight}"
+                                               Margin="6 0" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <ProgressBar Grid.Row="1"
+                     Margin="0 6 0 0"
+                     Height="4"
+                     Minimum="0"
+                     Maximum="100"
+                     IsVisible="{Binding Settings.ShowProgressBar}"
+                     Value="{Binding ProgressPercent}"/>
+    </Grid>
+</ci:ComponentBase>

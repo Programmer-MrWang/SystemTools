@@ -7,7 +7,7 @@ namespace SystemTools.Models.ComponentSettings;
 
 public partial class BetterSlideComponentSettings : ObservableObject, IComponentContainerSettings
 {
-    [ObservableProperty] private ObservableCollection<ComponentSettings> _children = new();
+    [ObservableProperty] private ObservableCollection<ClassIsland.Core.Models.Components.ComponentSettings> _children = new();
 
     /// <summary>
     /// 0 - 循环; 1 - 随机; 2 - 往复

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using ClassIsland.Shared;
 using SystemTools.Models.ComponentSettings;
 
 namespace SystemTools.Controls.Components;

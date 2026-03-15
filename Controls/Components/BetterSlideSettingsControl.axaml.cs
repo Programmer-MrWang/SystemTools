@@ -1,6 +1,7 @@
 using ClassIsland.Core.Abstractions.Controls;
 using Avalonia.VisualTree;
 using System.Collections.Specialized;
+using Avalonia;
 using SystemTools.Models.ComponentSettings;
 
 namespace SystemTools.Controls.Components;

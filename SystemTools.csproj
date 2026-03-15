@@ -10,6 +10,12 @@
       <None Include=".github\workflows\dotnet-build.yml" />
     </ItemGroup>
     
+
+    <ItemGroup>
+        <AvaloniaResource Include="Controls/Components/BetterSlideComponent.axaml" />
+        <AvaloniaResource Include="Controls/Components/BetterSlideSettingsControl.axaml" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="ClassIsland.PluginSDK" Version="2.0.0.1" />
         <PackageReference Include="ClassIsland.Core" Version="2.0.0.1" />

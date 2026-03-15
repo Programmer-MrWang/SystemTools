@@ -19,13 +19,6 @@ public class ProcessRunningRuleSettingsControl : RuleSettingsControlBase<Process
 
         panel.Children.Add(new TextBlock
         {
-            Text = "程序正在运行",
-            FontWeight = FontWeight.Bold,
-            FontSize = 14
-        });
-
-        panel.Children.Add(new TextBlock
-        {
             Text = "进程名:",
             FontWeight = FontWeight.Bold,
             Margin = new(0, 5, 0, 0)

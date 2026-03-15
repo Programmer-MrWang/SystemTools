@@ -26,7 +26,7 @@ public class UsbDeviceTriggerSettings : TriggerSettingsControlBase<UsbDeviceTrig
 
         panel.Children.Add(new TextBlock
         {
-            Text = "勾选后使用卷插入事件检测可移动存储设备（更稳定，避免单纯盘符差集误判）；不勾选则任意USB设备到达即触发。",
+            Text = "勾选后使仅当U盘设备插入时触发。",
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
             Foreground = Avalonia.Media.Brushes.Gray
         });

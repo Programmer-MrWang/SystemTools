@@ -11,11 +11,6 @@ public class LongIdleTriggerSettings : TriggerSettingsControlBase<LongIdleTrigge
     {
         var panel = new StackPanel { Spacing = 10, Margin = new(10) };
 
-        panel.Children.Add(new TextBlock
-        {
-            Text = "长时间未操作电脑时"
-        });
-
         var inputPanel = new StackPanel
         {
             Orientation = Avalonia.Layout.Orientation.Horizontal,
@@ -42,7 +37,7 @@ public class LongIdleTriggerSettings : TriggerSettingsControlBase<LongIdleTrigge
 
         panel.Children.Add(new TextBlock
         {
-            Text = "当超过设定时间未进行鼠标/键盘操作时触发；若行动集启用恢复，则检测到再次操作后会自动恢复。",
+            Text = "当超过设定时间未进行鼠标/键盘操作时触发；\n若启用恢复，则当再次操作电脑时会自动恢复。",
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
             Foreground = Avalonia.Media.Brushes.Gray
         });

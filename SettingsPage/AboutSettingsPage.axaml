@@ -66,7 +66,17 @@
                             <Button Padding="8,5"
                                     BorderBrush="Transparent"
                                     Background="Transparent"
-                                    ToolTip.Tip="SystemTools插件 - GitHub 仓库"
+                                    ToolTip.Tip="SystemTools - 插件市场"
+                                    Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
+                                    CommandParameter="https://ccipx.minisvc.com/plugin/SystemTools">
+                                <ci:LucideIcon Glyph="&#xE03B;"
+                                               Foreground="{DynamicResource MaterialDesignBody}"
+                                               FontSize="18" />
+                            </Button>
+                            <Button Padding="8,5"
+                                    BorderBrush="Transparent"
+                                    Background="Transparent"
+                                    ToolTip.Tip="SystemTools - GitHub 仓库"
                                     Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
                                     CommandParameter="https://github.com/Programmer-MrWang/SystemTools">
                                 <ci:LucideIcon Glyph="&#xE0EA;"
@@ -80,16 +90,6 @@
                                     Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
                                     CommandParameter="https://github.com/QQHKX/Immersive-clock">
                                 <ci:FluentIcon Glyph="&#xE4D2;"
-                                               Foreground="{DynamicResource MaterialDesignBody}"
-                                               FontSize="18" />
-                            </Button>
-                            <Button Padding="8,5"
-                                    BorderBrush="Transparent"
-                                    Background="Transparent"
-                                    ToolTip.Tip="FFmpeg - GitHub 仓库"
-                                    Command="{x:Static ci:UriNavigationCommands.UriNavigationCommand}"
-                                    CommandParameter="https://github.com/FFmpeg/FFmpeg">
-                                <ci:FluentIcon Glyph="&#xF36D;"
                                                Foreground="{DynamicResource MaterialDesignBody}"
                                                FontSize="18" />
                             </Button>

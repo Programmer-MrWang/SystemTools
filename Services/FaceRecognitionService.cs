@@ -16,9 +16,9 @@ public class FaceRecognitionService : IDisposable
     
     private bool _isInitialized;
 
-    public FaceRecognitionService(string pluginFolder)
+    public FaceRecognitionService(string dependencyRoot)
     {
-        _modelDir = Path.Combine(pluginFolder, "Models");
+        _modelDir = Path.Combine(dependencyRoot, "Models");
     }
 
     public bool Initialize()

@@ -1,0 +1,28 @@
+<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.NextClassDisplayComponent"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:TypeArguments="settings:NextClassDisplaySettings"
+    Loaded="NextClassDisplayComponent_OnLoaded"
+    Unloaded="NextClassDisplayComponent_OnUnloaded"
+    mc:Ignorable="d">
+    <Grid
+        DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:NextClassDisplayComponent}}"
+        TextElement.FontSize="{DynamicResource MainWindowBodyFontSize}">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+            <TextBlock Text="{Binding PrefixText, Mode=OneWay}"
+                       IsVisible="{Binding HasNextClass, Mode=OneWay}" />
+            <TextBlock Text="{Binding CourseName, Mode=OneWay}" FontWeight="Bold" />
+            <TextBlock Text="{Binding TeacherName, Mode=OneWay}"
+                       IsVisible="{Binding ShouldShowTeacherName, Mode=OneWay}"
+                       Classes="l-secondary" />
+        </StackPanel>
+    </Grid>
+</ci:ComponentBase>

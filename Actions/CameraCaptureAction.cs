@@ -6,6 +6,7 @@ using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using SystemTools.Settings;
+using SystemTools.Shared;
 
 namespace SystemTools.Actions;
 
@@ -44,8 +45,7 @@ public class CameraCaptureAction(ILogger<CameraCaptureAction> logger) : ActionBa
             _logger.LogInformation("正在抓拍摄像头 '{Device}' 图像到: {Path}",
                 Settings.DeviceName, fullPath);
 
-            string? pluginDir = Path.GetDirectoryName(GetType().Assembly.Location);
-            string ffmpegPath = Path.Combine(pluginDir ?? AppDomain.CurrentDomain.BaseDirectory, "ffmpeg.exe");
+            string ffmpegPath = DependencyPaths.GetFfmpegPath();
 
             if (!File.Exists(ffmpegPath))
             {

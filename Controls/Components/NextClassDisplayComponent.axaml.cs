@@ -35,6 +35,8 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     public string EmptyStateText => NoMoreClassesText;
 
+    public bool ShowEmptyState => !HasNextClass;
+
     public ObservableDictionary<Guid, Subject> Subjects => _profileService.Profile.Subjects;
 
     public ClassPlan? CurrentClassPlan
@@ -91,6 +93,7 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
             if (value == _hasNextClass) return;
             _hasNextClass = value;
             OnPropertyChanged(nameof(HasNextClass));
+            OnPropertyChanged(nameof(ShowEmptyState));
             OnPropertyChanged(nameof(ShouldShowTeacherName));
             OnPropertyChanged(nameof(TeacherLabel));
         }

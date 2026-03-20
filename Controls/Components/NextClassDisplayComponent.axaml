@@ -35,7 +35,7 @@
                    Text="{Binding EmptyStateText, Mode=OneWay}"
                    FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
                    FontWeight="Bold"
-                   IsVisible="{Binding HasNextClass, Mode=OneWay, Converter={x:Static Avalonia.Controls.Converters.InverseBooleanConverter.Instance}}" />
+                   IsVisible="{Binding ShowEmptyState, Mode=OneWay}" />
 
         <TextBlock Grid.Row="2"
                    Margin="22,0,0,0"

@@ -1,0 +1,188 @@
+<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.BetterCarouselContainerComponent"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    mc:Ignorable="d"
+    x:TypeArguments="settings:BetterCarouselContainerSettings"
+    AttachedToVisualTree="BetterCarouselContainerComponent_OnAttachedToVisualTree"
+    DetachedFromVisualTree="BetterCarouselContainerComponent_OnDetachedFromVisualTree"
+    d:DesignHeight="450"
+    d:DesignWidth="800">
+    <ci:ComponentBase.Resources>
+        <system:Int32 x:Key="SlideAnimationStyle">0</system:Int32>
+        <system:Int32 x:Key="FlashAnimationStyle">1</system:Int32>
+    </ci:ComponentBase.Resources>
+
+    <ci:ComponentBase.Styles>
+        <Style Selector="local|BetterCarouselContainerComponent ListBoxItem">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent ListBoxItem[IsSelected=True]">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent[(local|BetterCarouselContainerComponent.IsAnimationEnabled)=True] ListBoxItem[(local|BetterCarouselContainerComponent.AnimationStyle)=0] /template/ ContentPresenter#ItemPresenter">
+            <Setter Property="RenderTransform">
+                <TransformGroup>
+                    <TranslateTransform Y="0" />
+                </TransformGroup>
+            </Setter>
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent[(local|BetterCarouselContainerComponent.IsAnimationEnabled)=True] ListBoxItem[IsSelected=True][(local|BetterCarouselContainerComponent.AnimationStyle)=0] /template/ ContentPresenter#ItemPresenter">
+            <Style.Animations>
+                <Animation Duration="00:00:00.25" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="IsVisible" Value="True" />
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="TranslateTransform.Y" Value="-24" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="TranslateTransform.Y" Value="0" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent[(local|BetterCarouselContainerComponent.IsAnimationEnabled)=True] ListBoxItem[IsSelected=False][(local|BetterCarouselContainerComponent.AnimationStyle)=0] /template/ ContentPresenter#ItemPresenter">
+            <Style.Animations>
+                <Animation Duration="00:00:00.2" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="IsVisible" Value="True" />
+                        <Setter Property="Opacity" Value="1" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="TranslateTransform.Y" Value="20" />
+                        <Setter Property="IsVisible" Value="False" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent[(local|BetterCarouselContainerComponent.IsAnimationEnabled)=True] ListBoxItem[(local|BetterCarouselContainerComponent.AnimationStyle)=1] /template/ ContentPresenter#ItemPresenter">
+            <Setter Property="RenderTransformOrigin" Value="50%,50%" />
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent[(local|BetterCarouselContainerComponent.IsAnimationEnabled)=True] ListBoxItem[IsSelected=True][(local|BetterCarouselContainerComponent.AnimationStyle)=1] /template/ ContentPresenter#ItemPresenter">
+            <Style.Animations>
+                <Animation Duration="00:00:00.24" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="IsVisible" Value="True" />
+                        <Setter Property="Opacity" Value="0" />
+                    </KeyFrame>
+                    <KeyFrame Cue="35%">
+                        <Setter Property="Opacity" Value="1" />
+                    </KeyFrame>
+                    <KeyFrame Cue="65%">
+                        <Setter Property="Opacity" Value="0.45" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent[(local|BetterCarouselContainerComponent.IsAnimationEnabled)=True] ListBoxItem[IsSelected=False][(local|BetterCarouselContainerComponent.AnimationStyle)=1] /template/ ContentPresenter#ItemPresenter">
+            <Style.Animations>
+                <Animation Duration="00:00:00.18" FillMode="Forward">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="1" />
+                        <Setter Property="IsVisible" Value="True" />
+                    </KeyFrame>
+                    <KeyFrame Cue="50%">
+                        <Setter Property="Opacity" Value="0.35" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="IsVisible" Value="False" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent ProgressBar#DisplayProgressBar">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent:progress-visible ProgressBar#DisplayProgressBar">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+    </ci:ComponentBase.Styles>
+
+    <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:BetterCarouselContainerComponent}}"
+          RowDefinitions="*,Auto"
+          ClipToBounds="False">
+        <ListBox Grid.Row="0"
+                 x:Name="CarouselListBox"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                 ItemsSource="{Binding Settings.Children}"
+                 local:BetterCarouselContainerComponent.IsAnimationEnabled="{Binding Settings.IsAnimationEnabled}"
+                 local:BetterCarouselContainerComponent.AnimationStyle="{Binding AnimationStyleValue}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Disabled">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemContainerTheme>
+                <ControlTheme TargetType="ListBoxItem">
+                    <Setter Property="Focusable" Value="False" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Template">
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <ContentPresenter x:Name="ItemPresenter"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch" />
+                        </ControlTemplate>
+                    </Setter>
+                </ControlTheme>
+            </ListBox.ItemContainerTheme>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border Padding="0">
+                        <ci:ComponentPresenter IsOnMainWindow="True"
+                                               Settings="{Binding}"
+                                               HidingRules="{Binding HidingRules, Mode=OneWay}"
+                                               HideOnRule="{Binding HideOnRule, Mode=OneWay}"
+                                               VerticalAlignment="Stretch"
+                                               Margin="0" />
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Canvas Grid.Row="1"
+                x:Name="ProgressContainer"
+                Height="4"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom"
+                Margin="0,6,0,0">
+            <ProgressBar x:Name="DisplayProgressBar"
+                         Minimum="0"
+                         Maximum="100"
+                         Width="{Binding #ProgressContainer.Bounds.Width, Mode=OneWay}"
+                         Value="{Binding CurrentProgressPercent, Mode=OneWay}" />
+        </Canvas>
+    </Grid>
+</ci:ComponentBase>

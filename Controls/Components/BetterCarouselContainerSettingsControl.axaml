@@ -1,0 +1,111 @@
+<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.BetterCarouselContainerSettingsControl"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:converters="clr-namespace:SystemTools.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    mc:Ignorable="d"
+    x:TypeArguments="settings:BetterCarouselContainerSettings"
+    d:DesignHeight="450"
+    d:DesignWidth="800">
+    <ci:ComponentBase.Resources>
+        <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+    </ci:ComponentBase.Resources>
+
+    <Grid DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:BetterCarouselContainerSettingsControl}}">
+        <ScrollViewer>
+            <StackPanel>
+                <controls:SettingsExpander Header="轮换模式"
+                                          Description="设定容器轮换组件的顺序行为"
+                                          IconSource="{ci:FluentIconSource &#xEFCD;}">
+                    <controls:SettingsExpander.Footer>
+                        <ComboBox Width="140"
+                                  SelectedItem="{Binding Settings.RotationMode, Mode=TwoWay}"
+                                  ItemsSource="{Binding RotationModes}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander Header="启用动画"
+                                          Description="启用后，在轮换组件时播放过渡动画"
+                                          IconSource="{ci:FluentIconSource &#xEDC1;}">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Settings.IsAnimationEnabled, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander Header="动画样式"
+                                          Description="切换组件时使用的动画样式"
+                                          IconSource="{ci:FluentIconSource &#xE7C8;}"
+                                          IsVisible="{Binding Settings.IsAnimationEnabled}">
+                    <controls:SettingsExpander.Footer>
+                        <ComboBox Width="140"
+                                  SelectedItem="{Binding Settings.AnimationStyle, Mode=TwoWay}"
+                                  ItemsSource="{Binding AnimationStyles}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander Header="显示进度条"
+                                          Description="显示当前组件剩余显示时长的进度条"
+                                          IconSource="{ci:FluentIconSource &#xE9D2;}">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander Header="设置每个组件显示时长"
+                                          Description="实时列出容器内组件，可分别设置每个组件的显示秒数"
+                                          IconSource="{ci:FluentIconSource &#xF361;}">
+                    <controls:SettingsExpander.Footer>
+                        <StackPanel Spacing="8" Margin="0,4,0,0">
+                            <TextBlock Text="当前容器内还没有组件，请先从组件库向此容器拖入组件。"
+                                       IsVisible="{Binding !HasDurationItems}" />
+                            <ItemsControl ItemsSource="{Binding DurationItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="10,8"
+                                                CornerRadius="6"
+                                                Background="#11000000">
+                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                                    <TextBlock Text="{Binding Subtitle}"
+                                                               Opacity="0.7"
+                                                               FontSize="12" />
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                                    <NumericUpDown Width="110"
+                                                                   Minimum="1"
+                                                                   Maximum="3600"
+                                                                   Increment="1"
+                                                                   Value="{Binding DurationSeconds, Mode=TwoWay}" />
+                                                    <TextBlock Text="秒" VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</ci:ComponentBase>

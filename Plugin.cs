@@ -301,6 +301,8 @@ public class Plugin : PluginBase
             "SystemTools.LocalQuote");
         RegisterComponentIfEnabled<NextClassDisplayComponent, NextClassDisplaySettingsControl>(services, config,
             "SystemTools.NextClassDisplay");
+        RegisterComponentIfEnabled<BetterCarouselContainerComponent, BetterCarouselContainerSettingsControl>(services, config,
+            "SystemTools.BetterCarouselContainer");
     }
 
     private void RegisterExperimentalFeatures(IServiceCollection services)

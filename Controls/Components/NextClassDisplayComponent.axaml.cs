@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+using ClassIsland.Shared.ComponentModels;
 using Avalonia.Interactivity;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Abstractions.Services;
@@ -24,20 +25,48 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
     private readonly IProfileService _profileService;
     private readonly IExactTimeService _exactTimeService;
 
-    private string _courseName = NoMoreClassesText;
     private string _teacherName = string.Empty;
     private bool _hasNextClass;
+    private ClassPlan? _currentClassPlan;
+    private ClassInfo _nextClassInfo = ClassInfo.Empty;
+    private TimeLayoutItem? _nextClassTimeLayoutItem;
 
     public string PrefixText => Settings.PrefixText;
 
-    public string CourseName
+    public string EmptyStateText => NoMoreClassesText;
+
+    public ObservableDictionary<Guid, Subject> Subjects => _profileService.Profile.Subjects;
+
+    public ClassPlan? CurrentClassPlan
     {
-        get => _courseName;
+        get => _currentClassPlan;
         private set
         {
-            if (value == _courseName) return;
-            _courseName = value;
-            OnPropertyChanged(nameof(CourseName));
+            if (ReferenceEquals(value, _currentClassPlan)) return;
+            _currentClassPlan = value;
+            OnPropertyChanged(nameof(CurrentClassPlan));
+        }
+    }
+
+    public ClassInfo NextClassInfo
+    {
+        get => _nextClassInfo;
+        private set
+        {
+            if (ReferenceEquals(value, _nextClassInfo)) return;
+            _nextClassInfo = value;
+            OnPropertyChanged(nameof(NextClassInfo));
+        }
+    }
+
+    public TimeLayoutItem? NextClassTimeLayoutItem
+    {
+        get => _nextClassTimeLayoutItem;
+        private set
+        {
+            if (Equals(value, _nextClassTimeLayoutItem)) return;
+            _nextClassTimeLayoutItem = value;
+            OnPropertyChanged(nameof(NextClassTimeLayoutItem));
         }
     }
 
@@ -50,6 +79,7 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
             _teacherName = value;
             OnPropertyChanged(nameof(TeacherName));
             OnPropertyChanged(nameof(ShouldShowTeacherName));
+            OnPropertyChanged(nameof(TeacherLabel));
         }
     }
 
@@ -62,10 +92,13 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
             _hasNextClass = value;
             OnPropertyChanged(nameof(HasNextClass));
             OnPropertyChanged(nameof(ShouldShowTeacherName));
+            OnPropertyChanged(nameof(TeacherLabel));
         }
     }
 
     public bool ShouldShowTeacherName => HasNextClass && Settings.ShowTeacherName && !string.IsNullOrWhiteSpace(TeacherName);
+
+    public string TeacherLabel => string.IsNullOrWhiteSpace(TeacherName) ? string.Empty : $"任课教师：{TeacherName}";
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -98,6 +131,7 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
         {
             OnPropertyChanged(nameof(PrefixText));
             OnPropertyChanged(nameof(ShouldShowTeacherName));
+            OnPropertyChanged(nameof(TeacherLabel));
         }
     }
 
@@ -140,14 +174,18 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
         }
 
         HasNextClass = true;
-        CourseName = string.IsNullOrWhiteSpace(subject.Name) ? "未命名课程" : subject.Name;
-        TeacherName = string.IsNullOrWhiteSpace(subject.TeacherName) ? string.Empty : $"（{subject.TeacherName}）";
+        CurrentClassPlan = classPlan;
+        NextClassInfo = classInfo;
+        NextClassTimeLayoutItem = nextClassTime;
+        TeacherName = string.IsNullOrWhiteSpace(subject.TeacherName) ? string.Empty : subject.TeacherName;
     }
 
     private void ApplyNoMoreClasses()
     {
         HasNextClass = false;
-        CourseName = NoMoreClassesText;
+        CurrentClassPlan = null;
+        NextClassInfo = ClassInfo.Empty;
+        NextClassTimeLayoutItem = null;
         TeacherName = string.Empty;
     }
 

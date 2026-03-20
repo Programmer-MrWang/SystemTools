@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using ClassIsland.Core.Abstractions.Models;
-using ClassIsland.Core.Models.Components;
+using CoreComponentSettings = ClassIsland.Core.Models.Components.ComponentSettings;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SystemTools.Models.ComponentSettings;
@@ -33,7 +33,7 @@ public partial class BetterCarouselContainerSettings : ObservableObject, ICompon
 {
     public const double DefaultDisplayDurationSeconds = 15;
 
-    private ObservableCollection<ComponentSettings> _children = new();
+    private ObservableCollection<CoreComponentSettings> _children = new();
 
     [ObservableProperty]
     private ObservableCollection<double> _componentDisplayDurations = new();
@@ -50,7 +50,7 @@ public partial class BetterCarouselContainerSettings : ObservableObject, ICompon
     [ObservableProperty]
     private bool _showProgressBar = true;
 
-    public ObservableCollection<ComponentSettings> Children
+    public ObservableCollection<CoreComponentSettings> Children
     {
         get => _children;
         set
@@ -61,7 +61,7 @@ public partial class BetterCarouselContainerSettings : ObservableObject, ICompon
             }
 
             _children.CollectionChanged -= OnChildrenCollectionChanged;
-            _children = value ?? new ObservableCollection<ComponentSettings>();
+            _children = value ?? new ObservableCollection<CoreComponentSettings>();
             _children.CollectionChanged += OnChildrenCollectionChanged;
             NormalizeDisplayDurations();
             OnPropertyChanged();

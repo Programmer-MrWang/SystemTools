@@ -48,7 +48,8 @@ public partial class BetterCarouselDurationItem : ObservableObject
     }
 }
 
-public partial class BetterCarouselContainerSettingsControl : ComponentBase<BetterCarouselContainerSettings>, INotifyPropertyChanged
+public partial class BetterCarouselContainerSettingsControl : ComponentBase<BetterCarouselContainerSettings>,
+    INotifyPropertyChanged
 {
     public ObservableCollection<BetterCarouselDurationItem> DurationItems { get; } = new();
 

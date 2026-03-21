@@ -2,10 +2,15 @@ using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
-using Avalonia.VisualTree;
+using Avalonia.Media;
+using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Attributes;
@@ -21,11 +26,17 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(100) };
     private readonly IRulesetService _rulesetService;
     private readonly Random _random = new();
+    
+    private Animation? _slideInAnimation;
+    private Animation? _slideOutAnimation;
+    private Animation? _flashInAnimation;
+    private Animation? _flashOutAnimation;
 
     private int _selectedIndex;
     private int _playDirection = 1;
     private DateTime _displayStartedAt = DateTime.UtcNow;
     private bool _isLoaded;
+    private bool _isAnimating;
 
     public static readonly AttachedProperty<bool> IsAnimationEnabledProperty =
         AvaloniaProperty.RegisterAttached<BetterCarouselContainerComponent, Control, bool>("IsAnimationEnabled", inherits: true);
@@ -44,13 +55,20 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         get => _selectedIndex;
         set
         {
-            if (value == _selectedIndex)
+            if (value == _selectedIndex || _isAnimating)
             {
                 return;
             }
 
+            var oldIndex = _selectedIndex;
             _selectedIndex = value;
             OnPropertyChanged(nameof(SelectedIndex));
+            
+            if (Settings.IsAnimationEnabled && oldIndex >= 0 && oldIndex < Settings.Children.Count)
+            {
+                _ = AnimateTransitionAsync(oldIndex, value);
+            }
+            
             RestartProgress();
         }
     }
@@ -65,8 +83,198 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
     {
         _rulesetService = rulesetService;
         InitializeComponent();
+        InitializeAnimations();
         _timer.Tick += OnTimerTick;
     }
+
+    private void InitializeAnimations()
+    {
+        _slideInAnimation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(250),
+            FillMode = FillMode.Forward,
+            Easing = new QuadraticEaseOut(),
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 0d),
+                        new Setter(TranslateTransform.YProperty, -30d)
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 1d),
+                        new Setter(TranslateTransform.YProperty, 0d)
+                    }
+                }
+            }
+        };
+
+        _slideOutAnimation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(200),
+            FillMode = FillMode.Forward,
+            Easing = new QuadraticEaseIn(),
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 1d),
+                        new Setter(TranslateTransform.YProperty, 0d)
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 0d),
+                        new Setter(TranslateTransform.YProperty, 30d)
+                    }
+                }
+            }
+        };
+
+        _flashInAnimation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(300),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 0d)
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(0.5),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 1d)
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(0.75),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 0.6d)
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 1d)
+                    }
+                }
+            }
+        };
+
+        _flashOutAnimation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(200),
+            FillMode = FillMode.Forward,
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 1d)
+                    }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1),
+                    Setters =
+                    {
+                        new Setter(Visual.OpacityProperty, 0d)
+                    }
+                }
+            }
+        };
+    }
+
+    private async Task AnimateTransitionAsync(int fromIndex, int toIndex)
+{
+    if (_isAnimating || CarouselListBox == null) return;
+    
+    _isAnimating = true;
+    
+    try
+    {
+        var container = CarouselListBox.ContainerFromIndex(fromIndex);
+        if (container is ListBoxItem fromItem)
+        {
+            if (fromItem.RenderTransform == null)
+            {
+                fromItem.RenderTransform = new TranslateTransform();
+            }
+
+            var outAnimation = Settings.AnimationStyle == BetterCarouselAnimationStyle.Flash 
+                ? _flashOutAnimation 
+                : _slideOutAnimation;
+            
+            if (outAnimation != null)
+            {
+                await outAnimation.RunAsync(fromItem);
+            }
+            
+            fromItem.Opacity = 0;
+            fromItem.IsVisible = false;
+            fromItem.RenderTransform = null;
+        }
+
+        var toContainer = CarouselListBox.ContainerFromIndex(toIndex);
+        if (toContainer is ListBoxItem toItem)
+        {
+            if (toItem.RenderTransform == null)
+            {
+                toItem.RenderTransform = new TranslateTransform();
+            }
+
+            toItem.Opacity = 0;
+            toItem.IsVisible = true;
+
+            var inAnimation = Settings.AnimationStyle == BetterCarouselAnimationStyle.Flash 
+                ? _flashInAnimation 
+                : _slideInAnimation;
+            
+            if (inAnimation != null)
+            {
+                await inAnimation.RunAsync(toItem);
+            }
+            
+            toItem.Opacity = 1;
+            toItem.RenderTransform = null;
+        }
+    }
+    catch (Exception ex)
+    {
+        System.Diagnostics.Debug.WriteLine($"Animation error: {ex.Message}");
+    }
+    finally
+    {
+        _isAnimating = false;
+    }
+}
 
     private void BetterCarouselContainerComponent_OnAttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
     {

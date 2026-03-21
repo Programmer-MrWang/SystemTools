@@ -32,6 +32,14 @@
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
+                <controls:SettingsExpander Header="显示时间段"
+                                          Description="开启后会在课程名后显示上课时间段"
+                                          IconSource="{ci:FluentIconSource &#xE823;}">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowTimeRange, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
                 <Label HorizontalAlignment="Center"
                        Foreground="{DynamicResource MaterialDesignBodyLight}">
                     Added by SystemTools

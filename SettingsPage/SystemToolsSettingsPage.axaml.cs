@@ -143,7 +143,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
                 var dialog = new ContentDialog
                 {
                     Title = "提示",
-                    Content = "请您先下载人脸识别验证模型！",
+                    Content = "请您先下载人脸识别验证模型及运行时依赖！",
                     PrimaryButtonText = "确定",
                     DefaultButton = ContentDialogButton.Primary
                 };

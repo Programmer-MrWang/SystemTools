@@ -444,7 +444,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         return true;
     }
 
-        public bool CheckFfmpegExists()
+    public bool CheckFfmpegExists()
     {
         try
         {
@@ -458,10 +458,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     public bool CheckFaceModelsExists()
     {
-        var modelDir = DependencyPaths.GetFaceModelsDirectory();
-        return Directory.Exists(modelDir) &&
-               File.Exists(Path.Combine(modelDir, "shape_predictor_68_face_landmarks.dat")) &&
-               File.Exists(Path.Combine(modelDir, "dlib_face_recognition_resnet_model_v1.dat"));
+        return DependencyPaths.HasFaceRecognitionDependencies();
     }
 
     public async Task<bool> DownloadFfmpegAsync(Func<Task> onError, Func<Task> onMd5Error)

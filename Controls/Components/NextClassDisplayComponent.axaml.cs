@@ -25,11 +25,10 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
     private readonly IProfileService _profileService;
     private readonly IExactTimeService _exactTimeService;
 
+    private string _subjectName = string.Empty;
     private string _teacherName = string.Empty;
+    private string _timeRangeText = string.Empty;
     private bool _hasNextClass;
-    private ClassPlan? _currentClassPlan;
-    private ClassInfo _nextClassInfo = new();
-    private TimeLayoutItem? _nextClassTimeLayoutItem;
 
     public string PrefixText => Settings.PrefixText;
 
@@ -37,38 +36,26 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     public bool ShowEmptyState => !HasNextClass;
 
-    public ObservableDictionary<Guid, Subject> Subjects => _profileService.Profile.Subjects;
-
-    public ClassPlan? CurrentClassPlan
+    public string SubjectName
     {
-        get => _currentClassPlan;
+        get => _subjectName;
         private set
         {
-            if (ReferenceEquals(value, _currentClassPlan)) return;
-            _currentClassPlan = value;
-            OnPropertyChanged(nameof(CurrentClassPlan));
+            if (value == _subjectName) return;
+            _subjectName = value;
+            OnPropertyChanged(nameof(SubjectName));
         }
     }
 
-    public ClassInfo NextClassInfo
+    public string TimeRangeText
     {
-        get => _nextClassInfo;
+        get => _timeRangeText;
         private set
         {
-            if (ReferenceEquals(value, _nextClassInfo)) return;
-            _nextClassInfo = value;
-            OnPropertyChanged(nameof(NextClassInfo));
-        }
-    }
-
-    public TimeLayoutItem? NextClassTimeLayoutItem
-    {
-        get => _nextClassTimeLayoutItem;
-        private set
-        {
-            if (Equals(value, _nextClassTimeLayoutItem)) return;
-            _nextClassTimeLayoutItem = value;
-            OnPropertyChanged(nameof(NextClassTimeLayoutItem));
+            if (value == _timeRangeText) return;
+            _timeRangeText = value;
+            OnPropertyChanged(nameof(TimeRangeText));
+            OnPropertyChanged(nameof(ShouldShowTimeRange));
         }
     }
 
@@ -81,7 +68,6 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
             _teacherName = value;
             OnPropertyChanged(nameof(TeacherName));
             OnPropertyChanged(nameof(ShouldShowTeacherName));
-            OnPropertyChanged(nameof(TeacherLabel));
         }
     }
 
@@ -94,14 +80,17 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
             _hasNextClass = value;
             OnPropertyChanged(nameof(HasNextClass));
             OnPropertyChanged(nameof(ShowEmptyState));
+            OnPropertyChanged(nameof(ShowPrefixText));
+            OnPropertyChanged(nameof(ShouldShowTimeRange));
             OnPropertyChanged(nameof(ShouldShowTeacherName));
-            OnPropertyChanged(nameof(TeacherLabel));
         }
     }
 
-    public bool ShouldShowTeacherName => HasNextClass && Settings.ShowTeacherName && !string.IsNullOrWhiteSpace(TeacherName);
+    public bool ShowPrefixText => HasNextClass && !string.IsNullOrWhiteSpace(PrefixText);
 
-    public string TeacherLabel => string.IsNullOrWhiteSpace(TeacherName) ? string.Empty : $"任课教师：{TeacherName}";
+    public bool ShouldShowTimeRange => HasNextClass && Settings.ShowTimeRange && !string.IsNullOrWhiteSpace(TimeRangeText);
+
+    public bool ShouldShowTeacherName => HasNextClass && Settings.ShowTeacherName && !string.IsNullOrWhiteSpace(TeacherName);
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -130,11 +119,12 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(Settings.PrefixText) or nameof(Settings.ShowTeacherName))
+        if (e.PropertyName is nameof(Settings.PrefixText) or nameof(Settings.ShowTeacherName) or nameof(Settings.ShowTimeRange))
         {
             OnPropertyChanged(nameof(PrefixText));
+            OnPropertyChanged(nameof(ShowPrefixText));
+            OnPropertyChanged(nameof(ShouldShowTimeRange));
             OnPropertyChanged(nameof(ShouldShowTeacherName));
-            OnPropertyChanged(nameof(TeacherLabel));
         }
     }
 
@@ -181,9 +171,8 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
             }
 
             HasNextClass = true;
-            CurrentClassPlan = classPlan;
-            NextClassInfo = candidateClassInfo;
-            NextClassTimeLayoutItem = candidateTime;
+            SubjectName = subject.Name;
+            TimeRangeText = $"{candidateTime.StartTime:hh\\:mm}-{candidateTime.EndTime:hh\\:mm}";
             TeacherName = string.IsNullOrWhiteSpace(subject.TeacherName) ? string.Empty : subject.TeacherName;
             return;
         }
@@ -194,9 +183,8 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
     private void ApplyNoMoreClasses()
     {
         HasNextClass = false;
-        CurrentClassPlan = null;
-        NextClassInfo = new ClassInfo();
-        NextClassTimeLayoutItem = null;
+        SubjectName = string.Empty;
+        TimeRangeText = string.Empty;
         TeacherName = string.Empty;
     }
 

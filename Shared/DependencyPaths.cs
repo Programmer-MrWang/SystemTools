@@ -8,7 +8,7 @@ namespace SystemTools.Shared;
 
 public static class DependencyPaths
 {
-    private const string ExtensionsFolderName = "Extensions";
+    private const string CacheFolderName = "Cache";
     private const string DependencyFolderName = "SystemTools";
     private static bool _initialized;
     private static readonly object SyncRoot = new();
@@ -20,7 +20,7 @@ public static class DependencyPaths
             throw new ArgumentException("Plugin folder cannot be empty.", nameof(pluginFolder));
         }
 
-        return Path.GetFullPath(Path.Combine(pluginFolder, "..", "..", ExtensionsFolderName, DependencyFolderName));
+        return Path.GetFullPath(Path.Combine(pluginFolder, "..", "..", CacheFolderName, DependencyFolderName));
     }
 
     public static string GetDependencyRoot() => GetDependencyRoot(GlobalConstants.Information.PluginFolder);
@@ -30,6 +30,49 @@ public static class DependencyPaths
     public static string GetFaceModelsDirectory() => Path.Combine(GetDependencyRoot(), "Models");
 
     public static string GetDependencyFile(string fileName) => Path.Combine(GetDependencyRoot(), fileName);
+
+    public static bool HasFfmpegDependency()
+    {
+        try
+        {
+            return File.Exists(GetFfmpegPath());
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool HasFaceRecognitionDependencies()
+    {
+        try
+        {
+            return GetFaceRecognitionRequiredPaths().All(path =>
+                path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ||
+                path.EndsWith(".dat", StringComparison.OrdinalIgnoreCase)
+                    ? File.Exists(path)
+                    : Directory.Exists(path));
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static string[] GetFaceRecognitionRequiredPaths()
+    {
+        var dependencyRoot = GetDependencyRoot();
+        return
+        [
+            GetFaceModelsDirectory(),
+            Path.Combine(GetFaceModelsDirectory(), "shape_predictor_68_face_landmarks.dat"),
+            Path.Combine(GetFaceModelsDirectory(), "dlib_face_recognition_resnet_model_v1.dat"),
+            Path.Combine(dependencyRoot, "runtimes"),
+            GetDependencyFile("OpenCvSharp.Extensions.dll"),
+            GetDependencyFile("OpenCvSharp.dll"),
+            GetDependencyFile("DlibDotNet.dll")
+        ];
+    }
 
     public static void EnsureDependencyDirectories()
     {

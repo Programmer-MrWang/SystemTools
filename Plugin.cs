@@ -41,6 +41,8 @@ public class Plugin : PluginBase
 {
     private ILogger<Plugin>? _logger;
     private bool _faceRecognitionRegistered = false;
+    private bool _ffmpegDisabledDueToMissingDependency;
+    private bool _faceRecognitionDisabledDueToMissingDependency;
 
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
@@ -54,6 +56,7 @@ public class Plugin : PluginBase
         GlobalConstants.Information.PluginFolder = Info.PluginFolderPath;
         GlobalConstants.Information.PluginVersion = Info.Manifest.Version;
         GlobalConstants.MainConfig = new MainConfigHandler(PluginConfigFolder);
+        EnsureOptionalDependencyState();
         DependencyPaths.InitializeResolvers();
 
         services.AddLogging();
@@ -65,7 +68,7 @@ public class Plugin : PluginBase
         {
             if (GlobalConstants.MainConfig.Data.EnableFaceRecognition)
             {
-                if (CheckFaceRecognitionFilesExist())
+                if (DependencyPaths.HasFaceRecognitionDependencies())
                 {
                     services.AddAuthorizeProvider<FaceRecognitionAuthorizer>();
                     _faceRecognitionRegistered = true;
@@ -107,6 +110,11 @@ public class Plugin : PluginBase
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
             _logger?.LogInformation("[SystemTools]FFmpeg功能状态: {Status}", ffmpegEnabled);
+            if (_ffmpegDisabledDueToMissingDependency)
+            {
+                _logger?.LogWarning("[SystemTools]FFmpeg 功能已自动关闭：缺少依赖文件 ffmpeg.exe。");
+            }
+
             if (GlobalConstants.MainConfig.Data.EnableFaceRecognition)
             {
                 if (_faceRecognitionRegistered)
@@ -117,6 +125,10 @@ public class Plugin : PluginBase
                 {
                     _logger?.LogWarning("[SystemTools]人脸识别功能已启用，但缺少必要的文件或文件夹（Models、runtimes、OpenCvSharp.Extensions.dll、OpenCvSharp.dll、DlibDotNet.dll），已跳过注册。");
                 }
+            }
+            else if (_faceRecognitionDisabledDueToMissingDependency)
+            {
+                _logger?.LogWarning("[SystemTools]人脸识别功能已自动关闭：缺少 runtimes、Models 或 OpenCvSharp/Dlib 依赖，并已清理对应验证器配置。");
             }
             _logger?.LogInformation("[SystemTools]SystemTools 启动完成");
         };
@@ -146,30 +158,36 @@ public class Plugin : PluginBase
         AppBase.Current.AppStarted += (_, _) => RegisterSettingsPageGroup(services);
     }
     
-    #region 人脸识别文件检查
+    #region 依赖检查
 
-    private bool CheckFaceRecognitionFilesExist()
+    private void EnsureOptionalDependencyState()
     {
-        try
+        var config = GlobalConstants.MainConfig?.Data;
+        if (config == null)
         {
-            var dependencyRoot = DependencyPaths.GetDependencyRoot();
-            var requiredPaths = new[]
-            {
-                DependencyPaths.GetFaceModelsDirectory(),
-                Path.Combine(dependencyRoot, "runtimes"),
-                DependencyPaths.GetDependencyFile("OpenCvSharp.Extensions.dll"),
-                DependencyPaths.GetDependencyFile("OpenCvSharp.dll"),
-                DependencyPaths.GetDependencyFile("DlibDotNet.dll")
-            };
-
-            return requiredPaths.All(p => 
-                p.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) 
-                    ? File.Exists(p) 
-                    : Directory.Exists(p));
+            return;
         }
-        catch
+
+        var changed = false;
+
+        if (config.EnableFfmpegFeatures && !DependencyPaths.HasFfmpegDependency())
         {
-            return false;
+            config.EnableFfmpegFeatures = false;
+            _ffmpegDisabledDueToMissingDependency = true;
+            changed = true;
+        }
+
+        if (config.EnableFaceRecognition && !DependencyPaths.HasFaceRecognitionDependencies())
+        {
+            config.EnableFaceRecognition = false;
+            FaceRecognitionCredentialCleanup.RemoveFaceRecognitionProviderFromManagementCredentials();
+            _faceRecognitionDisabledDueToMissingDependency = true;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            GlobalConstants.MainConfig?.Save();
         }
     }
 
@@ -428,7 +446,7 @@ public class Plugin : PluginBase
         }
 
         // 实用工具
-        if (HasAnyActionEnabled(config, "SystemTools.ScreenShot", "SystemTools.SetVolume", "SystemTools.KillProcess",
+        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.ScreenShot", "SystemTools.SetVolume", "SystemTools.KillProcess",
                 "SystemTools.EnableDevice", "SystemTools.DisableDevice", "SystemTools.ShowToast"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));

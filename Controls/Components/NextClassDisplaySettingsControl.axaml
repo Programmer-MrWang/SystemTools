@@ -16,27 +16,27 @@
         <ScrollViewer>
             <StackPanel>
                 <controls:SettingsExpander Header="前缀文本"
-                                          Description="显示在课程名之前；无后续课程时不显示此前缀"
-                                          IconSource="{ci:FluentIconSource &#xE8D2;}">
+                                          Description="显示在课程名前的前缀文本"
+                                          IconSource="{ci:FluentIconSource &#xF171;}">
                     <controls:SettingsExpander.Footer>
                         <TextBox MinWidth="220"
                                  Text="{Binding Settings.PrefixText, Mode=TwoWay}" />
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
-
-                <controls:SettingsExpander Header="显示任教老师"
-                                          Description="开启后会在课程名后显示任教老师姓名"
-                                          IconSource="{ci:FluentIconSource &#xE125;}">
+                
+                <controls:SettingsExpander Header="显示时间段"
+                                           Description="开启后会显示对应课程时间段"
+                                           IconSource="{ci:FluentIconSource &#xF361;}">
                     <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.ShowTeacherName, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowTimeRange, Mode=TwoWay}" />
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
-                <controls:SettingsExpander Header="显示时间段"
-                                          Description="开启后会在课程名后显示上课时间段"
-                                          IconSource="{ci:FluentIconSource &#xE823;}">
+                <controls:SettingsExpander Header="显示任教老师"
+                                          Description="开启后会显示任教老师姓名"
+                                          IconSource="{ci:FluentIconSource &#xED4F;}">
                     <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.ShowTimeRange, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowTeacherName, Mode=TwoWay}" />
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 

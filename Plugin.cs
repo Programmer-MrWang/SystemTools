@@ -54,6 +54,7 @@ public class Plugin : PluginBase
         GlobalConstants.Information.PluginFolder = Info.PluginFolderPath;
         GlobalConstants.Information.PluginVersion = Info.Manifest.Version;
         GlobalConstants.MainConfig = new MainConfigHandler(PluginConfigFolder);
+        DependencyPaths.InitializeResolvers();
 
         services.AddLogging();
         services.AddSingleton(GlobalConstants.MainConfig);
@@ -151,14 +152,14 @@ public class Plugin : PluginBase
     {
         try
         {
-            var pluginFolder = GlobalConstants.Information.PluginFolder;
+            var dependencyRoot = DependencyPaths.GetDependencyRoot();
             var requiredPaths = new[]
             {
-                Path.Combine(pluginFolder, "Models"),
-                Path.Combine(pluginFolder, "runtimes"),
-                Path.Combine(pluginFolder, "OpenCvSharp.Extensions.dll"),
-                Path.Combine(pluginFolder, "OpenCvSharp.dll"),
-                Path.Combine(pluginFolder, "DlibDotNet.dll")
+                DependencyPaths.GetFaceModelsDirectory(),
+                Path.Combine(dependencyRoot, "runtimes"),
+                DependencyPaths.GetDependencyFile("OpenCvSharp.Extensions.dll"),
+                DependencyPaths.GetDependencyFile("OpenCvSharp.dll"),
+                DependencyPaths.GetDependencyFile("DlibDotNet.dll")
             };
 
             return requiredPaths.All(p => 
@@ -298,6 +299,10 @@ public class Plugin : PluginBase
             "SystemTools.ClipboardContent");
         RegisterComponentIfEnabled<LocalQuoteComponent, LocalQuoteSettingsControl>(services, config,
             "SystemTools.LocalQuote");
+        RegisterComponentIfEnabled<NextClassDisplayComponent, NextClassDisplaySettingsControl>(services, config,
+            "SystemTools.NextClassDisplay");
+        RegisterComponentIfEnabled<BetterCarouselContainerComponent, BetterCarouselContainerSettingsControl>(services, config,
+            "SystemTools.BetterCarouselContainer");
     }
 
     private void RegisterExperimentalFeatures(IServiceCollection services)

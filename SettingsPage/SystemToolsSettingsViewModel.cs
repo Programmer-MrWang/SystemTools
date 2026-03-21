@@ -107,6 +107,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.LyricsDisplay", "歌词显示"),
             ("SystemTools.ClipboardContent", "显示剪切板内容"),
             ("SystemTools.LocalQuote", "本地一言"),
+            ("SystemTools.NextClassDisplay", "下节课是"),
+            ("SystemTools.BetterCarouselContainer", "更好的轮播容器"),
         };
         foreach (var (id, name) in components)
         {
@@ -446,10 +448,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
     {
         try
         {
-            var ffmpegPath = Path.Combine(
-                GlobalConstants.Information.PluginFolder,
-                TargetFileName);
-            return File.Exists(ffmpegPath);
+            return File.Exists(DependencyPaths.GetFfmpegPath());
         }
         catch
         {
@@ -459,7 +458,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     public bool CheckFaceModelsExists()
     {
-        var modelDir = Path.Combine(GlobalConstants.Information.PluginFolder, "Models");
+        var modelDir = DependencyPaths.GetFaceModelsDirectory();
         return Directory.Exists(modelDir) &&
                File.Exists(Path.Combine(modelDir, "shape_predictor_68_face_landmarks.dat")) &&
                File.Exists(Path.Combine(modelDir, "dlib_face_recognition_resnet_model_v1.dat"));
@@ -474,8 +473,10 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         DownloadProgress = 0;
         DownloadStatusText = "正在下载 - 0%";
 
-        var tempPath = Path.Combine(GlobalConstants.Information.PluginFolder, TempFileName);
-        var targetPath = Path.Combine(GlobalConstants.Information.PluginFolder, TargetFileName);
+        DependencyPaths.EnsureDependencyDirectories();
+        var dependencyRoot = DependencyPaths.GetDependencyRoot();
+        var tempPath = Path.Combine(dependencyRoot, TempFileName);
+        var targetPath = DependencyPaths.GetFfmpegPath();
 
         try
         {
@@ -560,8 +561,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         ShowDownloadProgress = true;
         DownloadProgress = 0;
 
-        var pluginFolder = GlobalConstants.Information.PluginFolder;
-        var zipPath = Path.Combine(pluginFolder, FaceZipFileName);
+        DependencyPaths.EnsureDependencyDirectories();
+        var dependencyRoot = DependencyPaths.GetDependencyRoot();
+        var zipPath = Path.Combine(dependencyRoot, FaceZipFileName);
 
         try
         {
@@ -600,27 +602,27 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             await UpdateStatusAsync("正在解压模型文件…");
             await Task.Run(() =>
             {
-                if (Directory.Exists(Path.Combine(pluginFolder, "temp_extract")))
-                    Directory.Delete(Path.Combine(pluginFolder, "temp_extract"), true);
+                if (Directory.Exists(Path.Combine(dependencyRoot, "temp_extract")))
+                    Directory.Delete(Path.Combine(dependencyRoot, "temp_extract"), true);
 
-                ZipFile.ExtractToDirectory(zipPath, pluginFolder, true);
+                ZipFile.ExtractToDirectory(zipPath, dependencyRoot, true);
             });
 
             await UpdateStatusAsync("正在整理文件结构…");
             await Task.Run(() =>
             {
-                string sourceDir = Path.Combine(pluginFolder, "新建文件夹");
+                string sourceDir = Path.Combine(dependencyRoot, "新建文件夹");
                 if (Directory.Exists(sourceDir))
                 {
                     foreach (var dir in Directory.GetDirectories(sourceDir))
                     {
-                        var dest = Path.Combine(pluginFolder, Path.GetFileName(dir));
+                        var dest = Path.Combine(dependencyRoot, Path.GetFileName(dir));
                         if (Directory.Exists(dest)) Directory.Delete(dest, true);
                         Directory.Move(dir, dest);
                     }
                     foreach (var file in Directory.GetFiles(sourceDir))
                     {
-                        var dest = Path.Combine(pluginFolder, Path.GetFileName(file));
+                        var dest = Path.Combine(dependencyRoot, Path.GetFileName(file));
                         if (File.Exists(dest)) File.Delete(dest);
                         File.Move(file, dest);
                     }

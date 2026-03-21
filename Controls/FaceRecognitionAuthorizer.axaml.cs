@@ -47,7 +47,7 @@ public partial class FaceRecognitionAuthorizer : AuthorizeProviderControlBase<Fa
         {
             bool initSuccess = await Task.Run(() =>
             {
-                _faceService = new FaceRecognitionService(GlobalConstants.Information.PluginFolder);
+                _faceService = new FaceRecognitionService(DependencyPaths.GetDependencyRoot());
                 return _faceService.Initialize();
             });
 

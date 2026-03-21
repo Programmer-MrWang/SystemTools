@@ -1,0 +1,42 @@
+<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.NextClassDisplaySettingsControl"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:TypeArguments="settings:NextClassDisplaySettings"
+    mc:Ignorable="d">
+    <Grid DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NextClassDisplaySettingsControl}}">
+        <ScrollViewer>
+            <StackPanel>
+                <controls:SettingsExpander Header="前缀文本"
+                                          Description="显示在课程名之前；无后续课程时不显示此前缀"
+                                          IconSource="{ci:FluentIconSource &#xE8D2;}">
+                    <controls:SettingsExpander.Footer>
+                        <TextBox MinWidth="220"
+                                 Text="{Binding Settings.PrefixText, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander Header="显示任教老师"
+                                          Description="开启后会在课程名后显示任教老师姓名"
+                                          IconSource="{ci:FluentIconSource &#xE125;}">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowTeacherName, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <Label HorizontalAlignment="Center"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}">
+                    Added by SystemTools
+                </Label>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</ci:ComponentBase>

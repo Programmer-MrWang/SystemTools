@@ -1,0 +1,57 @@
+<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.NextClassDisplayComponent"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:lessons="clr-namespace:ClassIsland.Core.Controls.LessonsControls;assembly=ClassIsland.Core"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:TypeArguments="settings:NextClassDisplaySettings"
+    Loaded="NextClassDisplayComponent_OnLoaded"
+    Unloaded="NextClassDisplayComponent_OnUnloaded"
+    mc:Ignorable="d">
+    <Grid
+        DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:NextClassDisplayComponent}}"
+        RowDefinitions="Auto,Auto"
+        ColumnDefinitions="Auto,*"
+        ColumnSpacing="8"
+        RowSpacing="2">
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   VerticalAlignment="Center"
+                   Text="{Binding PrefixText, Mode=OneWay}"
+                   Classes="l-secondary"
+                   IsVisible="{Binding HasNextClass, Mode=OneWay}" />
+
+        <lessons:LessonControlExpanded Grid.Row="0"
+                                       Grid.Column="1"
+                                       HorizontalAlignment="Stretch"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,2,0"
+                                       IsVisible="{Binding HasNextClass, Mode=OneWay}"
+                                       IsLiveUpdatingEnabled="False"
+                                       ClassInfo="{Binding NextClassInfo, Mode=OneWay}"
+                                       Subjects="{Binding Subjects, Mode=OneWay}"
+                                       CurrentTimeLayoutItem="{Binding NextClassTimeLayoutItem, Mode=OneWay}"
+                                       lessons:LessonControlBase.ClassPlan="{Binding CurrentClassPlan, Mode=OneWay}" />
+
+        <TextBlock Grid.Row="0"
+                   Grid.ColumnSpan="2"
+                   VerticalAlignment="Center"
+                   Text="{Binding EmptyStateText, Mode=OneWay}"
+                   FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                   FontWeight="Bold"
+                   IsVisible="{Binding ShowEmptyState, Mode=OneWay}" />
+
+        <TextBlock Grid.Row="1"
+                   Grid.Column="1"
+                   Margin="6,0,0,0"
+                   Text="{Binding TeacherLabel, Mode=OneWay}"
+                   Classes="l-secondary"
+                   IsVisible="{Binding ShouldShowTeacherName, Mode=OneWay}" />
+    </Grid>
+</ci:ComponentBase>

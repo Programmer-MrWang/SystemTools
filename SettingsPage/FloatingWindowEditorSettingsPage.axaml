@@ -242,17 +242,28 @@
                                                             CornerRadius="6"
                                                             Padding="8,4"
                                                             Margin="0,0,2,0"
-                                                            Tag="{Binding ButtonId}"
                                                             DragDrop.AllowDrop="True"
                                                             DragDrop.DragOver="OnFloatingTriggerItemDragOver"
-                                                            DragDrop.Drop="OnFloatingTriggerItemDrop"
-                                                            PointerPressed="OnFloatingTriggerItemPointerPressed"
-                                                            PointerMoved="OnFloatingTriggerItemPointerMoved"
-                                                            PointerReleased="OnFloatingTriggerItemPointerReleased">
-                                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                                <TextBlock Text="{Binding Icon}" />
-                                                                <TextBlock Text="{Binding ButtonName}" />
-                                                            </StackPanel>
+                                                            DragDrop.Drop="OnFloatingTriggerItemDrop">
+                                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                                <Border Grid.Column="0"
+                                                                        Tag="{Binding ButtonId}"
+                                                                        Padding="6,2"
+                                                                        CornerRadius="4"
+                                                                        Background="{DynamicResource SubtleFillColorTertiaryBrush}"
+                                                                        PointerPressed="OnFloatingTriggerItemPointerPressed"
+                                                                        PointerMoved="OnFloatingTriggerItemPointerMoved"
+                                                                        PointerReleased="OnFloatingTriggerItemPointerReleased">
+                                                                    <TextBlock Text="⋮⋮"
+                                                                               FontSize="14"
+                                                                               VerticalAlignment="Center"
+                                                                               HorizontalAlignment="Center" />
+                                                                </Border>
+                                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                                                                    <TextBlock Text="{Binding Icon}" />
+                                                                    <TextBlock Text="{Binding ButtonName}" />
+                                                                </StackPanel>
+                                                            </Grid>
                                                         </Border>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>

@@ -1,0 +1,122 @@
+<ci:ComponentBase
+    x:Class="SystemTools.Controls.Components.BetterCarouselContainerComponent"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ci="http://classisland.tech/schemas/xaml/core"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:SystemTools.Controls.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:SystemTools.Models.ComponentSettings"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    mc:Ignorable="d"
+    x:TypeArguments="settings:BetterCarouselContainerSettings"
+    AttachedToVisualTree="BetterCarouselContainerComponent_OnAttachedToVisualTree"
+    DetachedFromVisualTree="BetterCarouselContainerComponent_OnDetachedFromVisualTree"
+    d:DesignHeight="450"
+    d:DesignWidth="800">
+    <ci:ComponentBase.Resources>
+        <system:Int32 x:Key="SlideAnimationStyle">0</system:Int32>
+        <system:Int32 x:Key="FlashAnimationStyle">1</system:Int32>
+    </ci:ComponentBase.Resources>
+
+    <ci:ComponentBase.Styles>
+        <Style Selector="local|BetterCarouselContainerComponent ListBoxItem">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent ListBoxItem[IsSelected=True]">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent ListBoxItem[IsSelected=False]">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent ListBoxItem[(local|BetterCarouselContainerComponent.IsAnimationEnabled)=True]">
+            <Setter Property="RenderTransform">
+                <TranslateTransform Y="0" />
+            </Setter>
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent ProgressBar#DisplayProgressBar">
+            <Setter Property="IsVisible" Value="False" />
+            <Setter Property="MinWidth" Value="0" />
+        </Style>
+
+        <Style Selector="local|BetterCarouselContainerComponent:progress-visible ProgressBar#DisplayProgressBar">
+            <Setter Property="IsVisible" Value="True" />
+        </Style>
+    </ci:ComponentBase.Styles>
+
+    <Grid DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:BetterCarouselContainerComponent}}"
+          x:Name="GridRoot">
+        
+        <StackPanel Orientation="Horizontal" 
+                    Spacing="0"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Stretch">
+            
+            <ListBox x:Name="CarouselListBox"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Stretch"
+                     SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                     ItemsSource="{Binding Settings.Children}"
+                     local:BetterCarouselContainerComponent.IsAnimationEnabled="{Binding Settings.IsAnimationEnabled}"
+                     local:BetterCarouselContainerComponent.AnimationStyle="{Binding AnimationStyleValue}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Grid />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerTheme>
+                    <ControlTheme TargetType="ListBoxItem">
+                        <Setter Property="Focusable" Value="False" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Template">
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <ContentPresenter x:Name="ItemPresenter"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="Center" />
+                            </ControlTemplate>
+                        </Setter>
+                    </ControlTheme>
+                </ListBox.ItemContainerTheme>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid HorizontalAlignment="Stretch"
+                              VerticalAlignment="Center">
+                            <ci:ComponentPresenter IsOnMainWindow="True"
+                                                   Settings="{Binding}"
+                                                   HidingRules="{Binding HidingRules, Mode=OneWay}"
+                                                   HideOnRule="{Binding HideOnRule, Mode=OneWay}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+
+        <ProgressBar x:Name="DisplayProgressBar"
+                     VerticalAlignment="Bottom"
+                     HorizontalAlignment="Stretch"
+                     Margin="0,6,0,0"
+                     Height="4"
+                     MinWidth="0"
+                     Minimum="0"
+                     Maximum="100"
+                     Value="{Binding CurrentProgressPercent, Mode=OneWay}" />
+    </Grid>
+</ci:ComponentBase>

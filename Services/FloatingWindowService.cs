@@ -34,6 +34,7 @@ public class FloatingWindowService
     private const int WmRButtonDown = 0x0204;
     private const ulong MiWpSignatureMask = 0xFFFFFF00UL;
     private const ulong MiWpSignature = 0xFF515700UL;
+    private static readonly TimeSpan TouchLikeMouseGracePeriod = TimeSpan.FromMilliseconds(250);
 
     private readonly MainConfigHandler _configHandler;
     private readonly Dictionary<FloatingWindowTrigger, FloatingWindowEntry> _entries = new();
@@ -54,6 +55,7 @@ public class FloatingWindowService
     private PixelPoint _touchDragStartScreenPoint;
     private PixelPoint _touchDragStartWindowPosition;
     private Border? _touchDragHandle;
+    private DateTime _lastTouchGeneratedMouseEventAt = DateTime.MinValue;
     private IntPtr _foregroundHook;
     private IntPtr _reorderHook;
     private WinEventProc? _winEventProc;
@@ -579,7 +581,7 @@ public class FloatingWindowService
 
         if (_isTouchDeviceDetected)
         {
-            if (e.Pointer.Type != PointerType.Touch || !IsEventFromTouchDragHandle(e.Source))
+            if (!IsTouchLikePointer(e) || !IsEventFromTouchDragHandle(e.Source))
             {
                 _touchDragAllowed = false;
                 return;
@@ -614,7 +616,7 @@ public class FloatingWindowService
 
         if (_isTouchDeviceDetected)
         {
-            if (e.Pointer.Type != PointerType.Touch || !_touchDragAllowed)
+            if (!IsTouchLikePointer(e) || !_touchDragAllowed)
             {
                 return;
             }
@@ -661,7 +663,7 @@ public class FloatingWindowService
 
         if (_isTouchDeviceDetected)
         {
-            if (e.Pointer.Type != PointerType.Touch)
+            if (!IsTouchLikePointer(e))
             {
                 return;
             }
@@ -728,6 +730,18 @@ public class FloatingWindowService
         return false;
     }
 
+
+    private bool IsTouchLikePointer(PointerEventArgs e)
+    {
+        return e.Pointer.Type == PointerType.Touch
+               || (e.Pointer.Type == PointerType.Mouse && IsRecentTouchGeneratedMouseEvent());
+    }
+
+    private bool IsRecentTouchGeneratedMouseEvent()
+    {
+        return DateTime.UtcNow - _lastTouchGeneratedMouseEventAt <= TouchLikeMouseGracePeriod;
+    }
+
     private void UpdateInputMode(PointerType pointerType)
     {
         if (pointerType == PointerType.Touch)
@@ -736,7 +750,19 @@ public class FloatingWindowService
             return;
         }
 
-        if (pointerType == PointerType.Mouse || pointerType == PointerType.Pen)
+        if (pointerType == PointerType.Mouse)
+        {
+            if (IsRecentTouchGeneratedMouseEvent())
+            {
+                SetTouchInputMode(true);
+                return;
+            }
+
+            SetTouchInputMode(false);
+            return;
+        }
+
+        if (pointerType == PointerType.Pen)
         {
             SetTouchInputMode(false);
         }
@@ -798,6 +824,7 @@ public class FloatingWindowService
 
         if (isTouchGenerated)
         {
+            _lastTouchGeneratedMouseEventAt = DateTime.UtcNow;
             SetTouchInputMode(true);
         }
         else if (message == WmLButtonDown || message == WmRButtonDown)

@@ -26,7 +26,7 @@ namespace SystemTools.Controls.Components;
 )]
 public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, INotifyPropertyChanged
 {
-    private const double SwapMotionOffset = 20; // 对齐 ExtraIsland: 40 * 0.5
+    private const double SwapMotionOffset = 20;
 
     private readonly DispatcherTimer _carouselTimer;
     private readonly List<string> _quotes = [];

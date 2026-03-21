@@ -106,6 +106,10 @@
                         </ItemsControl>
                     </StackPanel>
                 </controls:SettingsExpander>
+                <Label HorizontalAlignment="Center"
+                       Foreground="{DynamicResource MaterialDesignBodyLight}">
+                    Added by SystemTools
+                </Label>
             </StackPanel>
         </ScrollViewer>
     </Grid>

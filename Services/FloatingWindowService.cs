@@ -29,7 +29,7 @@ public class FloatingWindowService
     private const uint WinEventSkipOwnProcess = 2;
     private static readonly HWND HwndBottom = new(1);
     private static readonly HWND HwndTopmost = new(-1);
-    private const int WhMouseLl = 14;
+    //private const int WhMouseLl = 14;
     private const int WmMouseMove = 0x0200;
     private const int WmLButtonDown = 0x0201;
     private const int WmRButtonDown = 0x0204;
@@ -65,10 +65,9 @@ public class FloatingWindowService
     private DispatcherTimer LayerRecheck50MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(50) };
     private DispatcherTimer LayerRecheck1MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(1) };
 
-    private delegate void WinEventProc(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread,
-        uint dwmsEventTime);
+    //private delegate void WinEventProc(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread,uint dwmsEventTime);
 
-    private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+    //private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
     //[DllImport("user32.dll", SetLastError = true)]
     //private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
@@ -960,10 +959,7 @@ public class FloatingWindowService
 
     private void EnsureLayerRecheckHooks()
     {
-        if (_winEventProc == null)
-        {
-            _winEventProc = OnWinEvent;
-        }
+        _winEventProc ??= OnWinEvent;
 
         LayerRecheck50MsTimer.Tick -= OnLayerRecheck50MsTimerTick;
         LayerRecheck50MsTimer.Tick += OnLayerRecheck50MsTimerTick;

@@ -223,10 +223,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         var container = CarouselListBox.ContainerFromIndex(fromIndex);
         if (container is ListBoxItem fromItem)
         {
-            if (fromItem.RenderTransform == null)
-            {
-                fromItem.RenderTransform = new TranslateTransform();
-            }
+            fromItem.RenderTransform ??= new TranslateTransform();
 
             var outAnimation = Settings.AnimationStyle == BetterCarouselAnimationStyle.Flash 
                 ? _flashOutAnimation 
@@ -245,10 +242,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         var toContainer = CarouselListBox.ContainerFromIndex(toIndex);
         if (toContainer is ListBoxItem toItem)
         {
-            if (toItem.RenderTransform == null)
-            {
-                toItem.RenderTransform = new TranslateTransform();
-            }
+            toItem.RenderTransform ??= new TranslateTransform();
 
             toItem.Opacity = 0;
             toItem.IsVisible = true;

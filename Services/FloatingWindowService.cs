@@ -17,6 +17,7 @@ using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Windows.Win32.UI.Accessibility;
 
 namespace SystemTools.Services;
 
@@ -28,7 +29,7 @@ public class FloatingWindowService
     private const uint WinEventSkipOwnProcess = 2;
     private static readonly HWND HwndBottom = new(1);
     private static readonly HWND HwndTopmost = new(-1);
-    private const int WhMouseLl = 14;
+    //private const int WhMouseLl = 14;
     private const int WmMouseMove = 0x0200;
     private const int WmLButtonDown = 0x0201;
     private const int WmRButtonDown = 0x0204;
@@ -56,34 +57,33 @@ public class FloatingWindowService
     private PixelPoint _touchDragStartWindowPosition;
     private Border? _touchDragHandle;
     private DateTime _lastTouchGeneratedMouseEventAt = DateTime.MinValue;
-    private IntPtr _foregroundHook;
-    private IntPtr _reorderHook;
-    private WinEventProc? _winEventProc;
-    private IntPtr _mouseHook;
-    private LowLevelMouseProc? _lowLevelMouseProc;
+    private HWINEVENTHOOK _foregroundHook;
+    private HWINEVENTHOOK _reorderHook;
+    private WINEVENTPROC? _winEventProc;
+    private HHOOK _mouseHook;
+    private HOOKPROC? _lowLevelMouseProc;
     private DispatcherTimer LayerRecheck50MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(50) };
     private DispatcherTimer LayerRecheck1MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(1) };
 
-    private delegate void WinEventProc(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread,
-        uint dwmsEventTime);
+    //private delegate void WinEventProc(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread,uint dwmsEventTime);
 
-    private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+    //private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
-        WinEventProc lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
+    //    WinEventProc lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
+    //[DllImport("user32.dll", SetLastError = true)]
+    //private static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
-    [DllImport("user32.dll")]
-    private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+    //[DllImport("user32.dll")]
+    //private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
     public event EventHandler? EntriesChanged;
 
@@ -791,7 +791,7 @@ public class FloatingWindowService
         }
 
         _lowLevelMouseProc ??= OnLowLevelMouse;
-        _mouseHook = SetWindowsHookEx(WhMouseLl, _lowLevelMouseProc, IntPtr.Zero, 0);
+        _mouseHook = PInvoke.SetWindowsHookEx(WINDOWS_HOOK_ID.WH_MOUSE_LL, _lowLevelMouseProc, HINSTANCE.Null, 0);
     }
 
     private void RemoveGlobalInputHooks()
@@ -801,21 +801,21 @@ public class FloatingWindowService
             return;
         }
 
-        UnhookWindowsHookEx(_mouseHook);
-        _mouseHook = IntPtr.Zero;
+        PInvoke.UnhookWindowsHookEx(_mouseHook);
+        _mouseHook = HHOOK.Null;
     }
 
-    private IntPtr OnLowLevelMouse(int nCode, IntPtr wParam, IntPtr lParam)
+    private LRESULT OnLowLevelMouse(int nCode, WPARAM wParam, LPARAM lParam)
     {
         if (nCode < 0 || lParam == IntPtr.Zero)
         {
-            return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+            return PInvoke.CallNextHookEx(_mouseHook, nCode, wParam, lParam);
         }
 
-        var message = unchecked((uint)wParam.ToInt64());
+        var message = wParam.Value;
         if (message != WmMouseMove && message != WmLButtonDown && message != WmRButtonDown)
         {
-            return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+            return PInvoke.CallNextHookEx(_mouseHook, nCode, wParam, lParam);
         }
 
         var info = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam);
@@ -833,7 +833,7 @@ public class FloatingWindowService
             SetTouchInputMode(false);
         }
 
-        return CallNextHookEx(_mouseHook, nCode, wParam, lParam);
+        return PInvoke.CallNextHookEx(_mouseHook, nCode, wParam, lParam);
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -959,10 +959,7 @@ public class FloatingWindowService
 
     private void EnsureLayerRecheckHooks()
     {
-        if (_winEventProc == null)
-        {
-            _winEventProc = OnWinEvent;
-        }
+        _winEventProc ??= OnWinEvent;
 
         LayerRecheck50MsTimer.Tick -= OnLayerRecheck50MsTimerTick;
         LayerRecheck50MsTimer.Tick += OnLayerRecheck50MsTimerTick;
@@ -974,13 +971,13 @@ public class FloatingWindowService
     {
         if (_foregroundHook != IntPtr.Zero)
         {
-            UnhookWinEvent(_foregroundHook);
+            PInvoke.UnhookWinEvent(_foregroundHook);
             _foregroundHook = default;
         }
 
         if (_reorderHook != IntPtr.Zero)
         {
-            UnhookWinEvent(_reorderHook);
+            PInvoke.UnhookWinEvent(_reorderHook);
             _reorderHook = default;
         }
     }
@@ -1020,10 +1017,10 @@ public class FloatingWindowService
             return;
         }
 
-        _foregroundHook = SetWinEventHook(
+        _foregroundHook = PInvoke.SetWinEventHook(
             EventSystemForeground,
             EventSystemForeground,
-            IntPtr.Zero,
+            HINSTANCE.Null,
             _winEventProc,
             0,
             0,
@@ -1037,10 +1034,10 @@ public class FloatingWindowService
             return;
         }
 
-        _reorderHook = SetWinEventHook(
+        _reorderHook = PInvoke.SetWinEventHook(
             EventObjectReorder,
             EventObjectReorder,
-            IntPtr.Zero,
+            HINSTANCE.Null,
             _winEventProc,
             0,
             0,
@@ -1054,7 +1051,7 @@ public class FloatingWindowService
             return;
         }
 
-        UnhookWinEvent(_foregroundHook);
+        PInvoke.UnhookWinEvent(_foregroundHook);
         _foregroundHook = default;
     }
 
@@ -1065,7 +1062,7 @@ public class FloatingWindowService
             return;
         }
 
-        UnhookWinEvent(_reorderHook);
+        PInvoke.UnhookWinEvent(_reorderHook);
         _reorderHook = default;
     }
 
@@ -1085,7 +1082,7 @@ public class FloatingWindowService
         }
     }
 
-    private void OnWinEvent(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread,
+    private void OnWinEvent(HWINEVENTHOOK hWinEventHook, uint @event, HWND hwnd, int idObject, int idChild, uint idEventThread,
         uint dwmsEventTime)
     {
         if (_window == null)

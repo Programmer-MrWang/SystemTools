@@ -24,8 +24,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 {
     public FloatingWindowEditorSettingsPage()
     {
-        if (GlobalConstants.MainConfig == null)
-            GlobalConstants.MainConfig = new MainConfigHandler(GlobalConstants.PluginConfigFolder
+        GlobalConstants.MainConfig ??= new MainConfigHandler(GlobalConstants.PluginConfigFolder
                                                                ?? Path.Combine(
                                                                    Environment.GetFolderPath(Environment.SpecialFolder
                                                                        .LocalApplicationData), "ClassIsland", "Plugins",

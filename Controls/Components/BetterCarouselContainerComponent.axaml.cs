@@ -8,6 +8,7 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ClassIsland.Core.Abstractions.Controls;
@@ -37,6 +38,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
     private bool _isLoaded;
     private bool _isAnimating;
     private double _separatorExtraWidth;
+    private double _appliedListWidth = double.NaN;
 
     public static readonly AttachedProperty<bool> IsAnimationEnabledProperty =
         AvaloniaProperty.RegisterAttached<BetterCarouselContainerComponent, Control, bool>("IsAnimationEnabled", inherits: true);
@@ -294,7 +296,6 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         SubscribeChildren(Settings.Children);
         Settings.NormalizeDisplayDurations();
         Settings.NormalizeMeasuredWidths();
-        CarouselListBox.LayoutUpdated += CarouselListBox_OnLayoutUpdated;
         MeasureSeparatorWidth();
         EnsureSelectedIndexValid();
         UpdateProgressState();
@@ -316,11 +317,11 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         Settings.ComponentDisplayDurations.CollectionChanged -= OnDurationCollectionChanged;
         _rulesetService.StatusUpdated -= OnRulesetStatusUpdated;
         UnsubscribeChildren(Settings.Children);
-        CarouselListBox.LayoutUpdated -= CarouselListBox_OnLayoutUpdated;
     }
 
     private void OnTimerTick(object? sender, EventArgs e)
     {
+        TryCaptureComponentWidths();
         UpdateProgressState();
     }
 
@@ -376,6 +377,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         Settings.NormalizeDisplayDurations();
         Settings.NormalizeMeasuredWidths();
         EnsureSelectedIndexValid();
+        TryCaptureComponentWidths(force: true);
         RefreshComponentWidthsAndContainerWidth();
         UpdateProgressState(resetWhenIdle: true);
     }
@@ -431,17 +433,12 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         }
     }
 
-    private void CarouselListBox_OnLayoutUpdated(object? sender, EventArgs e)
-    {
-        RefreshComponentWidthsAndContainerWidth();
-    }
-
     private void MeasureSeparatorWidth()
     {
         _separatorExtraWidth = Settings.ShowSideSeparators ? 16 : 0;
     }
 
-    private void RefreshComponentWidthsAndContainerWidth()
+    private void TryCaptureComponentWidths(bool force = false)
     {
         if (!_isLoaded || CarouselListBox == null)
         {
@@ -457,17 +454,36 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
             }
 
             var width = item.Bounds.Width;
-            if (width > 0.1)
+            if (width > 0.1 && (force || Settings.GetMeasuredWidth(i) <= 0.1))
             {
                 Settings.SetMeasuredWidth(i, width);
             }
+        }
+    }
+
+    private void RefreshComponentWidthsAndContainerWidth()
+    {
+        if (!_isLoaded || CarouselListBox == null)
+        {
+            return;
         }
 
         var maxWidth = Settings.ComponentMeasuredWidths.DefaultIfEmpty(0).Max();
         var selectedWidth = Settings.GetMeasuredWidth(SelectedIndex);
         var contentWidth = Settings.UseLongestWidthAsFixedLength ? maxWidth : selectedWidth;
         var targetWidth = Math.Max(0, contentWidth) + 5 + _separatorExtraWidth;
-        CarouselListBox.Width = targetWidth > 0.1 ? targetWidth : double.NaN;
+        var normalizedTargetWidth = targetWidth > 0.1 ? targetWidth : double.NaN;
+        var changed = double.IsNaN(normalizedTargetWidth)
+            ? !double.IsNaN(_appliedListWidth)
+            : double.IsNaN(_appliedListWidth) || Math.Abs(_appliedListWidth - normalizedTargetWidth) > 0.5;
+
+        if (!changed)
+        {
+            return;
+        }
+
+        _appliedListWidth = normalizedTargetWidth;
+        CarouselListBox.Width = normalizedTargetWidth;
     }
 
     private void UpdateProgressState(bool resetWhenIdle = false)

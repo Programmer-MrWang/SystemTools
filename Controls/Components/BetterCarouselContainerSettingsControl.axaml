@@ -66,7 +66,35 @@
                                            Description="显示当前组件剩余显示时长的进度条"
                                            IconSource="{ci:FluentIconSource &#xE093;}">
                     <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
+                            <ComboBox Width="140"
+                                      IsVisible="{Binding Settings.ShowProgressBar}"
+                                      SelectedItem="{Binding Settings.ProgressBarPosition, Mode=TwoWay}"
+                                      ItemsSource="{Binding ProgressBarPositions}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander Header="添加分隔符样式"
+                                           Description="在容器左右两侧固定显示“>”和“<”"
+                                           IconSource="{ci:FluentIconSource &#xE0AE;}">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowSideSeparators, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander Header="固定容器长度"
+                                           Description="以当前容器内最长组件宽度为标准，固定容器长度"
+                                           IconSource="{ci:FluentIconSource &#xF197;}">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Settings.UseLongestWidthAsFixedLength, Mode=TwoWay}" />
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
@@ -85,7 +113,7 @@
                                             Background="#11000000">
                                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                                             <StackPanel>
-                                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding DisplayNameWithWidth}" FontWeight="SemiBold" />
                                                 <TextBlock Text="{Binding Subtitle}"
                                                            Opacity="0.7"
                                                            FontSize="12" />

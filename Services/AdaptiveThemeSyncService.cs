@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Threading;
 using ClassIsland.Core;
 using ClassIsland.Core.Abstractions.Services;
@@ -6,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using SystemTools.Shared;
 
 namespace SystemTools.Services;
@@ -37,6 +39,7 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
     {
         if (GlobalConstants.MainConfig?.Data.AutoMatchMainBackgroundTheme != true)
         {
+            _lastAppliedTheme = null;
             return;
         }
 
@@ -48,7 +51,13 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
         try
         {
             var targetTheme = DetectThemeByMainWindowBackground();
-            if (targetTheme == null || targetTheme == _lastAppliedTheme)
+            if (targetTheme == null)
+            {
+                return;
+            }
+
+            var currentTheme = GetCurrentTheme();
+            if (targetTheme == _lastAppliedTheme && currentTheme == targetTheme)
             {
                 return;
             }
@@ -60,7 +69,9 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
             }
 
             themeService.SetTheme(targetTheme.Value, null);
+            themeService.CurrentRealThemeMode = targetTheme.Value == 2 ? 1 : 0;
             _lastAppliedTheme = targetTheme;
+            RefreshAppearance();
             _logger.LogDebug("已自动匹配主题为：{Theme}", targetTheme == 2 ? "黑暗" : "明亮");
         }
         catch (Exception ex)
@@ -82,12 +93,20 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
             return null;
         }
 
-        var width = Math.Max(1, rect.Right - rect.Left);
-        var height = Math.Max(1, rect.Bottom - rect.Top);
+        var screen = Screen.FromHandle(handle);
+        var workingArea = screen.WorkingArea;
+        var monitorTopBandHeight = Math.Max(1, workingArea.Height / 5);
+        var monitorBandY = IsWindowInTopHalf(rect, workingArea)
+            ? workingArea.Top
+            : workingArea.Bottom - monitorTopBandHeight;
+        var sampleRect = new Rectangle(workingArea.Left, monitorBandY, workingArea.Width, monitorTopBandHeight);
 
-        using var bitmap = new Bitmap(width, height);
+        using var bitmap = new Bitmap(sampleRect.Width, sampleRect.Height);
         using var graphics = Graphics.FromImage(bitmap);
-        graphics.CopyFromScreen(rect.Left, rect.Top, 0, 0, new Size(width, height));
+        graphics.CopyFromScreen(sampleRect.Left, sampleRect.Top, 0, 0, sampleRect.Size);
+
+        var width = bitmap.Width;
+        var height = bitmap.Height;
 
         var samples = new (int X, int Y)[]
         {
@@ -107,6 +126,48 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
         luminance /= samples.Length;
 
         return luminance < 128 ? 2 : 1; // 2=黑暗,1=明亮
+    }
+
+    private static bool IsWindowInTopHalf(RECT windowRect, Rectangle workingArea)
+    {
+        var centerY = (windowRect.Top + windowRect.Bottom) / 2;
+        return centerY < workingArea.Top + workingArea.Height / 2;
+    }
+
+    private static int? GetCurrentTheme()
+    {
+        var variant = AppBase.Current?.ActualThemeVariant;
+        if (variant == null)
+        {
+            return null;
+        }
+
+        if (variant == Avalonia.Styling.ThemeVariant.Dark)
+        {
+            return 2;
+        }
+
+        if (variant == Avalonia.Styling.ThemeVariant.Light)
+        {
+            return 1;
+        }
+
+        return null;
+    }
+
+    private static void RefreshAppearance()
+    {
+        if (Application.Current == null)
+        {
+            return;
+        }
+
+        foreach (var window in Application.Current.Windows)
+        {
+            window.InvalidateMeasure();
+            window.InvalidateArrange();
+            window.InvalidateVisual();
+        }
     }
 
     [DllImport("user32.dll")]

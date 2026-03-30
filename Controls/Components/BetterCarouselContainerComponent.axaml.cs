@@ -8,7 +8,6 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ClassIsland.Core.Abstractions.Controls;
@@ -37,6 +36,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
     private DateTime _displayStartedAt = DateTime.UtcNow;
     private bool _isLoaded;
     private bool _isAnimating;
+    private double _separatorExtraWidth;
 
     public static readonly AttachedProperty<bool> IsAnimationEnabledProperty =
         AvaloniaProperty.RegisterAttached<BetterCarouselContainerComponent, Control, bool>("IsAnimationEnabled", inherits: true);
@@ -69,6 +69,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
                 _ = AnimateTransitionAsync(oldIndex, value);
             }
             
+            RefreshComponentWidthsAndContainerWidth();
             RestartProgress();
         }
     }
@@ -76,6 +77,8 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
     public double CurrentProgressPercent { get; private set; }
 
     public int AnimationStyleValue => (int)Settings.AnimationStyle;
+    public bool ShowTopProgressBar => Settings.ShowProgressBar && Settings.ProgressBarPosition == BetterCarouselProgressBarPosition.Top;
+    public bool ShowBottomProgressBar => Settings.ShowProgressBar && Settings.ProgressBarPosition == BetterCarouselProgressBarPosition.Bottom;
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
@@ -290,8 +293,12 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         _rulesetService.StatusUpdated += OnRulesetStatusUpdated;
         SubscribeChildren(Settings.Children);
         Settings.NormalizeDisplayDurations();
+        Settings.NormalizeMeasuredWidths();
+        CarouselListBox.LayoutUpdated += CarouselListBox_OnLayoutUpdated;
+        MeasureSeparatorWidth();
         EnsureSelectedIndexValid();
         UpdateProgressState();
+        RefreshComponentWidthsAndContainerWidth();
         _timer.Start();
     }
 
@@ -309,6 +316,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         Settings.ComponentDisplayDurations.CollectionChanged -= OnDurationCollectionChanged;
         _rulesetService.StatusUpdated -= OnRulesetStatusUpdated;
         UnsubscribeChildren(Settings.Children);
+        CarouselListBox.LayoutUpdated -= CarouselListBox_OnLayoutUpdated;
     }
 
     private void OnTimerTick(object? sender, EventArgs e)
@@ -323,21 +331,27 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
             OnPropertyChanged(nameof(AnimationStyleValue));
         }
 
-        if (e.PropertyName is nameof(Settings.ShowProgressBar))
+        if (e.PropertyName is nameof(Settings.ShowProgressBar) or nameof(Settings.ProgressBarPosition))
         {
-            PseudoClasses.Set(":progress-visible", Settings.ShowProgressBar);
+            OnPropertyChanged(nameof(ShowTopProgressBar));
+            OnPropertyChanged(nameof(ShowBottomProgressBar));
         }
 
         if (e.PropertyName is nameof(Settings.RotationMode) or nameof(Settings.IsAnimationEnabled) or nameof(Settings.ShowProgressBar))
         {
             UpdateProgressState(resetWhenIdle: true);
-            return;
         }
 
         if (e.PropertyName == nameof(Settings.ComponentDisplayDurations))
         {
             Settings.NormalizeDisplayDurations();
             RestartProgress();
+        }
+
+        if (e.PropertyName is nameof(Settings.UseLongestWidthAsFixedLength) or nameof(Settings.ShowSideSeparators))
+        {
+            MeasureSeparatorWidth();
+            RefreshComponentWidthsAndContainerWidth();
         }
     }
 
@@ -360,7 +374,9 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         }
 
         Settings.NormalizeDisplayDurations();
+        Settings.NormalizeMeasuredWidths();
         EnsureSelectedIndexValid();
+        RefreshComponentWidthsAndContainerWidth();
         UpdateProgressState(resetWhenIdle: true);
     }
 
@@ -368,6 +384,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
     {
         if (e.PropertyName is nameof(ComponentSettings.HideOnRule) or nameof(ComponentSettings.HidingRules) or nameof(ComponentSettings.Id) or nameof(ComponentSettings.NameCache))
         {
+            RefreshComponentWidthsAndContainerWidth();
             UpdateProgressState(resetWhenIdle: true);
         }
     }
@@ -414,10 +431,47 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         }
     }
 
+    private void CarouselListBox_OnLayoutUpdated(object? sender, EventArgs e)
+    {
+        RefreshComponentWidthsAndContainerWidth();
+    }
+
+    private void MeasureSeparatorWidth()
+    {
+        _separatorExtraWidth = Settings.ShowSideSeparators ? 16 : 0;
+    }
+
+    private void RefreshComponentWidthsAndContainerWidth()
+    {
+        if (!_isLoaded || CarouselListBox == null)
+        {
+            return;
+        }
+
+        Settings.NormalizeMeasuredWidths();
+        for (var i = 0; i < Settings.Children.Count; i++)
+        {
+            if (CarouselListBox.ContainerFromIndex(i) is not ListBoxItem item)
+            {
+                continue;
+            }
+
+            var width = item.Bounds.Width;
+            if (width > 0.1)
+            {
+                Settings.SetMeasuredWidth(i, width);
+            }
+        }
+
+        var maxWidth = Settings.ComponentMeasuredWidths.DefaultIfEmpty(0).Max();
+        var selectedWidth = Settings.GetMeasuredWidth(SelectedIndex);
+        var contentWidth = Settings.UseLongestWidthAsFixedLength ? maxWidth : selectedWidth;
+        var targetWidth = Math.Max(0, contentWidth) + 5 + _separatorExtraWidth;
+        CarouselListBox.Width = targetWidth > 0.1 ? targetWidth : double.NaN;
+    }
+
     private void UpdateProgressState(bool resetWhenIdle = false)
     {
-        PseudoClasses.Set(":progress-visible", Settings.ShowProgressBar);
-
         var displayable = GetDisplayableIndexes();
         if (displayable.Length == 0)
         {

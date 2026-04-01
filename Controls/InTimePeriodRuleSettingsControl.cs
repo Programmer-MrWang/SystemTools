@@ -6,20 +6,15 @@ using SystemTools.Rules;
 
 namespace SystemTools.Controls;
 
+
 public class InTimePeriodRuleSettingsControl : RuleSettingsControlBase<InTimePeriodRuleSettings>
 {
-    private readonly TextBox _startTextBox;
-    private readonly TextBox _endTextBox;
+    private readonly TimePicker _startTimePicker;
+    private readonly TimePicker _endTimePicker;
 
     public InTimePeriodRuleSettingsControl()
     {
-        var panel = new StackPanel { Spacing = 10, Margin = new(10) };
-        panel.Children.Add(new TextBlock
-        {
-            Text = "设置时间段（24 小时制，格式 HH:mm 或 HH:mm:ss）：",
-            FontWeight = Avalonia.Media.FontWeight.Bold
-        });
-
+        var panel = new StackPanel { Spacing = 10 };
         var row = new Grid
         {
             ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto,*,Auto"),
@@ -27,59 +22,70 @@ public class InTimePeriodRuleSettingsControl : RuleSettingsControlBase<InTimePer
             VerticalAlignment = VerticalAlignment.Center
         };
 
-        row.Children.Add(new TextBlock { Text = "起始", VerticalAlignment = VerticalAlignment.Center });
-        _startTextBox = new TextBox { Watermark = "08:00", HorizontalAlignment = HorizontalAlignment.Stretch };
-        Grid.SetColumn(_startTextBox, 1);
-        row.Children.Add(_startTextBox);
+        row.Children.Add(new TextBlock { Text = "从", VerticalAlignment = VerticalAlignment.Center });
+        
+        _startTimePicker = new TimePicker 
+        { 
+            ClockIdentifier = "24HourClock", 
+            HorizontalAlignment = HorizontalAlignment.Center, 
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        Grid.SetColumn(_startTimePicker, 1);
+        row.Children.Add(_startTimePicker);
 
         var sep = new TextBlock { Text = "至", VerticalAlignment = VerticalAlignment.Center };
         Grid.SetColumn(sep, 2);
         row.Children.Add(sep);
 
-        _endTextBox = new TextBox { Watermark = "18:00", HorizontalAlignment = HorizontalAlignment.Stretch };
-        Grid.SetColumn(_endTextBox, 3);
-        row.Children.Add(_endTextBox);
+        _endTimePicker = new TimePicker 
+        { 
+            ClockIdentifier = "24HourClock", 
+            HorizontalAlignment = HorizontalAlignment.Center, 
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        Grid.SetColumn(_endTimePicker, 3);
+        row.Children.Add(_endTimePicker);
 
         var hint = new TextBlock
         {
-            Text = "若起始晚于结束，将按跨天时间段处理（例如 22:00 - 06:00）。",
+            Text = "提示：若起始晚于结束 将按跨天处理",
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
-            Foreground = Avalonia.Media.Brushes.Gray
+            Foreground = Avalonia.Media.Brushes.Gray,
+            FontSize = 12
         };
-
         panel.Children.Add(row);
         panel.Children.Add(hint);
         Content = panel;
 
-        _startTextBox.LostFocus += (_, _) => ApplyInput(_startTextBox, true);
-        _endTextBox.LostFocus += (_, _) => ApplyInput(_endTextBox, false);
+        _startTimePicker.SelectedTimeChanged += (s, e) => SyncSettings();
+        _endTimePicker.SelectedTimeChanged += (s, e) => SyncSettings();
     }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _startTextBox.Text = Settings.StartTime;
-        _endTextBox.Text = Settings.EndTime;
+        
+        if (TimeSpan.TryParse(Settings.StartTime, out var start))
+        {
+            _startTimePicker.SelectedTime = start;
+        }
+        
+        if (TimeSpan.TryParse(Settings.EndTime, out var end))
+        {
+            _endTimePicker.SelectedTime = end;
+        }
     }
 
-    private void ApplyInput(TextBox box, bool isStart)
+    private void SyncSettings()
     {
-        var text = box.Text?.Trim();
-        if (!TimeSpan.TryParse(text, out var parsed))
+        if (_startTimePicker.SelectedTime.HasValue)
         {
-            box.Text = isStart ? Settings.StartTime : Settings.EndTime;
-            return;
+            Settings.StartTime = _startTimePicker.SelectedTime.Value.ToString(@"hh\:mm\:ss");
         }
 
-        var normalized = parsed.ToString(@"hh\:mm\:ss");
-        box.Text = normalized;
-        if (isStart)
+        if (_endTimePicker.SelectedTime.HasValue)
         {
-            Settings.StartTime = normalized;
-        }
-        else
-        {
-            Settings.EndTime = normalized;
+            Settings.EndTime = _endTimePicker.SelectedTime.Value.ToString(@"hh\:mm\:ss");
         }
     }
 }

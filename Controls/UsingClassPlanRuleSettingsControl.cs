@@ -21,9 +21,8 @@ public class UsingClassPlanRuleSettingsControl : RuleSettingsControlBase<UsingCl
     public UsingClassPlanRuleSettingsControl()
     {
         _profileService = IAppHost.GetService<IProfileService>();
-        var panel = new StackPanel { Spacing = 10, Margin = new(10) };
-        panel.Children.Add(new TextBlock { Text = "选择课表：", FontWeight = Avalonia.Media.FontWeight.Bold });
-
+        var panel = new StackPanel { Spacing = 10 };
+        
         _comboBox = new ComboBox { HorizontalAlignment = HorizontalAlignment.Stretch };
         _comboBox.SelectionChanged += (_, _) =>
         {

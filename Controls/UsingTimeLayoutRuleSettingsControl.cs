@@ -21,8 +21,7 @@ public class UsingTimeLayoutRuleSettingsControl : RuleSettingsControlBase<UsingT
     public UsingTimeLayoutRuleSettingsControl()
     {
         _profileService = IAppHost.GetService<IProfileService>();
-        var panel = new StackPanel { Spacing = 10, Margin = new(10) };
-        panel.Children.Add(new TextBlock { Text = "选择时间表：", FontWeight = Avalonia.Media.FontWeight.Bold });
+        var panel = new StackPanel { Spacing = 10 };
 
         _comboBox = new ComboBox { HorizontalAlignment = HorizontalAlignment.Stretch };
         _comboBox.SelectionChanged += (_, _) =>

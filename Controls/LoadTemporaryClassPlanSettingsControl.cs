@@ -27,7 +27,6 @@ public class LoadTemporaryClassPlanSettingsControl : ActionSettingsControlBase<L
         panel.Children.Add(new TextBlock
         {
             Text = "选择要加载的临时课表：",
-            FontWeight = Avalonia.Media.FontWeight.Bold
         });
 
         _comboBox = new ComboBox
@@ -45,7 +44,7 @@ public class LoadTemporaryClassPlanSettingsControl : ActionSettingsControlBase<L
 
         panel.Children.Add(new TextBlock
         {
-            Text = "下拉菜单会实时读取 ClassIsland 当前档案中的课表名称（不含临时层课表）。",
+            Text = "该行动支持恢复。",
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
             Foreground = Avalonia.Media.Brushes.Gray
         });

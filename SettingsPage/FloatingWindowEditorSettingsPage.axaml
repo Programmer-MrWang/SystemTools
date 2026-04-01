@@ -276,6 +276,12 @@
                     </ItemsControl>
                 </StackPanel>
             </controls:SettingsExpander>
+            <TextBlock Text="Programmer_Wang ©2026"
+                       Foreground="Gray"
+                       FontSize="12"
+                       HorizontalAlignment="Center"
+                       Margin="0,40,0,0"
+                       Opacity="0.7" />
         </StackPanel>
     </ScrollViewer>
 </ci:SettingsPageBase>

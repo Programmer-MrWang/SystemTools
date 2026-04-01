@@ -12,13 +12,6 @@ public class AdvancedShutdownSettingsControl : ActionSettingsControlBase<Advance
     {
         var panel = new StackPanel { Spacing = 10, Margin = new(10) };
 
-        panel.Children.Add(new TextBlock
-        {
-            Text = "高级计时关机设置",
-            FontWeight = Avalonia.Media.FontWeight.Bold,
-            FontSize = 14
-        });
-
         var minutesPanel = new StackPanel
         {
             Orientation = Avalonia.Layout.Orientation.Horizontal,
@@ -45,7 +38,7 @@ public class AdvancedShutdownSettingsControl : ActionSettingsControlBase<Advance
 
         panel.Children.Add(new TextBlock
         {
-            Text = "触发后会弹出独立对话框，可已阅、取消计划或延长时间。",
+            Text = "拥有独立对话框，可已阅、取消计划、延长时间或立即关机。",
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
             Foreground = Avalonia.Media.Brushes.Gray
         });

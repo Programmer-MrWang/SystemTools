@@ -144,7 +144,6 @@
                     <Label VerticalAlignment="Center" FontSize="28">功能 · 主设置</Label>
                 </StackPanel>
 
-                <!-- 启用功能选项 -->
                 <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE079;}"
                                            Header="启用功能选项"
                                            Description="选择需要本插件要启用的功能">
@@ -157,8 +156,6 @@
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
-
-                <!-- 实验性功能开关 -->
                 <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE508;}"
                                            Header="实验性功能"
                                            Description="启用后可以使用实验性功能，不保证其稳定性。">
@@ -181,17 +178,22 @@
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
-                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE712;}"
-                                           Header="更多功能选项"
-                                           Description="进入隐藏的更多功能设置页面">
+                <!--<controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
+                                           Header="更多功能选项……"
+                                           Description="在这里启用相对小众的 / 正处于预览阶段的更多功能">
                     <controls:SettingsExpander.Footer>
                         <Button Content="更多功能选项..."
                                 Width="165"
                                 Click="OnOpenMoreFeaturesClick" />
                     </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                </controls:SettingsExpander>-->
+                
+                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
+                                           Header="更多功能选项……"
+                                           Description="在这里启用相对小众的 / 正处于预览阶段的更多功能"
+                                           ActionIconSource="{ci:FluentIconSource &#xEC2E;}"
+                                           Click="OnOpenMoreFeaturesClick" />
 
-                <!-- 启用更多功能 -->
                 <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE071;}"
                                            Header="启用扩展功能"
                                            Description="启用需要下载依赖的更多可选功能">

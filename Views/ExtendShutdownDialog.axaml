@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ci="http://classisland.tech/schemas/xaml/core"
         Width="270"
-        Height="150"
+        Height="148"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Title="延长关机时间"
+        Title="SystemTools - 延长关机时间"
         ShowAsDialog="True">
     
     <Border Padding="16" CornerRadius="8"

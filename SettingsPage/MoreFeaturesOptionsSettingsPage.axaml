@@ -8,11 +8,21 @@
 
             <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE520;}"
                                        Header="自动匹配主界面背景色到 ClassIsland 主题"
-                                       Description="每 2 秒检测主界面区域亮度，偏黑切换黑暗，偏白切换明亮。">
+                                       Description="每 2 秒检测屏幕顶部/底部五分之一亮度：偏黑切换黑暗，偏白切换明亮。">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding Config.AutoMatchMainBackgroundTheme, Mode=TwoWay}"
                                   Checked="AutoMatchThemeToggle_OnChanged"
                                   Unchecked="AutoMatchThemeToggle_OnChanged" />
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE70A;}"
+                                       Header="检测主界面下遮挡文字并自动隐藏"
+                                       Description="每 2 秒 OCR 检测主界面下方区域，识别字符超过 4 个时自动隐藏主界面。">
+                <controls:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.AutoHideMainWindowWhenOccluded, Mode=TwoWay}"
+                                  Checked="AutoHideMainWindowToggle_OnChanged"
+                                  Unchecked="AutoHideMainWindowToggle_OnChanged" />
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
         </StackPanel>

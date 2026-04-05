@@ -28,4 +28,15 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
 
         GlobalConstants.MainConfig?.Save();
     }
+
+    private void AutoHideMainWindowToggle_OnChanged(object? sender, RoutedEventArgs e)
+    {
+        var service = ClassIsland.Shared.IAppHost.GetService<MainWindowOcclusionAutoHideService>();
+        if (Config.AutoHideMainWindowWhenOccluded)
+        {
+            service.RefreshNow();
+        }
+
+        GlobalConstants.MainConfig?.Save();
+    }
 }

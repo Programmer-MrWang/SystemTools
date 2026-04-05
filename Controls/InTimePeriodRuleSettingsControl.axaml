@@ -1,0 +1,32 @@
+<UserControl x:Class="SystemTools.Controls.InTimePeriodRuleSettingsControl"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Spacing="10">
+        <Grid ColumnDefinitions="Auto,*,Auto,*,Auto"
+              ColumnSpacing="8"
+              VerticalAlignment="Center">
+            <TextBlock Text="从" VerticalAlignment="Center" />
+
+            <TimePicker x:Name="StartTimePicker"
+                        Grid.Column="1"
+                        ClockIdentifier="24HourClock"
+                        UseSeconds="True"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+
+            <TextBlock Grid.Column="2" Text="至" VerticalAlignment="Center" />
+
+            <TimePicker x:Name="EndTimePicker"
+                        Grid.Column="3"
+                        ClockIdentifier="24HourClock"
+                        UseSeconds="True"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+        </Grid>
+
+        <TextBlock Text="提示：若起始晚于结束 将按跨天处理"
+                   TextWrapping="Wrap"
+                   Foreground="Gray"
+                   FontSize="12" />
+    </StackPanel>
+</UserControl>

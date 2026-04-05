@@ -100,6 +100,21 @@ public class MainConfigData : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
+
+
+    bool _autoHideMainWindowWhenOccluded;
+
+    [JsonPropertyName("autoHideMainWindowWhenOccluded")]
+    public bool AutoHideMainWindowWhenOccluded
+    {
+        get => _autoHideMainWindowWhenOccluded;
+        set
+        {
+            if (value == _autoHideMainWindowWhenOccluded) return;
+            _autoHideMainWindowWhenOccluded = value;
+            OnPropertyChanged();
+        }
+    }
     
     // ========== 公告相关 ==========
     /*string _lastAcceptedAnnouncement = string.Empty;

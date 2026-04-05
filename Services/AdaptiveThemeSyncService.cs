@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using ClassIsland.Shared;
+using System.Windows.Forms;
 using SystemTools.Shared;
 
 namespace SystemTools.Services;
@@ -48,7 +48,7 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
 
         try
         {
-            var targetTheme = DetectThemeByMainWindowBackground();
+            var targetTheme = DetectThemeByScreenBackground();
             if (targetTheme == null || targetTheme == _lastAppliedTheme)
             {
                 return;
@@ -60,9 +60,10 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
                 return;
             }
 
+            // 仅切换明暗主题，保持主题色来源与强调色不变。
             themeService.SetTheme(targetTheme.Value, null);
             _lastAppliedTheme = targetTheme;
-            _logger.LogDebug("已自动匹配主题为：{Theme}", targetTheme == 2 ? "黑暗" : "明亮");
+            _logger.LogDebug("已自动匹配主题为：{Theme}", targetTheme == 1 ? "黑暗" : "明亮");
         }
         catch (Exception ex)
         {
@@ -70,44 +71,58 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
         }
     }
 
-    private static int? DetectThemeByMainWindowBackground()
+    private static int? DetectThemeByScreenBackground()
     {
         var handle = Process.GetCurrentProcess().MainWindowHandle;
-        if (handle == IntPtr.Zero)
+        if (handle == IntPtr.Zero || !GetWindowRect(handle, out var rect))
         {
             return null;
         }
 
-        if (!GetWindowRect(handle, out var rect))
-        {
-            return null;
-        }
+        var mainWindow = Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom);
+        var screen = Screen.FromRectangle(mainWindow);
+        var captureRect = BuildTargetArea(screen.Bounds, mainWindow);
 
-        var width = Math.Max(1, rect.Right - rect.Left);
-        var height = Math.Max(1, rect.Bottom - rect.Top);
-
-        using var bitmap = new Bitmap(width, height);
+        using var bitmap = new Bitmap(captureRect.Width, captureRect.Height);
         using var graphics = Graphics.FromImage(bitmap);
-        graphics.CopyFromScreen(rect.Left, rect.Top, 0, 0, new Size(width, height));
-
-        var samples = new (int X, int Y)[]
-        {
-            (width / 2, height / 2),
-            (Math.Max(0, width / 4), Math.Max(0, height / 4)),
-            (Math.Max(0, width * 3 / 4), Math.Max(0, height / 4)),
-            (Math.Max(0, width / 4), Math.Max(0, height * 3 / 4)),
-            (Math.Max(0, width * 3 / 4), Math.Max(0, height * 3 / 4)),
-        };
+        graphics.CopyFromScreen(captureRect.Left, captureRect.Top, 0, 0, captureRect.Size);
 
         double luminance = 0;
-        foreach (var sample in samples)
-        {
-            var color = bitmap.GetPixel(Math.Clamp(sample.X, 0, width - 1), Math.Clamp(sample.Y, 0, height - 1));
-            luminance += 0.299 * color.R + 0.587 * color.G + 0.114 * color.B;
-        }
-        luminance /= samples.Length;
+        long samples = 0;
+        const int grid = 8;
+        var stepX = Math.Max(1, captureRect.Width / grid);
+        var stepY = Math.Max(1, captureRect.Height / grid);
 
-        return luminance < 128 ? 2 : 1; // 2=黑暗,1=明亮
+        for (var y = 0; y < captureRect.Height; y += stepY)
+        {
+            for (var x = 0; x < captureRect.Width; x += stepX)
+            {
+                var color = bitmap.GetPixel(Math.Clamp(x, 0, captureRect.Width - 1), Math.Clamp(y, 0, captureRect.Height - 1));
+                luminance += 0.299 * color.R + 0.587 * color.G + 0.114 * color.B;
+                samples++;
+            }
+        }
+
+        if (samples == 0)
+        {
+            return null;
+        }
+
+        luminance /= samples;
+
+        // 与 ClassIsland 的主题模式保持一致：0=明亮，1=黑暗。
+        return luminance < 128 ? 1 : 0;
+    }
+
+    private static Rectangle BuildTargetArea(Rectangle screenBounds, Rectangle mainWindow)
+    {
+        var topHeight = Math.Max(1, screenBounds.Height / 5);
+        var bottomY = screenBounds.Bottom - topHeight;
+
+        var isTop = mainWindow.Top + mainWindow.Height / 2 <= screenBounds.Top + screenBounds.Height / 2;
+        return isTop
+            ? new Rectangle(screenBounds.Left, screenBounds.Top, screenBounds.Width, topHeight)
+            : new Rectangle(screenBounds.Left, bottomY, screenBounds.Width, topHeight);
     }
 
     [DllImport("user32.dll")]

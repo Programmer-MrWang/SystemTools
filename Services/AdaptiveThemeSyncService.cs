@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using ClassIsland.Shared;
 using SystemTools.Shared;
 
 namespace SystemTools.Services;
@@ -60,7 +61,6 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
                 return;
             }
 
-            // 仅切换明暗主题，保持主题色来源与强调色不变。
             themeService.SetTheme(targetTheme.Value, null);
             _lastAppliedTheme = targetTheme;
             _logger.LogDebug("已自动匹配主题为：{Theme}", targetTheme == 1 ? "黑暗" : "明亮");

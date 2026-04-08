@@ -29,4 +29,4 @@ jobs:
         with:
           name: systemtools-cipx-artifacts
           path: |
-            **\bin\Release\net8.0-windows\publish\*.cipx
+            D:\a\SystemTools\SystemTools\bin\Release\net8.0-windows\publish\SystemTools.cipx

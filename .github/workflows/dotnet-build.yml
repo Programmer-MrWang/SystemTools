@@ -21,12 +21,5 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build CIPX
-        run: dotnet publish -p:CreateCipx=true --configuration Release --no-restore
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: systemtools-cipx-artifacts
-          path: |
-            D:\a\SystemTools\SystemTools\cipx\SystemTools.cipx
+      - name: Build
+        run: dotnet build --configuration Release --no-restore

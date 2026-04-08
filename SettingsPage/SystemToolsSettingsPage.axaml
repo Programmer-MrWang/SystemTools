@@ -167,17 +167,8 @@
                         </StackPanel>
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
-
-
-                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
-                                           Header="启用悬浮窗功能"
-                                           Description="关闭后将禁用悬浮窗相关全部功能">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFloatingWindowFeature, Mode=TwoWay}"
-                                      Click="OnFloatingFeatureToggleClick" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
-
+                
+                
                 <!--<controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
                                            Header="更多功能选项……"
                                            Description="在这里启用相对小众的 / 正处于预览阶段的更多功能">
@@ -193,6 +184,15 @@
                                            Description="在这里启用相对小众的 / 正处于预览阶段的更多功能"
                                            ActionIconSource="{ci:FluentIconSource &#xEC2E;}"
                                            Click="OnOpenMoreFeaturesClick" />
+
+                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
+                                           Header="启用悬浮窗功能"
+                                           Description="关闭后将禁用悬浮窗相关全部功能">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFloatingWindowFeature, Mode=TwoWay}"
+                                      Click="OnFloatingFeatureToggleClick" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
 
                 <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE071;}"
                                            Header="启用扩展功能"

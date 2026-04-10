@@ -51,6 +51,16 @@
                                        Value="{Binding Settings.CarouselIntervalSeconds, Mode=TwoWay}" />
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
+                
+                <controls:SettingsExpander
+                    Header="记忆轮播行"
+                    Description="重启软件后从上次的位置和剩余时间继续"
+                    IconSource="{ci:FluentIconSource &#xF35B;}">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Settings.IsPersistenceEnabled, Mode=TwoWay}" />
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
 
                 <Label HorizontalAlignment="Center"
                        Foreground="{DynamicResource MaterialDesignBodyLight}">

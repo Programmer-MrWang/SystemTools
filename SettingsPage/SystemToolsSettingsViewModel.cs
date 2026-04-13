@@ -109,6 +109,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.LocalQuote", "本地一言"),
             ("SystemTools.NextClassDisplay", "下节课是"),
             ("SystemTools.BetterCarouselContainer", "更好的轮播容器"),
+            ("SystemTools.ScrollingText", " LED 文本仿真显示框"),
         };
         foreach (var (id, name) in components)
         {

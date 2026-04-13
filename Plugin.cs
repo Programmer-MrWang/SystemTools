@@ -341,6 +341,9 @@ public class Plugin : PluginBase
             "SystemTools.NextClassDisplay");
         RegisterComponentIfEnabled<BetterCarouselContainerComponent, BetterCarouselContainerSettingsControl>(services, config,
             "SystemTools.BetterCarouselContainer");
+        RegisterComponentIfEnabled<ScrollingTextComponent, ScrollingTextSettingsControl>(services, config, 
+            "SystemTools.ScrollingText");
+
     }
 
     private void RegisterExperimentalFeatures(IServiceCollection services)

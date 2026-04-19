@@ -162,7 +162,6 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
         {
             SetErrorStatus("超时");
         }
-        //因为无网络时会在 无网络 和 超时 反复横跳，所以这里直接把 HttpRequestException 也当做超时处理
         catch (HttpRequestException)
         {
             SetErrorStatus("超时");

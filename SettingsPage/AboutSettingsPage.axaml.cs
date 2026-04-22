@@ -122,6 +122,7 @@ public partial class AboutSettingsPage : SettingsPageBase
         {
             var readmePath = Path.Combine(
                 GlobalConstants.Information.PluginFolder,
+                "Docs",
                 "Lyricify Lite - README.md");
 
             string content = File.Exists(readmePath)

@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using ClassIsland.Core.Abstractions.Controls;
@@ -22,7 +22,7 @@ public class DisableMouseSettingsControl : ActionSettingsControlBase
 
         var warningText = new TextBlock
         {
-            Text = "警告：使用此功能请确保您有其他输入设备，且在接下来的行动中设置了“启用鼠标”。如未成功恢复，请使用键盘等方式运行插件目录下的“huifu.bat”来恢复启用鼠标。",
+            Text = "警告：使用此功能请确保您有其他输入设备，且在接下来的行动中设置了“启用鼠标”。如未成功恢复，请使用键盘等方式运行插件目录下的“Scripts/huifu.bat”来恢复启用鼠标。",
             TextWrapping = TextWrapping.Wrap,
             Foreground = new SolidColorBrush(Colors.OrangeRed),
             FontWeight = FontWeight.Bold

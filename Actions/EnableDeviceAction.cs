@@ -29,8 +29,8 @@ public class EnableDeviceAction(ILogger<EnableDeviceAction> logger) : ActionBase
             string deviceId = Settings.DeviceId;
             string lastSixChars = deviceId.Length >= 6 ? deviceId.Substring(deviceId.Length - 6) : deviceId;
             string pluginDir = Path.GetDirectoryName(GetType().Assembly.Location) ?? "";
-            string batFilePath = Path.Combine(pluginDir, $"Enable_{lastSixChars}.bat");
-            string ps1FilePath = Path.Combine(pluginDir, $"Enable_{lastSixChars}.ps1");
+            string batFilePath = Path.Combine(pluginDir, "Scripts", $"Enable_{lastSixChars}.bat");
+            string ps1FilePath = Path.Combine(pluginDir, "Scripts", $"Enable_{lastSixChars}.ps1");
 
             string batContent = $@"@echo off
 :: 检查并请求管理员权限

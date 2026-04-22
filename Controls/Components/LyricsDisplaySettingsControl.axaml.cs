@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
@@ -72,6 +72,7 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
         {
             var readmePath = Path.Combine(
                 GlobalConstants.Information.PluginFolder,
+                "Docs",
                 "Lyricify Lite - README.md");
 
             string content = File.Exists(readmePath) 

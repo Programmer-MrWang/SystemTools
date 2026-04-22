@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -192,7 +192,7 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
                 throw new FileNotFoundException($"无法获取程序集位置");
             }
 
-            var batchPath = Path.Combine(pluginDir, batchFileName);
+            var batchPath = Path.Combine(pluginDir, "Scripts", batchFileName);
 
             if (!File.Exists(batchPath))
             {

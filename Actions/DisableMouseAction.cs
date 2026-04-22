@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -26,7 +26,7 @@ public class DisableMouseAction(ILogger<DisableMouseAction> logger) : ActionBase
                 throw new FileNotFoundException($"无法获取程序集位置");
             }
 
-            var batchPath = Path.Combine(pluginDir, "jinyongshubiao.bat");
+            var batchPath = Path.Combine(pluginDir, "Scripts", "jinyongshubiao.bat");
 
             if (!File.Exists(batchPath))
             {

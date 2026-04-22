@@ -12,7 +12,7 @@ public enum NetworkDetectMode
 public partial class NetworkStatusSettings : ObservableObject
 {
     [ObservableProperty]
-    private string _pingUrl = "https://www.baidu.com";
+    private string _pingUrl = string.Empty;
 
     [ObservableProperty]
     private string _displayText = "网络延迟 ";

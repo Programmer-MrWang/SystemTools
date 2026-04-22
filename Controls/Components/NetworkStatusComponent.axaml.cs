@@ -1,4 +1,4 @@
-﻿using Avalonia.Media;
+using Avalonia.Media;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
@@ -6,8 +6,10 @@ using System;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Net.Http;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using SystemTools.Models.ComponentSettings;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
@@ -23,7 +25,6 @@ namespace SystemTools.Controls.Components;
 public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSettings>, INotifyPropertyChanged
 {
     private readonly DispatcherTimer _timer;
-    private readonly HttpClient _httpClient;
     private readonly SemaphoreSlim _checkSemaphore = new(1, 1);
 
     private string _statusText = "--";
@@ -66,12 +67,6 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
             Interval = TimeSpan.FromSeconds(1)
         };
         _timer.Tick += OnTimerTicked;
-
-        _httpClient = new HttpClient
-        {
-            Timeout = TimeSpan.FromSeconds(5)
-        };
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "SystemTools/1.0");
     }
 
     private void NetworkStatusComponent_OnLoaded(object? sender, RoutedEventArgs e)
@@ -85,7 +80,6 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
     {
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
         _timer.Stop();
-        _httpClient.Dispose();
     }
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -117,7 +111,7 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
         try
         {
             var url = string.IsNullOrWhiteSpace(Settings.PingUrl)
-                ? "https://www.baidu.com"
+                ? "http://cp.cloudflare.com/generate_204"
                 : Settings.PingUrl;
 
             long delay;
@@ -162,12 +156,13 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
         {
             SetErrorStatus("超时");
         }
-        catch (HttpRequestException)
+        catch (OperationCanceledException)
         {
             SetErrorStatus("超时");
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine(ex);
             SetErrorStatus("错误");
         }
         finally
@@ -218,17 +213,43 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
         if (!httpUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
             && !httpUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
-            httpUrl = "https://" + httpUrl;
+            httpUrl = "http://" + httpUrl;
         }
 
-        var stopwatch = Stopwatch.StartNew();
+        var uri = new Uri(httpUrl);
+        var isHttps = uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase);
+        var port = uri.Port > 0 ? uri.Port : (isHttps ? 443 : 80);
+        using var tcpClient = new TcpClient();
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var stopwatch = new Stopwatch();
+        await tcpClient.ConnectAsync(uri.Host, port, cts.Token);
 
-        using var response = await _httpClient.SendAsync(
-            new HttpRequestMessage(HttpMethod.Head, httpUrl),
-            HttpCompletionOption.ResponseHeadersRead);
+        if (isHttps)
+        {
+            // HTTPS: 测量 TLS 握手时间
+            using var sslStream = new SslStream(tcpClient.GetStream(), false, (_, _, _, _) => true);
+            stopwatch.Start();
+            await sslStream.AuthenticateAsClientAsync(new SslClientAuthenticationOptions
+            {
+                TargetHost = uri.Host,
+                CertificateRevocationCheckMode = X509RevocationMode.NoCheck
+            }, cts.Token);
+            stopwatch.Stop();
+        }
+        else
+        {
+            // HTTP: 测量 HEAD 请求往返时间
+            var stream = tcpClient.GetStream();
+            var request = $"HEAD {uri.PathAndQuery} HTTP/1.1\r\nHost: {uri.Host}\r\nConnection: close\r\n\r\n";
+            var requestBytes = System.Text.Encoding.ASCII.GetBytes(request);
 
-        stopwatch.Stop();
-        response.EnsureSuccessStatusCode();
+            stopwatch.Start();
+            await stream.WriteAsync(requestBytes, cts.Token);
+
+            var buffer = new byte[1];
+            await stream.ReadAsync(buffer.AsMemory(0, 1), cts.Token);
+            stopwatch.Stop();
+        }
 
         return stopwatch.ElapsedMilliseconds;
     }

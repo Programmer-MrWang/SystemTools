@@ -23,11 +23,12 @@
 
                 <controls:SettingsExpander
                     Header="延迟检测网址"
-                    Description="要检测的网址,默认 https://baidu.com"
+                    Description="用于网络延迟检测 (建议使用 generate_204)"
                     IconSource="{ci:FluentIconSource &#xEAB6;}">
                     <controls:SettingsExpander.Footer>
                         <TextBox MinWidth="200"
-                                 Text="{Binding Settings.PingUrl, Mode=TwoWay}" />
+                                 Watermark="http://cp.cloudflare.com/generate_204"
+                                 Text="{Binding Settings.PingUrl, TargetNullValue='http://cp.cloudflare.com/generate_204'}" />
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 
@@ -41,7 +42,7 @@
                             <Button Theme="{StaticResource TransparentButton}"
                                     VerticalAlignment="Center"
                                     Padding="1"
-                                    ToolTip.Tip="自动：自动检查并使用适用于您的检测方式&#x0A;ICMP模式：精确且占用低但不兼容TUN代理&#x0A;HTTP模式：兼容所有代理但延迟和占用略高  ">
+                                    ToolTip.Tip="自动：自动检查并使用适用于您的检测方式&#x0A;ICMP模式：精确且占用低但不兼容TUN代理&#x0A;HTTP模式：兼容所有代理。HTTPS 测量 TLS 握手时间，HTTP 测量 HEAD 请求往返时间">
                                 <ci:FluentIcon Glyph="&#xEE31;" 
                                                FontSize="13"
                                                Foreground="{DynamicResource TextFillColorSecondaryBrush}" />

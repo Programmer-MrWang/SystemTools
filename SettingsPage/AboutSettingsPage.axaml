@@ -1,4 +1,4 @@
-﻿<ci:SettingsPageBase x:Class="SystemTools.AboutSettingsPage"
+<ci:SettingsPageBase x:Class="SystemTools.AboutSettingsPage"
                      xmlns="https://github.com/avaloniaui"
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -110,12 +110,6 @@
                                   SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
                             <TabStripItem>
                                 <ci:IconText Glyph="&#xE236;" Text="帮助" />
-                            </TabStripItem>
-                            <TabStripItem>
-                                <ci:IconText Glyph="&#xF19C;" Text="插件介绍" />
-                            </TabStripItem>
-                            <TabStripItem>
-                                <ci:IconText Glyph="&#xE163;" Text="更新日志" />
                             </TabStripItem>
                         </TabStrip>
                     </Border>

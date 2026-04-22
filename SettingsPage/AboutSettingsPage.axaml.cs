@@ -51,7 +51,6 @@ public partial class AboutSettingsPage : SettingsPageBase
     {
         if (GlobalConstants.ShowChangelogOnOpen)
         {
-            ViewModel.SelectedTabIndex = 2;
             GlobalConstants.ShowChangelogOnOpen = false;
         }
     }
@@ -236,21 +235,17 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
         }
     }
 
-    public bool IsHelpTab => SelectedTabIndex == 0;
-    public bool IsNotHelpTab => SelectedTabIndex != 0;
+    public bool IsHelpTab => true;
+    public bool IsNotHelpTab => true;
 
     private readonly string[] _markdownFiles =
     {
-        "README.md",      // 帮助
-        "README-1.md",        // 插件介绍-1
-        "README-2.md"       // 更新日志
+        "README.md"      // 帮助
     };
 
     private readonly string[] _defaultContents =
     {
-        "# 帮助",
-        "# 插件介绍\n\n欢迎使用 SystemTools 插件！\n\n**未找到插件目录下的「README-1.md」文件。**",
-        "# 更新日志\n\n**未找到插件目录下的「README-2.md」文件。**"
+        "# 帮助"
     };
 
     public AboutSettingsViewModel()
@@ -263,22 +258,15 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
     {
         try
         {
-            if (SelectedTabIndex != 0)
-            {
-                var filePath = Path.Combine(
-                    GlobalConstants.Information.PluginFolder,
-                    _markdownFiles[SelectedTabIndex]);
+            var filePath = Path.Combine(
+                GlobalConstants.Information.PluginFolder,
+                _markdownFiles[0]);
 
-                CurrentMarkdownContent = File.Exists(filePath)
-                    ? File.ReadAllText(filePath)
-                    : _defaultContents[SelectedTabIndex];
-            }
-            else
-            {
-                CurrentMarkdownContent = string.Empty;
-            }
+            CurrentMarkdownContent = File.Exists(filePath)
+                ? File.ReadAllText(filePath)
+                : _defaultContents[0];
 
-            Debug.WriteLine($"[SystemTools] 加载标签 {SelectedTabIndex}: {_markdownFiles[SelectedTabIndex]}");
+            Debug.WriteLine($"[SystemTools] 加载帮助文档: {_markdownFiles[0]}");
         }
         catch (Exception ex)
         {

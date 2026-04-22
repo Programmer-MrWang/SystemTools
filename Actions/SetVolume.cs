@@ -16,9 +16,9 @@ public class SetVolumeAction(ILogger<SetVolumeAction> logger) : ActionBase<SetVo
 
     protected override async Task OnInvoke()
     {
-        await Task.Run(() =>
+        try
         {
-            try
+            await Task.Run(() =>
             {
                 var deviceEnumerator = new MMDeviceEnumeratorWrapper();
                 var device = deviceEnumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
@@ -27,13 +27,13 @@ public class SetVolumeAction(ILogger<SetVolumeAction> logger) : ActionBase<SetVo
                 device.SetMasterVolumeLevelScalar(volume, Guid.Empty);
 
                 _logger.LogInformation($"音量设置为 {Settings.VolumePercent}%");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "设置音量失败");
-                throw;
-            }
-        });
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "设置音量失败");
+            throw;
+        }
 
         await base.OnInvoke();
     }

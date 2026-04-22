@@ -29,8 +29,6 @@ public partial class AboutSettingsPage : SettingsPageBase
         DataContext = ViewModel;
         InitializeComponent();
         LoadPluginIcon();
-
-        CheckAutoSwitchTab();
     }
     
     private void UriNavigationCommands_OnClick(object sender, RoutedEventArgs e)
@@ -44,14 +42,6 @@ public partial class AboutSettingsPage : SettingsPageBase
         if (url != null)
         {
             IAppHost.TryGetService<IUriNavigationService>()?.NavigateWrapped(new Uri(url));
-        }
-    }
-
-    private void CheckAutoSwitchTab()
-    {
-        if (GlobalConstants.ShowChangelogOnOpen)
-        {
-            GlobalConstants.ShowChangelogOnOpen = false;
         }
     }
 
@@ -192,7 +182,6 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
 {
     private string _currentMarkdownContent = string.Empty;
     private string _pluginVersion = "???";
-    private int _selectedTabIndex = 0;
 
     public string CurrentMarkdownContent
     {
@@ -220,34 +209,7 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
         }
     }
 
-    public int SelectedTabIndex
-    {
-        get => _selectedTabIndex;
-        set
-        {
-            if (_selectedTabIndex != value)
-            {
-                _selectedTabIndex = value;
-                OnPropertyChanged(nameof(SelectedTabIndex));
-                OnPropertyChanged(nameof(IsHelpTab));
-                OnPropertyChanged(nameof(IsNotHelpTab));
-                LoadMarkdownContent();
-            }
-        }
-    }
-
-    public bool IsHelpTab => true;
-    public bool IsNotHelpTab => true;
-
-    private readonly string[] _markdownFiles =
-    {
-        "README.md"      // 帮助
-    };
-
-    private readonly string[] _defaultContents =
-    {
-        "# 帮助"
-    };
+    private const string HelpFileName = "README.md";
 
     public AboutSettingsViewModel()
     {
@@ -261,13 +223,13 @@ public class AboutSettingsViewModel : INotifyPropertyChanged
         {
             var filePath = Path.Combine(
                 GlobalConstants.Information.PluginFolder,
-                _markdownFiles[0]);
+                HelpFileName);
 
             CurrentMarkdownContent = File.Exists(filePath)
                 ? File.ReadAllText(filePath)
-                : _defaultContents[0];
+                : "# 帮助\n\n未找到 README.md 文件。";
 
-            Debug.WriteLine($"[SystemTools] 加载帮助文档: {_markdownFiles[0]}");
+            Debug.WriteLine($"[SystemTools] 加载帮助文档: {HelpFileName}");
         }
         catch (Exception ex)
         {

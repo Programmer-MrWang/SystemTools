@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +10,7 @@ public static class DriveUtils
 {
     private static string GetDriveJsonPath()
     {
-        var pluginDir = Path.GetDirectoryName(typeof(DriveUtils).Assembly.Location);
+        var pluginDir = Path.GetDirectoryName(typeof(DriveUtils).Assembly.Location) ?? string.Empty;
         return Path.Combine(pluginDir, "drive.json");
     }
 

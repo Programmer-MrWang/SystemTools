@@ -12,7 +12,7 @@ version: 2.5.0.103
 apiVersion: 2.0.0.0
 author: Programmer-MrWang
 readme: README.md
-icon: icon.png
+icon: Assets/icon.png
 repoOwner: Programmer-MrWang
 repoName: SystemTools
 assetsRoot: main

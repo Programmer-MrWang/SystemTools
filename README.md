@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/user-attachments/assets/d81127fb-1b17-412f-90ac-a3b008c11a5c" alt="SystemTools Logo" height="100">
+<img src="Assets\icon.png" alt="SystemTools Logo" height="100">
 
 # SystemTools
 

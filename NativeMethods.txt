@@ -34,5 +34,7 @@ SetWindowPos
 EnumWindows
 GetClassName
 GetWindowText
+SetWinEventHook
+UnhookWinEvent
 DEV_BROADCAST_DEVICEINTERFACE_W
 DEV_BROADCAST_HDR

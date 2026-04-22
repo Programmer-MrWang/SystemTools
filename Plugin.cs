@@ -1,4 +1,4 @@
-﻿using AvaloniaEdit.Utils;
+using AvaloniaEdit.Utils;
 using ClassIsland.Core;
 using ClassIsland.Core.Abstractions;
 using ClassIsland.Core.Abstractions.Services;
@@ -106,9 +106,9 @@ public class Plugin : PluginBase
         {
             if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
             {
-                IAppHost.GetService<FloatingWindowService>().Start();
+                IAppHost.GetService<FloatingWindowService>()?.Start();
             }
-            IAppHost.GetService<AdaptiveThemeSyncService>().Start();
+            IAppHost.GetService<AdaptiveThemeSyncService>()?.Start();
             _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
@@ -118,7 +118,7 @@ public class Plugin : PluginBase
                 _logger?.LogWarning("[SystemTools]FFmpeg 功能已自动关闭：缺少依赖文件 ffmpeg.exe。");
             }
 
-            if (GlobalConstants.MainConfig.Data.EnableFaceRecognition)
+            if (GlobalConstants.MainConfig?.Data.EnableFaceRecognition == true)
             {
                 if (_faceRecognitionRegistered)
                 {

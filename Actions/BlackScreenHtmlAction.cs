@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -28,7 +28,7 @@ public class BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger) : Acti
                 throw new FileNotFoundException($"无法获取程序集位置");
             }
 
-            var htmlPath = Path.Combine(pluginDir, "black.html");
+            var htmlPath = Path.Combine(pluginDir, "Assets", "black.html");
             if (!File.Exists(htmlPath))
             {
                 _logger.LogError("找不到 black.html 文件: {HtmlPath}", htmlPath);

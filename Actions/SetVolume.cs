@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,7 +14,7 @@ public class SetVolumeAction(ILogger<SetVolumeAction> logger) : ActionBase<SetVo
     private readonly ILogger<SetVolumeAction> _logger = logger;
 
 
-    protected override async Task OnInvoke()
+    protected override Task OnInvoke()
     {
         try
         {
@@ -31,6 +31,7 @@ public class SetVolumeAction(ILogger<SetVolumeAction> logger) : ActionBase<SetVo
             _logger.LogError(ex, "设置音量失败");
             throw;
         }
+        return Task.CompletedTask;
     }
 }
 
@@ -166,8 +167,10 @@ internal class MMDeviceEnumeratorWrapper
 
     public MMDeviceEnumeratorWrapper()
     {
-        var type = Type.GetTypeFromCLSID(new Guid("BCDE0395-E52F-467C-8E3D-C4579291692E"));
-        _enumerator = (IMMDeviceEnumerator)Activator.CreateInstance(type);
+        var type = Type.GetTypeFromCLSID(new Guid("BCDE0395-E52F-467C-8E3D-C4579291692E"))
+            ?? throw new InvalidOperationException("无法获取 MMDeviceEnumerator 类型。");
+        _enumerator = (IMMDeviceEnumerator)(Activator.CreateInstance(type) 
+            ?? throw new InvalidOperationException("无法创建 MMDeviceEnumerator 实例。"));
     }
 
     public IMMDevice GetDefaultAudioEndpoint(EDataFlow dataFlow, ERole role)

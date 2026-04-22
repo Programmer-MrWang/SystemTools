@@ -109,7 +109,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             VerticalAlignment = VerticalAlignment.Stretch
         };
 
-        listBox.ItemsPanel = new FuncTemplate<Panel>(() => new VirtualizingStackPanel());
+        listBox.ItemsPanel = new FuncTemplate<Panel?>(() => new VirtualizingStackPanel());
         listBox.ItemTemplate = new FuncDataTemplate<IconRow?>((row, _) => BuildIconRow(row));
 
         listBox.Height = 520;

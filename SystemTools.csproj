@@ -23,7 +23,8 @@
         <PackageReference Include="OpenCvSharp4.Extensions" Version="4.5.3.20211225" />
         <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.9.0.20240103" />
         <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
-        <PackageReference Include="System.Management" Version="11.0.0-preview.1.26104.118" />
+        <PackageReference Include="System.Management" Version="8.0.0" />
+        <PackageReference Include="System.CodeDom" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,34 +34,37 @@
         <None Update="version.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="README-1.md">
+        <None Update="Docs\README-1.md">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="README.md">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="README-2.md">
+        <None Update="Docs\README-2.md">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="icon.png">
+        <None Update="Assets\icon.png">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="black.html">
+        <None Update="Assets\black.html">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="jinyongshubiao.bat">
+        <None Update="Assets\Theme.xaml">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="jinyongshubiao.ps1">
+        <None Update="Scripts\jinyongshubiao.bat">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="huifu.bat">
+        <None Update="Scripts\jinyongshubiao.ps1">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="huifu.ps1">
+        <None Update="Scripts\huifu.bat">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="Lyricify Lite - README.md">
+        <None Update="Scripts\huifu.ps1">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Docs\Lyricify Lite - README.md">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>

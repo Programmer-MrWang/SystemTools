@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
@@ -186,9 +186,9 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
         };
         copyButton.Click += async (s, e) =>
         {
-            if (TopLevel.GetTopLevel(this) is { } topLevel)
+            if (TopLevel.GetTopLevel(this) is { Clipboard: { } clipboard })
             {
-                await topLevel.Clipboard.SetTextAsync(processList);
+                await clipboard.SetTextAsync(processList);
             }
         };
 

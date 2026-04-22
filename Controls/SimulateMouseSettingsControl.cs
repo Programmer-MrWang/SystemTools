@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
 using System;
@@ -123,7 +123,10 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
     {
         _isRecording = false;
         _stopwatch.Stop();
-        _lastDragAction?.IsDragEnd = true;
+        if (_lastDragAction != null)
+        {
+            _lastDragAction.IsDragEnd = true;
+        }
         _lastDragAction = null;
 
         _startButton.Content = "开始录制鼠标行为";
@@ -161,7 +164,10 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
                     _isDragging = true;
                     _dragStartX = hookStruct.Pt.X;
                     _dragStartY = hookStruct.Pt.Y;
-                    _lastDragAction?.IsDragEnd = true;
+                    if (_lastDragAction != null)
+                    {
+                        _lastDragAction.IsDragEnd = true;
+                    }
                     _lastDragAction = null;
                     break;
 

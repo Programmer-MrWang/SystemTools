@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using ClassIsland.Core.Abstractions.Controls;
@@ -41,7 +41,10 @@ public partial class AboutSettingsPage : SettingsPageBase
             Button s => s.CommandParameter?.ToString(),
             _ => "classisland://app/test/"
         };
-        IAppHost.TryGetService<IUriNavigationService>()?.NavigateWrapped(new Uri(url));
+        if (url != null)
+        {
+            IAppHost.TryGetService<IUriNavigationService>()?.NavigateWrapped(new Uri(url));
+        }
     }
 
     private void CheckAutoSwitchTab()
@@ -59,6 +62,7 @@ public partial class AboutSettingsPage : SettingsPageBase
         {
             var iconPath = Path.Combine(
                 GlobalConstants.Information.PluginFolder,
+                "Assets",
                 "icon.png");
 
             if (File.Exists(iconPath))

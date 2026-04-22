@@ -3,18 +3,29 @@ name: Build Project
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: '发布 Release'
+        type: boolean
+        default: false
 
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '8.0.x'
 
@@ -22,11 +33,31 @@ jobs:
         run: dotnet restore
 
       - name: Build CIPX
-        run: dotnet publish -p:CreateCipx=true --configuration Release --no-restore
+        run: dotnet publish -p:CreateCipx=true -p:Configuration=Release --no-restore
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
-          name: systemtools-cipx-artifacts
+          name: cipx
           path: |
-            D:\a\SystemTools\SystemTools\cipx\SystemTools.cipx
+            cipx/*
+
+  release:
+    needs: build
+    runs-on: windows-latest
+    if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.publish == 'true'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: cipx
+          path: dist
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

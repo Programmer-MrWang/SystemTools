@@ -121,9 +121,9 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
     private static Screen ResolveTargetScreen()
     {
         var monitorIndex = ReadClassIslandWindowDockingMonitorIndex();
-        if (monitorIndex >= 0 && monitorIndex < Screen.AllScreens.Length)
+        if (monitorIndex is int idx && idx >= 0 && idx < Screen.AllScreens.Length)
         {
-            return Screen.AllScreens[monitorIndex];
+            return Screen.AllScreens[idx];
         }
 
         return Screen.PrimaryScreen ?? Screen.AllScreens[0];

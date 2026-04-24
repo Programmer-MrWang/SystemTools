@@ -1,7 +1,7 @@
-using ClassIsland.Core;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Attributes;
+using ClassIsland.Shared;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
@@ -40,12 +40,12 @@ public class BackgroundPlayAudioAction(ILogger<BackgroundPlayAudioAction> logger
         {
             if (Settings.WaitForPlaybackCompleted)
             {
-                await audioService.PlayAudioAsync(Settings.AudioFilePath, 1.0f);
+                await PlayAudioFromFileAsync(audioService, Settings.AudioFilePath);
                 _logger.LogInformation("音频播放完成：{Path}", Settings.AudioFilePath);
             }
             else
             {
-                _ = audioService.PlayAudioAsync(Settings.AudioFilePath, 1.0f)
+                _ = PlayAudioFromFileAsync(audioService, Settings.AudioFilePath)
                     .ContinueWith(task =>
                     {
                         if (task.Exception != null)
@@ -61,5 +61,11 @@ public class BackgroundPlayAudioAction(ILogger<BackgroundPlayAudioAction> logger
             _logger.LogError(ex, "播放音频失败：{Path}", Settings.AudioFilePath);
             throw;
         }
+    }
+
+    private static async Task PlayAudioFromFileAsync(IAudioService audioService, string filePath)
+    {
+        await using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        await audioService.PlayAudioAsync(fs, 1.0f);
     }
 }

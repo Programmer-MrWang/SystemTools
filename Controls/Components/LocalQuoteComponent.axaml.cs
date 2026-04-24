@@ -313,6 +313,10 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
             return;
         }
 
+        // 进度条语义为“距离下一次切换开始的剩余时间”，
+        // 因此需要在当前轮换开始时立即重置，而不是等动画播放完成后再重置。
+        RestartProgressCycle(_carouselTimer.Interval.TotalSeconds);
+
         _currentIndex = (_currentIndex + 1) % _quotes.Count;
         var next = _quotes[_currentIndex];
 
@@ -327,7 +331,6 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         {
             ResetVisualState();
             CurrentQuote = next;
-            RestartProgressCycle(_carouselTimer.Interval.TotalSeconds);
             return;
         }
 
@@ -337,13 +340,11 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
             await _swapOutAnimation.RunAsync(QuoteTextBlock);
             CurrentQuote = next;
             await _swapInAnimation.RunAsync(QuoteTextBlock);
-            RestartProgressCycle(_carouselTimer.Interval.TotalSeconds);
         }
         catch
         {
             CurrentQuote = next;
             ResetVisualState();
-            RestartProgressCycle(_carouselTimer.Interval.TotalSeconds);
         }
         finally
         {

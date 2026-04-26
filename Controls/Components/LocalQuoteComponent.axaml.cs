@@ -157,6 +157,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         if (e.PropertyName == nameof(Settings.CarouselIntervalSeconds))
         {
             RefreshTimerInterval();
+            EnsureTimersForQuoteState();
             return;
         }
 
@@ -170,6 +171,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         if (e.PropertyName == nameof(Settings.QuotesFilePath))
         {
             LoadQuotesFromFile(Settings.QuotesFilePath, showFirstQuote: true);
+            EnsureTimersForQuoteState();
         }
     }
 
@@ -263,12 +265,16 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
         if (string.IsNullOrWhiteSpace(path))
         {
+            _carouselTimer.Stop();
+            _progressTimer.Stop();
             CurrentQuote = "（请先在组件设置中选择 txt 文件）";
             return;
         }
 
         if (!File.Exists(path))
         {
+            _carouselTimer.Stop();
+            _progressTimer.Stop();
             CurrentQuote = "（txt 文件不存在）";
             return;
         }
@@ -291,6 +297,8 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
             if (_quotes.Count == 0)
             {
+                _carouselTimer.Stop();
+                _progressTimer.Stop();
                 CurrentQuote = "（文件中没有可显示内容）";
                 return;
             }
@@ -302,6 +310,8 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         }
         catch
         {
+            _carouselTimer.Stop();
+            _progressTimer.Stop();
             CurrentQuote = "（读取 txt 文件失败）";
         }
     }
@@ -395,5 +405,28 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
         CurrentProgressPercent = progress;
         OnPropertyChanged(nameof(CurrentProgressPercent));
+    }
+
+    private void EnsureTimersForQuoteState()
+    {
+        if (_quotes.Count == 0)
+        {
+            _carouselTimer.Stop();
+            _progressTimer.Stop();
+            return;
+        }
+
+        if (!_carouselTimer.IsEnabled)
+        {
+            var interval = Math.Clamp(Settings.CarouselIntervalSeconds, 1, 8000);
+            _carouselTimer.Interval = TimeSpan.FromSeconds(interval);
+            RestartProgressCycle(interval);
+            _carouselTimer.Start();
+        }
+
+        if (!_progressTimer.IsEnabled)
+        {
+            _progressTimer.Start();
+        }
     }
 }

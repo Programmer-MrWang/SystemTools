@@ -30,6 +30,12 @@ public class BackgroundPlayAudioAction(ILogger<BackgroundPlayAudioAction> logger
             return;
         }
 
+        if (ContainsChinese(normalizedPath))
+        {
+            _logger.LogWarning("后台播放音频不支持中文路径或中文文件名：{Path}", normalizedPath);
+            return;
+        }
+
         var audioService = IAppHost.TryGetService<IAudioService>();
         if (audioService == null)
         {
@@ -85,5 +91,18 @@ public class BackgroundPlayAudioAction(ILogger<BackgroundPlayAudioAction> logger
         }
 
         return normalized;
+    }
+
+    private static bool ContainsChinese(string text)
+    {
+        foreach (var c in text)
+        {
+            if (c is >= '\u4E00' and <= '\u9FFF')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -13,6 +13,7 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
 {
     private readonly TextBox _audioPathBox;
     private readonly CheckBox _waitForCompletedCheckBox;
+    private readonly TextBlock _validationHintTextBlock;
 
     public BackgroundPlayAudioSettingsControl()
     {
@@ -48,6 +49,14 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
         pathPanel.Children.Add(browseButton);
 
         panel.Children.Add(pathPanel);
+
+        _validationHintTextBlock = new TextBlock
+        {
+            Text = "提示：不允许使用中文路径或中文文件名。",
+            Foreground = Avalonia.Media.Brushes.OrangeRed,
+            FontSize = 12
+        };
+        panel.Children.Add(_validationHintTextBlock);
 
         _waitForCompletedCheckBox = new CheckBox
         {
@@ -96,8 +105,17 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
             var result = await topLevel.StorageProvider.OpenFilePickerAsync(options);
             if (result != null && result.Count > 0)
             {
-                Settings.AudioFilePath = NormalizePathForWindows(result[0].Path.LocalPath);
-                _audioPathBox.Text = Settings.AudioFilePath;
+                var normalizedPath = NormalizePathForWindows(result[0].Path.LocalPath);
+                if (ContainsChinese(normalizedPath))
+                {
+                    var logger = IAppHost.TryGetService<ILogger<BackgroundPlayAudioSettingsControl>>();
+                    logger?.LogWarning("后台播放音频不支持中文路径或中文文件名：{Path}", normalizedPath);
+                    _audioPathBox.Text = "不支持中文路径或中文文件名，请重新选择。";
+                    return;
+                }
+
+                Settings.AudioFilePath = normalizedPath;
+                _audioPathBox.Text = normalizedPath;
             }
         }
         catch (Exception ex)
@@ -122,5 +140,18 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
         }
 
         return normalized;
+    }
+
+    private static bool ContainsChinese(string text)
+    {
+        foreach (var c in text)
+        {
+            if (c is >= '\u4E00' and <= '\u9FFF')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

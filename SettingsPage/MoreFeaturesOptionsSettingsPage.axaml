@@ -8,11 +8,21 @@
 
             <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE520;}"
                                        Header="自动匹配主界面背景色到 ClassIsland 主题"
-                                       Description="每 2 秒检测屏幕顶部/底部五分之一亮度：偏黑切换黑暗，偏白切换明亮。">
+                                       Description="实时监测主界面所在区域色彩，偏黑则切换黑暗，偏白则切换明亮">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding Config.AutoMatchMainBackgroundTheme, Mode=TwoWay}"
                                   Checked="AutoMatchThemeToggle_OnChanged"
                                   Unchecked="AutoMatchThemeToggle_OnChanged" />
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEE81;}"
+                                       Header="自动播放"
+                                       Description="当插入U盘设备时时自动打开">
+                <controls:SettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.AutoOpenUsbDriveOnInsert, Mode=TwoWay}"
+                                  Checked="AutoOpenUsbToggle_OnChanged"
+                                  Unchecked="AutoOpenUsbToggle_OnChanged" />
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
 

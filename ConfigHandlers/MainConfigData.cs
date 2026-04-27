@@ -101,6 +101,20 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    bool _autoOpenUsbDriveOnInsert;
+
+    [JsonPropertyName("autoOpenUsbDriveOnInsert")]
+    public bool AutoOpenUsbDriveOnInsert
+    {
+        get => _autoOpenUsbDriveOnInsert;
+        set
+        {
+            if (value == _autoOpenUsbDriveOnInsert) return;
+            _autoOpenUsbDriveOnInsert = value;
+            OnPropertyChanged();
+        }
+    }
+
 
     bool _autoHideMainWindowWhenOccluded;
 

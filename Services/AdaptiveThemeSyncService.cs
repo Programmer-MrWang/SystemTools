@@ -3,9 +3,10 @@ using ClassIsland.Core;
 using ClassIsland.Core.Abstractions.Services;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Windows.Forms;
 using ClassIsland.Shared;
 using SystemTools.Shared;
@@ -73,15 +74,8 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
 
     private static int? DetectThemeByScreenBackground()
     {
-        var handle = Process.GetCurrentProcess().MainWindowHandle;
-        if (handle == IntPtr.Zero || !GetWindowRect(handle, out var rect))
-        {
-            return null;
-        }
-
-        var mainWindow = Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom);
-        var screen = Screen.FromRectangle(mainWindow);
-        var captureRect = BuildTargetArea(screen.Bounds, mainWindow);
+        var screen = ResolveTargetScreen();
+        var captureRect = BuildTargetArea(screen.Bounds, ResolveUseTopAreaFromClassIslandSettings());
 
         using var bitmap = new Bitmap(captureRect.Width, captureRect.Height);
         using var graphics = Graphics.FromImage(bitmap);
@@ -114,25 +108,87 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
         return luminance < 128 ? 1 : 0;
     }
 
-    private static Rectangle BuildTargetArea(Rectangle screenBounds, Rectangle mainWindow)
+    private static Rectangle BuildTargetArea(Rectangle screenBounds, bool useTopArea)
     {
         var topHeight = Math.Max(1, screenBounds.Height / 5);
         var bottomY = screenBounds.Bottom - topHeight;
 
-        var isTop = mainWindow.Top + mainWindow.Height / 2 <= screenBounds.Top + screenBounds.Height / 2;
-        return isTop
+        return useTopArea
             ? new Rectangle(screenBounds.Left, screenBounds.Top, screenBounds.Width, topHeight)
             : new Rectangle(screenBounds.Left, bottomY, screenBounds.Width, topHeight);
     }
 
-    [DllImport("user32.dll")]
-    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-    private struct RECT
+    private static Screen ResolveTargetScreen()
     {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
+        var monitorIndex = ReadClassIslandWindowDockingMonitorIndex();
+        if (monitorIndex is int idx && idx >= 0 && idx < Screen.AllScreens.Length)
+        {
+            return Screen.AllScreens[idx];
+        }
+
+        return Screen.PrimaryScreen ?? Screen.AllScreens[0];
+    }
+
+    private static bool ResolveUseTopAreaFromClassIslandSettings()
+    {
+        var dockingLocation = ReadClassIslandWindowDockingLocation();
+        if (dockingLocation is null)
+        {
+            return true;
+        }
+
+        // 0=左上角,1=中上侧,2=右上角,3=左下角,4=中下侧,5=右下角
+        return dockingLocation is 0 or 1 or 2;
+    }
+
+    private static int? ReadClassIslandWindowDockingLocation() =>
+        ReadIntFromClassIslandSettings(["windowDockingLocation", "WindowDockingLocation"]);
+
+    private static int? ReadClassIslandWindowDockingMonitorIndex() =>
+        ReadIntFromClassIslandSettings(["windowDockingMonitorIndex", "WindowDockingMonitorIndex"]);
+
+    private static int? ReadIntFromClassIslandSettings(string[] keys)
+    {
+        foreach (var settingsPath in GetPossibleClassIslandSettingsPaths())
+        {
+            if (!File.Exists(settingsPath))
+            {
+                continue;
+            }
+
+            try
+            {
+                using var stream = File.OpenRead(settingsPath);
+                using var document = JsonDocument.Parse(stream);
+                var root = document.RootElement;
+                foreach (var key in keys)
+                {
+                    if (root.TryGetProperty(key, out var value) && value.TryGetInt32(out var intValue))
+                    {
+                        return intValue;
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore parse errors and try next candidate.
+            }
+        }
+
+        return null;
+    }
+
+    private static string[] GetPossibleClassIslandSettingsPaths()
+    {
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var processDirectory = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+        return
+        [
+            Path.Combine(localAppData, "ClassIsland", "Settings.json"),
+            Path.Combine(localAppData, "ClassIsland", "Config", "Settings.json"),
+            Path.Combine(processDirectory, "Settings.json"),
+            Path.Combine(processDirectory, "Config", "Settings.json")
+        ];
     }
 }

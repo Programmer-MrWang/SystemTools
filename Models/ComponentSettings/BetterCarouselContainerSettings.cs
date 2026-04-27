@@ -26,7 +26,10 @@ public enum BetterCarouselAnimationStyle
     Slide = 0,
 
     [Description("闪烁")]
-    Flash = 1
+    Flash = 1,
+
+    [Description("渐入渐出")]
+    Fade = 2
 }
 
 public enum BetterCarouselProgressBarPosition

@@ -57,7 +57,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 {
     [ObservableProperty] private MainConfigData _settings;
 
-    // 两个独立的下载按钮启用状态
     [ObservableProperty] private bool _isFfmpegDownloadEnabled = true;
     [ObservableProperty] private bool _isFaceModelsDownloadEnabled = true;
 
@@ -67,7 +66,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     [ObservableProperty] private ObservableCollection<UnifiedFeatureItem> _featureItems = new();
 
-    // Drawer 相关属性
+    // Drawer 
     [ObservableProperty] private bool _isFeatureDrawerOpen = false;
     [ObservableProperty] private object? _featureDrawerContent;
 
@@ -201,6 +200,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.ShowToast", "拉起自定义Windows通知", "实用工具"),
             ("SystemTools.DisableDevice", "禁用硬件设备", "实用工具"),
             ("SystemTools.EnableDevice", "启用硬件设备", "实用工具"),
+            ("SystemTools.BackgroundPlayAudio", "后台播放音频", "媒体工具"),
+            ("SystemTools.CameraCapture", "摄像头抓拍", "媒体工具"),
             ("SystemTools.TriggerCustomTrigger", "触发指定触发器", null),
             ("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "ClassIsland"),
             ("SystemTools.ClearAllNotifications", "清除全部提醒", "ClassIsland"),

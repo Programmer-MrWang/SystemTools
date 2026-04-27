@@ -57,7 +57,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 {
     [ObservableProperty] private MainConfigData _settings;
 
-    // 两个独立的下载按钮启用状态
     [ObservableProperty] private bool _isFfmpegDownloadEnabled = true;
     [ObservableProperty] private bool _isFaceModelsDownloadEnabled = true;
 
@@ -67,7 +66,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     [ObservableProperty] private ObservableCollection<UnifiedFeatureItem> _featureItems = new();
 
-    // Drawer 相关属性
+    // Drawer 
     [ObservableProperty] private bool _isFeatureDrawerOpen = false;
     [ObservableProperty] private object? _featureDrawerContent;
 

@@ -248,7 +248,7 @@ public class Plugin : PluginBase
             "SystemTools.ChangeWallpaper");
         RegisterActionIfEnabled<SwitchThemeAction, ThemeSettingsControl>(services, config, "SystemTools.SwitchTheme");
 
-        // 实用工具（基础）
+        // 实用工具
         RegisterActionIfEnabled<ScreenShotAction, ScreenShotSettingsControl>(services, config,
             "SystemTools.ScreenShot");
         RegisterActionIfEnabled<SetVolumeAction, SetVolumeSettingsControl>(services, config, "SystemTools.SetVolume");
@@ -259,10 +259,12 @@ public class Plugin : PluginBase
         RegisterActionIfEnabled<DisableDeviceAction, DisableDeviceSettingsControl>(services, config,
             "SystemTools.DisableDevice");
         RegisterActionIfEnabled<ShowToastAction, ShowToastSettingsControl>(services, config, "SystemTools.ShowToast");
-        RegisterActionIfEnabled<BackgroundPlayAudioAction, BackgroundPlayAudioSettingsControl>(services, config,
-            "SystemTools.BackgroundPlayAudio");
         RegisterActionIfEnabled<LoadTemporaryClassPlanAction, LoadTemporaryClassPlanSettingsControl>(services, config,
             "SystemTools.LoadTemporaryClassPlan");
+        
+        // 媒体工具
+        RegisterActionIfEnabled<BackgroundPlayAudioAction, BackgroundPlayAudioSettingsControl>(services, config,
+            "SystemTools.BackgroundPlayAudio");
 
         // 悬浮窗设置
         if (config.EnableFloatingWindowFeature)
@@ -484,7 +486,7 @@ public class Plugin : PluginBase
 
         if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.BackgroundPlayAudio"))
         {
-            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("媒体工具…", "\uE189"));
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("媒体工具…", "\uE342"));
             BuildMediaToolsMenu(config);
         }
 
@@ -743,7 +745,7 @@ public class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
         if (config.IsActionEnabled("SystemTools.BackgroundPlayAudio"))
-            items.Add(new ActionMenuTreeItem("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uE189"));
+            items.Add(new ActionMenuTreeItem("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uEBCC"));
 
         if (items.Count > 0)
         {

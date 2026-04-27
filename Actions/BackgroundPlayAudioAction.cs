@@ -6,11 +6,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using ClassIsland.Shared;
 using SystemTools.Settings;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uE189", false)]
+[ActionInfo("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uEBCC", false)]
 public class BackgroundPlayAudioAction(ILogger<BackgroundPlayAudioAction> logger) : ActionBase<BackgroundPlayAudioSettings>
 {
     private readonly ILogger<BackgroundPlayAudioAction> _logger = logger;

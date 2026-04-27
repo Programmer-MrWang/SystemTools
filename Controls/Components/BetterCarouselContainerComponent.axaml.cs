@@ -9,7 +9,6 @@ using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Abstractions.Services;
@@ -23,7 +22,7 @@ namespace SystemTools.Controls.Components;
 [ComponentInfo("A7C3455E-6A4E-4D4D-9D0D-7C6FCB5E1E3A", "更好的轮播容器", "\uF0DB", "带有可单独设置组件显示时长等高级功能的轮播容器")]
 public partial class BetterCarouselContainerComponent : ComponentBase<BetterCarouselContainerSettings>, INotifyPropertyChanged
 {
-    private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromMilliseconds(100) };
+    private readonly ILessonsService _lessonsService;
     private readonly IRulesetService _rulesetService;
     private readonly Random _random = new();
     
@@ -83,12 +82,12 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
-    public BetterCarouselContainerComponent(IRulesetService rulesetService)
+    public BetterCarouselContainerComponent(IRulesetService rulesetService, ILessonsService lessonsService)
     {
         _rulesetService = rulesetService;
+        _lessonsService = lessonsService;
         InitializeComponent();
         InitializeAnimations();
-        _timer.Tick += OnTimerTick;
     }
 
     private void InitializeAnimations()
@@ -338,11 +337,11 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         Settings.Children.CollectionChanged += OnChildrenCollectionChanged;
         Settings.ComponentDisplayDurations.CollectionChanged += OnDurationCollectionChanged;
         _rulesetService.StatusUpdated += OnRulesetStatusUpdated;
+        _lessonsService.PreMainTimerTicked += OnLessonsServicePreMainTimerTicked;
         SubscribeChildren(Settings.Children);
         Settings.NormalizeDisplayDurations();
         EnsureSelectedIndexValid();
         UpdateProgressState();
-        _timer.Start();
     }
 
     private void BetterCarouselContainerComponent_OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
@@ -353,15 +352,15 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         }
 
         _isLoaded = false;
-        _timer.Stop();
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
         Settings.Children.CollectionChanged -= OnChildrenCollectionChanged;
         Settings.ComponentDisplayDurations.CollectionChanged -= OnDurationCollectionChanged;
         _rulesetService.StatusUpdated -= OnRulesetStatusUpdated;
+        _lessonsService.PreMainTimerTicked -= OnLessonsServicePreMainTimerTicked;
         UnsubscribeChildren(Settings.Children);
     }
 
-    private void OnTimerTick(object? sender, EventArgs e)
+    private void OnLessonsServicePreMainTimerTicked(object? sender, EventArgs e)
     {
         UpdateProgressState();
     }

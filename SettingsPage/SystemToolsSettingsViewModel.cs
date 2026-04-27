@@ -151,7 +151,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.ProcessRunningRule", "程序正在运行"),
             ("SystemTools.UsingClassPlanRule", "正在使用某课程表"),
             ("SystemTools.UsingTimeLayoutRule", "正在使用某时间表"),
-            ("SystemTools.InTimePeriodRule", "是否在某时间段")
+            ("SystemTools.InTimePeriodRule", "是否在某时间段"),
+            ("SystemTools.MediaMusicPlayingRule", "正在播放媒体音乐")
         };
         foreach (var (id, name) in rules)
         {
@@ -196,16 +197,20 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.FullscreenClock", "沉浸式时钟", "其他工具"),
             ("SystemTools.KillProcess", "退出进程", "实用工具"),
             ("SystemTools.ScreenShot", "屏幕截图", "实用工具"),
-            ("SystemTools.SetVolume", "设置系统音量", "实用工具"),
             ("SystemTools.ShowToast", "拉起自定义Windows通知", "实用工具"),
             ("SystemTools.DisableDevice", "禁用硬件设备", "实用工具"),
             ("SystemTools.EnableDevice", "启用硬件设备", "实用工具"),
+            ("SystemTools.SetVolume", "设置系统音量", "媒体工具"),
             ("SystemTools.BackgroundPlayAudio", "后台播放音频", "媒体工具"),
+            ("SystemTools.ShowDesktop", "显示桌面", "媒体工具"),
             ("SystemTools.CameraCapture", "摄像头抓拍", "媒体工具"),
             ("SystemTools.TriggerCustomTrigger", "触发指定触发器", null),
             ("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "ClassIsland"),
             ("SystemTools.ClearAllNotifications", "清除全部提醒", "ClassIsland"),
             ("SystemTools.LoadTemporaryClassPlan", "加载临时课表", "ClassIsland"),
+            ("SystemTools.OpenAppSettings", "打开应用设置", "ClassIsland"),
+            ("SystemTools.OpenProfileEditor", "打开档案编辑", "ClassIsland"),
+            ("SystemTools.OpenClassSwapWindow", "打开换课窗口", "ClassIsland"),
         };
 
         if (Settings.EnableFloatingWindowFeature)

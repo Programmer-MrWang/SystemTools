@@ -27,6 +27,7 @@ using SystemTools.Triggers;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using Windows.Media.Control;
 
 namespace SystemTools;
 /*
@@ -265,6 +266,7 @@ public class Plugin : PluginBase
         // 媒体工具
         RegisterActionIfEnabled<BackgroundPlayAudioAction, BackgroundPlayAudioSettingsControl>(services, config,
             "SystemTools.BackgroundPlayAudio");
+        RegisterActionIfEnabled<ShowDesktopAction>(services, config, "SystemTools.ShowDesktop");
 
         // 悬浮窗设置
         if (config.EnableFloatingWindowFeature)
@@ -328,6 +330,12 @@ public class Plugin : PluginBase
         {
             services.AddRule<InTimePeriodRuleSettings, InTimePeriodRuleSettingsControl>(
                 "SystemTools.InTimePeriodRule", "是否在某时间段", "\uE4CA", HandleInTimePeriodRule);
+        }
+
+        if (config.IsRuleEnabled("SystemTools.MediaMusicPlayingRule"))
+        {
+            services.AddRule<MediaMusicPlayingRuleSettings, MediaMusicPlayingRuleSettingsControl>(
+                "SystemTools.MediaMusicPlayingRule", "正在播放媒体音乐", "\uEDBF", HandleMediaMusicPlayingRule);
         }
     }
 
@@ -477,14 +485,14 @@ public class Plugin : PluginBase
         }
 
         // 实用工具
-        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.ScreenShot", "SystemTools.SetVolume", "SystemTools.KillProcess",
+        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.ScreenShot", "SystemTools.KillProcess",
                 "SystemTools.EnableDevice", "SystemTools.DisableDevice", "SystemTools.ShowToast"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));
             BuildUtilityMenu(config);
         }
 
-        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.BackgroundPlayAudio"))
+        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.BackgroundPlayAudio", "SystemTools.SetVolume", "SystemTools.ShowDesktop"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("媒体工具…", "\uE342"));
             BuildMediaToolsMenu(config);
@@ -600,6 +608,27 @@ public class Plugin : PluginBase
         }
 
         return current >= start || current <= end;
+    }
+
+    private static bool HandleMediaMusicPlayingRule(object? settings)
+    {
+        try
+        {
+            var manager = GlobalSystemMediaTransportControlsSessionManager.RequestAsync().AsTask()
+                .GetAwaiter().GetResult();
+            var session = manager?.GetCurrentSession();
+            if (session == null)
+            {
+                return false;
+            }
+
+            var playbackInfo = session.GetPlaybackInfo();
+            return playbackInfo?.PlaybackStatus == GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private void BuildSimulationMenu(MainConfigData config)
@@ -726,8 +755,6 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.KillProcess", "退出进程", "\uE0DE"));
         if (config.IsActionEnabled("SystemTools.ScreenShot"))
             items.Add(new ActionMenuTreeItem("SystemTools.ScreenShot", "屏幕截图", "\uEEE7"));
-        if (config.IsActionEnabled("SystemTools.SetVolume"))
-            items.Add(new ActionMenuTreeItem("SystemTools.SetVolume", "设置系统音量", "\uF013"));
         if (config.IsActionEnabled("SystemTools.ShowToast"))
             items.Add(new ActionMenuTreeItem("SystemTools.ShowToast", "拉起自定义Windows通知", "\uE3E4"));
         if (config.IsActionEnabled("SystemTools.DisableDevice"))
@@ -746,6 +773,10 @@ public class Plugin : PluginBase
         var items = new List<ActionMenuTreeItem>();
         if (config.IsActionEnabled("SystemTools.BackgroundPlayAudio"))
             items.Add(new ActionMenuTreeItem("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uEBCC"));
+        if (config.IsActionEnabled("SystemTools.SetVolume"))
+            items.Add(new ActionMenuTreeItem("SystemTools.SetVolume", "设置系统音量", "\uF013"));
+        if (config.IsActionEnabled("SystemTools.ShowDesktop"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ShowDesktop", "显示桌面", "\uE62F"));
 
         if (items.Count > 0)
         {

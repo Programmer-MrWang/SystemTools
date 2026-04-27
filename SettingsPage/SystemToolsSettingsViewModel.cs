@@ -208,6 +208,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "ClassIsland"),
             ("SystemTools.ClearAllNotifications", "清除全部提醒", "ClassIsland"),
             ("SystemTools.LoadTemporaryClassPlan", "加载临时课表", "ClassIsland"),
+            ("SystemTools.OpenAppSettings", "打开应用设置", "ClassIsland"),
+            ("SystemTools.OpenProfileEditor", "打开档案编辑", "ClassIsland"),
+            ("SystemTools.OpenClassSwapWindow", "打开换课窗口", "ClassIsland"),
         };
 
         if (Settings.EnableFloatingWindowFeature)

@@ -1,7 +1,10 @@
-﻿using AvaloniaEdit.Utils;
+﻿using Avalonia.Controls;
+using Avalonia.Threading;
+using AvaloniaEdit.Utils;
 using ClassIsland.Core;
 using ClassIsland.Core.Abstractions;
 using ClassIsland.Core.Abstractions.Services;
+using ClassIsland.Core.Assists;
 using ClassIsland.Core.Attributes;
 using ClassIsland.Core.Controls;
 using ClassIsland.Core.Extensions.Registry;
@@ -41,6 +44,8 @@ namespace SystemTools;
 public class Plugin : PluginBase
 {
     private ILogger<Plugin>? _logger;
+    private NativeMenuItem? _toggleFloatingWindowMenuItem;
+    private int _toggleMenuRegisterRetryCount;
     private bool _faceRecognitionRegistered = false;
     private bool _ffmpegDisabledDueToMissingDependency;
     private bool _faceRecognitionDisabledDueToMissingDependency;
@@ -137,6 +142,7 @@ public class Plugin : PluginBase
                 _logger?.LogWarning("[SystemTools]人脸识别功能已自动关闭：缺少 runtimes、Models 或 OpenCvSharp/Dlib 依赖，并已清理对应验证器配置。");
             }
             _logger?.LogInformation("[SystemTools]SystemTools 启动完成");
+            RegisterToggleFloatingWindowMenuItem();
         };
 
         // ========== 注册实验性功能 ==========
@@ -284,6 +290,9 @@ public class Plugin : PluginBase
             "SystemTools.TriggerCustomTrigger");
         RegisterActionIfEnabled<RestartAsAdminAction>(services, config, "SystemTools.RestartAsAdmin");
         RegisterActionIfEnabled<ClearAllNotificationsAction>(services, config, "SystemTools.ClearAllNotifications");
+        RegisterActionIfEnabled<OpenAppSettingsAction>(services, config, "SystemTools.OpenAppSettings");
+        RegisterActionIfEnabled<OpenProfileEditorAction>(services, config, "SystemTools.OpenProfileEditor");
+        RegisterActionIfEnabled<OpenClassSwapWindowAction>(services, config, "SystemTools.OpenClassSwapWindow");
     }
 
     private void RegisterBaseTriggers(IServiceCollection services)
@@ -498,7 +507,9 @@ public class Plugin : PluginBase
             BuildMediaToolsMenu(config);
         }
 
-        if (HasAnyActionEnabled(config, "SystemTools.ClearAllNotifications", "SystemTools.RestartAsAdmin", "SystemTools.LoadTemporaryClassPlan"))
+        if (HasAnyActionEnabled(config, "SystemTools.ClearAllNotifications", "SystemTools.RestartAsAdmin",
+                "SystemTools.LoadTemporaryClassPlan", "SystemTools.OpenAppSettings",
+                "SystemTools.OpenProfileEditor", "SystemTools.OpenClassSwapWindow"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("ClassIsland…", "\uE5CB"));
             BuildClassIslandMenu(config);
@@ -817,11 +828,66 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "\uEF53"));
         if (config.IsActionEnabled("SystemTools.LoadTemporaryClassPlan"))
             items.Add(new ActionMenuTreeItem("SystemTools.LoadTemporaryClassPlan", "加载临时课表", "\uE6A1"));
+        if (config.IsActionEnabled("SystemTools.OpenAppSettings"))
+            items.Add(new ActionMenuTreeItem("SystemTools.OpenAppSettings", "打开应用设置", "\uEF27"));
+        if (config.IsActionEnabled("SystemTools.OpenProfileEditor"))
+            items.Add(new ActionMenuTreeItem("SystemTools.OpenProfileEditor", "打开档案编辑", "\uE699"));
+        if (config.IsActionEnabled("SystemTools.OpenClassSwapWindow"))
+            items.Add(new ActionMenuTreeItem("SystemTools.OpenClassSwapWindow", "打开换课窗口", "\uE13B"));
 
         if (items.Count > 0)
         {
             IActionService.ActionMenuTree["SystemTools 行动"]["ClassIsland…"].AddRange(items);
         }
+    }
+
+    #endregion
+
+    #region 托盘更多选项
+
+    private void RegisterToggleFloatingWindowMenuItem()
+    {
+        var config = GlobalConstants.MainConfig?.Data;
+        if (config?.EnableFloatingWindowFeature != true)
+        {
+            return;
+        }
+
+        var taskBarIconService = IAppHost.TryGetService<ITaskBarIconService>();
+        if (_toggleFloatingWindowMenuItem != null)
+        {
+            return;
+        }
+
+        if (taskBarIconService?.MoreOptionsMenu == null)
+        {
+            if (_toggleMenuRegisterRetryCount < 20)
+            {
+                _toggleMenuRegisterRetryCount++;
+                DispatcherTimer.RunOnce(RegisterToggleFloatingWindowMenuItem, TimeSpan.FromMilliseconds(250));
+            }
+            return;
+        }
+
+        _toggleFloatingWindowMenuItem = new NativeMenuItem("切换悬浮窗显示")
+        {
+            [NativeMenuItemAssist.IconSourceProperty] = new FluentIconSource("\uEA37")
+        };
+
+        _toggleFloatingWindowMenuItem.Click += (_, _) =>
+        {
+            var settings = GlobalConstants.MainConfig?.Data;
+            if (settings == null)
+            {
+                return;
+            }
+
+            settings.ShowFloatingWindow = !settings.ShowFloatingWindow;
+            IAppHost.TryGetService<FloatingWindowService>()?.UpdateWindowState();
+            GlobalConstants.MainConfig?.Save();
+        };
+
+        taskBarIconService.MoreOptionsMenuItems.Add(_toggleFloatingWindowMenuItem);
     }
 
     #endregion

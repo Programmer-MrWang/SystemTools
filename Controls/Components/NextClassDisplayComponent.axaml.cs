@@ -21,7 +21,6 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
     private const string NoMoreClassesText = "接下来已无课程";
 
     private readonly ILessonsService _lessonsService;
-    private readonly IExactTimeService _exactTimeService;
 
     private string _subjectName = string.Empty;
     private string _teacherName = string.Empty;
@@ -92,10 +91,9 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
-    public NextClassDisplayComponent(ILessonsService lessonsService, IExactTimeService exactTimeService)
+    public NextClassDisplayComponent(ILessonsService lessonsService)
     {
         _lessonsService = lessonsService;
-        _exactTimeService = exactTimeService;
         InitializeComponent();
     }
 
@@ -139,14 +137,7 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
     {
         var nextSubject = _lessonsService.NextClassSubject;
         var nextTimeLayoutItem = _lessonsService.NextClassTimeLayoutItem;
-        if (nextSubject == Subject.Fallback || nextTimeLayoutItem.TimeType != 0)
-        {
-            ApplyNoMoreClasses();
-            return;
-        }
-
-        var now = _exactTimeService.GetCurrentLocalDateTime().TimeOfDay;
-        if (nextTimeLayoutItem.EndTime < now)
+        if (nextSubject == null || nextTimeLayoutItem == null || nextSubject == Subject.Fallback || nextTimeLayoutItem.TimeType != 0)
         {
             ApplyNoMoreClasses();
             return;

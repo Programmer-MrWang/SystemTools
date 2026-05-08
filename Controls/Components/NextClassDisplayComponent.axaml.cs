@@ -1,6 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Linq;
 using ClassIsland.Shared.ComponentModels;
 using Avalonia.Interactivity;
 using ClassIsland.Core.Abstractions.Controls;
@@ -22,7 +21,6 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
     private const string NoMoreClassesText = "接下来已无课程";
 
     private readonly ILessonsService _lessonsService;
-    private readonly IProfileService _profileService;
     private readonly IExactTimeService _exactTimeService;
 
     private string _subjectName = string.Empty;
@@ -94,10 +92,9 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     public new event PropertyChangedEventHandler? PropertyChanged;
 
-    public NextClassDisplayComponent(ILessonsService lessonsService, IProfileService profileService, IExactTimeService exactTimeService)
+    public NextClassDisplayComponent(ILessonsService lessonsService, IExactTimeService exactTimeService)
     {
         _lessonsService = lessonsService;
-        _profileService = profileService;
         _exactTimeService = exactTimeService;
         InitializeComponent();
     }
@@ -140,49 +137,25 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     private void UpdateDisplay()
     {
-        var classPlan = _lessonsService.CurrentClassPlan;
-        if (classPlan?.TimeLayout == null)
+        var nextSubject = _lessonsService.NextClassSubject;
+        var nextTimeLayoutItem = _lessonsService.NextClassTimeLayoutItem;
+        if (nextSubject == Subject.Fallback || nextTimeLayoutItem.TimeType != 0)
         {
             ApplyNoMoreClasses();
             return;
         }
 
         var now = _exactTimeService.GetCurrentLocalDateTime().TimeOfDay;
-        var validLessonSlots = classPlan.TimeLayout.Layouts
-            .Where(x => x.TimeType == 0)
-            .ToList();
-
-        foreach (var candidateTime in validLessonSlots)
+        if (nextTimeLayoutItem.EndTime < now)
         {
-            if (candidateTime.StartTime <= now)
-            {
-                continue;
-            }
-
-            var candidateClassInfo = classPlan.Classes.FirstOrDefault(x => ReferenceEquals(x.CurrentTimeLayoutItem, candidateTime));
-            if (candidateClassInfo == null)
-            {
-                continue;
-            }
-
-            if (!candidateClassInfo.IsEnabled)
-            {
-                continue;
-            }
-
-            if (!_profileService.Profile.Subjects.TryGetValue(candidateClassInfo.SubjectId, out var subject))
-            {
-                continue;
-            }
-
-            HasNextClass = true;
-            SubjectName = subject.Name;
-            TimeRangeText = $"{candidateTime.StartTime:hh\\:mm}-{candidateTime.EndTime:hh\\:mm}";
-            TeacherName = string.IsNullOrWhiteSpace(subject.TeacherName) ? string.Empty : subject.TeacherName;
+            ApplyNoMoreClasses();
             return;
         }
 
-        ApplyNoMoreClasses();
+        HasNextClass = true;
+        SubjectName = nextSubject.Name;
+        TimeRangeText = $"{nextTimeLayoutItem.StartTime:hh\\:mm}-{nextTimeLayoutItem.EndTime:hh\\:mm}";
+        TeacherName = string.IsNullOrWhiteSpace(nextSubject.TeacherName) ? string.Empty : nextSubject.TeacherName;
     }
 
     private void ApplyNoMoreClasses()

@@ -16,3 +16,5 @@ icon: icon.png
 repoOwner: Programmer-MrWang
 repoName: SystemTools
 assetsRoot: main
+supportedOSPlatforms:
+- Windows

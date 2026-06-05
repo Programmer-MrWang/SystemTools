@@ -25,7 +25,7 @@ public class ImmediateShutdownAction(ILogger<ImmediateShutdownAction> logger) : 
             _logger.LogError("执行立即关机失败:获取关机权限失败");
             throw new InvalidOperationException("执行立即关机失败");
         }
-        if (!PInvoke.ExitWindowsEx(Windows.Win32.System.Shutdown.EXIT_WINDOWS_FLAGS.EWX_SHUTDOWN, Windows.Win32.System.Shutdown.SHUTDOWN_REASON.SHTDN_REASON_FLAG_PLANNED))
+        if (!PInvoke.ExitWindowsEx(Windows.Win32.System.Shutdown.EXIT_WINDOWS_FLAGS.EWX_SHUTDOWN | Windows.Win32.System.Shutdown.EXIT_WINDOWS_FLAGS.EWX_POWEROFF, Windows.Win32.System.Shutdown.SHUTDOWN_REASON.SHTDN_REASON_FLAG_PLANNED))
         {
             _logger.LogError("执行立即关机失败");
             throw new InvalidOperationException("执行立即关机失败");

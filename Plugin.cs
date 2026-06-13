@@ -278,8 +278,6 @@ public class Plugin : PluginBase
         RegisterActionIfEnabled<BackgroundPlayAudioAction, BackgroundPlayAudioSettingsControl>(services, config,
             "SystemTools.BackgroundPlayAudio");
         RegisterActionIfEnabled<ShowDesktopAction>(services, config, "SystemTools.ShowDesktop");
-        // 语音播报
-        RegisterActionIfEnabled<DoSpeechAction, DoSpeechSettingsControl>(services, config, "SystemTools.DoSpeech");
 
         // 悬浮窗设置
         if (config.EnableFloatingWindowFeature)
@@ -516,7 +514,7 @@ public class Plugin : PluginBase
 
         if (HasAnyActionEnabled(config, "SystemTools.ClearAllNotifications", "SystemTools.RestartAsAdmin",
                 "SystemTools.LoadTemporaryClassPlan", "SystemTools.OpenAppSettings",
-                "SystemTools.OpenProfileEditor", "SystemTools.OpenClassSwapWindow","SystemTools.DoSpeech"))
+                "SystemTools.OpenProfileEditor", "SystemTools.OpenClassSwapWindow"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("ClassIsland…", "\uE5CB"));
             BuildClassIslandMenu(config);
@@ -863,8 +861,6 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.OpenProfileEditor", "打开档案编辑", "\uE699"));
         if (config.IsActionEnabled("SystemTools.OpenClassSwapWindow"))
             items.Add(new ActionMenuTreeItem("SystemTools.OpenClassSwapWindow", "打开换课窗口", "\uE13B"));
-        if (config.IsActionEnabled("SystemTools.DoSpeech"))
-            items.Add(new ActionMenuTreeItem("SystemTools.DoSpeech", "语音播报", "\uE5C7"));
 
         if (items.Count > 0)
         {

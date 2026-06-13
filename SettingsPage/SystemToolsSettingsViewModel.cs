@@ -213,7 +213,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.OpenAppSettings", "打开应用设置", "ClassIsland"),
             ("SystemTools.OpenProfileEditor", "打开档案编辑", "ClassIsland"),
             ("SystemTools.OpenClassSwapWindow", "打开换课窗口", "ClassIsland"),
-            ("SystemTools.DoSpeech", "语音播报", "ClassIsland"),
         };
 
         if (Settings.EnableFloatingWindowFeature)

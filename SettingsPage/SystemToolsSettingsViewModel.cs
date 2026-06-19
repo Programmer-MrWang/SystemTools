@@ -101,9 +101,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
     [ObservableProperty] private FloatingTriggerRow? _selectedFloatingTriggerRow;
     [ObservableProperty] private FloatingTriggerItem? _selectedFloatingTriggerItem;
 
-    // 可用按钮池（未添加到悬浮窗的按钮）
-    [ObservableProperty] private ObservableCollection<FloatingTriggerItem> _availableFloatingTriggerItems = new();
-
     // 悬浮窗配置方案
     [ObservableProperty] private ObservableCollection<string> _floatingWindowProfileNames = new();
     [ObservableProperty] private string _selectedFloatingWindowProfile = "Default";
@@ -358,6 +355,30 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             _floatingWindowService.ProfileManager.SaveProfile();
         }
 
+        // 新注册且尚未配置的按钮自动追加到第一行
+        // 已存在按钮配置（如被用户移除/隐藏）的按钮不再自动添加
+        var newButtonIds = entries.Values
+            .Where(e => !configuredIds.Contains(e.ButtonId))
+            .Where(e => !profile.FloatingWindowButtonRulesets.ContainsKey(e.ButtonId))
+            .Select(e => e.ButtonId)
+            .ToList();
+        if (newButtonIds.Count > 0)
+        {
+            if (profile.FloatingWindowButtonRows == null || profile.FloatingWindowButtonRows.Count == 0)
+            {
+                profile.FloatingWindowButtonRows = [newButtonIds];
+            }
+            else
+            {
+                profile.FloatingWindowButtonRows[0] = [.. profile.FloatingWindowButtonRows[0], .. newButtonIds];
+            }
+            foreach (var id in newButtonIds)
+            {
+                configuredIds.Add(id);
+            }
+            _floatingWindowService.ProfileManager.SaveProfile();
+        }
+
         // 注销旧对象上的事件处理程序，避免重复注册和内存泄漏
         foreach (var oldRow in FloatingTriggerRows)
         {
@@ -446,21 +467,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
                 emptyRowHidingRules.PropertyChanged += OnRowRulesetPropertyChanged;
             }
             FloatingTriggerRows.Add(emptyRow);
-        }
-
-        // 构建可用按钮池（未配置的按钮）
-        AvailableFloatingTriggerItems.Clear();
-        foreach (var entry in entries.Values)
-        {
-            if (!configuredIds.Contains(entry.ButtonId))
-            {
-                AvailableFloatingTriggerItems.Add(new FloatingTriggerItem
-                {
-                    ButtonId = entry.ButtonId,
-                    Icon = FloatingWindowService.ConvertIcon(entry.Icon),
-                    ButtonName = entry.LayoutName
-                });
-            }
         }
 
         // 如果有新创建的默认配置，确保保存
@@ -610,7 +616,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
     }
 
     /// <summary>
-    /// 从可用按钮池添加按钮到指定行
+    /// 将已注册但不在行中的按钮添加到指定行（用于拖拽等场景）
     /// </summary>
     public bool AddTriggerFromPool(string buttonId, int targetRowIndex, int targetIndex)
     {
@@ -619,8 +625,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             return false;
         }
 
-        var poolItem = AvailableFloatingTriggerItems.FirstOrDefault(x => x.ButtonId == buttonId);
-        if (poolItem == null)
+        var entry = _floatingWindowService.Entries.FirstOrDefault(e => e.ButtonId == buttonId);
+        if (entry == null)
         {
             return false;
         }
@@ -629,29 +635,35 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         var destinationRow = FloatingTriggerRows[targetRowIndex];
         targetIndex = Math.Clamp(targetIndex, 0, destinationRow.Buttons.Count);
 
-        AvailableFloatingTriggerItems.Remove(poolItem);
-
-        // 确保按钮有 Config（池项可能没有），并注册事件监听
         var profile = CurrentFloatingWindowProfile;
         if (!profile.FloatingWindowButtonRulesets.TryGetValue(buttonId, out var btnConfig))
         {
             btnConfig = new ButtonRulesetConfig();
             profile.FloatingWindowButtonRulesets[buttonId] = btnConfig;
         }
-        poolItem.Config = btnConfig;
-        poolItem.Config.PropertyChanged += OnButtonConfigPropertyChanged;
-        if (poolItem.Config.HidingRules is INotifyPropertyChanged btnHidingRules)
+        // 重新添加到行中时恢复可见
+        btnConfig.IsVisible = true;
+
+        var item = new FloatingTriggerItem
+        {
+            ButtonId = entry.ButtonId,
+            Icon = FloatingWindowService.ConvertIcon(entry.Icon),
+            ButtonName = entry.LayoutName,
+            Config = btnConfig
+        };
+        item.Config.PropertyChanged += OnButtonConfigPropertyChanged;
+        if (item.Config.HidingRules is INotifyPropertyChanged btnHidingRules)
         {
             btnHidingRules.PropertyChanged += OnButtonConfigPropertyChanged;
         }
 
-        destinationRow.Buttons.Insert(targetIndex, poolItem);
+        destinationRow.Buttons.Insert(targetIndex, item);
         PersistFloatingTriggerRows();
         return true;
     }
 
     /// <summary>
-    /// 将按钮从行中移除，放回可用按钮池
+    /// 将按钮从行中移除并隐藏，避免刷新时自动重新出现
     /// </summary>
     public bool RemoveTriggerToPool(string buttonId)
     {
@@ -665,6 +677,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             var item = row.Buttons.FirstOrDefault(x => x.ButtonId == buttonId);
             if (item != null)
             {
+                // 隐藏按钮，防止自动重新添加回行中
+                item.Config.IsVisible = false;
+
                 // 注销事件处理程序
                 item.Config.PropertyChanged -= OnButtonConfigPropertyChanged;
                 if (item.Config.HidingRules is INotifyPropertyChanged btnHidingRules)
@@ -673,7 +688,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
                 }
 
                 row.Buttons.Remove(item);
-                AvailableFloatingTriggerItems.Add(item);
                 PersistFloatingTriggerRows();
                 return true;
             }

@@ -186,7 +186,7 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
         };
         copyButton.Click += async (s, e) =>
         {
-            if (TopLevel.GetTopLevel(this) is { } topLevel)
+            if (TopLevel.GetTopLevel(this) is { } topLevel && topLevel.Clipboard != null)
             {
                 await topLevel.Clipboard.SetTextAsync(processList);
             }

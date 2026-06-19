@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using ClassIsland.Shared;
 using SystemTools.Settings;
 
 namespace SystemTools.Actions;

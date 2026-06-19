@@ -64,11 +64,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(MainConfigData.ShowFloatingWindow)
-            or nameof(MainConfigData.FloatingWindowScale))
-        {
-            IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
-        }
+        // 主设置页面不再直接监听悬浮窗属性变化，由 FloatingWindowEditorSettingsPage 处理
     }
 
 

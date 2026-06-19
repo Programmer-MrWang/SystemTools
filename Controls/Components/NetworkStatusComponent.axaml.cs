@@ -85,7 +85,7 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
     {
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
         _timer.Stop();
-        _httpClient.Dispose();
+        try { _httpClient.Dispose(); } catch { }
     }
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -223,14 +223,22 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
 
         var stopwatch = Stopwatch.StartNew();
 
-        using var response = await _httpClient.SendAsync(
-            new HttpRequestMessage(HttpMethod.Head, httpUrl),
-            HttpCompletionOption.ResponseHeadersRead);
+        try
+        {
+            using var response = await _httpClient.SendAsync(
+                new HttpRequestMessage(HttpMethod.Head, httpUrl),
+                HttpCompletionOption.ResponseHeadersRead);
 
-        stopwatch.Stop();
-        response.EnsureSuccessStatusCode();
+            stopwatch.Stop();
+            response.EnsureSuccessStatusCode();
 
-        return stopwatch.ElapsedMilliseconds;
+            return stopwatch.ElapsedMilliseconds;
+        }
+        catch
+        {
+            stopwatch.Stop();
+            throw;
+        }
     }
 
     private void UpdateStatus(long delay)

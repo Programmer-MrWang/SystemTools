@@ -81,7 +81,13 @@ public partial class ClipboardContentComponent : ComponentBase<ClipboardContentS
     {
         try
         {
-            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel == null)
+            {
+                return;
+            }
+
+            var clipboard = topLevel.Clipboard;
             if (clipboard == null)
             {
                 return;

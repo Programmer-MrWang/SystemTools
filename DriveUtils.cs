@@ -11,6 +11,10 @@ public static class DriveUtils
     private static string GetDriveJsonPath()
     {
         var pluginDir = Path.GetDirectoryName(typeof(DriveUtils).Assembly.Location);
+        if (string.IsNullOrWhiteSpace(pluginDir))
+        {
+            pluginDir = AppContext.BaseDirectory;
+        }
         return Path.Combine(pluginDir, "drive.json");
     }
 

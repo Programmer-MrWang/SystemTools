@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
+using ClassIsland.Core.Models.Ruleset;
 
 namespace SystemTools.ConfigHandlers;
 
@@ -329,6 +330,57 @@ public class MainConfigData : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
+
+    string _currentFloatingWindowProfile = "Default";
+
+    [JsonPropertyName("currentFloatingWindowProfile")]
+    public string CurrentFloatingWindowProfile
+    {
+        get => _currentFloatingWindowProfile;
+        set
+        {
+            if (string.Equals(value, _currentFloatingWindowProfile, StringComparison.Ordinal)) return;
+            _currentFloatingWindowProfile = value;
+            OnPropertyChanged();
+        }
+    }
+
+    bool _floatingWindowRulesetEnabled = false;
+
+    [JsonPropertyName("floatingWindowRulesetEnabled")]
+    public bool FloatingWindowRulesetEnabled
+    {
+        get => _floatingWindowRulesetEnabled;
+        set
+        {
+            if (value == _floatingWindowRulesetEnabled) return;
+            _floatingWindowRulesetEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
+    bool _floatingWindowDragHandleAlwaysVisible = false;
+
+    [JsonPropertyName("floatingWindowDragHandleAlwaysVisible")]
+    public bool FloatingWindowDragHandleAlwaysVisible
+    {
+        get => _floatingWindowDragHandleAlwaysVisible;
+        set
+        {
+            if (value == _floatingWindowDragHandleAlwaysVisible) return;
+            _floatingWindowDragHandleAlwaysVisible = value;
+            OnPropertyChanged();
+        }
+    }
+
+    [JsonPropertyName("floatingWindowRuleset")]
+    public Ruleset FloatingWindowRuleset { get; set; } = new();
+
+    [JsonPropertyName("floatingWindowButtonRulesets")]
+    public Dictionary<string, ButtonRulesetConfig> FloatingWindowButtonRulesets { get; set; } = new();
+
+    [JsonPropertyName("floatingWindowRowRulesets")]
+    public List<RowRulesetConfig> FloatingWindowRowRulesets { get; set; } = new();
 
         // 行动功能启用状态（Key: 行动ID, Value: 是否启用）
     [JsonPropertyName("enabledActions")] public Dictionary<string, bool> EnabledActions { get; set; } = new();

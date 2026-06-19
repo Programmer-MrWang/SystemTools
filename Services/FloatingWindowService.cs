@@ -629,7 +629,7 @@ public class FloatingWindowService
 
         _stackPanel.Children.Clear();
 
-        if (_isTouchDeviceDetected || profile.FloatingWindowDragHandleAlwaysVisible)
+        if (_isTouchDeviceDetected)
         {
             _touchDragHandle = CreateTouchDragHandle(scale, contentForeground);
             _stackPanel.Children.Add(_touchDragHandle);
@@ -1167,8 +1167,7 @@ public class FloatingWindowService
             return;
         }
 
-        var profile = _profileManager.CurrentProfile;
-        var configured = new PixelPoint(profile.FloatingWindowPositionX, profile.FloatingWindowPositionY);
+        var configured = new PixelPoint(_configHandler.Data.FloatingWindowPositionX, _configHandler.Data.FloatingWindowPositionY);
         var rect = GetWindowRect(configured);
         var target = IsWindowInsideAnyScreen(rect) ? ClampToVisibleScreen(configured) : GetCenteredPositionOnPrimaryScreen();
 
@@ -1178,24 +1177,23 @@ public class FloatingWindowService
 
     private void SavePosition(PixelPoint position, bool forceSave = false)
     {
-        var profile = _profileManager.CurrentProfile;
         var changed = false;
 
-        if (profile.FloatingWindowPositionX != position.X)
+        if (_configHandler.Data.FloatingWindowPositionX != position.X)
         {
-            profile.FloatingWindowPositionX = position.X;
+            _configHandler.Data.FloatingWindowPositionX = position.X;
             changed = true;
         }
 
-        if (profile.FloatingWindowPositionY != position.Y)
+        if (_configHandler.Data.FloatingWindowPositionY != position.Y)
         {
-            profile.FloatingWindowPositionY = position.Y;
+            _configHandler.Data.FloatingWindowPositionY = position.Y;
             changed = true;
         }
 
         if (forceSave || changed)
         {
-            _profileManager.SaveProfile();
+            _configHandler.Save();
         }
     }
 

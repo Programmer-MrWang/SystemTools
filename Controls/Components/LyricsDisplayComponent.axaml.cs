@@ -208,9 +208,11 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                 using (Bitmap croppedBmp = originalBmp.Clone(cropArea, PixelFormat.Format32bppArgb))
                 {
                     ProcessBlackPixels(croppedBmp);
-                    LyricsBitmap = ConvertToAvaloniaBitmap(croppedBmp);
-                    _originalWidth = croppedBmp.Width;
-                    _originalHeight = croppedBmp.Height;
+                    var oldBitmap = _lyricsBitmap;
+            LyricsBitmap = ConvertToAvaloniaBitmap(croppedBmp);
+            oldBitmap?.Dispose();
+            _originalWidth = croppedBmp.Width;
+            _originalHeight = croppedBmp.Height;
                 }
             }
 
@@ -230,8 +232,8 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
         PInvoke.EnumWindows((hWnd, lParam) =>
         {
             Span<char> buffer = stackalloc char[256];
-            int length=PInvoke.GetClassName(hWnd, buffer);
-            if (length == 0) return false;
+            int length = PInvoke.GetClassName(hWnd, buffer);
+            if (length == 0) return true;
             string className = new(buffer.Slice(0, length));
             
             if (className.StartsWith(classPrefix))
@@ -239,14 +241,15 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                 if (windowTitle != null)
                 {
                     Span<char> buffer2 = stackalloc char[256];
-                    int length2=PInvoke.GetWindowText(hWnd, buffer2);
-                    if (length2 == 0) return false;
-                    string title = new(buffer2.Slice(0, length2));
-                    
-                    if (title == windowTitle)
+                    int length2 = PInvoke.GetWindowText(hWnd, buffer2);
+                    if (length2 > 0)
                     {
-                        foundHandle = hWnd;
-                        return false;
+                        string title = new(buffer2.Slice(0, length2));
+                        if (title == windowTitle)
+                        {
+                            foundHandle = hWnd;
+                            return false;
+                        }
                     }
                 }
                 else

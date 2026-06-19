@@ -22,8 +22,8 @@ namespace SystemTools.Controls.Components;
 [ComponentInfo("A7C3455E-6A4E-4D4D-9D0D-7C6FCB5E1E3A", "更好的轮播容器", "\uF0DB", "带有可单独设置组件显示时长等高级功能的轮播容器")]
 public partial class BetterCarouselContainerComponent : ComponentBase<BetterCarouselContainerSettings>, INotifyPropertyChanged
 {
-    private readonly ILessonsService _lessonsService;
-    private readonly IRulesetService _rulesetService;
+    private readonly IRulesetService? _rulesetService;
+    private readonly ILessonsService? _lessonsService;
     private readonly Random _random = new();
     
     private Animation? _slideInAnimation;
@@ -82,6 +82,12 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
     public bool ShowBottomProgressBar => Settings.ShowProgressBar && Settings.ProgressBarPosition == BetterCarouselProgressBarPosition.Bottom;
 
     public new event PropertyChangedEventHandler? PropertyChanged;
+
+    public BetterCarouselContainerComponent()
+    {
+        InitializeComponent();
+        InitializeAnimations();
+    }
 
     public BetterCarouselContainerComponent(IRulesetService rulesetService, ILessonsService lessonsService)
     {

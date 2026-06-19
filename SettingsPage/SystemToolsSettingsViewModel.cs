@@ -7,6 +7,7 @@ using SystemTools.ConfigHandlers;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System;
+using System.ComponentModel;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,11 +47,30 @@ public partial class FloatingTriggerItem : ObservableObject
     [ObservableProperty] private string _buttonId = string.Empty;
     [ObservableProperty] private string _icon = string.Empty;
     [ObservableProperty] private string _buttonName = string.Empty;
+    [ObservableProperty] private bool _isRulesetExpanded = false;
+    [ObservableProperty] private ButtonRulesetConfig _config = new();
+
+    /// <summary>
+    /// FluentIconSource，供 IconSourceElement 使用
+    /// </summary>
+    public ClassIsland.Core.Controls.FluentIconSource? IconSource
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(Icon)) return null;
+            return new ClassIsland.Core.Controls.FluentIconSource { Glyph = Icon };
+        }
+    }
+
+    partial void OnIconChanged(string value) { OnPropertyChanged(nameof(IconSource)); }
 }
 
 public partial class FloatingTriggerRow : ObservableObject
 {
     [ObservableProperty] private ObservableCollection<FloatingTriggerItem> _buttons = new();
+    [ObservableProperty] private int _rowIndex = 0;
+    [ObservableProperty] private RowRulesetConfig _rowRuleset = new();
+    [ObservableProperty] private bool _isRulesetExpanded = false;
 }
 
 public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposable
@@ -76,6 +96,17 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     [ObservableProperty] private ObservableCollection<FloatingTriggerRow> _floatingTriggerRows = new();
     [ObservableProperty] private bool _hasFloatingTriggerEntries;
+
+    // 选中状态
+    [ObservableProperty] private FloatingTriggerRow? _selectedFloatingTriggerRow;
+    [ObservableProperty] private FloatingTriggerItem? _selectedFloatingTriggerItem;
+
+    // 可用按钮池（未添加到悬浮窗的按钮）
+    [ObservableProperty] private ObservableCollection<FloatingTriggerItem> _availableFloatingTriggerItems = new();
+
+    // 悬浮窗配置方案
+    [ObservableProperty] private ObservableCollection<string> _floatingWindowProfileNames = new();
+    [ObservableProperty] private string _selectedFloatingWindowProfile = "Default";
 
     private const string DownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/f94fcfa40c9de41d6df09566a51e3130.exe";
@@ -174,7 +205,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.WindowOperation", "窗口操作", "模拟操作"),
             ("SystemTools.AltF4", "按下 Alt+F4", "常用模拟键"),
             ("SystemTools.AltTab", "按下 Alt+Tab", "常用模拟键"),
-            ("SystemTools.AltTab", "按下 Ctrl+Z", "常用模拟键"),
+            ("SystemTools.CtrlZ", "按下 Ctrl+Z", "常用模拟键"),
             ("SystemTools.EnterKey", "按下 Enter 键", "常用模拟键"),
             ("SystemTools.EscKey", "按下 Esc 键", "常用模拟键"),
             ("SystemTools.F11Key", "按下 F11 键", "常用模拟键"),
@@ -220,6 +251,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         if (Settings.EnableFloatingWindowFeature)
         {
             actions.Add(("SystemTools.ShowFloatingWindow", "显示悬浮窗", "悬浮窗设置"));
+            actions.Add(("SystemTools.ToggleFloatingWindowLayer", "切换悬浮窗层级", "悬浮窗设置"));
+            actions.Add(("SystemTools.ToggleFloatingWindowProfile", "切换悬浮窗配置方案", "悬浮窗设置"));
         }
 
         foreach (var (id, name, group) in actions)
@@ -259,7 +292,18 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         _configHandler.Save();
     }
 
+    public FloatingWindowProfile CurrentFloatingWindowProfile => _floatingWindowService.ProfileManager.CurrentProfile;
 
+    public void RefreshFloatingWindowProfiles()
+    {
+        var names = _floatingWindowService.ProfileManager.GetProfileNames();
+        FloatingWindowProfileNames.Clear();
+        foreach (var name in names)
+        {
+            FloatingWindowProfileNames.Add(name);
+        }
+        SelectedFloatingWindowProfile = _floatingWindowService.ProfileManager.CurrentProfileName;
+    }
 
     public void RefreshFloatingTriggers()
     {
@@ -269,74 +313,221 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             .ToDictionary(x => x.Key, x => x.First());
         HasFloatingTriggerEntries = entries.Count > 0;
 
-        if (!HasFloatingTriggerEntries && Settings.ShowFloatingWindow)
+        var profile = CurrentFloatingWindowProfile;
+        var globalShow = _configHandler.Data.ShowFloatingWindow;
+        if (!HasFloatingTriggerEntries && globalShow)
         {
-            Settings.ShowFloatingWindow = false;
+            _configHandler.Data.ShowFloatingWindow = false;
             _configHandler.Save();
+            _floatingWindowService.UpdateWindowState();
         }
-        var legacyOrder = Settings.FloatingWindowButtonOrder ?? [];
 
-        var orderedIds = entries.Keys
-            .OrderBy(id =>
-            {
-                var i = legacyOrder.IndexOf(id);
-                return i < 0 ? int.MaxValue : i;
-            })
-            .ThenBy(id => id)
-            .ToList();
-
-        var used = new HashSet<string>();
-        var normalizedRows = new List<List<string>>();
-
-        foreach (var row in Settings.FloatingWindowButtonRows ?? [])
+        // 清理不存在的按钮ID
+        if (profile.PruneInvalidButtonIds(entries.Keys))
         {
-            var normalizedRow = row
-                .Where(id => entries.ContainsKey(id) && used.Add(id))
-                .ToList();
-            if (normalizedRow.Count > 0)
+            _floatingWindowService.ProfileManager.SaveProfile();
+        }
+
+        // 收集已配置的按钮ID
+        var configuredIds = new HashSet<string>();
+        foreach (var row in profile.FloatingWindowButtonRows ?? [])
+        {
+            foreach (var id in row)
             {
-                normalizedRows.Add(normalizedRow);
+                configuredIds.Add(id);
             }
         }
 
-        var missing = orderedIds.Where(id => !used.Contains(id)).ToList();
-        if (normalizedRows.Count == 0)
+        // 如果没有任何按钮被配置到行中，自动将所有可用按钮添加到第一行
+        // 这样用户首次使用或从旧版本迁移时，按钮默认会显示出来
+        if (configuredIds.Count == 0 && entries.Count > 0)
         {
-            normalizedRows.Add(missing);
-        }
-        else
-        {
-            normalizedRows[0].AddRange(missing);
+            var allButtonIds = entries.Values.Select(e => e.ButtonId).ToList();
+            if (profile.FloatingWindowButtonRows == null || profile.FloatingWindowButtonRows.Count == 0)
+            {
+                profile.FloatingWindowButtonRows = [allButtonIds];
+            }
+            else
+            {
+                profile.FloatingWindowButtonRows[0] = allButtonIds;
+            }
+            foreach (var id in allButtonIds)
+            {
+                configuredIds.Add(id);
+            }
+            _floatingWindowService.ProfileManager.SaveProfile();
         }
 
-        if (normalizedRows.Count == 0)
+        // 注销旧对象上的事件处理程序，避免重复注册和内存泄漏
+        foreach (var oldRow in FloatingTriggerRows)
         {
-            normalizedRows.Add([]);
+            oldRow.RowRuleset.PropertyChanged -= OnRowRulesetPropertyChanged;
+            if (oldRow.RowRuleset.HidingRules is INotifyPropertyChanged oldRowHidingRules)
+            {
+                oldRowHidingRules.PropertyChanged -= OnRowRulesetPropertyChanged;
+            }
+            foreach (var oldItem in oldRow.Buttons)
+            {
+                oldItem.Config.PropertyChanged -= OnButtonConfigPropertyChanged;
+                if (oldItem.Config.HidingRules is INotifyPropertyChanged oldBtnHidingRules)
+                {
+                    oldBtnHidingRules.PropertyChanged -= OnButtonConfigPropertyChanged;
+                }
+            }
         }
 
+        // 构建已配置的行显示
         FloatingTriggerRows.Clear();
-        foreach (var row in normalizedRows)
+        var rowConfigs = profile.FloatingWindowRowRulesets;
+        var rowIndex = 0;
+        var needSave = false;
+        foreach (var row in profile.FloatingWindowButtonRows ?? [])
         {
-            var vmRow = new FloatingTriggerRow();
+            while (rowConfigs.Count <= rowIndex)
+            {
+                rowConfigs.Add(new RowRulesetConfig());
+                needSave = true;
+            }
+            var vmRow = new FloatingTriggerRow
+            {
+                RowIndex = rowIndex + 1,
+                RowRuleset = rowConfigs[rowIndex]
+            };
+            vmRow.RowRuleset.PropertyChanged += OnRowRulesetPropertyChanged;
+            if (vmRow.RowRuleset.HidingRules is INotifyPropertyChanged rowHidingRules)
+            {
+                rowHidingRules.PropertyChanged += OnRowRulesetPropertyChanged;
+            }
             foreach (var id in row)
             {
-                var entry = entries[id];
-                vmRow.Buttons.Add(new FloatingTriggerItem
+                if (!entries.TryGetValue(id, out var entry))
+                {
+                    continue;
+                }
+                if (!profile.FloatingWindowButtonRulesets.TryGetValue(entry.ButtonId, out var btnConfig))
+                {
+                    btnConfig = new ButtonRulesetConfig();
+                    profile.FloatingWindowButtonRulesets[entry.ButtonId] = btnConfig;
+                    needSave = true;
+                }
+                var item = new FloatingTriggerItem
                 {
                     ButtonId = entry.ButtonId,
-                    Icon = entry.Icon,
+                    Icon = FloatingWindowService.ConvertIcon(entry.Icon),
+                    ButtonName = entry.LayoutName,
+                    Config = btnConfig
+                };
+                item.Config.PropertyChanged += OnButtonConfigPropertyChanged;
+                if (item.Config.HidingRules is INotifyPropertyChanged btnHidingRules)
+                {
+                    btnHidingRules.PropertyChanged += OnButtonConfigPropertyChanged;
+                }
+                vmRow.Buttons.Add(item);
+            }
+            FloatingTriggerRows.Add(vmRow);
+            rowIndex++;
+        }
+
+        if (FloatingTriggerRows.Count == 0)
+        {
+            if (rowConfigs.Count == 0)
+            {
+                rowConfigs.Add(new RowRulesetConfig());
+                needSave = true;
+            }
+            var emptyRow = new FloatingTriggerRow
+            {
+                RowIndex = 1,
+                RowRuleset = rowConfigs[0]
+            };
+            emptyRow.RowRuleset.PropertyChanged += OnRowRulesetPropertyChanged;
+            if (emptyRow.RowRuleset.HidingRules is INotifyPropertyChanged emptyRowHidingRules)
+            {
+                emptyRowHidingRules.PropertyChanged += OnRowRulesetPropertyChanged;
+            }
+            FloatingTriggerRows.Add(emptyRow);
+        }
+
+        // 构建可用按钮池（未配置的按钮）
+        AvailableFloatingTriggerItems.Clear();
+        foreach (var entry in entries.Values)
+        {
+            if (!configuredIds.Contains(entry.ButtonId))
+            {
+                AvailableFloatingTriggerItems.Add(new FloatingTriggerItem
+                {
+                    ButtonId = entry.ButtonId,
+                    Icon = FloatingWindowService.ConvertIcon(entry.Icon),
                     ButtonName = entry.LayoutName
                 });
             }
-            FloatingTriggerRows.Add(vmRow);
         }
 
-        PersistFloatingTriggerRows(updateWindow: false, forceSave: false);
+        // 如果有新创建的默认配置，确保保存
+        if (needSave)
+        {
+            _floatingWindowService.ProfileManager.SaveProfile();
+        }
+
+    }
+
+    private void OnButtonConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        _floatingWindowService.ProfileManager.SaveProfile();
+        _floatingWindowService.UpdateWindowState();
+    }
+
+    private void OnRowRulesetPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        _floatingWindowService.ProfileManager.SaveProfile();
+        _floatingWindowService.UpdateWindowState();
     }
 
     public void AddFloatingTriggerRow()
     {
-        FloatingTriggerRows.Add(new FloatingTriggerRow());
+        var profile = CurrentFloatingWindowProfile;
+        var rowRulesets = profile.FloatingWindowRowRulesets;
+        var newRowRuleset = new RowRulesetConfig();
+        rowRulesets.Add(newRowRuleset);
+        var newRow = new FloatingTriggerRow
+        {
+            RowIndex = FloatingTriggerRows.Count + 1,
+            RowRuleset = newRowRuleset
+        };
+        newRow.RowRuleset.PropertyChanged += OnRowRulesetPropertyChanged;
+        if (newRow.RowRuleset.HidingRules is INotifyPropertyChanged rowHidingRules)
+        {
+            rowHidingRules.PropertyChanged += OnRowRulesetPropertyChanged;
+        }
+        FloatingTriggerRows.Add(newRow);
+        PersistFloatingTriggerRows();
+    }
+
+    public void InsertFloatingTriggerRow(int insertIndex)
+    {
+        var profile = CurrentFloatingWindowProfile;
+        var rowRulesets = profile.FloatingWindowRowRulesets;
+        insertIndex = Math.Clamp(insertIndex, 0, FloatingTriggerRows.Count);
+        var newRowRuleset = new RowRulesetConfig();
+        rowRulesets.Insert(insertIndex, newRowRuleset);
+        var newRow = new FloatingTriggerRow
+        {
+            RowIndex = insertIndex + 1,
+            RowRuleset = newRowRuleset
+        };
+        newRow.RowRuleset.PropertyChanged += OnRowRulesetPropertyChanged;
+        if (newRow.RowRuleset.HidingRules is INotifyPropertyChanged rowHidingRules)
+        {
+            rowHidingRules.PropertyChanged += OnRowRulesetPropertyChanged;
+        }
+        FloatingTriggerRows.Insert(insertIndex, newRow);
+
+        // 重新计算后续行的索引
+        for (int i = insertIndex; i < FloatingTriggerRows.Count; i++)
+        {
+            FloatingTriggerRows[i].RowIndex = i + 1;
+        }
+
         PersistFloatingTriggerRows();
     }
 
@@ -348,13 +539,28 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             return false;
         }
 
+        // 注销被移除行的事件处理程序
+        row.RowRuleset.PropertyChanged -= OnRowRulesetPropertyChanged;
+        if (row.RowRuleset.HidingRules is INotifyPropertyChanged rowHidingRules)
+        {
+            rowHidingRules.PropertyChanged -= OnRowRulesetPropertyChanged;
+        }
+
         var targetRow = index > 0 ? FloatingTriggerRows[index - 1] : FloatingTriggerRows[index + 1];
         foreach (var item in row.Buttons)
         {
+            // 按钮的 Config 事件监听保持不变（对象引用不变，事件仍有效）
             targetRow.Buttons.Add(item);
         }
 
         FloatingTriggerRows.RemoveAt(index);
+
+        // 重新计算行索引
+        for (int i = 0; i < FloatingTriggerRows.Count; i++)
+        {
+            FloatingTriggerRows[i].RowIndex = i + 1;
+        }
+
         PersistFloatingTriggerRows();
         return true;
     }
@@ -368,9 +574,11 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
         targetRowIndex = Math.Clamp(targetRowIndex, 0, FloatingTriggerRows.Count - 1);
         var sourceRow = FloatingTriggerRows.FirstOrDefault(r => r.Buttons.Any(b => b.ButtonId == buttonId));
+
+        // 如果按钮不在任何行中（如在按钮池中），尝试从按钮池添加
         if (sourceRow == null)
         {
-            return false;
+            return AddTriggerFromPool(buttonId, targetRowIndex, targetIndex);
         }
 
         var item = sourceRow.Buttons.First(b => b.ButtonId == buttonId);
@@ -401,8 +609,82 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         return true;
     }
 
+    /// <summary>
+    /// 从可用按钮池添加按钮到指定行
+    /// </summary>
+    public bool AddTriggerFromPool(string buttonId, int targetRowIndex, int targetIndex)
+    {
+        if (string.IsNullOrWhiteSpace(buttonId) || FloatingTriggerRows.Count == 0)
+        {
+            return false;
+        }
+
+        var poolItem = AvailableFloatingTriggerItems.FirstOrDefault(x => x.ButtonId == buttonId);
+        if (poolItem == null)
+        {
+            return false;
+        }
+
+        targetRowIndex = Math.Clamp(targetRowIndex, 0, FloatingTriggerRows.Count - 1);
+        var destinationRow = FloatingTriggerRows[targetRowIndex];
+        targetIndex = Math.Clamp(targetIndex, 0, destinationRow.Buttons.Count);
+
+        AvailableFloatingTriggerItems.Remove(poolItem);
+
+        // 确保按钮有 Config（池项可能没有），并注册事件监听
+        var profile = CurrentFloatingWindowProfile;
+        if (!profile.FloatingWindowButtonRulesets.TryGetValue(buttonId, out var btnConfig))
+        {
+            btnConfig = new ButtonRulesetConfig();
+            profile.FloatingWindowButtonRulesets[buttonId] = btnConfig;
+        }
+        poolItem.Config = btnConfig;
+        poolItem.Config.PropertyChanged += OnButtonConfigPropertyChanged;
+        if (poolItem.Config.HidingRules is INotifyPropertyChanged btnHidingRules)
+        {
+            btnHidingRules.PropertyChanged += OnButtonConfigPropertyChanged;
+        }
+
+        destinationRow.Buttons.Insert(targetIndex, poolItem);
+        PersistFloatingTriggerRows();
+        return true;
+    }
+
+    /// <summary>
+    /// 将按钮从行中移除，放回可用按钮池
+    /// </summary>
+    public bool RemoveTriggerToPool(string buttonId)
+    {
+        if (string.IsNullOrWhiteSpace(buttonId))
+        {
+            return false;
+        }
+
+        foreach (var row in FloatingTriggerRows)
+        {
+            var item = row.Buttons.FirstOrDefault(x => x.ButtonId == buttonId);
+            if (item != null)
+            {
+                // 注销事件处理程序
+                item.Config.PropertyChanged -= OnButtonConfigPropertyChanged;
+                if (item.Config.HidingRules is INotifyPropertyChanged btnHidingRules)
+                {
+                    btnHidingRules.PropertyChanged -= OnButtonConfigPropertyChanged;
+                }
+
+                row.Buttons.Remove(item);
+                AvailableFloatingTriggerItems.Add(item);
+                PersistFloatingTriggerRows();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void PersistFloatingTriggerRows(bool updateWindow = true, bool forceSave = true)
     {
+        var profile = CurrentFloatingWindowProfile;
         var newRows = FloatingTriggerRows
             .Select(row => row.Buttons.Select(x => x.ButtonId).ToList())
             .ToList();
@@ -410,22 +692,68 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             .SelectMany(row => row)
             .ToList();
 
-        var rowsChanged = !AreRowsEqual(Settings.FloatingWindowButtonRows, newRows);
-        var orderChanged = !(Settings.FloatingWindowButtonOrder ?? []).SequenceEqual(newOrder);
+        var rowsChanged = !AreRowsEqual(profile.FloatingWindowButtonRows, newRows);
+        var orderChanged = !(profile.FloatingWindowButtonOrder ?? []).SequenceEqual(newOrder);
 
         if (rowsChanged)
         {
-            Settings.FloatingWindowButtonRows = newRows;
+            profile.FloatingWindowButtonRows = newRows;
         }
 
         if (orderChanged)
         {
-            Settings.FloatingWindowButtonOrder = newOrder;
+            profile.FloatingWindowButtonOrder = newOrder;
         }
 
-        if (forceSave && (rowsChanged || orderChanged))
+        // 同步行规则集：确保 FloatingWindowRowRulesets 与行数一致
+        var rowRulesets = profile.FloatingWindowRowRulesets;
+        while (rowRulesets.Count < FloatingTriggerRows.Count)
         {
-            _configHandler.Save();
+            rowRulesets.Add(new RowRulesetConfig());
+        }
+        while (rowRulesets.Count > FloatingTriggerRows.Count)
+        {
+            // 注销被移除行规则集的事件
+            var removedRowRuleset = rowRulesets[rowRulesets.Count - 1];
+            removedRowRuleset.PropertyChanged -= OnRowRulesetPropertyChanged;
+            if (removedRowRuleset.HidingRules is INotifyPropertyChanged removedHidingRules)
+            {
+                removedHidingRules.PropertyChanged -= OnRowRulesetPropertyChanged;
+            }
+            rowRulesets.RemoveAt(rowRulesets.Count - 1);
+        }
+        // 同步每行的 RowRuleset 引用（确保ViewModel中的修改反映到profile）
+        for (int i = 0; i < FloatingTriggerRows.Count; i++)
+        {
+            var vmRow = FloatingTriggerRows[i];
+            if (!ReferenceEquals(vmRow.RowRuleset, rowRulesets[i]))
+            {
+                // RowRuleset 引用变更时，重新注册事件
+                vmRow.RowRuleset.PropertyChanged -= OnRowRulesetPropertyChanged;
+                if (vmRow.RowRuleset.HidingRules is INotifyPropertyChanged oldHidingRules)
+                {
+                    oldHidingRules.PropertyChanged -= OnRowRulesetPropertyChanged;
+                }
+                vmRow.RowRuleset = rowRulesets[i];
+                vmRow.RowRuleset.PropertyChanged += OnRowRulesetPropertyChanged;
+                if (vmRow.RowRuleset.HidingRules is INotifyPropertyChanged newHidingRules)
+                {
+                    newHidingRules.PropertyChanged += OnRowRulesetPropertyChanged;
+                }
+            }
+        }
+
+        // 清理不再使用的按钮规则集配置
+        var usedButtonIds = new HashSet<string>(newOrder);
+        var staleButtonIds = profile.FloatingWindowButtonRulesets.Keys.Where(id => !usedButtonIds.Contains(id)).ToList();
+        foreach (var staleId in staleButtonIds)
+        {
+            profile.FloatingWindowButtonRulesets.Remove(staleId);
+        }
+
+        if (forceSave)
+        {
+            _floatingWindowService.ProfileManager.SaveProfile();
         }
 
         if (updateWindow)
@@ -433,6 +761,52 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             _floatingWindowService.UpdateWindowState();
         }
     }
+
+    public void AddFloatingWindowProfile()
+    {
+        var newName = _floatingWindowService.ProfileManager.CreateProfile();
+        RefreshFloatingWindowProfiles();
+        SelectedFloatingWindowProfile = newName;
+        SwitchFloatingWindowProfile(newName);
+    }
+
+    public void RemoveFloatingWindowProfile(string profileName)
+    {
+        if (string.IsNullOrWhiteSpace(profileName))
+        {
+            return;
+        }
+
+        if (_floatingWindowService.ProfileManager.RemoveProfile(profileName))
+        {
+            RefreshFloatingWindowProfiles();
+            // 如果删除的是当前方案，切换到 Default
+            if (string.Equals(SelectedFloatingWindowProfile, profileName, StringComparison.OrdinalIgnoreCase))
+            {
+                SwitchFloatingWindowProfile("Default");
+            }
+        }
+    }
+
+    public void SwitchFloatingWindowProfile(string profileName)
+    {
+        if (string.IsNullOrWhiteSpace(profileName))
+        {
+            return;
+        }
+
+        _floatingWindowService.SwitchToProfile(profileName);
+        SelectedFloatingWindowProfile = profileName;
+        RefreshFloatingTriggers();
+
+        // 通知 UI 重新注册 Profile 属性变更事件监听
+        ProfileChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Profile 对象发生变化时触发（切换方案后需要重新注册事件监听）
+    /// </summary>
+    public event EventHandler? ProfileChanged;
 
     public void Dispose()
     {

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ using ClassIsland.Core;
 using ClassIsland.Core.Abstractions;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
+using ClassIsland.Core.Controls.Ruleset;
 using ClassIsland.Shared;
 using SystemTools.ConfigHandlers;
 using SystemTools.Services;
@@ -36,12 +38,33 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         DataContext = this;
         InitializeComponent();
 
+        ViewModel.RefreshFloatingWindowProfiles();
         ViewModel.RefreshFloatingTriggers();
+        ViewModel.CurrentFloatingWindowProfile.PropertyChanged += OnProfilePropertyChanged;
         ViewModel.Settings.PropertyChanged += OnSettingsPropertyChanged;
+        ViewModel.ProfileChanged += OnViewModelProfileChanged;
+
+        // 注册全局设置变更监听（ShowFloatingWindow 和规则集不随方案切换）
+        RegisterHidingRulesEvents();
     }
 
     public SystemToolsSettingsViewModel ViewModel { get; }
+
     private bool _isDisposed;
+
+    private Point? _floatingDragStartPoint;
+    private Border? _floatingDragSourceBorder;
+
+    // ===== 规则集 Drawer 状态 =====
+    private enum RulesetTargetType { Button, Row, Window }
+    private RulesetTargetType _currentRulesetTarget;
+    private FloatingTriggerItem? _currentButtonTarget;
+    private FloatingTriggerRow? _currentRowTarget;
+
+    // Drawer 内的控件引用
+    private ToggleSwitch? _drawerIsVisibleToggle;
+    private ToggleSwitch? _drawerHideOnRuleToggle;
+    private RulesetControl? _drawerRulesetControl;
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
@@ -52,40 +75,150 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             return;
         }
 
+        ViewModel.CurrentFloatingWindowProfile.PropertyChanged -= OnProfilePropertyChanged;
         ViewModel.Settings.PropertyChanged -= OnSettingsPropertyChanged;
+        ViewModel.ProfileChanged -= OnViewModelProfileChanged;
+
+        UnregisterHidingRulesEvents();
+
         ViewModel.Dispose();
         _isDisposed = true;
     }
 
-    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnProfilePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(MainConfigData.ShowFloatingWindow)
-            or nameof(MainConfigData.FloatingWindowScale)
-            or nameof(MainConfigData.FloatingWindowIconSize)
-            or nameof(MainConfigData.FloatingWindowTextSize)
-            or nameof(MainConfigData.FloatingWindowOpacity)
-            or nameof(MainConfigData.FloatingWindowTheme)
-            or nameof(MainConfigData.FloatingWindowShadowEnabled)
-            or nameof(MainConfigData.FloatingWindowLayer)
-            or nameof(MainConfigData.FloatingWindowLayerRecheckMode))
+        if (e.PropertyName is nameof(FloatingWindowProfile.FloatingWindowScale)
+            or nameof(FloatingWindowProfile.FloatingWindowIconSize)
+            or nameof(FloatingWindowProfile.FloatingWindowTextSize)
+            or nameof(FloatingWindowProfile.FloatingWindowOpacity)
+            or nameof(FloatingWindowProfile.FloatingWindowShadowEnabled)
+            or nameof(FloatingWindowProfile.FloatingWindowLayer)
+            or nameof(FloatingWindowProfile.FloatingWindowLayerRecheckMode)
+            or nameof(FloatingWindowProfile.FloatingWindowDragHandleAlwaysVisible)
+            or nameof(FloatingWindowProfile.FloatingWindowHorizontal))
         {
+            IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
             IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
         }
     }
 
-    private void OnFloatingWindowConfigChanged(object? sender, RoutedEventArgs e)
+    /// <summary>
+    /// 重新注册 Profile 属性变更事件监听（切换方案后需要重新注册）
+    /// </summary>
+    public void ReattachProfilePropertyChanged()
     {
-        if (!ViewModel.HasFloatingTriggerEntries)
-        {
-            ViewModel.Settings.ShowFloatingWindow = false;
-        }
+        ViewModel.CurrentFloatingWindowProfile.PropertyChanged -= OnProfilePropertyChanged;
+        ViewModel.CurrentFloatingWindowProfile.PropertyChanged += OnProfilePropertyChanged;
 
-        ViewModel.RefreshFloatingTriggers();
-        IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+        // 重新注册悬浮窗规则集变更监听
+        UnregisterHidingRulesEvents();
+        RegisterHidingRulesEvents();
     }
 
-    private Point? _floatingDragStartPoint;
-    private Border? _floatingDragSourceBorder;
+    private void RegisterHidingRulesEvents()
+    {
+        if (ViewModel.Settings.FloatingWindowRuleset is INotifyPropertyChanged hidingRules)
+        {
+            hidingRules.PropertyChanged += OnHidingRulesPropertyChanged;
+        }
+    }
+
+    private void UnregisterHidingRulesEvents()
+    {
+        if (ViewModel.Settings.FloatingWindowRuleset is INotifyPropertyChanged hidingRules)
+        {
+            hidingRules.PropertyChanged -= OnHidingRulesPropertyChanged;
+        }
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(MainConfigData.FloatingWindowTheme))
+        {
+            GlobalConstants.MainConfig?.Save();
+            IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+        }
+        else if (e.PropertyName is nameof(MainConfigData.ShowFloatingWindow)
+            or nameof(MainConfigData.FloatingWindowRulesetEnabled))
+        {
+            GlobalConstants.MainConfig?.Save();
+            IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+        }
+        else if (e.PropertyName == nameof(MainConfigData.FloatingWindowRuleset))
+        {
+            // Ruleset 对象被替换时，重新注册事件
+            UnregisterHidingRulesEvents();
+            RegisterHidingRulesEvents();
+            GlobalConstants.MainConfig?.Save();
+        }
+    }
+
+    private void OnViewModelProfileChanged(object? sender, EventArgs e)
+    {
+        ReattachProfilePropertyChanged();
+    }
+
+    private void OnHidingRulesPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        GlobalConstants.MainConfig?.Save();
+    }
+
+    private void OnFloatingWindowVisibleToggleChanged(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not ToggleSwitch toggle)
+        {
+            return;
+        }
+
+        var service = IAppHost.GetService<FloatingWindowService>();
+        var config = ViewModel.Settings;
+
+        // 没有可用按钮时强制隐藏
+        var shouldShow = toggle.IsChecked == true && service.Entries.Count > 0;
+        config.ShowFloatingWindow = shouldShow;
+
+        // 同步 ToggleSwitch 状态（可能被强制隐藏）
+        if (toggle.IsChecked != shouldShow)
+        {
+            toggle.IsChecked = shouldShow;
+        }
+
+        GlobalConstants.MainConfig?.Save();
+        service.UpdateWindowState();
+    }
+
+    private void OnFloatingWindowProfileSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ComboBox comboBox || comboBox.SelectedItem is not string profileName)
+        {
+            return;
+        }
+
+        ViewModel.SwitchFloatingWindowProfile(profileName);
+    }
+
+    private void OnToggleFloatingWindowProfileClick(object? sender, RoutedEventArgs e)
+    {
+        IAppHost.GetService<FloatingWindowService>().ToggleWindowProfile();
+        ViewModel.RefreshFloatingWindowProfiles();
+        ViewModel.RefreshFloatingTriggers();
+    }
+
+    private void OnAddFloatingWindowProfileClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel.AddFloatingWindowProfile();
+    }
+
+    private void OnRemoveCurrentProfileClick(object? sender, RoutedEventArgs e)
+    {
+        var currentName = ViewModel.SelectedFloatingWindowProfile;
+        if (string.IsNullOrWhiteSpace(currentName))
+        {
+            return;
+        }
+
+        ViewModel.RemoveFloatingWindowProfile(currentName);
+    }
 
     private void OnAddFloatingTriggerRowClick(object? sender, RoutedEventArgs e)
     {
@@ -105,6 +238,121 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         }
 
         _ = ViewModel.RemoveFloatingTriggerRow(row);
+    }
+
+    private void ButtonOpenFloatingWindowRuleset_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _currentRulesetTarget = RulesetTargetType.Window;
+        _currentButtonTarget = null;
+        _currentRowTarget = null;
+
+        var config = ViewModel.Settings;
+        OpenRulesetDrawer(config.FloatingWindowRuleset, true, config.FloatingWindowRulesetEnabled);
+    }
+
+    /// <summary>
+    /// 打开规则集 Drawer，包含 IsVisible/HideOnRule 开关和规则集编辑器（参照 ClassIsland）
+    /// </summary>
+    private void OpenRulesetDrawer(ClassIsland.Core.Models.Ruleset.Ruleset ruleset, bool isVisible, bool hideOnRule)
+    {
+        // 每次打开时动态构建 Drawer 内容，避免资源单例问题
+        var panel = new StackPanel { Spacing = 8, Margin = new Thickness(0, 8, 0, 0) };
+
+        // 开关面板
+        var togglesPanel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 16, Margin = new Thickness(0, 0, 0, 8) };
+
+        _drawerIsVisibleToggle = new ToggleSwitch
+        {
+            OnContent = "显示",
+            OffContent = "隐藏",
+            IsChecked = isVisible,
+            IsVisible = _currentRulesetTarget != RulesetTargetType.Window
+        };
+        ToolTip.SetTip(_drawerIsVisibleToggle, "控制此项目是否显示");
+        _drawerIsVisibleToggle.IsCheckedChanged += OnDrawerIsVisibleChanged;
+
+        _drawerHideOnRuleToggle = new ToggleSwitch
+        {
+            OnContent = "按规则隐藏",
+            OffContent = "禁用规则",
+            IsChecked = hideOnRule
+        };
+        ToolTip.SetTip(_drawerHideOnRuleToggle, "启用后，满足规则集条件时自动隐藏");
+        _drawerHideOnRuleToggle.IsCheckedChanged += OnDrawerHideOnRuleChanged;
+
+        togglesPanel.Children.Add(_drawerIsVisibleToggle);
+        togglesPanel.Children.Add(_drawerHideOnRuleToggle);
+        panel.Children.Add(togglesPanel);
+
+        // 规则集编辑器
+        _drawerRulesetControl = new RulesetControl { Classes = { "in-drawer" }, Ruleset = ruleset };
+        panel.Children.Add(_drawerRulesetControl);
+
+        // 将内容放入 Resources 并打开 Drawer
+        this.Resources["RulesetDrawerContent"] = panel;
+        OpenDrawer("RulesetDrawerContent");
+    }
+
+    private void OnDrawerIsVisibleChanged(object? sender, RoutedEventArgs e)
+    {
+        var value = _drawerIsVisibleToggle?.IsChecked == true;
+
+        switch (_currentRulesetTarget)
+        {
+            case RulesetTargetType.Button when _currentButtonTarget != null:
+                _currentButtonTarget.Config.IsVisible = value;
+                break;
+            case RulesetTargetType.Row when _currentRowTarget != null:
+                _currentRowTarget.RowRuleset.IsVisible = value;
+                break;
+        }
+
+        IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
+        IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+    }
+
+    private void OnDrawerHideOnRuleChanged(object? sender, RoutedEventArgs e)
+    {
+        var value = _drawerHideOnRuleToggle?.IsChecked == true;
+
+        switch (_currentRulesetTarget)
+        {
+            case RulesetTargetType.Button when _currentButtonTarget != null:
+                _currentButtonTarget.Config.HideOnRule = value;
+                break;
+            case RulesetTargetType.Row when _currentRowTarget != null:
+                _currentRowTarget.RowRuleset.HideOnRule = value;
+                break;
+            case RulesetTargetType.Window:
+                ViewModel.Settings.FloatingWindowRulesetEnabled = value;
+                GlobalConstants.MainConfig?.Save();
+                break;
+        }
+
+        IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
+        IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+    }
+
+    // ===== 选中状态处理 =====
+
+    private void OnAvailableItemSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ListBox listBox || listBox.SelectedItem is not FloatingTriggerItem item)
+        {
+            return;
+        }
+
+        var buttonId = item.ButtonId;
+        listBox.SelectedItem = null;
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            if (ViewModel.FloatingTriggerRows.Count == 0)
+            {
+                ViewModel.AddFloatingTriggerRow();
+            }
+            ViewModel.AddTriggerFromPool(buttonId, 0, ViewModel.FloatingTriggerRows[0].Buttons.Count);
+        });
     }
 
     private void OnFloatingTriggerItemPointerPressed(object? sender, PointerPressedEventArgs e)

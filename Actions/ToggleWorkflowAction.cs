@@ -12,7 +12,7 @@ using Workflow = ClassIsland.Core.Models.Automation.Workflow;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.ToggleWorkflow", "开关自动化", "\uE9A8", false)]
+[ActionInfo("SystemTools.ToggleWorkflow", "开关自动化", "\uE8B8", false)]
 public class ToggleWorkflowAction(ILogger<ToggleWorkflowAction> logger) : ActionBase<ToggleWorkflowSettings>
 {
     private readonly ILogger<ToggleWorkflowAction> _logger = logger;
@@ -97,6 +97,13 @@ public class ToggleWorkflowAction(ILogger<ToggleWorkflowAction> logger) : Action
         try
         {
             await base.OnRevert();
+
+            if (Settings == null || !Settings.RevertToOriginal)
+            {
+                _logger.LogDebug("RevertToOriginal 为 false，跳过恢复");
+                PreviousSnapshots.TryRemove(ActionSet.Guid, out _);
+                return;
+            }
 
             if (!PreviousSnapshots.TryRemove(ActionSet.Guid, out var snapshot))
             {

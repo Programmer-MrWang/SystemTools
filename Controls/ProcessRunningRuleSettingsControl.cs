@@ -152,7 +152,7 @@ public class ProcessRunningRuleSettingsControl : RuleSettingsControlBase<Process
         };
         copyButton.Click += async (_, _) =>
         {
-            if (TopLevel.GetTopLevel(this) is { } topLevel)
+            if (TopLevel.GetTopLevel(this) is { } topLevel && topLevel.Clipboard != null)
             {
                 await topLevel.Clipboard.SetTextAsync(processList);
             }

@@ -46,7 +46,6 @@ public partial class Plugin : PluginBase
 {
     private ILogger<Plugin>? _logger;
     private NativeMenuItem? _toggleFloatingWindowMenuItem;
-    private int _toggleMenuRegisterRetryCount;
     private bool _faceRecognitionRegistered = false;
     private bool _ffmpegDisabledDueToMissingDependency;
     private bool _faceRecognitionDisabledDueToMissingDependency;
@@ -68,6 +67,7 @@ public partial class Plugin : PluginBase
 
         services.AddLogging();
         services.AddSingleton(GlobalConstants.MainConfig);
+        services.AddSingleton<FloatingWindowProfileManager>();
         services.AddSingleton<FloatingWindowService>();
         services.AddSingleton<AdaptiveThemeSyncService>();
         services.AddSingleton<UsbAutoPlayService>();
@@ -76,7 +76,7 @@ public partial class Plugin : PluginBase
         // ========== 注册可选人脸识别 ==========
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            if (GlobalConstants.MainConfig.Data.EnableFaceRecognition)
+            if (GlobalConstants.MainConfig?.Data.EnableFaceRecognition == true)
             {
                 if (DependencyPaths.HasFaceRecognitionDependencies())
                 {
@@ -93,7 +93,7 @@ public partial class Plugin : PluginBase
         // ========== 注册设置页面 ==========
         services.AddSettingsPage<SystemToolsSettingsPage>();
         services.AddSettingsPage<MoreFeaturesOptionsSettingsPage>();
-        if (GlobalConstants.MainConfig.Data.EnableFloatingWindowFeature)
+        if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
         {
             services.AddSettingsPage<FloatingWindowEditorSettingsPage>();
         }
@@ -108,11 +108,14 @@ public partial class Plugin : PluginBase
         RegisterBaseRules(services);
         RegisterBaseComponents(services);
 
-        var experimentalEnabled = GlobalConstants.MainConfig.Data.EnableExperimentalFeatures;
-        var ffmpegEnabled = GlobalConstants.MainConfig.Data.EnableFfmpegFeatures;
+        var experimentalEnabled = GlobalConstants.MainConfig?.Data.EnableExperimentalFeatures ?? false;
+        var ffmpegEnabled = GlobalConstants.MainConfig?.Data.EnableFfmpegFeatures ?? false;
 
         AppBase.Current.AppStarted += (o, args) =>
         {
+            // 迁移旧版悬浮窗配置到文件存储
+            IAppHost.GetService<FloatingWindowProfileManager>().MigrateFromLegacyConfig(GlobalConstants.MainConfig!.Data);
+
             if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
             {
                 IAppHost.GetService<FloatingWindowService>().Start();
@@ -129,7 +132,7 @@ public partial class Plugin : PluginBase
                 _logger?.LogWarning("[SystemTools]FFmpeg 功能已自动关闭：缺少依赖文件 ffmpeg.exe。");
             }
 
-            if (GlobalConstants.MainConfig.Data.EnableFaceRecognition)
+            if (GlobalConstants.MainConfig?.Data.EnableFaceRecognition == true)
             {
                 if (_faceRecognitionRegistered)
                 {
@@ -286,6 +289,12 @@ public partial class Plugin : PluginBase
         {
             RegisterActionIfEnabled<ShowFloatingWindowAction, ShowFloatingWindowSettingsControl>(services, config,
                 "SystemTools.ShowFloatingWindow");
+            RegisterActionIfEnabled<ToggleFloatingWindowLayerAction, ToggleFloatingWindowLayerSettingsControl>(services, config,
+                "SystemTools.ToggleFloatingWindowLayer");
+            RegisterActionIfEnabled<ToggleFloatingWindowProfileAction, ToggleFloatingWindowProfileSettingsControl>(services, config,
+                "SystemTools.ToggleFloatingWindowProfile");
+            RegisterActionIfEnabled<SwitchFloatingWindowThemeAction, SwitchFloatingWindowThemeSettingsControl>(services, config,
+                "SystemTools.SwitchFloatingWindowTheme");
         }
 
         // 其他工具
@@ -525,7 +534,9 @@ public partial class Plugin : PluginBase
         }
 
         // 悬浮窗设置
-        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ShowFloatingWindow"))
+        if (config.EnableFloatingWindowFeature && HasAnyActionEnabled(config, "SystemTools.ShowFloatingWindow",
+                "SystemTools.ToggleFloatingWindowLayer", "SystemTools.ToggleFloatingWindowProfile",
+                "SystemTools.SwitchFloatingWindowTheme"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("悬浮窗设置…", "\uEA37"));
             BuildFloatingWindowMenu(config);
@@ -720,6 +731,12 @@ public partial class Plugin : PluginBase
 
         if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ShowFloatingWindow"))
             items.Add(new ActionMenuTreeItem("SystemTools.ShowFloatingWindow", "显示悬浮窗", "\uEA37"));
+        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ToggleFloatingWindowLayer"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ToggleFloatingWindowLayer", "切换悬浮窗层级", "\uE9A8"));
+        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ToggleFloatingWindowProfile"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ToggleFloatingWindowProfile", "切换悬浮窗配置方案", "\uE9A8"));
+        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.SwitchFloatingWindowTheme"))
+            items.Add(new ActionMenuTreeItem("SystemTools.SwitchFloatingWindowTheme", "切换悬浮窗主题", "\uE790"));
 
         if (items.Count > 0)
         {
@@ -753,7 +770,7 @@ public partial class Plugin : PluginBase
         if (config.IsActionEnabled("SystemTools.OpenClassSwapWindow"))
             items.Add(new ActionMenuTreeItem("SystemTools.OpenClassSwapWindow", "打开换课窗口", "\uE13B"));
         if (config.IsActionEnabled("SystemTools.ToggleWorkflow"))
-            items.Add(new ActionMenuTreeItem("SystemTools.ToggleWorkflow", "开关自动化", "\uE9A8"));    
+            items.Add(new ActionMenuTreeItem("SystemTools.ToggleWorkflow", "开关自动化", "\uE8B8"));    
 
         if (items.Count > 0)
         {
@@ -829,13 +846,18 @@ public partial class Plugin : PluginBase
                     return;
                 }
 
-                data.ShowFloatingWindow = !data.ShowFloatingWindow;
+                var config = GlobalConstants.MainConfig?.Data;
+                if (config != null)
+                {
+                    config.ShowFloatingWindow = !config.ShowFloatingWindow;
+                    GlobalConstants.MainConfig?.Save();
+                }
                 IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
                 UpdateFloatingWindowTrayMenuHeader();
-                GlobalConstants.MainConfig?.Save();
             };
 
-            config.PropertyChanged += OnMainConfigDataPropertyChanged;
+            // 监听主配置变化以更新托盘菜单
+        config.PropertyChanged += OnMainConfigDataPropertyChanged;
         }
 
         if (!config.EnableFloatingWindowFeature)
@@ -874,7 +896,7 @@ public partial class Plugin : PluginBase
 
     private void OnMainConfigDataPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is not (nameof(MainConfigData.ShowFloatingWindow) or nameof(MainConfigData.EnableFloatingWindowFeature)))
+        if (e.PropertyName is not nameof(MainConfigData.EnableFloatingWindowFeature))
         {
             return;
         }
@@ -889,7 +911,8 @@ public partial class Plugin : PluginBase
             return;
         }
 
-        _toggleFloatingWindowMenuItem.Header = GlobalConstants.MainConfig?.Data.ShowFloatingWindow == true
+        var config = GlobalConstants.MainConfig?.Data;
+        _toggleFloatingWindowMenuItem.Header = config is { ShowFloatingWindow: true }
             ? "隐藏悬浮窗"
             : "显示悬浮窗";
     }

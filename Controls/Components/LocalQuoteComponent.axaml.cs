@@ -30,11 +30,11 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 {
     private const double SwapMotionOffset = 20;
 
-    private readonly DispatcherTimer _carouselTimer;
-    private readonly ILessonsService _lessonsService;
+    private readonly DispatcherTimer? _carouselTimer;
+    private readonly ILessonsService? _lessonsService;
     private readonly List<string> _quotes = [];
-    private readonly Animation _swapOutAnimation;
-    private readonly Animation _swapInAnimation;
+    private readonly Animation? _swapOutAnimation;
+    private readonly Animation? _swapInAnimation;
     private readonly Random _random = new();
     private int _currentIndex = -1;
     private string _loadedPath = string.Empty;
@@ -68,6 +68,11 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
     {
         // 注册编码提供程序以支持 GBK 等本地编码
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+    }
+
+    public LocalQuoteComponent()
+    {
+        InitializeComponent();
     }
 
     public LocalQuoteComponent(ILessonsService lessonsService)

@@ -70,8 +70,15 @@ public class ShowFloatingWindowAction(
             return;
         }
 
-        GlobalConstants.MainConfig!.Data.ShowFloatingWindow = previousState;
-        GlobalConstants.MainConfig.Save();
+        var config = GlobalConstants.MainConfig;
+        if (config == null)
+        {
+            _logger.LogWarning("主配置为空，无法恢复悬浮窗状态");
+            return;
+        }
+
+        config.Data.ShowFloatingWindow = previousState;
+        config.Save();
         _floatingWindowService.UpdateWindowState();
 
         _logger.LogInformation("已恢复悬浮窗状态为: {State}", previousState ? "开启" : "关闭");

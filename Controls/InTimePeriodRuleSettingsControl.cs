@@ -1,6 +1,6 @@
 using System;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+using Avalonia.Interactivity;
 using ClassIsland.Core.Abstractions.Controls;
 using SystemTools.Rules;
 
@@ -11,41 +11,37 @@ public partial class InTimePeriodRuleSettingsControl : RuleSettingsControlBase<I
     public InTimePeriodRuleSettingsControl()
     {
         InitializeComponent();
-
-        StartTimePicker.SelectedTimeChanged += (_, _) => SyncSettings();
-        EndTimePicker.SelectedTimeChanged += (_, _) => SyncSettings();
     }
 
-    private void InitializeComponent()
+    private void StartTimePicker_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        AvaloniaXamlLoader.Load(this);
-    }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        if (TimeSpan.TryParse(Settings.StartTime, out var start))
+        if (sender is TimePicker picker && TimeSpan.TryParse(Settings.StartTime, out var start))
         {
-            StartTimePicker.SelectedTime = start;
-        }
-
-        if (TimeSpan.TryParse(Settings.EndTime, out var end))
-        {
-            EndTimePicker.SelectedTime = end;
+            picker.SelectedTime = start;
         }
     }
 
-    private void SyncSettings()
+    private void EndTimePicker_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        if (StartTimePicker.SelectedTime.HasValue)
+        if (sender is TimePicker picker && TimeSpan.TryParse(Settings.EndTime, out var end))
         {
-            Settings.StartTime = StartTimePicker.SelectedTime.Value.ToString(@"hh\:mm\:ss");
+            picker.SelectedTime = end;
         }
+    }
 
-        if (EndTimePicker.SelectedTime.HasValue)
+    private void StartTimePicker_OnSelectedTimeChanged(object? sender, TimePickerSelectedValueChangedEventArgs e)
+    {
+        if (sender is TimePicker { SelectedTime: { } selectedTime })
         {
-            Settings.EndTime = EndTimePicker.SelectedTime.Value.ToString(@"hh\:mm\:ss");
+            Settings.StartTime = selectedTime.ToString(@"hh\:mm\:ss");
+        }
+    }
+
+    private void EndTimePicker_OnSelectedTimeChanged(object? sender, TimePickerSelectedValueChangedEventArgs e)
+    {
+        if (sender is TimePicker { SelectedTime: { } selectedTime })
+        {
+            Settings.EndTime = selectedTime.ToString(@"hh\:mm\:ss");
         }
     }
 }

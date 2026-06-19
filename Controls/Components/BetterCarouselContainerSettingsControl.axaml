@@ -1,4 +1,4 @@
-<ci:ComponentBase
+﻿<ci:ComponentBase
     x:Class="SystemTools.Controls.Components.BetterCarouselContainerSettingsControl"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -79,6 +79,15 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                         </StackPanel>
+                    </controls:SettingsExpander.Footer>
+                </controls:SettingsExpander>
+
+                <controls:SettingsExpander Header="降低进度条精度"
+                                           Description="开启后进度条每秒刷新一次，降低刷新频率"
+                                           IconSource="{ci:FluentIconSource &#xEDC1;}"
+                                           IsVisible="{Binding Settings.ShowProgressBar}">
+                    <controls:SettingsExpander.Footer>
+                        <ToggleSwitch IsChecked="{Binding Settings.ReduceProgressBarPrecision, Mode=TwoWay}" />
                     </controls:SettingsExpander.Footer>
                 </controls:SettingsExpander>
 

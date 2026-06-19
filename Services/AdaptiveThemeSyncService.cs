@@ -1,6 +1,7 @@
 using Avalonia.Threading;
 using ClassIsland.Core;
 using ClassIsland.Core.Abstractions.Services;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Drawing;
@@ -56,13 +57,7 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
                 return;
             }
 
-            var themeService = IAppHost.TryGetService<IThemeService>();
-            if (themeService == null)
-            {
-                return;
-            }
-
-            themeService.SetTheme(targetTheme.Value, null);
+            ApplyThemeLikeAppSettings(targetTheme.Value);
             _lastAppliedTheme = targetTheme;
             _logger.LogDebug("已自动匹配主题为：{Theme}", targetTheme == 1 ? "黑暗" : "明亮");
         }
@@ -176,6 +171,28 @@ public class AdaptiveThemeSyncService(ILogger<AdaptiveThemeSyncService> logger)
         }
 
         return null;
+    }
+
+    private static void ApplyThemeLikeAppSettings(int targetTheme)
+    {
+        var settingsServiceObj = IAppHost.TryGetService<object>();
+        if (settingsServiceObj != null)
+        {
+            var type = settingsServiceObj.GetType();
+            if (type.Name == "SettingsService")
+            {
+                var settingsProp = type.GetProperty("Settings", BindingFlags.Instance | BindingFlags.Public);
+                var settings = settingsProp?.GetValue(settingsServiceObj);
+                var themeProp = settings?.GetType().GetProperty("Theme", BindingFlags.Instance | BindingFlags.Public);
+                if (themeProp?.CanWrite == true)
+                {
+                    themeProp.SetValue(settings, targetTheme);
+                    return;
+                }
+            }
+        }
+
+        IAppHost.TryGetService<IThemeService>()?.SetTheme(targetTheme, null);
     }
 
     private static string[] GetPossibleClassIslandSettingsPaths()

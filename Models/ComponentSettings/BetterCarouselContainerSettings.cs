@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -61,6 +61,9 @@ public partial class BetterCarouselContainerSettings : ObservableObject, ICompon
 
     [ObservableProperty]
     private bool _showProgressBar = true;
+
+    [ObservableProperty]
+    private bool _reduceProgressBarPrecision = false;
 
     [ObservableProperty]
     private bool _showSideSeparators = false;

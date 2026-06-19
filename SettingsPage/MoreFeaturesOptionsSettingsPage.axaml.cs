@@ -40,4 +40,16 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
         service.ApplyConfig();
         GlobalConstants.MainConfig?.Save();
     }
+
+    private void AutoCleanupMemoryToggle_OnChanged(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Avalonia.Controls.ToggleSwitch toggleSwitch)
+        {
+            Config.AutoCleanupClassIslandMemory = toggleSwitch.IsChecked == true;
+        }
+
+        var service = ClassIsland.Shared.IAppHost.GetService<ClassIslandMemoryAutoCleanupService>();
+        service.ApplyConfig();
+        GlobalConstants.MainConfig?.Save();
+    }
 }

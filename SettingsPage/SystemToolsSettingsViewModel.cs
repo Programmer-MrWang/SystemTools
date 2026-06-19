@@ -214,6 +214,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.InternalDisplay", "仅电脑屏幕", "显示设置"),
             ("SystemTools.ExternalDisplay", "仅第二屏幕", "显示设置"),
             ("SystemTools.BlackScreenHtml", "黑屏html", "显示设置"),
+            ("SystemTools.ShowDesktop", "显示桌面", "显示设置"),
+            ("SystemTools.AdjustScreenBrightness", "调整屏幕亮度", "显示设置"),
             ("SystemTools.Shutdown", "计时关机", "电源选项"),
             ("SystemTools.AdvancedShutdown", "高级计时关机", "电源选项"),
             ("SystemTools.CancelShutdown", "取消关机计划", "电源选项"),
@@ -226,6 +228,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.Delete", "删除", "文件操作"),
             ("SystemTools.ChangeWallpaper", "切换壁纸", "系统个性化"),
             ("SystemTools.SwitchTheme", "切换主题色", "系统个性化"),
+            //("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "系统个性化"),
             ("SystemTools.FullscreenClock", "沉浸式时钟", "其他工具"),
             ("SystemTools.KillProcess", "退出进程", "实用工具"),
             ("SystemTools.ScreenShot", "屏幕截图", "实用工具"),
@@ -234,7 +237,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.EnableDevice", "启用硬件设备", "实用工具"),
             ("SystemTools.SetVolume", "设置系统音量", "媒体工具"),
             ("SystemTools.BackgroundPlayAudio", "后台播放音频", "媒体工具"),
-            ("SystemTools.ShowDesktop", "显示桌面", "媒体工具"),
             ("SystemTools.CameraCapture", "摄像头抓拍", "媒体工具"),
             ("SystemTools.TriggerCustomTrigger", "触发指定触发器", null),
             ("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "ClassIsland"),
@@ -305,7 +307,10 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     public void RefreshFloatingTriggers()
     {
-        var entries = _floatingWindowService.Entries.ToDictionary(x => x.ButtonId, x => x);
+        _floatingWindowService.EnsureUniqueButtonIds();
+        var entries = _floatingWindowService.Entries
+            .GroupBy(x => x.ButtonId)
+            .ToDictionary(x => x.Key, x => x.First());
         HasFloatingTriggerEntries = entries.Count > 0;
 
         var profile = CurrentFloatingWindowProfile;

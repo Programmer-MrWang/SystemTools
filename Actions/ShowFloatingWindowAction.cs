@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
@@ -16,6 +17,7 @@ public class ShowFloatingWindowAction(
 {
     private readonly ILogger<ShowFloatingWindowAction> _logger = logger;
     private readonly FloatingWindowService _floatingWindowService = floatingWindowService;
+    private static readonly ConcurrentDictionary<Guid, bool> PreviousStates = new();
 
     protected override async Task OnInvoke()
     {
@@ -31,6 +33,11 @@ public class ShowFloatingWindowAction(
             {
                 shouldShow = false;
                 _logger.LogDebug("没有可用的悬浮窗组件，强制隐藏悬浮窗");
+            }
+
+            if (IsRevertable)
+            {
+                PreviousStates[ActionSet.Guid] = GlobalConstants.MainConfig!.Data.ShowFloatingWindow;
             }
 
             if (config != null)
@@ -51,5 +58,22 @@ public class ShowFloatingWindowAction(
 
         await base.OnInvoke();
         _logger.LogDebug("ShowFloatingWindowAction OnInvoke 完成");
+    }
+
+    protected override async Task OnRevert()
+    {
+        await base.OnRevert();
+
+        if (!PreviousStates.TryRemove(ActionSet.Guid, out var previousState))
+        {
+            _logger.LogInformation("未找到恢复快照，跳过悬浮窗恢复。ActionSet={ActionSetGuid}", ActionSet.Guid);
+            return;
+        }
+
+        GlobalConstants.MainConfig!.Data.ShowFloatingWindow = previousState;
+        GlobalConstants.MainConfig.Save();
+        _floatingWindowService.UpdateWindowState();
+
+        _logger.LogInformation("已恢复悬浮窗状态为: {State}", previousState ? "开启" : "关闭");
     }
 }

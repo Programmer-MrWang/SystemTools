@@ -1,18 +1,56 @@
-## SystemTools
+<div align="center">
 
-### 为 ClassIsland 提供多彩而丰富的更多 组件/行动/触发器/实用工具！
+<img src="https://github.com/user-attachments/assets/d81127fb-1b17-412f-90ac-a3b008c11a5c" alt="SystemTools Logo" height="100">
 
-> **注意：*部分功能需要在 SystemTools 设置中启用相关选项或下载依赖才能使用*。**
+# SystemTools
+
+[![GitHub](https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white)](https://github.com/Programmer-MrWang/SystemTools)
+[![Gitee](https://img.shields.io/badge/Gitee-FC6D26?logo=gitee&logoColor=fff)](https://gitee.com/Programmer_Wang/SystemTools)
+
+![GitHub Forks](https://img.shields.io/github/forks/Programmer-MrWang/SystemTools)
+![GitHub Watchers](https://img.shields.io/github/watchers/Programmer-MrWang/SystemTools)
+![GitHub Repo Stars](https://img.shields.io/github/stars/Programmer-MrWang/SystemTools)
+
+**为 ClassIsland 提供多彩而丰富的更多 组件/行动/规则集/触发器/实用工具！**
+
+![另类](https://repobeats.axiom.co/api/embed/d7ed2cf283c8ab3457f5a01ec214c458d0e34190.svg)
+
+![GitHub License](https://img.shields.io/github/license/Programmer-MrWang/SystemTools)
+![GitHub top language](https://img.shields.io/github/languages/top/Programmer-MrWang/SystemTools)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Programmer-MrWang/SystemTools/total)
+
+![GitHub Release Date](https://img.shields.io/github/release-date-pre/Programmer-MrWang/SystemTools)
+![GitHub Release](https://img.shields.io/github/v/release/Programmer-MrWang/SystemTools?include_prereleases)
+![GitHub Repo Size](https://img.shields.io/github/repo-size/Programmer-MrWang/SystemTools)
+[![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FProgrammer-MrWang%2FSystemTools&countColor=%23263759&style=flat)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2FProgrammer-MrWang%2FSystemTools)
+![GitHub Commit Activity](https://img.shields.io/github/commit-activity/t/Programmer-MrWang/SystemTools)
+![GitHub Commits Since Latest Release](https://img.shields.io/github/commits-since/Programmer-MrWang/SystemTools/latest)
+![GitHub Created At](https://img.shields.io/github/created-at/Programmer-MrWang/SystemTools)
+
+
+</div>
+
+- 本仓库已开启 Discussions 板块！欢迎您在其中提出疑问、展示您的使用、提出功能请求！
+
+> [!WARNING]
+> - 此插件目前仅适用于Windows平台。
+
+> [!NOTE]
+> - 由于开发者手头并没有更多的不同 Windows 版本供测试，部分功能在某些 Windows 版本可能上无法正常工作。如遇此情形请提交 issue 反馈，并注明日志和诊断信息。
+
+> [!WARNING]
+> **由 v2.4.2.0 及以下版本升级到 v2.5.0.0 版本，且启用和下载了需要安装依赖的功能及其模型的，需要重新下载和启用功能。**
+> **其中注册了”人脸识别验证器“的，将在安装新版本插件后自动删除原注册的人脸数据，并自动取消该验证功能，需要您重新配置。**
+>
+> 未来升级时不再会有该问题。给您带来的不便，敬请谅解。
+
+> [!IMPORTANT]
 >
 >  - 行动 **[禁用鼠标]、[启用鼠标]** 需在 *[ SystemTools 设置 > 主设置 ]* 中启用 **[实验性功能]** 才能使用
 >
 >  - 行动 **[摄像头抓拍]** 需在 *[ SystemTools 设置 > 主设置 ]* 中点击下载依赖并启用 **[启用需要添加依赖的功能]** 才能使用
->
->  - 组件 **[音乐软件歌词显示]** 使用前请确保音乐软件已启用桌面歌词显示（横排/单行/关闭翻译）,且不贴近屏幕上侧边缘
 
----
-
-### 目前实现的功能
+## 目前实现的功能
 
 <details  open>
 <summary>设置页面：</summary>
@@ -21,6 +59,10 @@
     - 主设置
         - 实验性功能（启用后可使用“实验性功能”行动组中的行动）
         - 启用需要添加依赖的功能（启用后可使用需要添加依赖的行动，如“摄像头抓拍”）
+    - 悬浮窗设置
+        - 自定义悬浮窗按钮布局（支持设置悬浮窗按钮的显示/隐藏和顺序）
+        - 设置悬浮窗层级（支持设置悬浮窗在所有窗口上方、仅在桌面上方、仅在其他窗口下方）
+        - 自定义悬浮窗外观（支持自定义悬浮窗背景颜色、按钮颜色、文字颜色、透明度等）
     - 关于
         - 帮助（还没写完）
         - 插件介绍（点击查看插件介绍）
@@ -32,22 +74,46 @@
 
 - 网络延迟检测（检测连接到指定网址的延迟）
 - 音乐软件歌词显示（目前已适配网易云音乐/QQ音乐/酷狗音乐/汽水音乐/Lyricify Lite，支持设置歌词缩放和刷新率，部分提供桌面歌词强制置底功能 *实验性* ）
+- 显示剪切板内容（实现在ClassIsland主界面实时显示您的剪切板内容）
+- 本地一言（实现读取 txt 文本文件内容并轮播显示在组件中）
+- 下节课是（实现在组件中显示下节课程及其时间、任教老师）
+- 更好的轮播容器（支持自定义每个组件显示时长；提供更多的轮播动画选择；支持显示对应组件显示剩余时间进度条）
 </details>
 
 <details  open>
 <summary>触发器：</summary>
 
+- 从悬浮窗触发
+
+  > 支持设置悬浮窗触发器，可根据需要自定义触发器图标和文字显示；
+  >
+  > 当“启用恢复”时支持再次点击按钮恢复、当按钮状态为“恢复”时支持右键按钮即刻退出恢复状态且不触发恢复；
+  >
+  > 支持在设置页面中深度自定义悬浮窗外观、设定悬浮窗层级、编辑悬浮窗按钮布局；
+  >
+  > 提供[行动] **显示悬浮窗** 支持通过行动调整悬浮窗显隐
 - USB设备插入时（支持检查是否是U盘设备）
 - 按下自定义热键时（可自定义热键组合，支持 *[Ctrl/Alt/Shift/Win+按键]* 或除功能键外 *[任何单独按键]*
   ，可在多个自动化中使用相同的热键触发器，触发时会执行所有包含相应热键触发器的自动化）
 - 行动进行时（与“触发指定触发器”行动联动使用）
+- 长时间未操作电脑时（支持在指定时长内未操作电脑时触发，在“启用恢复“后当再次操作电脑时可自动恢复）
+</details>
+
+<details  open>
+<summary>规则集：</summary>
+
+- 程序正在运行（支持判定指定进程是否正在运行）
+- 正在使用某课程表
+- 正在使用某时间表
+- 是否在某时间段
+- 正在播放媒体音乐
+
 </details>
 
 <details  open>
 <summary>行动：</summary>
 
 - 触发指定触发器（与”行动进行时“触发器联动使用） **（该行动在ClassIsland全局中只能使用一次）**
-- 重启应用为管理员身份
 
 **模拟操作…**
 
@@ -69,12 +135,20 @@
 - 仅电脑屏幕
 - 仅第二屏幕
 - 黑屏html
+- 显示桌面
+- 调整屏幕亮度
 
 **电源选项…**
 
 - 计时关机
 - 取消关机计划
 - 锁定屏幕
+- 立即关机
+- 立即重启
+- 睡眠
+- 高级计时关机（提供更直观、智能的计时关机独立显示UI，可操作延迟关机、取消关机、已阅并在屏幕显示悬浮窗提示关机倒计时）
+
+  > 外观设计灵感来源：[GitHub项目”waity“](https://github.com/Xwei1645/waity)
 
 **文件操作…**（支持文件/文件夹）
 
@@ -89,16 +163,34 @@
 
 **实用工具…**
 
-- 全屏时钟
 - 退出进程
-- 摄像头抓拍
 - 屏幕截图
+- 拉起自定义Windows通知
 - 禁用硬件设备
 - 启用硬件设备
+
+**媒体工具…**
+
+- 后台播放音频
+- 设置系统音量
+
+**ClassIsland…**
+
+- 清除全部提醒（和ClassIsland托盘菜单中”清除全部提醒“功能相同）
+- 重启应用为管理员身份
+- 加载临时课表（支持恢复）
+- 打开应用设置
+- 打开档案编辑
+- 打开换课窗口
+- 开关自动化（支持恢复）
 
 **其他工具…**
 
 - 沉浸式时钟
+
+**悬浮窗设置…**
+
+- 显示悬浮窗（支持恢复）
 
 **实验性功能…**
 
@@ -106,12 +198,14 @@
 - 启用鼠标
 </details>
 
-#### ……欢迎据班级电脑实际使用情况提出更多功能请求
+## 计划实现的功能
+
+### ……欢迎据班级电脑实际使用情况提出更多功能请求
 
 ---
 
-### 声明
-#### 贡献者：
+## 声明
+### 贡献者：
 **感谢以下人员对本仓库做出的贡献：**
 
 <a href="https://github.com/Programmer-MrWang/SystemTools/graphs/contributors">
@@ -119,6 +213,7 @@
 </a>
 
 - 该插件仅适用于Windows。
+- **这个插件适用于 ClassIsland 2.x（≥2.0.0.1）版本。**
 - LGPLv3 许可。[LICENSE](./LICENSE)
 - 其他工具“沉浸式时钟”服务由 QQHKX 提供。
 

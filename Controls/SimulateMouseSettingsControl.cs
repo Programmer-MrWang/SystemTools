@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
 using SystemTools.Settings;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -18,6 +17,12 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
     private Avalonia.Controls.Button _startButton;
     private Avalonia.Controls.ListBox _actionsListBox;
     private Avalonia.Controls.CheckBox _disableMouseCheckBox;
+    private Avalonia.Controls.ComboBox _typeBox;
+    private Avalonia.Controls.TextBox _xBox;
+    private Avalonia.Controls.TextBox _yBox;
+    private Avalonia.Controls.TextBox _scrollBox;
+    private Avalonia.Controls.TextBox _intervalBox;
+    private Avalonia.Controls.CheckBox _dragEndBox;
     private bool _isRecording;
     private HHOOK _mouseHookId = HHOOK.Null;
     private HHOOK _keyboardHookId = HHOOK.Null;
@@ -60,7 +65,34 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
             Height = 200,
             Margin = new(0, 10, 0, 0)
         };
+        _actionsListBox.SelectionChanged += (s, e) => LoadSelectedAction();
         panel.Children.Add(_actionsListBox);
+
+        var editor = new Avalonia.Controls.StackPanel { Spacing = 6 };
+        var row = new Avalonia.Controls.StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8 };
+        _typeBox = new Avalonia.Controls.ComboBox { ItemsSource = Enum.GetValues<MouseAction.ActionType>(), SelectedIndex = 0, MinWidth = 120 };
+        _xBox = new Avalonia.Controls.TextBox { Watermark = "X", Width = 70 };
+        _yBox = new Avalonia.Controls.TextBox { Watermark = "Y", Width = 70 };
+        _scrollBox = new Avalonia.Controls.TextBox { Watermark = "滚动", Width = 70 };
+        _intervalBox = new Avalonia.Controls.TextBox { Watermark = "延迟(ms)", Width = 90 };
+        _dragEndBox = new Avalonia.Controls.CheckBox { Content = "拖动结束" };
+        row.Children.Add(new Avalonia.Controls.TextBlock { Text = "操作", VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+        row.Children.Add(_typeBox);
+        row.Children.Add(new Avalonia.Controls.TextBlock { Text = "坐标", VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+        row.Children.Add(_xBox);
+        row.Children.Add(_yBox);
+        row.Children.Add(new Avalonia.Controls.TextBlock { Text = "滚动", VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+        row.Children.Add(_scrollBox);
+        row.Children.Add(new Avalonia.Controls.TextBlock { Text = "延迟", VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+        row.Children.Add(_intervalBox);
+        row.Children.Add(_dragEndBox);
+        editor.Children.Add(row);
+        var editButtons = new Avalonia.Controls.StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8 };
+        AddEditorButton(editButtons, "应用修改", ApplySelectedAction);
+        AddEditorButton(editButtons, "新增", AddActionFromEditor);
+        AddEditorButton(editButtons, "删除", DeleteSelectedAction);
+        editor.Children.Add(editButtons);
+        panel.Children.Add(editor);
 
         _disableMouseCheckBox = new Avalonia.Controls.CheckBox
         {
@@ -74,6 +106,13 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         panel.Children.Add(_disableMouseCheckBox);
 
         Content = panel;
+    }
+
+    private static void AddEditorButton(Avalonia.Controls.StackPanel panel, string text, Action action)
+    {
+        var button = new Avalonia.Controls.Button { Content = text };
+        button.Click += (_, _) => action();
+        panel.Children.Add(button);
     }
 
     protected override void OnInitialized()
@@ -144,7 +183,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         _mouseHookProc = null;
         _keyboardHookProc = null;
 
-        Settings.Actions = [.. _recordedActions];
+        SaveActions();
     }
 
     private LRESULT MouseHookCallback(int nCode, WPARAM wParam, LPARAM lParam)
@@ -251,6 +290,67 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         Dispatcher.UIThread.Post(() => { UpdateListBox(); });
 
         return action;
+    }
+
+
+    private void LoadSelectedAction()
+    {
+        if (_actionsListBox.SelectedIndex < 0 || _actionsListBox.SelectedIndex >= _recordedActions.Count) return;
+        var action = _recordedActions[_actionsListBox.SelectedIndex];
+        _typeBox.SelectedItem = action.Type;
+        _xBox.Text = action.X.ToString();
+        _yBox.Text = action.Y.ToString();
+        _scrollBox.Text = action.ScrollDelta.ToString();
+        _intervalBox.Text = action.Interval.ToString();
+        _dragEndBox.IsChecked = action.IsDragEnd;
+    }
+
+    private MouseAction? ReadEditor()
+    {
+        if (!int.TryParse(_xBox.Text, out var x) || !int.TryParse(_yBox.Text, out var y) ||
+            !int.TryParse(_scrollBox.Text, out var scroll) || !long.TryParse(_intervalBox.Text, out var interval))
+        {
+            return null;
+        }
+
+        return new MouseAction
+        {
+            Type = (MouseAction.ActionType)(_typeBox.SelectedItem ?? MouseAction.ActionType.LeftClick),
+            X = x,
+            Y = y,
+            ScrollDelta = scroll,
+            Interval = Math.Max(0, interval),
+            IsDragEnd = _dragEndBox.IsChecked ?? false
+        };
+    }
+
+    private void ApplySelectedAction()
+    {
+        var action = ReadEditor();
+        if (action == null || _actionsListBox.SelectedIndex < 0 || _actionsListBox.SelectedIndex >= _recordedActions.Count) return;
+        _recordedActions[_actionsListBox.SelectedIndex] = action;
+        SaveActions();
+        UpdateListBox();
+    }
+
+    private void AddActionFromEditor()
+    {
+        _recordedActions.Add(ReadEditor() ?? new MouseAction());
+        SaveActions();
+        UpdateListBox();
+    }
+
+    private void DeleteSelectedAction()
+    {
+        if (_actionsListBox.SelectedIndex < 0 || _actionsListBox.SelectedIndex >= _recordedActions.Count) return;
+        _recordedActions.RemoveAt(_actionsListBox.SelectedIndex);
+        SaveActions();
+        UpdateListBox();
+    }
+
+    private void SaveActions()
+    {
+        Settings.Actions = [.. _recordedActions];
     }
 
     private void UpdateListBox()

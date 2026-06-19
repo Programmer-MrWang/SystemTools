@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using ClassIsland.Core;
@@ -17,10 +17,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.ComponentModel;
 using SystemTools.Actions;
 using SystemTools.ConfigHandlers;
 using SystemTools.Controls;
@@ -31,8 +31,6 @@ using SystemTools.Services;
 using SystemTools.Settings;
 using SystemTools.Shared;
 using SystemTools.Triggers;
-using Windows.Media.Control;
-using WinMedia = Windows.Media.Control;
 
 
 namespace SystemTools;
@@ -44,7 +42,7 @@ namespace SystemTools;
          /_______  // ____|/____  > |__|   \___  >|__|_|  /|____|  \____/  \____/ |____//____  >
                 \/ \/          \/             \/       \/                                   \/
 */
-public class Plugin : PluginBase
+public partial class Plugin : PluginBase
 {
     private ILogger<Plugin>? _logger;
     private NativeMenuItem? _toggleFloatingWindowMenuItem;
@@ -73,6 +71,7 @@ public class Plugin : PluginBase
         services.AddSingleton<FloatingWindowService>();
         services.AddSingleton<AdaptiveThemeSyncService>();
         services.AddSingleton<UsbAutoPlayService>();
+        services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
 
         // ========== 注册可选人脸识别 ==========
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -123,6 +122,7 @@ public class Plugin : PluginBase
             }
             IAppHost.GetService<AdaptiveThemeSyncService>().Start();
             IAppHost.GetService<UsbAutoPlayService>().Start();
+            IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().ApplyConfig();
             _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
@@ -215,6 +215,7 @@ public class Plugin : PluginBase
 
     private void RegisterBaseActions(IServiceCollection services)
     {
+        
         var config = GlobalConstants.MainConfig!.Data;
 
         // 模拟操作
@@ -241,6 +242,8 @@ public class Plugin : PluginBase
         RegisterActionIfEnabled<InternalDisplayAction>(services, config, "SystemTools.InternalDisplay");
         RegisterActionIfEnabled<ExternalDisplayAction>(services, config, "SystemTools.ExternalDisplay");
         RegisterActionIfEnabled<BlackScreenHtmlAction>(services, config, "SystemTools.BlackScreenHtml");
+        RegisterActionIfEnabled<ShowDesktopAction>(services, config, "SystemTools.ShowDesktop");
+        RegisterActionIfEnabled<AdjustScreenBrightnessAction, AdjustScreenBrightnessSettingsControl>(services, config, "SystemTools.AdjustScreenBrightness");
 
         // 电源选项
         RegisterActionIfEnabled<ShutdownAction, ShutdownSettingsControl>(services, config, "SystemTools.Shutdown");
@@ -261,6 +264,7 @@ public class Plugin : PluginBase
         RegisterActionIfEnabled<ChangeWallpaperAction, ChangeWallpaperSettingsControl>(services, config,
             "SystemTools.ChangeWallpaper");
         RegisterActionIfEnabled<SwitchThemeAction, ThemeSettingsControl>(services, config, "SystemTools.SwitchTheme");
+        RegisterActionIfEnabled<SwitchSystemAccentColorAction, AccentColorSettingsControl>(services, config, "SystemTools.SwitchSystemAccentColor");
 
         // 实用工具
         RegisterActionIfEnabled<ScreenShotAction, ScreenShotSettingsControl>(services, config,
@@ -279,7 +283,6 @@ public class Plugin : PluginBase
         // 媒体工具
         RegisterActionIfEnabled<BackgroundPlayAudioAction, BackgroundPlayAudioSettingsControl>(services, config,
             "SystemTools.BackgroundPlayAudio");
-        RegisterActionIfEnabled<ShowDesktopAction>(services, config, "SystemTools.ShowDesktop");
 
         // 悬浮窗设置
         if (config.EnableFloatingWindowFeature)
@@ -502,7 +505,7 @@ public class Plugin : PluginBase
         }
 
         // 系统个性化
-        if (HasAnyActionEnabled(config, "SystemTools.ChangeWallpaper", "SystemTools.SwitchTheme"))
+        if (HasAnyActionEnabled(config, "SystemTools.ChangeWallpaper", "SystemTools.SwitchTheme", "SystemTools.SwitchSystemAccentColor"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("系统个性化…", "\uF42F"));
             BuildPersonalizationMenu(config);
@@ -562,114 +565,6 @@ public class Plugin : PluginBase
         return actionIds.Any(id => config.IsActionEnabled(id));
     }
 
-    private static bool HandleProcessRunningRule(object? settings)
-    {
-        if (settings is not ProcessRunningRuleSettings ruleSettings ||
-            string.IsNullOrWhiteSpace(ruleSettings.ProcessName))
-        {
-            return false;
-        }
-
-        var processName = ruleSettings.ProcessName.Trim();
-        if (processName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-        {
-            processName = processName[..^4];
-        }
-
-        try
-        {
-            return System.Diagnostics.Process.GetProcessesByName(processName).Length > 0;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    private static bool HandleUsingClassPlanRule(object? settings)
-    {
-        if (settings is not UsingClassPlanRuleSettings ruleSettings ||
-            !Guid.TryParse(ruleSettings.ClassPlanId, out var classPlanId))
-        {
-            return false;
-        }
-
-        var profile = IAppHost.TryGetService<IProfileService>()?.Profile;
-        if (profile == null || !profile.ClassPlans.TryGetValue(classPlanId, out var classPlan))
-        {
-            return false;
-        }
-
-        return classPlan.IsActivated;
-    }
-
-    private static bool HandleUsingTimeLayoutRule(object? settings)
-    {
-        if (settings is not UsingTimeLayoutRuleSettings ruleSettings ||
-            !Guid.TryParse(ruleSettings.TimeLayoutId, out var timeLayoutId))
-        {
-            return false;
-        }
-
-        var profile = IAppHost.TryGetService<IProfileService>()?.Profile;
-        if (profile == null || !profile.TimeLayouts.TryGetValue(timeLayoutId, out var timeLayout))
-        {
-            return false;
-        }
-
-        return timeLayout.IsActivated;
-    }
-
-    private static bool HandleInTimePeriodRule(object? settings)
-    {
-        if (settings is not InTimePeriodRuleSettings ruleSettings ||
-            !TimeSpan.TryParse(ruleSettings.StartTime, out var start) ||
-            !TimeSpan.TryParse(ruleSettings.EndTime, out var end))
-        {
-            return false;
-        }
-
-        var current = IAppHost.TryGetService<IExactTimeService>()?.GetCurrentLocalDateTime().TimeOfDay ?? DateTime.Now.TimeOfDay;
-        if (start <= end)
-        {
-            return current >= start && current <= end;
-        }
-
-        return current >= start || current <= end;
-    }
-
-    private static bool HandleMediaMusicPlayingRule(object? settings)
-    {
-        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17134))
-        {
-            return false;
-        }
-
-        try
-        {
-            var manager = WinMedia.GlobalSystemMediaTransportControlsSessionManager.RequestAsync()
-                .AsTask().GetAwaiter().GetResult();
-
-            if (manager == null)
-                return false;
-
-            var sessions = manager.GetSessions();
-            if (sessions == null || sessions.Count == 0)
-                return false;
-
-            return sessions.Any(session =>
-            {
-                var playbackInfo = session.GetPlaybackInfo();
-                return playbackInfo != null &&
-                       playbackInfo.PlaybackStatus == WinMedia.GlobalSystemMediaTransportControlsSessionPlaybackStatus.Playing;
-            });
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     private void BuildSimulationMenu(MainConfigData config)
     {
         var items = new List<ActionMenuTreeItem>();
@@ -724,6 +619,10 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.ExternalDisplay", "仅第二屏幕", "\uE641"));
         if (config.IsActionEnabled("SystemTools.BlackScreenHtml"))
             items.Add(new ActionMenuTreeItem("SystemTools.BlackScreenHtml", "黑屏html", "\uE643"));
+        if (config.IsActionEnabled("SystemTools.ShowDesktop"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ShowDesktop", "显示桌面", "\uE62F"));
+        if (config.IsActionEnabled("SystemTools.AdjustScreenBrightness"))
+            items.Add(new ActionMenuTreeItem("SystemTools.AdjustScreenBrightness", "调整屏幕亮度", "\uF464"));
 
         if (items.Count > 0)
         {
@@ -781,6 +680,8 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.ChangeWallpaper", "切换壁纸", "\uE9BC"));
         if (config.IsActionEnabled("SystemTools.SwitchTheme"))
             items.Add(new ActionMenuTreeItem("SystemTools.SwitchTheme", "切换主题色", "\uF42F"));
+        //if (config.IsActionEnabled("SystemTools.SwitchSystemAccentColor"))
+        //    items.Add(new ActionMenuTreeItem("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "\uE523"));
 
         if (items.Count > 0)
         {
@@ -816,8 +717,6 @@ public class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uEBCC"));
         if (config.IsActionEnabled("SystemTools.SetVolume"))
             items.Add(new ActionMenuTreeItem("SystemTools.SetVolume", "设置系统音量", "\uF013"));
-        if (config.IsActionEnabled("SystemTools.ShowDesktop"))
-            items.Add(new ActionMenuTreeItem("SystemTools.ShowDesktop", "显示桌面", "\uE62F"));
 
         if (items.Count > 0)
         {
@@ -917,6 +816,7 @@ public class Plugin : PluginBase
     {
         IAppHost.GetService<AdaptiveThemeSyncService>().Stop();
         IAppHost.GetService<UsbAutoPlayService>().Stop();
+        IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop();
         AdvancedShutdownAction.CancelPlanOnAppStopping();
         if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
         {

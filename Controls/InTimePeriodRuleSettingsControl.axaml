@@ -1,32 +1,28 @@
-<UserControl x:Class="SystemTools.Controls.InTimePeriodRuleSettingsControl"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel Spacing="10">
-        <Grid ColumnDefinitions="Auto,*,Auto,*,Auto"
-              ColumnSpacing="8"
-              VerticalAlignment="Center">
-            <TextBlock Text="从" VerticalAlignment="Center" />
-
-            <TimePicker x:Name="StartTimePicker"
-                        Grid.Column="1"
-                        ClockIdentifier="24HourClock"
-                        UseSeconds="True"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center" />
-
-            <TextBlock Grid.Column="2" Text="至" VerticalAlignment="Center" />
-
-            <TimePicker x:Name="EndTimePicker"
-                        Grid.Column="3"
-                        ClockIdentifier="24HourClock"
-                        UseSeconds="True"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center" />
-        </Grid>
-
-        <TextBlock Text="提示：若起始晚于结束 将按跨天处理"
-                   TextWrapping="Wrap"
+<ci:RuleSettingsControlBase x:Class="SystemTools.Controls.InTimePeriodRuleSettingsControl"
+                            x:TypeArguments="rules:InTimePeriodRuleSettings"
+                            xmlns="https://github.com/avaloniaui"
+                            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                            xmlns:ci="http://classisland.tech/schemas/xaml/core"
+                            xmlns:controls="clr-namespace:SystemTools.Controls"
+                            xmlns:rules="clr-namespace:SystemTools.Rules">
+    <StackPanel DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=controls:InTimePeriodRuleSettingsControl}}"
+                Spacing="10"
+                Orientation="Horizontal">
+        <TextBlock Text="从" VerticalAlignment="Center" />
+        <TimePicker UseSeconds="True"
+                    ClockIdentifier="24HourClock"
+                    Margin="5,0,0,0"
+                    Loaded="StartTimePicker_OnLoaded"
+                    SelectedTimeChanged="StartTimePicker_OnSelectedTimeChanged"/>
+        <TextBlock Text="至" VerticalAlignment="Center" />
+        <TimePicker UseSeconds="True"
+                    ClockIdentifier="24HourClock"
+                    Margin="5,0,0,0"
+                    Loaded="EndTimePicker_OnLoaded"
+                    SelectedTimeChanged="EndTimePicker_OnSelectedTimeChanged"/>
+        <TextBlock Text="若起始晚于结束则按跨天处理"
+                   VerticalAlignment="Center"
                    Foreground="Gray"
                    FontSize="12" />
     </StackPanel>
-</UserControl>
+</ci:RuleSettingsControlBase>

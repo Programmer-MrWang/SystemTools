@@ -31,7 +31,7 @@ public class ToggleWorkflowSettingsControl : ActionSettingsControlBase<ToggleWor
         // 标题
         panel.Children.Add(new TextBlock
         {
-            Text = "切换自动化状态",
+            Text = "开启/关闭选中的自动化方案",
             FontWeight = FontWeight.Bold,
             FontSize = 14
         });

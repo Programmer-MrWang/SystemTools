@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Data;
-using Avalonia.Controls.Primitives;
 using ClassIsland.Core.Abstractions.Controls;
 using SystemTools.Settings;
 
@@ -8,19 +7,19 @@ namespace SystemTools.Controls;
 
 public class ShowFloatingWindowSettingsControl : ActionSettingsControlBase<ShowFloatingWindowSettings>
 {
-    private CheckBox _toggleCheckBox;
+    private readonly ToggleSwitch _toggleSwitch;
 
     public ShowFloatingWindowSettingsControl()
     {
         var panel = new StackPanel { Spacing = 10, Margin = new(10) };
 
-        _toggleCheckBox = new CheckBox
+        _toggleSwitch = new ToggleSwitch
         {
             Content = "显示悬浮窗",
             IsChecked = true
         };
 
-        panel.Children.Add(_toggleCheckBox);
+        panel.Children.Add(_toggleSwitch);
 
         Content = panel;
     }
@@ -29,7 +28,7 @@ public class ShowFloatingWindowSettingsControl : ActionSettingsControlBase<ShowF
     {
         base.OnInitialized();
 
-        _toggleCheckBox[!ToggleButton.IsCheckedProperty] = new Binding(nameof(Settings.ShowFloatingWindow))
+        _toggleSwitch[!ToggleSwitch.IsCheckedProperty] = new Binding(nameof(Settings.ShowFloatingWindow))
         {
             Source = Settings,
             Mode = BindingMode.TwoWay

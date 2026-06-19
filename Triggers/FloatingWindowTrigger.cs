@@ -14,6 +14,7 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
 {
     private readonly FloatingWindowService _floatingWindowService;
     private readonly ILogger<FloatingWindowTrigger> _logger;
+    private bool _isNormalizingButtonId;
 
     public FloatingWindowTrigger(FloatingWindowService floatingWindowService, ILogger<FloatingWindowTrigger> logger)
     {
@@ -63,6 +64,31 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
     public string GetButtonId()
     {
         EnsureButtonId();
+        return Settings.ButtonId;
+    }
+
+    public string GetUniqueButtonId(Func<string, bool> isButtonIdInUse)
+    {
+        EnsureButtonId();
+        if (!isButtonIdInUse(Settings.ButtonId))
+        {
+            return Settings.ButtonId;
+        }
+
+        _isNormalizingButtonId = true;
+        try
+        {
+            do
+            {
+                Settings.ButtonId = Guid.NewGuid().ToString("N");
+            } while (isButtonIdInUse(Settings.ButtonId));
+        }
+        finally
+        {
+            _isNormalizingButtonId = false;
+        }
+
+        _logger.LogInformation("检测到重复的悬浮窗按钮 ID，已为触发器生成新 ID: {ButtonId}", Settings.ButtonId);
         return Settings.ButtonId;
     }
 
@@ -132,6 +158,11 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
 
     private void OnSettingsChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (_isNormalizingButtonId)
+        {
+            return;
+        }
+
         if (e.PropertyName == nameof(FloatingWindowTriggerConfig.Icon) ||
             e.PropertyName == nameof(FloatingWindowTriggerConfig.ButtonId) ||
             e.PropertyName == nameof(FloatingWindowTriggerConfig.ButtonName))

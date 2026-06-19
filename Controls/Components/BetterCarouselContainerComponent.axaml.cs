@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -36,6 +36,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
     private int _selectedIndex;
     private int _playDirection = 1;
     private DateTime _displayStartedAt = DateTime.UtcNow;
+    private DateTime _lastProgressUpdatedAt = DateTime.MinValue;
     private bool _isLoaded;
     private bool _isAnimating;
 
@@ -368,6 +369,12 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
 
     private void OnLessonsServicePreMainTimerTicked(object? sender, EventArgs e)
     {
+        if (Settings.ReduceProgressBarPrecision &&
+            DateTime.UtcNow - _lastProgressUpdatedAt < TimeSpan.FromSeconds(1))
+        {
+            return;
+        }
+
         UpdateProgressState();
     }
 
@@ -382,6 +389,12 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         {
             OnPropertyChanged(nameof(ShowTopProgressBar));
             OnPropertyChanged(nameof(ShowBottomProgressBar));
+        }
+
+        if (e.PropertyName is nameof(Settings.ReduceProgressBarPrecision))
+        {
+            _lastProgressUpdatedAt = DateTime.MinValue;
+            UpdateProgressState();
         }
 
         if (e.PropertyName is nameof(Settings.RotationMode) or nameof(Settings.IsAnimationEnabled) or nameof(Settings.ShowProgressBar))
@@ -592,6 +605,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
 
     private void SetCurrentProgressPercent(double value)
     {
+        _lastProgressUpdatedAt = DateTime.UtcNow;
         if (Math.Abs(CurrentProgressPercent - value) < 0.01)
         {
             return;

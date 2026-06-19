@@ -335,7 +335,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     // ===== 选中状态处理 =====
 
-    private void OnAvailableItemSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void OnAddButtonFlyoutSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (sender is not ListBox listBox || listBox.SelectedItem is not FloatingTriggerItem item)
         {
@@ -353,6 +353,30 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             }
             ViewModel.AddTriggerFromPool(buttonId, 0, ViewModel.FloatingTriggerRows[0].Buttons.Count);
         });
+    }
+
+    private void OnFloatingTriggerItemSettingsClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: FloatingTriggerItem item })
+        {
+            return;
+        }
+
+        _currentRulesetTarget = RulesetTargetType.Button;
+        _currentButtonTarget = item;
+        _currentRowTarget = null;
+
+        OpenRulesetDrawer(item.Config.HidingRules, item.Config.IsVisible, item.Config.HideOnRule);
+    }
+
+    private void OnFloatingTriggerItemRemoveClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: FloatingTriggerItem item })
+        {
+            return;
+        }
+
+        ViewModel.RemoveTriggerToPool(item.ButtonId);
     }
 
     private void OnFloatingTriggerItemPointerPressed(object? sender, PointerPressedEventArgs e)

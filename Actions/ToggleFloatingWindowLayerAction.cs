@@ -26,11 +26,11 @@ public class ToggleFloatingWindowLayerAction(ILogger<ToggleFloatingWindowLayerAc
             var service = IAppHost.GetService<FloatingWindowService>();
 
             // 根据设置决定是切换还是设置到指定层级
-            // TargetLayer: -1=切换, 0=置顶, 1=置底
+            // TargetLayer: -1=切换, 0=置底, 1=置顶
             if (Settings.TargetLayer >= 0)
             {
                 service.SetWindowLayer(Settings.TargetLayer);
-                _logger.LogInformation("已设置悬浮窗层级为: {Layer}", Settings.TargetLayer == 0 ? "置顶" : "置底");
+                _logger.LogInformation("已设置悬浮窗层级为: {Layer}", Settings.TargetLayer == 0 ? "置底" : "置顶");
             }
             else
             {

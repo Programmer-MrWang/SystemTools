@@ -25,9 +25,9 @@ public class ToggleFloatingWindowLayerSettingsControl : ActionSettingsControlBas
         {
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch
         };
-        _layerComboBox.Items.Add(new ComboBoxItem { Content = "切换（置顶↔置底）", Tag = -1 });
-        _layerComboBox.Items.Add(new ComboBoxItem { Content = "置顶", Tag = 0 });
-        _layerComboBox.Items.Add(new ComboBoxItem { Content = "置底", Tag = 1 });
+        _layerComboBox.Items.Add(new ComboBoxItem { Content = "切换（置底↔置顶）", Tag = -1 });
+        _layerComboBox.Items.Add(new ComboBoxItem { Content = "置底", Tag = 0 });
+        _layerComboBox.Items.Add(new ComboBoxItem { Content = "置顶", Tag = 1 });
         _layerComboBox.SelectedIndex = 0;
 
         panel.Children.Add(_layerComboBox);

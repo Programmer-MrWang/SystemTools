@@ -35,9 +35,9 @@ public class ShowFloatingWindowAction(
                 _logger.LogDebug("没有可用的悬浮窗组件，强制隐藏悬浮窗");
             }
 
-            if (IsRevertable)
+            if (IsRevertable && config != null)
             {
-                PreviousStates[ActionSet.Guid] = GlobalConstants.MainConfig!.Data.ShowFloatingWindow;
+                PreviousStates[ActionSet.Guid] = config.ShowFloatingWindow;
             }
 
             if (config != null)

@@ -67,10 +67,39 @@
                                        Description="您可在下方通过拖拽调整行内按钮顺序，或添加行以实现纵列排布等功能"
                                        IsExpanded="True">
                 <StackPanel Margin="12,8,12,12" Spacing="8">
-                    <Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
                         <Button Content="添加行" Width="92" HorizontalAlignment="Left"
                                 Click="OnAddFloatingTriggerRowClick" />
-                    </Grid>
+                        <Button Content="添加按钮" Width="92" HorizontalAlignment="Left"
+                                IsEnabled="{Binding ViewModel.AvailableFloatingTriggerItems.Count}">
+                            <Button.Flyout>
+                                <Flyout Placement="BottomEdgeAlignedLeft">
+                                    <ListBox ItemsSource="{Binding ViewModel.AvailableFloatingTriggerItems}"
+                                             Width="220"
+                                             MaxHeight="320"
+                                             SelectionChanged="OnAddButtonFlyoutSelectionChanged"
+                                             Background="Transparent"
+                                             BorderThickness="0">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="Auto,*" Margin="0,4" MinHeight="36">
+                                                    <controls:IconSourceElement Grid.Column="0"
+                                                                                IconSource="{Binding IconSource}"
+                                                                                Width="20" Height="20"
+                                                                                VerticalAlignment="Center"
+                                                                                Margin="0,0,6,0" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding ButtonName}"
+                                                               FontSize="12"
+                                                               VerticalAlignment="Center" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Flyout>
+                            </Button.Flyout>
+                        </Button>
+                    </StackPanel>
                     <ItemsControl ItemsSource="{Binding ViewModel.FloatingTriggerRows}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -111,15 +140,15 @@
                                                         <Border
                                                             Background="{DynamicResource SubtleFillColorSecondaryBrush}"
                                                             CornerRadius="6"
-                                                            Padding="8,4"
+                                                            Padding="6,4"
                                                             Margin="0,0,2,0"
                                                             DragDrop.AllowDrop="True"
                                                             DragDrop.DragOver="OnFloatingTriggerItemDragOver"
                                                             DragDrop.Drop="OnFloatingTriggerItemDrop">
-                                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="4">
                                                                 <Border Grid.Column="0"
                                                                         Tag="{Binding ButtonId}"
-                                                                        Padding="6,2"
+                                                                        Padding="4,2"
                                                                         CornerRadius="4"
                                                                         Background="{DynamicResource SubtleFillColorTertiaryBrush}"
                                                                         PointerPressed="OnFloatingTriggerItemPointerPressed"
@@ -130,10 +159,30 @@
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Center" />
                                                                 </Border>
-                                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                                                                    <TextBlock Text="{Binding Icon}" />
-                                                                    <TextBlock Text="{Binding ButtonName}" />
+                                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                                                    <TextBlock Text="{Binding Icon}" FontSize="14" />
+                                                                    <TextBlock Text="{Binding ButtonName}" FontSize="13" VerticalAlignment="Center" />
                                                                 </StackPanel>
+                                                                <Button Grid.Column="2"
+                                                                        Content="{ci:FluentIcon &#xE713;}"
+                                                                        FontSize="14"
+                                                                        Padding="4,2"
+                                                                        MinWidth="24"
+                                                                        MinHeight="24"
+                                                                        VerticalAlignment="Center"
+                                                                        ToolTip.Tip="按钮设置"
+                                                                        Click="OnFloatingTriggerItemSettingsClick"
+                                                                        Theme="{StaticResource TransparentButton}" />
+                                                                <Button Grid.Column="3"
+                                                                        Content="{ci:FluentIcon &#xE711;}"
+                                                                        FontSize="12"
+                                                                        Padding="4,2"
+                                                                        MinWidth="24"
+                                                                        MinHeight="24"
+                                                                        VerticalAlignment="Center"
+                                                                        ToolTip.Tip="从行中移除"
+                                                                        Click="OnFloatingTriggerItemRemoveClick"
+                                                                        Theme="{StaticResource TransparentButton}" />
                                                             </Grid>
                                                         </Border>
                                                     </DataTemplate>
@@ -152,49 +201,6 @@
             <GridSplitter Height="4"
                           Background="Transparent"
                           Margin="0,2" />
-
-            <!-- 组件库 -->
-            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE9D5;}"
-                                       Header="组件库"
-                                       Description="点击添加到悬浮窗"
-                                       IsExpanded="True"
-                                       Margin="0,4,0,0">
-                <ListBox ItemsSource="{Binding ViewModel.AvailableFloatingTriggerItems}"
-                         x:Name="ListBoxAvailableItems"
-                         Background="Transparent"
-                         Margin="-4"
-                         SelectionChanged="OnAvailableItemSelectionChanged">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="Auto,*" Margin="0,4" MinHeight="36">
-                                <controls:IconSourceElement Grid.Column="0"
-                                                            IconSource="{Binding IconSource}"
-                                                            Width="20" Height="20"
-                                                            VerticalAlignment="Center"
-                                                            Margin="0,0,6,0" />
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding ButtonName}"
-                                           FontSize="12"
-                                           VerticalAlignment="Center" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <ListBox.ItemContainerTheme>
-                        <ControlTheme TargetType="ListBoxItem">
-                            <Setter Property="Padding" Value="8,4" />
-                            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
-                            <Setter Property="CornerRadius" Value="6" />
-                            <Setter Property="MinWidth" Value="120" />
-                            <Setter Property="Margin" Value="2" />
-                        </ControlTheme>
-                    </ListBox.ItemContainerTheme>
-                </ListBox>
-            </controls:SettingsExpander>
 
             <!-- 外观设置 -->
             <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE51E;}"

@@ -349,16 +349,6 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         OpenRulesetDrawer(item.Config.HidingRules, item.Config.IsVisible, item.Config.HideOnRule);
     }
 
-    private void OnFloatingTriggerItemRemoveClick(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not Control { DataContext: FloatingTriggerItem item })
-        {
-            return;
-        }
-
-        ViewModel.RemoveTriggerToPool(item.ButtonId);
-    }
-
     private void OnRowRulesetClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Control { DataContext: FloatingTriggerRow row })

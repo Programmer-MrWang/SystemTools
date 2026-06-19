@@ -170,15 +170,6 @@
                                                                         ToolTip.Tip="按钮规则集"
                                                                         Click="OnFloatingTriggerItemSettingsClick"
                                                                         Theme="{StaticResource TransparentButton}" />
-                                                                <Button Content="{ci:FluentIcon &#xE711;}"
-                                                                        FontSize="10"
-                                                                        Padding="4,2"
-                                                                        MinWidth="22"
-                                                                        MinHeight="22"
-                                                                        VerticalAlignment="Center"
-                                                                        ToolTip.Tip="从行中移除"
-                                                                        Click="OnFloatingTriggerItemRemoveClick"
-                                                                        Theme="{StaticResource TransparentButton}" />
                                                             </StackPanel>
                                                         </Border>
                                                     </DataTemplate>

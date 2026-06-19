@@ -662,40 +662,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         return true;
     }
 
-    /// <summary>
-    /// 将按钮从行中移除并隐藏，避免刷新时自动重新出现
-    /// </summary>
-    public bool RemoveTriggerToPool(string buttonId)
-    {
-        if (string.IsNullOrWhiteSpace(buttonId))
-        {
-            return false;
-        }
-
-        foreach (var row in FloatingTriggerRows)
-        {
-            var item = row.Buttons.FirstOrDefault(x => x.ButtonId == buttonId);
-            if (item != null)
-            {
-                // 隐藏按钮，防止自动重新添加回行中
-                item.Config.IsVisible = false;
-
-                // 注销事件处理程序
-                item.Config.PropertyChanged -= OnButtonConfigPropertyChanged;
-                if (item.Config.HidingRules is INotifyPropertyChanged btnHidingRules)
-                {
-                    btnHidingRules.PropertyChanged -= OnButtonConfigPropertyChanged;
-                }
-
-                row.Buttons.Remove(item);
-                PersistFloatingTriggerRows();
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public void PersistFloatingTriggerRows(bool updateWindow = true, bool forceSave = true)
     {
         var profile = CurrentFloatingWindowProfile;

@@ -13,6 +13,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using SystemTools.Shared;
 using SystemTools.Services;
+using ClassIsland.Core.Abstractions.Services;
+using ClassIsland.Shared;
 
 namespace SystemTools;
 
@@ -479,14 +481,28 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     private void OnButtonConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        // 规则集求值时会写入 State，避免因此递归触发通知
+        if (e.PropertyName == nameof(ClassIsland.Core.Models.Ruleset.Rule.State))
+        {
+            return;
+        }
+
         _floatingWindowService.ProfileManager.SaveProfile();
         _floatingWindowService.UpdateWindowState();
+        IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
     }
 
     private void OnRowRulesetPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        // 规则集求值时会写入 State，避免因此递归触发通知
+        if (e.PropertyName == nameof(ClassIsland.Core.Models.Ruleset.Rule.State))
+        {
+            return;
+        }
+
         _floatingWindowService.ProfileManager.SaveProfile();
         _floatingWindowService.UpdateWindowState();
+        IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
     }
 
     public void AddFloatingTriggerRow()

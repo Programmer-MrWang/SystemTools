@@ -481,8 +481,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     private void OnButtonConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        // 规则集求值时会写入 State，避免因此递归触发通知
-        if (e.PropertyName == nameof(ClassIsland.Core.Models.Ruleset.Rule.State))
+        // 规则集求值时会写入 State（Ruleset/RuleGroup/Rule），避免因此递归触发通知
+        if (IsRulesetStateProperty(e.PropertyName))
         {
             return;
         }
@@ -494,8 +494,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     private void OnRowRulesetPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        // 规则集求值时会写入 State，避免因此递归触发通知
-        if (e.PropertyName == nameof(ClassIsland.Core.Models.Ruleset.Rule.State))
+        // 规则集求值时会写入 State（Ruleset/RuleGroup/Rule），避免因此递归触发通知
+        if (IsRulesetStateProperty(e.PropertyName))
         {
             return;
         }
@@ -503,6 +503,13 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         _floatingWindowService.ProfileManager.SaveProfile();
         _floatingWindowService.UpdateWindowState();
         IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
+    }
+
+    private static bool IsRulesetStateProperty(string? propertyName)
+    {
+        return propertyName == nameof(ClassIsland.Core.Models.Ruleset.Ruleset.State)
+            || propertyName == nameof(ClassIsland.Core.Models.Ruleset.RuleGroup.State)
+            || propertyName == nameof(ClassIsland.Core.Models.Ruleset.Rule.State);
     }
 
     public void AddFloatingTriggerRow()

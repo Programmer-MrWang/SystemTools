@@ -160,6 +160,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             UnregisterHidingRulesEvents();
             RegisterHidingRulesEvents();
             GlobalConstants.MainConfig?.Save();
+            IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
         }
     }
 
@@ -170,8 +171,8 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private void OnHidingRulesPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        // 避免规则集 State 变化导致递归通知
-        if (e.PropertyName == nameof(Rule.State))
+        // 规则集求值时会写入 State（Ruleset/RuleGroup/Rule），避免因此递归触发通知
+        if (IsRulesetStateProperty(e.PropertyName))
         {
             return;
         }
@@ -278,6 +279,20 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         // 每次打开时动态构建 Drawer 内容，避免资源单例问题
         var panel = new StackPanel { Spacing = 8, Margin = new Thickness(0, 8, 0, 0) };
 
+        // Window 目标下，IsVisible 由顶栏的"显示"总开关控制，这里仅显示提示
+        if (_currentRulesetTarget == RulesetTargetType.Window)
+        {
+            var hint = new TextBlock
+            {
+                Text = "此规则集用于控制整窗悬浮窗的隐藏。窗口的“显示 / 隐藏”由设置页顶栏的总开关控制。",
+                Foreground = TextFillColorSecondaryBrush(),
+                TextWrapping = TextWrapping.Wrap,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            panel.Children.Add(hint);
+        }
+
         // 开关面板
         var togglesPanel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 16, Margin = new Thickness(0, 0, 0, 8) };
 
@@ -314,6 +329,16 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         // 将内容放入 Resources 并打开 Drawer
         this.Resources["RulesetDrawerContent"] = panel;
         OpenDrawer("RulesetDrawerContent");
+    }
+
+    private IBrush? TextFillColorSecondaryBrush()
+    {
+        if (Application.Current?.Resources.TryGetResource("TextFillColorSecondaryBrush", null, out var res) == true
+            && res is IBrush brush)
+        {
+            return brush;
+        }
+        return null;
     }
 
     private void OnDrawerIsVisibleChanged(object? sender, RoutedEventArgs e)
@@ -407,10 +432,20 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         _rulesetPropertyListeners.Add(listener);
     }
 
+    /// <summary>
+    /// 判断属性名是否为规则集求值写入的 State（避免递归通知）
+    /// </summary>
+    private static bool IsRulesetStateProperty(string? propertyName)
+    {
+        return propertyName == nameof(Ruleset.State)
+            || propertyName == nameof(RuleGroup.State)
+            || propertyName == nameof(Rule.State);
+    }
+
     private void OnRulesetPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        // 规则集求值时会写入 State，避免因此递归触发通知
-        if (e.PropertyName == nameof(Rule.State))
+        // 规则集求值时会写入 State（Ruleset/RuleGroup/Rule），避免因此递归触发通知
+        if (IsRulesetStateProperty(e.PropertyName))
         {
             return;
         }
@@ -504,11 +539,17 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
         _floatingDragSourceBorder = border;
         _floatingDragStartPoint = e.GetPosition(border);
+        // 主动 capture，避免鼠标移出 Border 后丢失 PointerMoved/PointerReleased
+        e.Pointer.Capture(border);
         e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
     }
 
     private void OnFloatingTriggerItemPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
+        if (e.Pointer.Captured == sender)
+        {
+            e.Pointer.Capture(null);
+        }
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
     }
@@ -541,8 +582,10 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
+        // 在 await 之前缓存 Pointer.Type，避免事件参数被回收后访问
+        var isTouchOrPen = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
         await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
-        e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
+        e.Handled = isTouchOrPen;
     }
 
     private static bool TryGetDragButtonId(DragEventArgs e, out string buttonId)
@@ -627,6 +670,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         var row = ViewModel.FloatingTriggerRows[rowIndex];
         var insertIndex = GetRowInsertIndex(senderControl, row, e);
         ViewModel.MoveFloatingTrigger(buttonId, rowIndex, insertIndex);
+        e.Handled = true;
     }
 
     private void OnFloatingTriggerItemDragOver(object? sender, DragEventArgs e)
@@ -667,5 +711,6 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         }
 
         ViewModel.MoveFloatingTrigger(buttonId, rowIndex, targetIndex);
+        e.Handled = true;
     }
 }

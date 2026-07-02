@@ -17,18 +17,18 @@
 
     <ScrollViewer>
         <StackPanel Classes="settings-container animated-intro">
-            <Label FontSize="20"
-                   VerticalAlignment="Center"
-                   Foreground="{DynamicResource TextFillColorTertiaryBrush}">
+            <TextBlock FontSize="20"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}">
                 SystemTools
-            </Label>
+            </TextBlock>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                 <ci:FluentIcon FontSize="56"
                                Glyph="&#xEFBF;"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                VerticalAlignment="Center" />
-                <Label VerticalAlignment="Center" FontSize="28">设置 · 悬浮窗</Label>
+                <TextBlock VerticalAlignment="Center" FontSize="28">设置 · 悬浮窗</TextBlock>
             </StackPanel>
 
             <!-- 方案管理 + 显示开关（紧凑顶部栏） -->
@@ -58,6 +58,7 @@
                               OnContent="显示" OffContent="隐藏"
                               IsChecked="{Binding ViewModel.Settings.ShowFloatingWindow, Mode=OneWay}"
                               IsEnabled="{Binding ViewModel.HasFloatingTriggerEntries}"
+                              VerticalAlignment="Center"
                               IsCheckedChanged="OnFloatingWindowVisibleToggleChanged" />
             </Grid>
 
@@ -184,11 +185,6 @@
                 </StackPanel>
             </controls:SettingsExpander>
 
-            <!-- GridSplitter -->
-            <GridSplitter Height="4"
-                          Background="Transparent"
-                          Margin="0,2" />
-
             <!-- 外观设置 -->
             <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE51E;}"
                                        Header="外观设置"
@@ -205,6 +201,7 @@
                                     Maximum="2"
                                     TickFrequency="0.1"
                                     IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
                                     Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, Mode=TwoWay}" />
                             <TextBlock
                                 Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
@@ -224,6 +221,7 @@
                                     Maximum="50"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, StringFormat='{}{0}px'}"
                                     Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, Mode=TwoWay}" />
                             <TextBlock
                                 Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, StringFormat='{}{0}px'}"
@@ -243,6 +241,7 @@
                                     Maximum="25"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, StringFormat='{}{0}px'}"
                                     Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, Mode=TwoWay}" />
                             <TextBlock
                                 Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, StringFormat='{}{0}px'}"
@@ -262,6 +261,7 @@
                                     Maximum="100"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, StringFormat='{}{0}%'}"
                                     Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, Mode=TwoWay}" />
                             <TextBlock Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, StringFormat='{}{0}%'}"
                                        Width="46"

@@ -858,7 +858,6 @@ public class FloatingWindowService
         var profile = _profileManager.CurrentProfile;
         var validButtonIds = _entries.Values.Select(x => x.ButtonId).ToHashSet();
 
-
         // 清理不存在的按钮ID
         if (profile.PruneInvalidButtonIds(validButtonIds))
         {

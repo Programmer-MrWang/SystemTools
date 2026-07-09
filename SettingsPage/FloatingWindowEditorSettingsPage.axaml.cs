@@ -531,6 +531,26 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         ViewModel.InsertFloatingTriggerRow(index + 1);
     }
 
+    private void OnAvailableItemSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ListBox listBox || listBox.SelectedItem is not FloatingTriggerItem item)
+        {
+            return;
+        }
+
+        var buttonId = item.ButtonId;
+        listBox.SelectedItem = null;
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            if (ViewModel.FloatingTriggerRows.Count == 0)
+            {
+                ViewModel.AddFloatingTriggerRow();
+            }
+            ViewModel.AddTriggerFromPool(buttonId, 0, ViewModel.FloatingTriggerRows[0].Buttons.Count);
+        });
+    }
+
     private void OnFloatingTriggerItemPointerPressed(object? sender, PointerPressedEventArgs e)
     {
         if (sender is not Border border || !e.GetCurrentPoint(border).Properties.IsLeftButtonPressed)

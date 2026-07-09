@@ -8,7 +8,7 @@ namespace SystemTools.Settings;
 public class ToggleFloatingWindowLayerSettings
 {
     /// <summary>
-    /// 目标层级。-1 表示切换，0 表示置顶，1 表示置底。
+    /// 目标层级。-1 表示切换，0 表示置底，1 表示置顶。
     /// </summary>
     [JsonPropertyName("targetLayer")]
     public int TargetLayer { get; set; } = -1;

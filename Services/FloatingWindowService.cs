@@ -432,6 +432,8 @@ public class FloatingWindowService
         CheckFloatingWindowRuleset();
         CheckButtonRulesets();
         CheckRowRulesets();
+        // 规则集变化后，重新评估窗口显隐（避免"所有按钮都被隐藏但窗口还显示"）
+        ApplyVisibility();
     }
 
     private void CheckFloatingWindowRuleset()
@@ -576,7 +578,8 @@ public class FloatingWindowService
         }
 
         var profile = _profileManager.CurrentProfile;
-        var shouldShow = _configHandler.Data.ShowFloatingWindow && _entries.Count > 0 && !_rulesetHidingWindow;
+        var hasVisibleButtons = HasAnyVisibleButton();
+        var shouldShow = _configHandler.Data.ShowFloatingWindow && hasVisibleButtons && !_rulesetHidingWindow;
 
         if (shouldShow)
         {
@@ -660,16 +663,7 @@ public class FloatingWindowService
         _stackPanel.HorizontalAlignment = HorizontalAlignment.Center;
 
         _stackPanel.Children.Clear();
-
-        if (_isTouchDeviceDetected)
-        {
-            _touchDragHandle = CreateTouchDragHandle(scale, contentForeground);
-            _stackPanel.Children.Add(_touchDragHandle);
-        }
-        else
-        {
-            _touchDragHandle = null;
-        }
+        _touchDragHandle = null;
 
         int rowIndex = 0;
         foreach (var rowEntries in GetOrderedRows())
@@ -789,6 +783,74 @@ public class FloatingWindowService
 
             rowIndex++;
         }
+
+        // 仅在"至少有一个可见按钮"时才显示拖拽把手，避免孤零零一个把手
+        var hasVisibleButtons = _stackPanel.Children.Count > 0;
+        var showDragHandle = (_isTouchDeviceDetected || _profileManager.CurrentProfile.FloatingWindowDragHandleAlwaysVisible)
+            && hasVisibleButtons;
+
+        if (showDragHandle)
+        {
+            _touchDragHandle = CreateTouchDragHandle(scale, contentForeground);
+            _stackPanel.Children.Insert(0, _touchDragHandle);
+        }
+    }
+
+    /// <summary>
+    /// 判断是否至少有 1 个按钮在"经过规则集过滤后"是可见的。
+    /// 用于避免悬浮窗在没有任何可见按钮时（被规则集全部隐藏）仍然显示。
+    /// </summary>
+    private bool HasAnyVisibleButton()
+    {
+        if (_entries.Count == 0)
+        {
+            return false;
+        }
+
+        var profile = _profileManager.CurrentProfile;
+        var rowConfigs = profile.FloatingWindowRowRulesets;
+        var hiddenRowSet = new HashSet<int>();
+
+        if (rowConfigs != null)
+        {
+            for (int i = 0; i < rowConfigs.Count; i++)
+            {
+                var cfg = rowConfigs[i];
+                var shouldHide = !cfg.IsVisible
+                    || (cfg.HideOnRule && cfg.HidingRules != null
+                        && IAppHost.TryGetService<IRulesetService>() is { } rs
+                        && rs.IsRulesetSatisfied(cfg.HidingRules));
+                if (shouldHide)
+                {
+                    hiddenRowSet.Add(i);
+                }
+            }
+        }
+
+        int rowIndex = 0;
+        foreach (var row in profile.FloatingWindowButtonRows ?? [])
+        {
+            if (!hiddenRowSet.Contains(rowIndex))
+            {
+                foreach (var id in row)
+                {
+                    if (_rulesetHiddenButtons.Contains(id))
+                    {
+                        continue;
+                    }
+                    foreach (var entry in _entries.Values)
+                    {
+                        if (string.Equals(entry.ButtonId, id, StringComparison.Ordinal))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            rowIndex++;
+        }
+
+        return false;
     }
 
     private List<List<FloatingWindowEntry>> GetOrderedRows()

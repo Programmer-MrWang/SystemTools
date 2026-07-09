@@ -17,18 +17,18 @@
 
     <ScrollViewer>
         <StackPanel Classes="settings-container animated-intro">
-            <Label FontSize="20"
-                   VerticalAlignment="Center"
-                   Foreground="{DynamicResource TextFillColorTertiaryBrush}">
+            <TextBlock FontSize="20"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}">
                 SystemTools
-            </Label>
+            </TextBlock>
 
             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                 <ci:FluentIcon FontSize="56"
                                Glyph="&#xEFBF;"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                VerticalAlignment="Center" />
-                <Label VerticalAlignment="Center" FontSize="28">设置 · 悬浮窗</Label>
+                <TextBlock VerticalAlignment="Center" FontSize="28">设置 · 悬浮窗</TextBlock>
             </StackPanel>
 
             <!-- 方案管理 + 显示开关（紧凑顶部栏） -->
@@ -58,6 +58,7 @@
                               OnContent="显示" OffContent="隐藏"
                               IsChecked="{Binding ViewModel.Settings.ShowFloatingWindow, Mode=OneWay}"
                               IsEnabled="{Binding ViewModel.HasFloatingTriggerEntries}"
+                              VerticalAlignment="Center"
                               IsCheckedChanged="OnFloatingWindowVisibleToggleChanged" />
             </Grid>
 
@@ -86,9 +87,35 @@
                                         <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                             <TextBlock Text="按钮行"
                                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                                            <Button Grid.Column="1" Content="删除行"
-                                                    Click="OnRemoveFloatingTriggerRowClick"
-                                                    Theme="{StaticResource TransparentButton}" />
+                                            <StackPanel Grid.Column="1"
+                                                        Orientation="Horizontal"
+                                                        Spacing="2"
+                                                        VerticalAlignment="Center">
+                                                <Button Content="{ci:FluentIcon &#xF17E;}"
+                                                        FontSize="12"
+                                                        Padding="4,2"
+                                                        MinWidth="24"
+                                                        MinHeight="24"
+                                                        ToolTip.Tip="行规则集"
+                                                        Click="OnRowRulesetClick"
+                                                        Theme="{StaticResource TransparentButton}" />
+                                                <Button Content="{ci:FluentIcon &#xE00D;}"
+                                                        FontSize="12"
+                                                        Padding="4,2"
+                                                        MinWidth="24"
+                                                        MinHeight="24"
+                                                        ToolTip.Tip="在下方插入一行"
+                                                        Click="OnInsertRowBelowClick"
+                                                        Theme="{StaticResource TransparentButton}" />
+                                                <Button Content="{ci:FluentIcon &#xE61D;}"
+                                                        FontSize="12"
+                                                        Padding="4,2"
+                                                        MinWidth="24"
+                                                        MinHeight="24"
+                                                        ToolTip.Tip="删除行"
+                                                        Click="OnRemoveFloatingTriggerRowClick"
+                                                        Theme="{StaticResource TransparentButton}" />
+                                            </StackPanel>
                                         </Grid>
                                         <Border MinHeight="52"
                                                 CornerRadius="6"
@@ -103,7 +130,7 @@
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
                                                         <StackPanel Orientation="Horizontal"
-                                                                    HorizontalAlignment="Center" Spacing="14" />
+                                                                    HorizontalAlignment="Center" Spacing="8" />
                                                     </ItemsPanelTemplate>
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
@@ -111,15 +138,16 @@
                                                         <Border
                                                             Background="{DynamicResource SubtleFillColorSecondaryBrush}"
                                                             CornerRadius="6"
-                                                            Padding="8,4"
+                                                            Padding="4,2"
                                                             Margin="0,0,2,0"
                                                             DragDrop.AllowDrop="True"
                                                             DragDrop.DragOver="OnFloatingTriggerItemDragOver"
                                                             DragDrop.Drop="OnFloatingTriggerItemDrop">
-                                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                                                <Border Grid.Column="0"
-                                                                        Tag="{Binding ButtonId}"
-                                                                        Padding="6,2"
+                                                            <StackPanel Orientation="Horizontal"
+                                                                        Spacing="4"
+                                                                        VerticalAlignment="Center">
+                                                                <Border Tag="{Binding ButtonId}"
+                                                                        Padding="4,2"
                                                                         CornerRadius="4"
                                                                         Background="{DynamicResource SubtleFillColorTertiaryBrush}"
                                                                         PointerPressed="OnFloatingTriggerItemPointerPressed"
@@ -130,11 +158,20 @@
                                                                                VerticalAlignment="Center"
                                                                                HorizontalAlignment="Center" />
                                                                 </Border>
-                                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                                                                    <TextBlock Text="{Binding Icon}" />
-                                                                    <TextBlock Text="{Binding ButtonName}" />
+                                                                <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                                    <TextBlock Text="{Binding Icon}" FontSize="14" />
+                                                                    <TextBlock Text="{Binding ButtonName}" FontSize="13" VerticalAlignment="Center" />
                                                                 </StackPanel>
-                                                            </Grid>
+                                                                <Button Content="{ci:FluentIcon &#xF17E;}"
+                                                                        FontSize="12"
+                                                                        Padding="4,2"
+                                                                        MinWidth="22"
+                                                                        MinHeight="22"
+                                                                        VerticalAlignment="Center"
+                                                                        ToolTip.Tip="按钮规则集"
+                                                                        Click="OnFloatingTriggerItemSettingsClick"
+                                                                        Theme="{StaticResource TransparentButton}" />
+                                                            </StackPanel>
                                                         </Border>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
@@ -146,54 +183,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </controls:SettingsExpander>
-
-            <!-- GridSplitter -->
-            <GridSplitter Height="4"
-                          Background="Transparent"
-                          Margin="0,2" />
-
-            <!-- 组件库 -->
-            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE9D5;}"
-                                       Header="组件库"
-                                       Description="点击添加到悬浮窗"
-                                       IsExpanded="True"
-                                       Margin="0,4,0,0">
-                <ListBox ItemsSource="{Binding ViewModel.AvailableFloatingTriggerItems}"
-                         x:Name="ListBoxAvailableItems"
-                         Background="Transparent"
-                         Margin="-4"
-                         SelectionChanged="OnAvailableItemSelectionChanged">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="Auto,*" Margin="0,4" MinHeight="36">
-                                <controls:IconSourceElement Grid.Column="0"
-                                                            IconSource="{Binding IconSource}"
-                                                            Width="20" Height="20"
-                                                            VerticalAlignment="Center"
-                                                            Margin="0,0,6,0" />
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding ButtonName}"
-                                           FontSize="12"
-                                           VerticalAlignment="Center" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <ListBox.ItemContainerTheme>
-                        <ControlTheme TargetType="ListBoxItem">
-                            <Setter Property="Padding" Value="8,4" />
-                            <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
-                            <Setter Property="CornerRadius" Value="6" />
-                            <Setter Property="MinWidth" Value="120" />
-                            <Setter Property="Margin" Value="2" />
-                        </ControlTheme>
-                    </ListBox.ItemContainerTheme>
-                </ListBox>
             </controls:SettingsExpander>
 
             <!-- 外观设置 -->
@@ -212,6 +201,7 @@
                                     Maximum="2"
                                     TickFrequency="0.1"
                                     IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
                                     Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, Mode=TwoWay}" />
                             <TextBlock
                                 Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
@@ -231,6 +221,7 @@
                                     Maximum="50"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, StringFormat='{}{0}px'}"
                                     Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, Mode=TwoWay}" />
                             <TextBlock
                                 Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, StringFormat='{}{0}px'}"
@@ -250,6 +241,7 @@
                                     Maximum="25"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, StringFormat='{}{0}px'}"
                                     Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, Mode=TwoWay}" />
                             <TextBlock
                                 Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, StringFormat='{}{0}px'}"
@@ -269,6 +261,7 @@
                                     Maximum="100"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, StringFormat='{}{0}%'}"
                                     Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, Mode=TwoWay}" />
                             <TextBlock Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, StringFormat='{}{0}%'}"
                                        Width="46"

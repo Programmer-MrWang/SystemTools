@@ -35,9 +35,9 @@ public class ShowFloatingWindowAction(
                 _logger.LogDebug("没有可用的悬浮窗组件，强制隐藏悬浮窗");
             }
 
-            if (IsRevertable)
+            if (IsRevertable && config != null)
             {
-                PreviousStates[ActionSet.Guid] = GlobalConstants.MainConfig!.Data.ShowFloatingWindow;
+                PreviousStates[ActionSet.Guid] = config.ShowFloatingWindow;
             }
 
             if (config != null)
@@ -70,8 +70,15 @@ public class ShowFloatingWindowAction(
             return;
         }
 
-        GlobalConstants.MainConfig!.Data.ShowFloatingWindow = previousState;
-        GlobalConstants.MainConfig.Save();
+        var config = GlobalConstants.MainConfig;
+        if (config == null)
+        {
+            _logger.LogWarning("主配置为空，无法恢复悬浮窗状态");
+            return;
+        }
+
+        config.Data.ShowFloatingWindow = previousState;
+        config.Save();
         _floatingWindowService.UpdateWindowState();
 
         _logger.LogInformation("已恢复悬浮窗状态为: {State}", previousState ? "开启" : "关闭");

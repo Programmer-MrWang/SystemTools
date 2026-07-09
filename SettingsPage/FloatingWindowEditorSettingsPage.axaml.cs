@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -7,12 +9,15 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.VisualTree;
 using ClassIsland.Core;
 using ClassIsland.Core.Abstractions;
 using ClassIsland.Core.Abstractions.Controls;
+using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Attributes;
 using ClassIsland.Core.Controls.Ruleset;
+using ClassIsland.Core.Models.Ruleset;
 using ClassIsland.Shared;
 using SystemTools.ConfigHandlers;
 using SystemTools.Services;
@@ -66,6 +71,10 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     private ToggleSwitch? _drawerHideOnRuleToggle;
     private RulesetControl? _drawerRulesetControl;
 
+    // 当前 Drawer 中正在编辑的规则集，用于实时监听其变化
+    private Ruleset? _currentDrawerRuleset;
+    private readonly List<INotifyPropertyChanged> _rulesetPropertyListeners = new();
+
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
@@ -80,6 +89,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         ViewModel.ProfileChanged -= OnViewModelProfileChanged;
 
         UnregisterHidingRulesEvents();
+        DetachRulesetListeners();
 
         ViewModel.Dispose();
         _isDisposed = true;
@@ -143,6 +153,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         {
             GlobalConstants.MainConfig?.Save();
             IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+            IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
         }
         else if (e.PropertyName == nameof(MainConfigData.FloatingWindowRuleset))
         {
@@ -150,6 +161,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             UnregisterHidingRulesEvents();
             RegisterHidingRulesEvents();
             GlobalConstants.MainConfig?.Save();
+            IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
         }
     }
 
@@ -160,7 +172,14 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private void OnHidingRulesPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        // 规则集求值时会写入 State（Ruleset/RuleGroup/Rule），避免因此递归触发通知
+        if (IsRulesetStateProperty(e.PropertyName))
+        {
+            return;
+        }
+
         GlobalConstants.MainConfig?.Save();
+        IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
     }
 
     private void OnFloatingWindowVisibleToggleChanged(object? sender, RoutedEventArgs e)
@@ -255,8 +274,25 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     /// </summary>
     private void OpenRulesetDrawer(ClassIsland.Core.Models.Ruleset.Ruleset ruleset, bool isVisible, bool hideOnRule)
     {
+        // 先清理上一次 Drawer 的规则集监听，避免内存泄漏和重复通知
+        DetachRulesetListeners();
+
         // 每次打开时动态构建 Drawer 内容，避免资源单例问题
         var panel = new StackPanel { Spacing = 8, Margin = new Thickness(0, 8, 0, 0) };
+
+        // Window 目标下，IsVisible 由顶栏的"显示"总开关控制，这里仅显示提示
+        if (_currentRulesetTarget == RulesetTargetType.Window)
+        {
+            var hint = new TextBlock
+            {
+                Text = "此规则集用于控制整窗悬浮窗的隐藏。窗口的“显示 / 隐藏”由设置页顶栏的总开关控制。",
+                Foreground = TextFillColorSecondaryBrush(),
+                TextWrapping = TextWrapping.Wrap,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            panel.Children.Add(hint);
+        }
 
         // 开关面板
         var togglesPanel = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 16, Margin = new Thickness(0, 0, 0, 8) };
@@ -288,9 +324,22 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         _drawerRulesetControl = new RulesetControl { Classes = { "in-drawer" }, Ruleset = ruleset };
         panel.Children.Add(_drawerRulesetControl);
 
+        // 监听规则集内容变化，编辑时实时刷新悬浮窗状态
+        AttachRulesetListeners(ruleset);
+
         // 将内容放入 Resources 并打开 Drawer
         this.Resources["RulesetDrawerContent"] = panel;
         OpenDrawer("RulesetDrawerContent");
+    }
+
+    private IBrush? TextFillColorSecondaryBrush()
+    {
+        if (Application.Current?.Resources.TryGetResource("TextFillColorSecondaryBrush", null, out var res) == true
+            && res is IBrush brush)
+        {
+            return brush;
+        }
+        return null;
     }
 
     private void OnDrawerIsVisibleChanged(object? sender, RoutedEventArgs e)
@@ -309,6 +358,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
         IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
         IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+        NotifyRulesetStatusChanged();
     }
 
     private void OnDrawerHideOnRuleChanged(object? sender, RoutedEventArgs e)
@@ -331,9 +381,155 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
         IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
         IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
+        NotifyRulesetStatusChanged();
+    }
+
+    private void NotifyRulesetStatusChanged()
+    {
+        IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
+    }
+
+    private void AttachRulesetListeners(Ruleset ruleset)
+    {
+        DetachRulesetListeners();
+        _currentDrawerRuleset = ruleset;
+
+        AddRulesetPropertyListener(ruleset);
+        ruleset.Groups.CollectionChanged += OnRulesetGroupsCollectionChanged;
+
+        foreach (var group in ruleset.Groups)
+        {
+            AddRulesetPropertyListener(group);
+            group.Rules.CollectionChanged += OnRulesetRulesCollectionChanged;
+            foreach (var rule in group.Rules)
+            {
+                AddRulesetPropertyListener(rule);
+            }
+        }
+    }
+
+    private void DetachRulesetListeners()
+    {
+        foreach (var listener in _rulesetPropertyListeners)
+        {
+            listener.PropertyChanged -= OnRulesetPropertyChanged;
+        }
+        _rulesetPropertyListeners.Clear();
+
+        if (_currentDrawerRuleset != null)
+        {
+            _currentDrawerRuleset.Groups.CollectionChanged -= OnRulesetGroupsCollectionChanged;
+            foreach (var group in _currentDrawerRuleset.Groups)
+            {
+                group.Rules.CollectionChanged -= OnRulesetRulesCollectionChanged;
+            }
+            _currentDrawerRuleset = null;
+        }
+    }
+
+    private void AddRulesetPropertyListener(INotifyPropertyChanged listener)
+    {
+        listener.PropertyChanged += OnRulesetPropertyChanged;
+        _rulesetPropertyListeners.Add(listener);
+    }
+
+    /// <summary>
+    /// 判断属性名是否为规则集求值写入的 State（避免递归通知）
+    /// </summary>
+    private static bool IsRulesetStateProperty(string? propertyName)
+    {
+        return propertyName == nameof(Ruleset.State)
+            || propertyName == nameof(RuleGroup.State)
+            || propertyName == nameof(Rule.State);
+    }
+
+    private void OnRulesetPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        // 规则集求值时会写入 State（Ruleset/RuleGroup/Rule），避免因此递归触发通知
+        if (IsRulesetStateProperty(e.PropertyName))
+        {
+            return;
+        }
+
+        NotifyRulesetStatusChanged();
+        IAppHost.TryGetService<FloatingWindowService>()?.UpdateWindowState();
+    }
+
+    private void OnRulesetGroupsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (_currentDrawerRuleset == null)
+        {
+            return;
+        }
+
+        var ruleset = _currentDrawerRuleset;
+        DetachRulesetListeners();
+        AttachRulesetListeners(ruleset);
+
+        NotifyRulesetStatusChanged();
+        IAppHost.TryGetService<FloatingWindowService>()?.UpdateWindowState();
+    }
+
+    private void OnRulesetRulesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (_currentDrawerRuleset == null)
+        {
+            return;
+        }
+
+        var ruleset = _currentDrawerRuleset;
+        DetachRulesetListeners();
+        AttachRulesetListeners(ruleset);
+
+        NotifyRulesetStatusChanged();
+        IAppHost.TryGetService<FloatingWindowService>()?.UpdateWindowState();
     }
 
     // ===== 选中状态处理 =====
+
+    private void OnFloatingTriggerItemSettingsClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: FloatingTriggerItem item })
+        {
+            return;
+        }
+
+        _currentRulesetTarget = RulesetTargetType.Button;
+        _currentButtonTarget = item;
+        _currentRowTarget = null;
+
+        OpenRulesetDrawer(item.Config.HidingRules, item.Config.IsVisible, item.Config.HideOnRule);
+    }
+
+    private void OnRowRulesetClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: FloatingTriggerRow row })
+        {
+            return;
+        }
+
+        _currentRulesetTarget = RulesetTargetType.Row;
+        _currentButtonTarget = null;
+        _currentRowTarget = row;
+
+        OpenRulesetDrawer(row.RowRuleset.HidingRules, row.RowRuleset.IsVisible, row.RowRuleset.HideOnRule);
+    }
+
+    private void OnInsertRowBelowClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Control { DataContext: FloatingTriggerRow row })
+        {
+            return;
+        }
+
+        var index = ViewModel.FloatingTriggerRows.IndexOf(row);
+        if (index < 0)
+        {
+            return;
+        }
+
+        ViewModel.InsertFloatingTriggerRow(index + 1);
+    }
 
     private void OnAvailableItemSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
@@ -364,11 +560,17 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
         _floatingDragSourceBorder = border;
         _floatingDragStartPoint = e.GetPosition(border);
+        // 主动 capture，避免鼠标移出 Border 后丢失 PointerMoved/PointerReleased
+        e.Pointer.Capture(border);
         e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
     }
 
     private void OnFloatingTriggerItemPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
+        if (e.Pointer.Captured == sender)
+        {
+            e.Pointer.Capture(null);
+        }
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
     }
@@ -401,8 +603,10 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
+        // 在 await 之前缓存 Pointer.Type，避免事件参数被回收后访问
+        var isTouchOrPen = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
         await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
-        e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
+        e.Handled = isTouchOrPen;
     }
 
     private static bool TryGetDragButtonId(DragEventArgs e, out string buttonId)
@@ -487,6 +691,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         var row = ViewModel.FloatingTriggerRows[rowIndex];
         var insertIndex = GetRowInsertIndex(senderControl, row, e);
         ViewModel.MoveFloatingTrigger(buttonId, rowIndex, insertIndex);
+        e.Handled = true;
     }
 
     private void OnFloatingTriggerItemDragOver(object? sender, DragEventArgs e)
@@ -527,5 +732,6 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         }
 
         ViewModel.MoveFloatingTrigger(buttonId, rowIndex, targetIndex);
+        e.Handled = true;
     }
 }

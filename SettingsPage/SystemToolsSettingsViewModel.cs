@@ -575,6 +575,14 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             rowHidingRules.PropertyChanged -= OnRowRulesetPropertyChanged;
         }
 
+        // 备份被删除行的 RowRulesetConfig 与索引，便于恢复
+        _lastDeletedRowSnapshot = new DeletedRowSnapshot
+        {
+            Index = index,
+            RowRuleset = row.RowRuleset,
+            ButtonIds = row.Buttons.Select(b => b.ButtonId).ToList()
+        };
+
         var targetRow = index > 0 ? FloatingTriggerRows[index - 1] : FloatingTriggerRows[index + 1];
         foreach (var item in row.Buttons)
         {
@@ -591,7 +599,94 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         }
 
         PersistFloatingTriggerRows();
+        RaisePropertyChanged(nameof(CanRecoverLastDeletedRow));
         return true;
+    }
+
+    private DeletedRowSnapshot? _lastDeletedRowSnapshot;
+
+    public bool CanRecoverLastDeletedRow => _lastDeletedRowSnapshot != null;
+
+    /// <summary>
+    /// 恢复最近一次被删除的行（按钮会自动回到该行，RowRulesetConfig 完整保留）
+    /// </summary>
+    public bool RecoverLastDeletedRow()
+    {
+        var snapshot = _lastDeletedRowSnapshot;
+        if (snapshot == null)
+        {
+            return false;
+        }
+
+        var insertIndex = Math.Clamp(snapshot.Index, 0, FloatingTriggerRows.Count);
+        var profile = CurrentFloatingWindowProfile;
+        var rowRulesets = profile.FloatingWindowRowRulesets;
+
+        // 把 RowRulesetConfig 重新放回 Profile 列表
+        if (insertIndex >= rowRulesets.Count)
+        {
+            rowRulesets.Add(snapshot.RowRuleset);
+        }
+        else
+        {
+            rowRulesets.Insert(insertIndex, snapshot.RowRuleset);
+        }
+
+        // 重新挂上事件
+        snapshot.RowRuleset.PropertyChanged += OnRowRulesetPropertyChanged;
+        if (snapshot.RowRuleset.HidingRules is INotifyPropertyChanged rowHidingRules)
+        {
+            rowHidingRules.PropertyChanged += OnRowRulesetPropertyChanged;
+        }
+
+        // 把按钮从当前所在行搬回新行
+        var newRow = new FloatingTriggerRow
+        {
+            RowIndex = insertIndex + 1,
+            RowRuleset = snapshot.RowRuleset
+        };
+
+        // 找出这些按钮当前在哪些行
+        var buttonsToRestore = snapshot.ButtonIds
+            .Select(id => FloatingTriggerRows
+                .SelectMany((r, i) => r.Buttons.Select(b => (RowIndex: i, Button: b)))
+                .FirstOrDefault(x => x.Button.ButtonId == id))
+            .Where(x => x.Button != null)
+            .ToList();
+
+        // 从原所在行移除
+        foreach (var group in buttonsToRestore.GroupBy(x => x.RowIndex))
+        {
+            var row = FloatingTriggerRows[group.Key];
+            foreach (var (_, btn) in group)
+            {
+                row.Buttons.Remove(btn);
+            }
+        }
+
+        // 按原顺序放回新行
+        foreach (var (_, btn) in buttonsToRestore.OrderBy(x => snapshot.ButtonIds.IndexOf(x.Button.ButtonId)))
+        {
+            newRow.Buttons.Add(btn);
+        }
+
+        FloatingTriggerRows.Insert(insertIndex, newRow);
+        for (int i = insertIndex; i < FloatingTriggerRows.Count; i++)
+        {
+            FloatingTriggerRows[i].RowIndex = i + 1;
+        }
+
+        PersistFloatingTriggerRows();
+        _lastDeletedRowSnapshot = null;
+        RaisePropertyChanged(nameof(CanRecoverLastDeletedRow));
+        return true;
+    }
+
+    private class DeletedRowSnapshot
+    {
+        public int Index { get; set; }
+        public RowRulesetConfig RowRuleset { get; set; } = new();
+        public List<string> ButtonIds { get; set; } = new();
     }
 
     public bool MoveFloatingTrigger(string buttonId, int targetRowIndex, int targetIndex)

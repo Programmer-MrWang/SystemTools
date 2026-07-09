@@ -661,7 +661,10 @@ public class FloatingWindowService
 
         _stackPanel.Children.Clear();
 
-        if (_isTouchDeviceDetected)
+        var showDragHandle = _isTouchDeviceDetected
+            || _profileManager.CurrentProfile.FloatingWindowDragHandleAlwaysVisible;
+
+        if (showDragHandle)
         {
             _touchDragHandle = CreateTouchDragHandle(scale, contentForeground);
             _stackPanel.Children.Add(_touchDragHandle);

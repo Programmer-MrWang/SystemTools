@@ -180,7 +180,7 @@ public class FloatingWindowProfileManager
     }
 
     /// <summary>
-    /// 删除指定方案（删除前先备份到 .deleted-yyyyMMdd-HHmmss.bak，可被 RecoverDeletedProfile 恢复）
+    /// 删除指定方案
     /// </summary>
     public bool RemoveProfile(string profileName)
     {
@@ -197,71 +197,13 @@ public class FloatingWindowProfileManager
 
         try
         {
-            var backupPath = path + $".deleted-{DateTime.Now:yyyyMMdd-HHmmss}.bak";
-            File.Move(path, backupPath);
+            File.Delete(path);
             return true;
         }
         catch
         {
             return false;
         }
-    }
-
-    /// <summary>
-    /// 恢复被备份（删除）的方案
-    /// </summary>
-    public bool RecoverDeletedProfile(string backupFileName)
-    {
-        if (string.IsNullOrWhiteSpace(backupFileName) || !backupFileName.EndsWith(".bak", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var backupPath = Path.Combine(_profilesDirectory, backupFileName);
-        if (!File.Exists(backupPath))
-        {
-            return false;
-        }
-
-        // 备份文件名形如 Default.deleted-20260101-120000.bak，取前半段为方案名
-        var dotIndex = backupFileName.IndexOf(".deleted-", StringComparison.Ordinal);
-        if (dotIndex <= 0)
-        {
-            return false;
-        }
-        var profileName = backupFileName[..dotIndex];
-        var targetPath = GetProfilePath(profileName);
-
-        try
-        {
-            if (File.Exists(targetPath))
-            {
-                return false;
-            }
-            File.Move(backupPath, targetPath);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// 列出当前所有可恢复的备份方案
-    /// </summary>
-    public IReadOnlyList<string> GetRecoverableProfileBackups()
-    {
-        if (!Directory.Exists(_profilesDirectory))
-        {
-            return Array.Empty<string>();
-        }
-        return Directory.GetFiles(_profilesDirectory, "*.deleted-*.bak")
-            .Select(Path.GetFileName)
-            .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(x => x!)
-            .OrderByDescending(x => x, StringComparer.OrdinalIgnoreCase)
-            .ToList();
     }
 
     /// <summary>

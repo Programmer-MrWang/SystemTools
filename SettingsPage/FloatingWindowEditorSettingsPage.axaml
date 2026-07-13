@@ -40,13 +40,13 @@
                                   SelectionChanged="OnFloatingWindowProfileSelectionChanged"
                                   MinWidth="150"
                                   MaxWidth="250" />
-                        <Button Content="{ci:FluentIcon &#xE8AB;}"
-                                ToolTip.Tip="切换"
-                                Click="OnToggleFloatingWindowProfileClick"
-                                Theme="{StaticResource TransparentButton}" />
                         <Button Content="{ci:FluentIcon &#xE00D;}"
                                 ToolTip.Tip="新建"
                                 Click="OnAddFloatingWindowProfileClick"
+                                Theme="{StaticResource TransparentButton}" />
+                        <Button Content="{ci:FluentIcon &#xE88D;}"
+                                ToolTip.Tip="打开悬浮窗配置文件夹"
+                                Click="OnOpenFloatingWindowProfileFolderClick"
                                 Theme="{StaticResource TransparentButton}" />
                         <Button Content="{ci:FluentIcon &#xE61D;}"
                                 ToolTip.Tip="删除当前方案"
@@ -343,7 +343,7 @@
                                 <StackPanel Orientation="Horizontal"
                                             Classes="items-valign-center"
                                             Spacing="4">
-                                    <TextBlock Text="每 1ms" />
+                                    <TextBlock Text="每 50ms（高占用）" />
                                     <ci:FluentIcon Glyph="&#xF431;"
                                                    FontSize="20"
                                                    Margin="0 -8"

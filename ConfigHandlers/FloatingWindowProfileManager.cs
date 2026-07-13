@@ -79,6 +79,19 @@ public class FloatingWindowProfileManager
 
     public string ProfilesDirectory => _profilesDirectory;
 
+    /// <summary>
+    /// 判断指定名称的方案文件是否存在于磁盘。
+    /// </summary>
+    public bool ProfileFileExists(string profileName)
+    {
+        if (string.IsNullOrWhiteSpace(profileName))
+        {
+            return false;
+        }
+
+        return File.Exists(GetProfilePath(profileName));
+    }
+
     public FloatingWindowProfile CurrentProfile => _currentProfile;
 
     public string CurrentProfileName
@@ -129,9 +142,10 @@ public class FloatingWindowProfileManager
         var path = GetProfilePath(profileName);
         if (!File.Exists(path))
         {
+            // 文件不存在时只在内存中加载默认模板，不写回磁盘，
+            // 避免被显式删除的方案被自动重建。
             _currentProfile = ConfigureFileHelper.CopyObject(DefaultProfile);
             _currentProfile.Name = profileName;
-            SaveProfile();
         }
         else
         {

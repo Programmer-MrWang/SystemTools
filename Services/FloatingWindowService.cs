@@ -65,8 +65,7 @@ public class FloatingWindowService
     private WinEventProc? _winEventProc;
     private IntPtr _mouseHook;
     private LowLevelMouseProc? _lowLevelMouseProc;
-    private DispatcherTimer LayerRecheck50MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(50) };
-    private DispatcherTimer LayerRecheck1MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(1) };
+    private ILessonsService? _lessonsService;
 
     private delegate void WinEventProc(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread,
         uint dwmsEventTime);
@@ -110,7 +109,6 @@ public class FloatingWindowService
             EnsureLayerRecheckHooks();
             EnsureGlobalInputHooks();
             SubscribeThemeChanged();
-            SubscribeRulesetStatusChanged();
             ApplyVisibility();
             RefreshLayerRecheckMode();
             RecheckWindowLayer();
@@ -130,12 +128,9 @@ public class FloatingWindowService
                 _window = null;
             }
 
-            LayerRecheck50MsTimer.Stop();
-            LayerRecheck1MsTimer.Stop();
             RemoveLayerRecheckHooks();
             RemoveGlobalInputHooks();
             UnsubscribeThemeChanged();
-            UnsubscribeRulesetStatusChanged();
         });
     }
 
@@ -403,38 +398,6 @@ public class FloatingWindowService
     private bool _rulesetHidingWindow = false;
     private readonly HashSet<string> _rulesetHiddenButtons = new();
     private readonly HashSet<int> _rulesetHiddenRows = new();
-
-    private void SubscribeRulesetStatusChanged()
-    {
-        var rulesetService = IAppHost.TryGetService<IRulesetService>();
-        if (rulesetService == null)
-        {
-            return;
-        }
-
-        rulesetService.StatusUpdated -= OnRulesetStatusUpdated;
-        rulesetService.StatusUpdated += OnRulesetStatusUpdated;
-    }
-
-    private void UnsubscribeRulesetStatusChanged()
-    {
-        var rulesetService = IAppHost.TryGetService<IRulesetService>();
-        if (rulesetService == null)
-        {
-            return;
-        }
-
-        rulesetService.StatusUpdated -= OnRulesetStatusUpdated;
-    }
-
-    private void OnRulesetStatusUpdated(object? sender, EventArgs e)
-    {
-        CheckFloatingWindowRuleset();
-        CheckButtonRulesets();
-        CheckRowRulesets();
-        // 规则集变化后，重新评估窗口显隐（避免"所有按钮都被隐藏但窗口还显示"）
-        ApplyVisibility();
-    }
 
     private void CheckFloatingWindowRuleset()
     {
@@ -1298,10 +1261,13 @@ public class FloatingWindowService
             _winEventProc = OnWinEvent;
         }
 
-        LayerRecheck50MsTimer.Tick -= OnLayerRecheck50MsTimerTick;
-        LayerRecheck50MsTimer.Tick += OnLayerRecheck50MsTimerTick;
-        LayerRecheck1MsTimer.Tick -= OnLayerRecheck1MsTimerTick;
-        LayerRecheck1MsTimer.Tick += OnLayerRecheck1MsTimerTick;
+        // 轮询模式（mode 2/3）改用宿主提供的 50ms 主计时器，节省一个 DispatcherTimer
+        _lessonsService ??= IAppHost.TryGetService<ILessonsService>();
+        if (_lessonsService != null)
+        {
+            _lessonsService.PostMainTimerTicked -= OnPostMainTimerTicked;
+            _lessonsService.PostMainTimerTicked += OnPostMainTimerTicked;
+        }
     }
 
     private void RemoveLayerRecheckHooks()
@@ -1316,6 +1282,11 @@ public class FloatingWindowService
         {
             UnhookWinEvent(_reorderHook);
             _reorderHook = default;
+        }
+
+        if (_lessonsService != null)
+        {
+            _lessonsService.PostMainTimerTicked -= OnPostMainTimerTicked;
         }
     }
 
@@ -1344,8 +1315,7 @@ public class FloatingWindowService
             RemoveReorderHook();
         }
 
-        LayerRecheck50MsTimer.IsEnabled = mode == 2;
-        LayerRecheck1MsTimer.IsEnabled = mode == 3;
+        // mode 2/3 由 PostMainTimerTicked 统一处理，不再启停额外定时器
     }
 
     private void EnsureForegroundHook()
@@ -1404,20 +1374,21 @@ public class FloatingWindowService
         _reorderHook = default;
     }
 
-    private void OnLayerRecheck50MsTimerTick(object? sender, EventArgs e)
+    private void OnPostMainTimerTicked(object? sender, EventArgs e)
     {
-        if (_profileManager.CurrentProfile.FloatingWindowLayerRecheckMode == 2)
+        // 模式 2/3 统一走宿主主计时器；原 1ms 模式因受 50ms 节流无法再保留
+        var mode = _profileManager.CurrentProfile.FloatingWindowLayerRecheckMode;
+        if (mode == 2 || mode == 3)
         {
             RecheckWindowLayer();
         }
-    }
 
-    private void OnLayerRecheck1MsTimerTick(object? sender, EventArgs e)
-    {
-        if (_profileManager.CurrentProfile.FloatingWindowLayerRecheckMode == 3)
-        {
-            RecheckWindowLayer();
-        }
+        // 规则集检查由 ILessonsService.PostMainTimerTicked 统一驱动
+        CheckFloatingWindowRuleset();
+        CheckButtonRulesets();
+        CheckRowRulesets();
+        // 兜底 ApplyVisibility：避免所有按钮都被隐藏但窗口仍显示
+        ApplyVisibility();
     }
 
     private void OnWinEvent(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread,
@@ -1545,7 +1516,11 @@ public class FloatingWindowService
             return;
         }
 
-        _profileManager.SaveProfile();
+        // 只在当前方案文件还存在时才保存，避免刚被删除的方案被重新写回磁盘
+        if (_profileManager.ProfileFileExists(_profileManager.CurrentProfileName))
+        {
+            _profileManager.SaveProfile();
+        }
         _profileManager.LoadProfile(profileName);
         _configHandler.Data.CurrentFloatingWindowProfile = profileName;
         _configHandler.Save();

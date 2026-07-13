@@ -765,9 +765,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         }
     }
 
-    public void AddFloatingWindowProfile()
+    public void AddFloatingWindowProfile(string? name = null)
     {
-        var newName = _floatingWindowService.ProfileManager.CreateProfile();
+        var newName = _floatingWindowService.ProfileManager.CreateProfile(name);
         RefreshFloatingWindowProfiles();
         SelectedFloatingWindowProfile = newName;
         SwitchFloatingWindowProfile(newName);

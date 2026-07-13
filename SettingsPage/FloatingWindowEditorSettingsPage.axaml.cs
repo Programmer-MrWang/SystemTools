@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Avalonia;
@@ -16,9 +17,11 @@ using ClassIsland.Core.Abstractions;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Attributes;
+using ClassIsland.Core.Controls;
 using ClassIsland.Core.Controls.Ruleset;
 using ClassIsland.Core.Models.Ruleset;
 using ClassIsland.Shared;
+using FluentAvalonia.UI.Controls;
 using SystemTools.ConfigHandlers;
 using SystemTools.Services;
 using SystemTools.Shared;
@@ -216,16 +219,51 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         ViewModel.SwitchFloatingWindowProfile(profileName);
     }
 
-    private void OnToggleFloatingWindowProfileClick(object? sender, RoutedEventArgs e)
+    private async void OnAddFloatingWindowProfileClick(object? sender, RoutedEventArgs e)
     {
-        IAppHost.GetService<FloatingWindowService>().ToggleWindowProfile();
-        ViewModel.RefreshFloatingWindowProfiles();
-        ViewModel.RefreshFloatingTriggers();
+        var textBox = new TextBox { Text = "" };
+        var dialogResult = await new ContentDialog
+        {
+            Title = "新建悬浮窗配置方案",
+            DefaultButton = ContentDialogButton.Primary,
+            PrimaryButtonText = "创建",
+            SecondaryButtonText = "取消",
+            Content = new Field
+            {
+                Content = textBox,
+                Label = "配置方案名称",
+                Suffix = ".json"
+            }
+        }.ShowAsync();
+
+        if (dialogResult != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        var createProfileName = textBox.Text?.Trim();
+        if (string.IsNullOrWhiteSpace(createProfileName))
+        {
+            return;
+        }
+
+        var path = Path.Combine(_floatingWindowService.ProfileManager.ProfilesDirectory,
+            createProfileName + ".json");
+        if (File.Exists(path))
+        {
+            return;
+        }
+
+        ViewModel.AddFloatingWindowProfile(createProfileName);
     }
 
-    private void OnAddFloatingWindowProfileClick(object? sender, RoutedEventArgs e)
+    private void OnOpenFloatingWindowProfileFolderClick(object? sender, RoutedEventArgs e)
     {
-        ViewModel.AddFloatingWindowProfile();
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = Path.GetFullPath(_floatingWindowService.ProfileManager.ProfilesDirectory),
+            UseShellExecute = true
+        });
     }
 
     private void OnRemoveCurrentProfileClick(object? sender, RoutedEventArgs e)

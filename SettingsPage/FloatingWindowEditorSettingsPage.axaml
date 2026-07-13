@@ -343,7 +343,7 @@
                                 <StackPanel Orientation="Horizontal"
                                             Classes="items-valign-center"
                                             Spacing="4">
-                                    <TextBlock Text="每 50ms（高占用）" />
+                                    <TextBlock Text="每 1ms（高占用）" />
                                     <ci:FluentIcon Glyph="&#xF431;"
                                                    FontSize="20"
                                                    Margin="0 -8"

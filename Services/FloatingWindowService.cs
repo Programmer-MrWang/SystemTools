@@ -65,6 +65,7 @@ public class FloatingWindowService
     private WinEventProc? _winEventProc;
     private IntPtr _mouseHook;
     private LowLevelMouseProc? _lowLevelMouseProc;
+    private ILessonsService? _lessonsService;
     private DispatcherTimer LayerRecheck50MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(50) };
     private DispatcherTimer LayerRecheck1MsTimer { get; } = new() { Interval = TimeSpan.FromMilliseconds(1) };
 

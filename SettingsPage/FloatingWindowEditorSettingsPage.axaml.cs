@@ -247,7 +247,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             return;
         }
 
-        var path = Path.Combine(_floatingWindowService.ProfileManager.ProfilesDirectory,
+        var path = Path.Combine(ViewModel.FloatingWindowProfilesDirectory,
             createProfileName + ".json");
         if (File.Exists(path))
         {
@@ -261,7 +261,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     {
         Process.Start(new ProcessStartInfo
         {
-            FileName = Path.GetFullPath(_floatingWindowService.ProfileManager.ProfilesDirectory),
+            FileName = Path.GetFullPath(ViewModel.FloatingWindowProfilesDirectory),
             UseShellExecute = true
         });
     }

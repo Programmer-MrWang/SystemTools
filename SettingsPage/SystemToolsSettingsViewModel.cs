@@ -293,6 +293,11 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     public FloatingWindowProfile CurrentFloatingWindowProfile => _floatingWindowService.ProfileManager.CurrentProfile;
 
+    /// <summary>
+    /// 悬浮窗方案 JSON 文件所在目录，供 UI 层打开文件夹/重名检测使用。
+    /// </summary>
+    public string FloatingWindowProfilesDirectory => _floatingWindowService.ProfileManager.ProfilesDirectory;
+
     public void RefreshFloatingWindowProfiles()
     {
         var names = _floatingWindowService.ProfileManager.GetProfileNames();

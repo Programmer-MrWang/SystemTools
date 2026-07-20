@@ -6,8 +6,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace SystemTools.ConfigHandlers;
 
 /// <summary>
-/// 悬浮窗配置方案，保存一套完整的悬浮窗布局和外观配置。
-/// 注意：显示状态(ShowFloatingWindow)和规则集(HideOnRule/HidingRules)是全局设置，不随方案切换。
+/// 悬浮窗配置方案，仅保存悬浮窗按钮布局以及按钮/行规则集。
+/// 注意：外观、位置、层级、显示状态和整窗规则集是全局设置，不随方案切换。
 /// </summary>
 public partial class FloatingWindowProfile : ObservableObject
 {
@@ -24,46 +24,6 @@ public partial class FloatingWindowProfile : ObservableObject
 
     [JsonPropertyName("floatingWindowButtonRows")]
     public List<List<string>> FloatingWindowButtonRows { get; set; } = new();
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowScale")]
-    private double _floatingWindowScale = 1.0;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowIconSize")]
-    private int _floatingWindowIconSize = 22;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowTextSize")]
-    private int _floatingWindowTextSize = 12;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowOpacity")]
-    private int _floatingWindowOpacity = 80;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowPositionX")]
-    private int _floatingWindowPositionX = 100;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowPositionY")]
-    private int _floatingWindowPositionY = 100;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowLayer")]
-    private int _floatingWindowLayer = 1;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowLayerRecheckMode")]
-    private int _floatingWindowLayerRecheckMode = 1;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowShadowEnabled")]
-    private bool _floatingWindowShadowEnabled = true;
-
-    [ObservableProperty]
-    [JsonPropertyName("floatingWindowDragHandleAlwaysVisible")]
-    private bool _floatingWindowDragHandleAlwaysVisible;
 
     [JsonPropertyName("floatingWindowButtonRulesets")]
     public Dictionary<string, ButtonRulesetConfig> FloatingWindowButtonRulesets { get; set; } = new();

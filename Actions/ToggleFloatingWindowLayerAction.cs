@@ -7,6 +7,7 @@ using ClassIsland.Shared;
 using Microsoft.Extensions.Logging;
 using SystemTools.Services;
 using SystemTools.Settings;
+using SystemTools.Shared;
 
 namespace SystemTools.Actions;
 
@@ -26,7 +27,11 @@ public class ToggleFloatingWindowLayerAction(ILogger<ToggleFloatingWindowLayerAc
         try
         {
             var service = IAppHost.GetService<FloatingWindowService>();
-            var profile = service.ProfileManager.CurrentProfile;
+            var config = GlobalConstants.MainConfig?.Data;
+            if (config == null)
+            {
+                return;
+            }
 
             // 根据设置决定是切换还是设置到指定层级
             // TargetLayer: -1=切换, 0=置底, 1=置顶
@@ -34,7 +39,7 @@ public class ToggleFloatingWindowLayerAction(ILogger<ToggleFloatingWindowLayerAc
             {
                 if (IsRevertable)
                 {
-                    PreviousLayers[ActionSet.Guid] = profile.FloatingWindowLayer;
+                    PreviousLayers[ActionSet.Guid] = config.FloatingWindowLayer;
                 }
 
                 service.SetWindowLayer(Settings.TargetLayer);
@@ -44,7 +49,7 @@ public class ToggleFloatingWindowLayerAction(ILogger<ToggleFloatingWindowLayerAc
             {
                 if (IsRevertable)
                 {
-                    PreviousLayers[ActionSet.Guid] = profile.FloatingWindowLayer;
+                    PreviousLayers[ActionSet.Guid] = config.FloatingWindowLayer;
                 }
 
                 service.ToggleWindowLayer();

@@ -100,15 +100,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private void OnProfilePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(FloatingWindowProfile.FloatingWindowScale)
-            or nameof(FloatingWindowProfile.FloatingWindowIconSize)
-            or nameof(FloatingWindowProfile.FloatingWindowTextSize)
-            or nameof(FloatingWindowProfile.FloatingWindowOpacity)
-            or nameof(FloatingWindowProfile.FloatingWindowShadowEnabled)
-            or nameof(FloatingWindowProfile.FloatingWindowLayer)
-            or nameof(FloatingWindowProfile.FloatingWindowLayerRecheckMode)
-            or nameof(FloatingWindowProfile.FloatingWindowDragHandleAlwaysVisible)
-            or nameof(FloatingWindowProfile.FloatingWindowHorizontal))
+        if (e.PropertyName is nameof(FloatingWindowProfile.FloatingWindowHorizontal))
         {
             IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
             IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
@@ -146,7 +138,15 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(MainConfigData.FloatingWindowTheme))
+        if (e.PropertyName is nameof(MainConfigData.FloatingWindowTheme)
+            or nameof(MainConfigData.FloatingWindowScale)
+            or nameof(MainConfigData.FloatingWindowIconSize)
+            or nameof(MainConfigData.FloatingWindowTextSize)
+            or nameof(MainConfigData.FloatingWindowOpacity)
+            or nameof(MainConfigData.FloatingWindowShadowEnabled)
+            or nameof(MainConfigData.FloatingWindowDragHandleAlwaysVisible)
+            or nameof(MainConfigData.FloatingWindowLayer)
+            or nameof(MainConfigData.FloatingWindowLayerRecheckMode))
         {
             GlobalConstants.MainConfig?.Save();
             IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
@@ -394,7 +394,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
                 break;
         }
 
-        IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
+        SaveCurrentRulesetTarget();
         IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
         NotifyRulesetStatusChanged();
     }
@@ -417,7 +417,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
                 break;
         }
 
-        IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
+        SaveCurrentRulesetTarget();
         IAppHost.GetService<FloatingWindowService>().UpdateWindowState();
         NotifyRulesetStatusChanged();
     }
@@ -425,6 +425,17 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     private void NotifyRulesetStatusChanged()
     {
         IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
+    }
+
+    private void SaveCurrentRulesetTarget()
+    {
+        if (_currentRulesetTarget == RulesetTargetType.Window)
+        {
+            GlobalConstants.MainConfig?.Save();
+            return;
+        }
+
+        IAppHost.GetService<FloatingWindowService>().ProfileManager.SaveProfile();
     }
 
     private void AttachRulesetListeners(Ruleset ruleset)
@@ -489,6 +500,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             return;
         }
 
+        SaveCurrentRulesetTarget();
         NotifyRulesetStatusChanged();
         IAppHost.TryGetService<FloatingWindowService>()?.UpdateWindowState();
     }
@@ -504,6 +516,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         DetachRulesetListeners();
         AttachRulesetListeners(ruleset);
 
+        SaveCurrentRulesetTarget();
         NotifyRulesetStatusChanged();
         IAppHost.TryGetService<FloatingWindowService>()?.UpdateWindowState();
     }
@@ -519,6 +532,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         DetachRulesetListeners();
         AttachRulesetListeners(ruleset);
 
+        SaveCurrentRulesetTarget();
         NotifyRulesetStatusChanged();
         IAppHost.TryGetService<FloatingWindowService>()?.UpdateWindowState();
     }

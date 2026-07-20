@@ -19,15 +19,6 @@ public class FloatingWindowProfileManager
     public static FloatingWindowProfile DefaultProfile { get; } = new()
     {
         Name = "Default",
-        FloatingWindowScale = 1.0,
-        FloatingWindowIconSize = 22,
-        FloatingWindowTextSize = 12,
-        FloatingWindowOpacity = 80,
-        FloatingWindowPositionX = 100,
-        FloatingWindowPositionY = 100,
-        FloatingWindowLayer = 1,
-        FloatingWindowLayerRecheckMode = 1,
-        FloatingWindowShadowEnabled = true,
         FloatingWindowButtonOrder = new List<string>(),
         FloatingWindowButtonRows = new List<List<string>>(),
         FloatingWindowButtonRulesets = new Dictionary<string, ButtonRulesetConfig>(),
@@ -60,16 +51,6 @@ public class FloatingWindowProfileManager
             FloatingWindowHorizontal = legacyData.FloatingWindowHorizontal,
             FloatingWindowButtonOrder = new List<string>(legacyData.FloatingWindowButtonOrder ?? []),
             FloatingWindowButtonRows = (legacyData.FloatingWindowButtonRows ?? []).Select(r => new List<string>(r)).ToList(),
-            FloatingWindowScale = legacyData.FloatingWindowScale,
-            FloatingWindowIconSize = legacyData.FloatingWindowIconSize,
-            FloatingWindowTextSize = legacyData.FloatingWindowTextSize,
-            FloatingWindowOpacity = legacyData.FloatingWindowOpacity,
-            FloatingWindowPositionX = legacyData.FloatingWindowPositionX,
-            FloatingWindowPositionY = legacyData.FloatingWindowPositionY,
-            FloatingWindowLayer = legacyData.FloatingWindowLayer,
-            FloatingWindowLayerRecheckMode = legacyData.FloatingWindowLayerRecheckMode,
-            FloatingWindowShadowEnabled = legacyData.FloatingWindowShadowEnabled,
-            FloatingWindowDragHandleAlwaysVisible = legacyData.FloatingWindowDragHandleAlwaysVisible,
             FloatingWindowButtonRulesets = new Dictionary<string, ButtonRulesetConfig>(legacyData.FloatingWindowButtonRulesets ?? []),
             FloatingWindowRowRulesets = new List<RowRulesetConfig>(legacyData.FloatingWindowRowRulesets ?? [])
         };

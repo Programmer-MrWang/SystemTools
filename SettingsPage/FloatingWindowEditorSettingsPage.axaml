@@ -201,10 +201,10 @@
                                     Maximum="2"
                                     TickFrequency="0.1"
                                     IsSnapToTickEnabled="True"
-                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
-                                    Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, Mode=TwoWay}" />
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowScale, Mode=TwoWay}" />
                             <TextBlock
-                                Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
+                                Text="{Binding ViewModel.Settings.FloatingWindowScale, StringFormat='{}{0:F1}x'}"
                                 Width="46"
                                 VerticalAlignment="Center" />
                         </StackPanel>
@@ -221,10 +221,10 @@
                                     Maximum="50"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
-                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, StringFormat='{}{0}px'}"
-                                    Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, Mode=TwoWay}" />
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowIconSize, StringFormat='{}{0}px'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowIconSize, Mode=TwoWay}" />
                             <TextBlock
-                                Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowIconSize, StringFormat='{}{0}px'}"
+                                Text="{Binding ViewModel.Settings.FloatingWindowIconSize, StringFormat='{}{0}px'}"
                                 Width="46"
                                 VerticalAlignment="Center" />
                         </StackPanel>
@@ -241,10 +241,10 @@
                                     Maximum="25"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
-                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, StringFormat='{}{0}px'}"
-                                    Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, Mode=TwoWay}" />
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowTextSize, StringFormat='{}{0}px'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowTextSize, Mode=TwoWay}" />
                             <TextBlock
-                                Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowTextSize, StringFormat='{}{0}px'}"
+                                Text="{Binding ViewModel.Settings.FloatingWindowTextSize, StringFormat='{}{0}px'}"
                                 Width="46"
                                 VerticalAlignment="Center" />
                         </StackPanel>
@@ -261,9 +261,9 @@
                                     Maximum="100"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
-                                    ToolTip.Tip="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, StringFormat='{}{0}%'}"
-                                    Value="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, Mode=TwoWay}" />
-                            <TextBlock Text="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowOpacity, StringFormat='{}{0}%'}"
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowOpacity, StringFormat='{}{0}%'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowOpacity, Mode=TwoWay}" />
+                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowOpacity, StringFormat='{}{0}%'}"
                                        Width="46"
                                        VerticalAlignment="Center" />
                         </StackPanel>
@@ -292,7 +292,7 @@
                                                Content="阴影效果"
                                                Description="悬浮窗阴影效果">
                     <controls:SettingsExpanderItem.Footer>
-                        <ToggleSwitch IsChecked="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowShadowEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowShadowEnabled, Mode=TwoWay}" />
                     </controls:SettingsExpanderItem.Footer>
                 </controls:SettingsExpanderItem>
 
@@ -300,7 +300,7 @@
                                                Content="一直显示拖动把手"
                                                Description="即使未检测到触摸设备也显示拖动把手">
                     <controls:SettingsExpanderItem.Footer>
-                        <ToggleSwitch IsChecked="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowDragHandleAlwaysVisible, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowDragHandleAlwaysVisible, Mode=TwoWay}" />
                     </controls:SettingsExpanderItem.Footer>
                 </controls:SettingsExpanderItem>
             </controls:SettingsExpander>
@@ -311,7 +311,7 @@
                                        Description="悬浮窗在屏幕上的层级。置底则会显示在所有窗口的后方，置顶则将显示在所有窗口的前方。"
                                        IsExpanded="False">
                 <controls:SettingsExpander.Footer>
-                    <ComboBox SelectedIndex="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowLayer, Mode=TwoWay}">
+                    <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowLayer, Mode=TwoWay}">
                         <ComboBoxItem>
                             <ci:IconText Glyph="&#xE0CB;" Text="置底" />
                         </ComboBoxItem>
@@ -325,7 +325,7 @@
                                                Description="在什么时候重新设置悬浮窗层级。请注意，较高的频率可能会产生较高的性能占用并导致悬浮窗闪烁。">
                     <controls:SettingsExpanderItem.Footer>
                         <ComboBox
-                            SelectedIndex="{Binding ViewModel.CurrentFloatingWindowProfile.FloatingWindowLayerRecheckMode, Mode=TwoWay}">
+                            SelectedIndex="{Binding ViewModel.Settings.FloatingWindowLayerRecheckMode, Mode=TwoWay}">
                             <ComboBoxItem>窗口层级变化时</ComboBoxItem>
                             <ComboBoxItem>前台窗口变化时</ComboBoxItem>
                             <ComboBoxItem>

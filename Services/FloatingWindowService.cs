@@ -307,7 +307,7 @@ public class FloatingWindowService
             Width = 64,
             Height = 64,
             ShowActivated = false,
-            Topmost = _profileManager.CurrentProfile.FloatingWindowLayer == 1,
+            Topmost = _configHandler.Data.FloatingWindowLayer == 1,
             SystemDecorations = SystemDecorations.None,
             Background = Brushes.Transparent,
             CanResize = false,
@@ -598,10 +598,11 @@ public class FloatingWindowService
         }
 
         var profile = _profileManager.CurrentProfile;
-        var scale = Math.Clamp(profile.FloatingWindowScale, 0.5, 2.0);
-        var iconSize = Math.Clamp(profile.FloatingWindowIconSize, 15, 50) * scale;
-        var textSize = Math.Clamp(profile.FloatingWindowTextSize, 8, 30) * scale;
-        var opacity = Math.Clamp(profile.FloatingWindowOpacity, 10, 100);
+        var config = _configHandler.Data;
+        var scale = Math.Clamp(config.FloatingWindowScale, 0.5, 2.0);
+        var iconSize = Math.Clamp(config.FloatingWindowIconSize, 15, 50) * scale;
+        var textSize = Math.Clamp(config.FloatingWindowTextSize, 8, 30) * scale;
+        var opacity = Math.Clamp(config.FloatingWindowOpacity, 10, 100);
         var alpha = (byte)Math.Round(255 * (opacity / 100.0));
         var isLightTheme = IsLightTheme();
         var windowBackground = isLightTheme
@@ -612,7 +613,7 @@ public class FloatingWindowService
         if (_windowContainer != null)
         {
             _windowContainer.Background = windowBackground;
-            _windowContainer.BoxShadow = profile.FloatingWindowShadowEnabled
+            _windowContainer.BoxShadow = config.FloatingWindowShadowEnabled
                 ? new BoxShadows(new BoxShadow
                 {
                     OffsetX = 0,
@@ -753,7 +754,7 @@ public class FloatingWindowService
 
         // 仅在"至少有一个可见按钮"时才显示拖拽把手，避免孤零零一个把手
         var hasVisibleButtons = _stackPanel.Children.Count > 0;
-        var showDragHandle = (_isTouchDeviceDetected || _profileManager.CurrentProfile.FloatingWindowDragHandleAlwaysVisible)
+        var showDragHandle = (_isTouchDeviceDetected || _configHandler.Data.FloatingWindowDragHandleAlwaysVisible)
             && hasVisibleButtons;
 
         if (showDragHandle)
@@ -795,7 +796,7 @@ public class FloatingWindowService
         }
 
         int rowIndex = 0;
-        foreach (var row in profile.FloatingWindowButtonRows ?? [])
+        foreach (var row in GetConfiguredButtonRowsWithFallback(profile))
         {
             if (!hiddenRowSet.Contains(rowIndex))
             {
@@ -838,7 +839,7 @@ public class FloatingWindowService
 
         var rows = new List<List<FloatingWindowEntry>>();
 
-        foreach (var row in profile.FloatingWindowButtonRows ?? [])
+        foreach (var row in GetConfiguredButtonRowsWithFallback(profile))
         {
             var items = new List<FloatingWindowEntry>();
             foreach (var id in row)
@@ -852,6 +853,39 @@ public class FloatingWindowService
             {
                 rows.Add(items);
             }
+        }
+
+        return rows;
+    }
+
+
+    private List<List<string>> GetConfiguredButtonRowsWithFallback(FloatingWindowProfile profile)
+    {
+        var validButtonIds = _entries.Values.Select(x => x.ButtonId).Distinct().ToList();
+        var validSet = validButtonIds.ToHashSet();
+        var rows = (profile.FloatingWindowButtonRows ?? [])
+            .Select(row => row.Where(validSet.Contains).Distinct().ToList())
+            .Where(row => row.Count > 0)
+            .ToList();
+
+        var configuredIds = rows.SelectMany(row => row).ToHashSet();
+        var missingIds = validButtonIds
+            .Where(id => !configuredIds.Contains(id))
+            .Where(id => !profile.FloatingWindowButtonRulesets.ContainsKey(id))
+            .ToList();
+
+        if (missingIds.Count == 0)
+        {
+            return rows;
+        }
+
+        if (rows.Count == 0)
+        {
+            rows.Add(missingIds);
+        }
+        else
+        {
+            rows[0].AddRange(missingIds);
         }
 
         return rows;
@@ -1304,8 +1338,7 @@ public class FloatingWindowService
 
     private void RefreshLayerRecheckMode()
     {
-        var profile = _profileManager.CurrentProfile;
-        var mode = profile.FloatingWindowLayerRecheckMode;
+        var mode = _configHandler.Data.FloatingWindowLayerRecheckMode;
         var useReorderHook = mode == 0;
         var useForegroundHook = mode == 1;
 
@@ -1399,7 +1432,7 @@ public class FloatingWindowService
 
     private void OnLayerRecheck50MsTimerTick(object? sender, EventArgs e)
     {
-        if (_profileManager.CurrentProfile.FloatingWindowLayerRecheckMode == 2)
+        if (_configHandler.Data.FloatingWindowLayerRecheckMode == 2)
         {
             RecheckWindowLayer();
         }
@@ -1407,7 +1440,7 @@ public class FloatingWindowService
 
     private void OnLayerRecheck1MsTimerTick(object? sender, EventArgs e)
     {
-        if (_profileManager.CurrentProfile.FloatingWindowLayerRecheckMode == 3)
+        if (_configHandler.Data.FloatingWindowLayerRecheckMode == 3)
         {
             RecheckWindowLayer();
         }
@@ -1421,7 +1454,7 @@ public class FloatingWindowService
             return;
         }
 
-        var mode = _profileManager.CurrentProfile.FloatingWindowLayerRecheckMode;
+        var mode = _configHandler.Data.FloatingWindowLayerRecheckMode;
         var shouldRecheck = (@event == EventObjectReorder && mode == 0) ||
                             (@event == EventSystemForeground && mode == 1);
         if (!shouldRecheck)
@@ -1454,7 +1487,7 @@ public class FloatingWindowService
                     SET_WINDOW_POS_FLAGS.SWP_NOSENDCHANGING;
         var hwnd = new HWND(handle);
 
-        if (_profileManager.CurrentProfile.FloatingWindowLayer == 0)
+        if (_configHandler.Data.FloatingWindowLayer == 0)
         {
             _window.Topmost = false;
             PInvoke.SetWindowPos(hwnd, HwndBottom, 0, 0, 0, 0, flags);
@@ -1467,30 +1500,18 @@ public class FloatingWindowService
 
     public void ToggleWindowLayer()
     {
-        var profile = _profileManager.CurrentProfile;
-        profile.FloatingWindowLayer = profile.FloatingWindowLayer == 1 ? 0 : 1;
-        _profileManager.SaveProfile();
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_window != null)
-            {
-                _window.Topmost = profile.FloatingWindowLayer == 1;
-            }
-            RecheckWindowLayer();
-            RefreshLayerRecheckMode();
-        });
+        SetWindowLayer(_configHandler.Data.FloatingWindowLayer == 1 ? 0 : 1);
     }
 
     public void SetWindowLayer(int layer)
     {
-        var profile = _profileManager.CurrentProfile;
-        profile.FloatingWindowLayer = layer == 1 ? 1 : 0;
-        _profileManager.SaveProfile();
+        _configHandler.Data.FloatingWindowLayer = layer == 1 ? 1 : 0;
+        _configHandler.Save();
         Dispatcher.UIThread.Post(() =>
         {
             if (_window != null)
             {
-                _window.Topmost = profile.FloatingWindowLayer == 1;
+                _window.Topmost = _configHandler.Data.FloatingWindowLayer == 1;
             }
             RecheckWindowLayer();
             RefreshLayerRecheckMode();

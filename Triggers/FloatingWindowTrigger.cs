@@ -104,7 +104,7 @@ public class FloatingWindowTrigger : TriggerBase<FloatingWindowTriggerConfig>
 
     public string GetLayoutButtonName()
     {
-        return IsRevertEnabled() ? $"{Settings.ButtonName}(启用恢复)" : Settings.ButtonName;
+        return Settings.ButtonName;
     }
 
     public bool ShouldUseRevertStyle()

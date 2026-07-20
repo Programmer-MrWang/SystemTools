@@ -41,7 +41,10 @@ public partial class AboutSettingsPage : SettingsPageBase
             Button s => s.CommandParameter?.ToString(),
             _ => "classisland://app/test/"
         };
-        IAppHost.TryGetService<IUriNavigationService>()?.NavigateWrapped(new Uri(url));
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            IAppHost.TryGetService<IUriNavigationService>()?.NavigateWrapped(new Uri(url));
+        }
     }
 
     private void CheckAutoSwitchTab()

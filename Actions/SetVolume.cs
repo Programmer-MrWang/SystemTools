@@ -167,7 +167,18 @@ internal class MMDeviceEnumeratorWrapper
     public MMDeviceEnumeratorWrapper()
     {
         var type = Type.GetTypeFromCLSID(new Guid("BCDE0395-E52F-467C-8E3D-C4579291692E"));
-        _enumerator = (IMMDeviceEnumerator)Activator.CreateInstance(type);
+        if (type == null)
+        {
+            throw new InvalidOperationException("无法获取 MMDeviceEnumerator 类型。");
+        }
+
+        var instance = Activator.CreateInstance(type);
+        if (instance == null)
+        {
+            throw new InvalidOperationException("无法创建 MMDeviceEnumerator 实例。");
+        }
+
+        _enumerator = (IMMDeviceEnumerator)instance;
     }
 
     public IMMDevice GetDefaultAudioEndpoint(EDataFlow dataFlow, ERole role)

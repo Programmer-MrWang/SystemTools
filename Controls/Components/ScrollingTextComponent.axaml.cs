@@ -68,9 +68,11 @@ public partial class ScrollingTextComponent : ComponentBase<ScrollingTextSetting
             try
             {
                 if (token.IsCancellationRequested) return;
+                if (LayoutRoot == null || ScrollingContent == null || FirstTextBlock == null || GapCanvas == null) return;
 
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 10; i++)
                 {
+                    if (token.IsCancellationRequested) return;
                     if (FirstTextBlock.Bounds.Width > 0 && FirstTextBlock.Bounds.Height > 0) break;
                     await Task.Delay(100, token);
                 }
@@ -78,6 +80,11 @@ public partial class ScrollingTextComponent : ComponentBase<ScrollingTextSetting
                 double textWidth = FirstTextBlock.Bounds.Width;
                 double textHeight = FirstTextBlock.Bounds.Height;
                 double maxWidth = Settings.ComponentWidth;
+                
+                if (textWidth <= 0 || textHeight <= 0)
+                {
+                    return;
+                }
                 
                 double finalWidth = Math.Min(textWidth + 24, maxWidth);
                 LayoutRoot.Width = finalWidth;
@@ -114,7 +121,10 @@ public partial class ScrollingTextComponent : ComponentBase<ScrollingTextSetting
                 }
             }
             catch (OperationCanceledException) { }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ScrollingText] UpdateMarquee error: {ex.Message}");
+            }
         }, DispatcherPriority.Loaded);
     }
 

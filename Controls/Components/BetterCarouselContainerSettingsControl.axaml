@@ -42,7 +42,7 @@
                                            IconSource="{ci:FluentIconSource &#xEDC1;}"
                                            IsExpanded="True">
                     <controls:FASettingsExpander.Footer>
-                        <controls:FAToggleSwitch IsChecked="{Binding Settings.IsAnimationEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding Settings.IsAnimationEnabled, Mode=TwoWay}" />
                     </controls:FASettingsExpander.Footer>
                     <controls:FASettingsExpanderItem Content="动画样式"
                                                    Description="切换组件时使用的动画样式"
@@ -67,7 +67,7 @@
                                            IconSource="{ci:FluentIconSource &#xE093;}">
                     <controls:FASettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
+                            <ToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
                             <ComboBox Width="140"
                                       IsVisible="{Binding Settings.ShowProgressBar}"
                                       SelectedItem="{Binding Settings.ProgressBarPosition, Mode=TwoWay}"
@@ -87,7 +87,7 @@
                                            IconSource="{ci:FluentIconSource &#xEDC1;}"
                                            IsVisible="{Binding Settings.ShowProgressBar}">
                     <controls:FASettingsExpander.Footer>
-                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ReduceProgressBarPrecision, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding Settings.ReduceProgressBarPrecision, Mode=TwoWay}" />
                     </controls:FASettingsExpander.Footer>
                 </controls:FASettingsExpander>
 
@@ -95,7 +95,7 @@
                                            Description="在容器左右两侧固定显示“&lt;”和“&gt;”"
                                            IconSource="{ci:FluentIconSource &#xEEDF;}">
                     <controls:FASettingsExpander.Footer>
-                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowSideSeparators, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowSideSeparators, Mode=TwoWay}" />
                     </controls:FASettingsExpander.Footer>
                 </controls:FASettingsExpander>
 

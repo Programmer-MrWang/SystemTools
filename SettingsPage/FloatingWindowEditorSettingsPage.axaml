@@ -55,7 +55,7 @@
                                 Theme="{StaticResource TransparentButton}" />
                     </StackPanel>
                 </ci:Field>
-                <controls:FAToggleSwitch Grid.Column="1"
+                <ToggleSwitch Grid.Column="1"
                               OnContent="显示" OffContent="隐藏"
                               IsChecked="{Binding ViewModel.Settings.ShowFloatingWindow, Mode=OneWay}"
                               IsEnabled="{Binding ViewModel.HasFloatingTriggerEntries}"
@@ -293,7 +293,7 @@
                                                Content="阴影效果"
                                                Description="悬浮窗阴影效果">
                     <controls:FASettingsExpanderItem.Footer>
-                        <controls:FAToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowShadowEnabled, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowShadowEnabled, Mode=TwoWay}" />
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
 
@@ -301,7 +301,7 @@
                                                Content="一直显示拖动把手"
                                                Description="即使未检测到触摸设备也显示拖动把手">
                     <controls:FASettingsExpanderItem.Footer>
-                        <controls:FAToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowDragHandleAlwaysVisible, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowDragHandleAlwaysVisible, Mode=TwoWay}" />
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
@@ -368,7 +368,7 @@
                                 IsVisible="{Binding ViewModel.Settings.FloatingWindowRulesetEnabled}">
                             <ci:IconText Glyph="&#xF17E;" Text="编辑规则集…" />
                         </Button>
-                        <controls:FAToggleSwitch VerticalAlignment="Center"
+                        <ToggleSwitch VerticalAlignment="Center"
                                       OnContent="启用" OffContent="禁用"
                                       IsChecked="{Binding ViewModel.Settings.FloatingWindowRulesetEnabled}" />
                     </StackPanel>

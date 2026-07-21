@@ -163,7 +163,7 @@
                     <controls:FASettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal">
                             <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
-                            <controls:FAToggleSwitch
+                            <ToggleSwitch
                                 IsChecked="{Binding ViewModel.Settings.EnableExperimentalFeatures, Mode=TwoWay}" />
                         </StackPanel>
                     </controls:FASettingsExpander.Footer>
@@ -190,7 +190,7 @@
                                            Header="启用悬浮窗功能"
                                            Description="关闭后将禁用悬浮窗相关全部功能">
                     <controls:FASettingsExpander.Footer>
-                        <controls:FAToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFloatingWindowFeature, Mode=TwoWay}"
+                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFloatingWindowFeature, Mode=TwoWay}"
                                       Click="OnFloatingFeatureToggleClick" />
                     </controls:FASettingsExpander.Footer>
                 </controls:FASettingsExpander>
@@ -201,7 +201,7 @@
 
                     <controls:FASettingsExpanderItem Content="启用需要添加 FFmpeg 依赖的功能">
                         <controls:FASettingsExpanderItem.Footer>
-                            <controls:FAToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFfmpegFeatures, Mode=TwoWay}"
+                            <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFfmpegFeatures, Mode=TwoWay}"
                                           Click="OnFfmpegToggleClick" />
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
@@ -219,7 +219,7 @@
                         <controls:FASettingsExpanderItem.Footer>
                             <StackPanel Orientation="Horizontal">
                                 <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
-                                <controls:FAToggleSwitch
+                                <ToggleSwitch
                                     IsChecked="{Binding ViewModel.Settings.EnableFaceRecognition, Mode=TwoWay}"
                                     Click="OnFaceRecognitionToggleClick" />
                             </StackPanel>

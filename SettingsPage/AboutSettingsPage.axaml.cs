@@ -37,7 +37,7 @@ public partial class AboutSettingsPage : SettingsPageBase
     {
         var url = e.Source switch
         {
-            SettingsExpanderItem s => s.CommandParameter?.ToString(),
+            FASettingsExpanderItem s => s.CommandParameter?.ToString(),
             Button s => s.CommandParameter?.ToString(),
             _ => "classisland://app/test/"
         };

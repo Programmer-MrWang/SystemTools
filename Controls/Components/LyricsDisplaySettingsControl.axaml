@@ -84,7 +84,7 @@
                     <controls:FASettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal">
                             <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
-                        <controls:FAToggleSwitch IsChecked="{Binding Settings.KeepLyricsWindowBottom, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding Settings.KeepLyricsWindowBottom, Mode=TwoWay}" />
                         </StackPanel>
                     </controls:FASettingsExpander.Footer>
                 </controls:FASettingsExpander>

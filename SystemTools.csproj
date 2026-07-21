@@ -4,9 +4,6 @@
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <UseWindowsForms>true</UseWindowsForms>
-        <EnableDynamicLoading>true</EnableDynamicLoading>
-        <CreateCipx>true</CreateCipx>
-        <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
         <Platforms>x64</Platforms>
     </PropertyGroup>
     <ItemGroup>
@@ -14,12 +11,7 @@
     </ItemGroup>
     
     <ItemGroup>
-        <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1">
-            <ExcludeAssets>runtime; native</ExcludeAssets>
-        </PackageReference>
-        <PackageReference Include="ClassIsland.Core" Version="2.1.1">
-            <ExcludeAssets>runtime; native</ExcludeAssets>
-        </PackageReference>
+        <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.0" />
         <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">

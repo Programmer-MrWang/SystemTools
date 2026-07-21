@@ -29,7 +29,7 @@ using SystemTools.Shared;
 namespace SystemTools;
 
 [HidePageTitle]
-[SettingsPageInfo("systemtools.settings.floating", "悬浮窗编辑", "\uEA37", "\uEA37")]
+[SettingsPageInfo("systemtools.settings.floating", "悬浮窗编辑", "", "")]
 public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 {
     public FloatingWindowEditorSettingsPage()
@@ -61,6 +61,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private Point? _floatingDragStartPoint;
     private Border? _floatingDragSourceBorder;
+    private PointerPressedEventArgs? _floatingDragPressedArgs;
 
     // ===== 规则集 Drawer 状态 =====
     private enum RulesetTargetType { Button, Row, Window }
@@ -68,8 +69,8 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     private FloatingTriggerItem? _currentButtonTarget;
     private FloatingTriggerRow? _currentRowTarget;
 
-    private FAToggleSwitch? _drawerIsVisibleToggle;
-    private FAToggleSwitch? _drawerHideOnRuleToggle;
+    private ToggleSwitch? _drawerIsVisibleToggle;
+    private ToggleSwitch? _drawerHideOnRuleToggle;
     private RulesetControl? _drawerRulesetControl;
 
     private Ruleset? _currentDrawerRuleset;
@@ -181,7 +182,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private void OnFloatingWindowVisibleToggleChanged(object? sender, RoutedEventArgs e)
     {
-        if (sender is not FAToggleSwitch toggle)
+        if (sender is not ToggleSwitch toggle)
         {
             return;
         }
@@ -329,7 +330,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             Margin = new Thickness(22, 0, 0, -15)
         };
 
-        _drawerIsVisibleToggle = new FAToggleSwitch
+        _drawerIsVisibleToggle = new ToggleSwitch
         {
             OnContent = "显示",
             OffContent = "隐藏",
@@ -339,7 +340,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         ToolTip.SetTip(_drawerIsVisibleToggle, "控制此项目是否显示");
         _drawerIsVisibleToggle.IsCheckedChanged += OnDrawerIsVisibleChanged;
 
-        _drawerHideOnRuleToggle = new FAToggleSwitch
+        _drawerHideOnRuleToggle = new ToggleSwitch
         {
             OnContent = "按规则隐藏",
             OffContent = "禁用规则",
@@ -600,6 +601,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
         _floatingDragSourceBorder = border;
         _floatingDragStartPoint = e.GetPosition(border);
+        _floatingDragPressedArgs = e;
         // 主动 capture，避免鼠标移出 Border 后丢失 PointerMoved/PointerReleased
         e.Pointer.Capture(border);
         e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
@@ -613,6 +615,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         }
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
+        _floatingDragPressedArgs = null;
     }
 
     private async void OnFloatingTriggerItemPointerMoved(object? sender, PointerEventArgs e)
@@ -638,25 +641,30 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             return;
         }
 
+        if (_floatingDragPressedArgs == null)
+        {
+            return;
+        }
+
         var data = new DataTransfer();
-        data.SetData("FloatingTriggerButtonId", buttonId);
+        var format = DataFormat.CreateStringApplicationFormat("FloatingTriggerButtonId");
+        data.Add(DataTransferItem.Create(format, buttonId));
 
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
         var isTouchOrPen = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
-        await e.DoDragDrop(data, DragDropEffects.Move);
+        await DragDrop.DoDragDropAsync(_floatingDragPressedArgs, data, DragDropEffects.Move);
+        _floatingDragPressedArgs = null;
         e.Handled = isTouchOrPen;
     }
 
     private static bool TryGetDragButtonId(DragEventArgs e, out string buttonId)
     {
         buttonId = string.Empty;
-        if (!e.DataTransfer.Contains("FloatingTriggerButtonId"))
-        {
+        var format = DataFormat.CreateStringApplicationFormat("FloatingTriggerButtonId");
+        if (!e.DataTransfer.Formats.Contains(format))
             return false;
-        }
-
-        buttonId = e.DataTransfer.Get("FloatingTriggerButtonId") as string ?? string.Empty;
+        buttonId = e.DataTransfer.TryGetText() ?? string.Empty;
         return !string.IsNullOrWhiteSpace(buttonId);
     }
 

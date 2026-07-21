@@ -22,7 +22,7 @@ using ClassIsland.Core.Abstractions.Services;
 namespace SystemTools;
 
 [HidePageTitle]
-[SettingsPageInfo("systemtools.settings.main", "主设置", "\uE079", "\uE078")]
+[SettingsPageInfo("systemtools.settings.main", "主设置", "", "")]
 public partial class SystemToolsSettingsPage : SettingsPageBase
 {
     public SystemToolsSettingsPage()
@@ -81,7 +81,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private async void OnFfmpegToggleClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not FAToggleSwitch toggle) return;
+        if (sender is not ToggleSwitch toggle) return;
 
         if (toggle.IsChecked == true)
         {
@@ -130,7 +130,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private async void OnFaceRecognitionToggleClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not FAToggleSwitch toggle) return;
+        if (sender is not ToggleSwitch toggle) return;
 
         if (toggle.IsChecked == true)
         {
@@ -235,6 +235,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private Point? _floatingDragStartPoint;
     private Border? _floatingDragSourceBorder;
+    private PointerPressedEventArgs? _floatingDragPressedArgs;
 
     private void OnAddFloatingTriggerRowClick(object? sender, RoutedEventArgs e)
     {
@@ -266,6 +267,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
         _floatingDragSourceBorder = border;
         _floatingDragStartPoint = e.GetPosition(border);
+        _floatingDragPressedArgs = e;
         e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
     }
 
@@ -273,6 +275,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
     {
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
+        _floatingDragPressedArgs = null;
     }
 
     private async void OnFloatingTriggerItemPointerMoved(object? sender, PointerEventArgs e)
@@ -298,24 +301,29 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
             return;
         }
 
+        if (_floatingDragPressedArgs == null)
+        {
+            return;
+        }
+
         var data = new DataTransfer();
-        data.SetData("FloatingTriggerButtonId", buttonId);
+        var format = DataFormat.CreateStringApplicationFormat("FloatingTriggerButtonId");
+        data.Add(DataTransferItem.Create(format, buttonId));
 
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
-        await e.DoDragDrop(data, DragDropEffects.Move);
+        await DragDrop.DoDragDropAsync(_floatingDragPressedArgs, data, DragDropEffects.Move);
+        _floatingDragPressedArgs = null;
         e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
     }
 
     private static bool TryGetDragButtonId(DragEventArgs e, out string buttonId)
     {
         buttonId = string.Empty;
-        if (!e.DataTransfer.Contains("FloatingTriggerButtonId"))
-        {
+        var format = DataFormat.CreateStringApplicationFormat("FloatingTriggerButtonId");
+        if (!e.DataTransfer.Formats.Contains(format))
             return false;
-        }
-
-        buttonId = e.DataTransfer.Get("FloatingTriggerButtonId") as string ?? string.Empty;
+        buttonId = e.DataTransfer.TryGetText() ?? string.Empty;
         return !string.IsNullOrWhiteSpace(buttonId);
     }
 

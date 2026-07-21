@@ -8,13 +8,13 @@ namespace SystemTools.Controls;
 
 public class ShowFloatingWindowSettingsControl : ActionSettingsControlBase<ShowFloatingWindowSettings>
 {
-    private readonly FAToggleSwitch _toggleSwitch;
+    private readonly ToggleSwitch _toggleSwitch;
 
     public ShowFloatingWindowSettingsControl()
     {
         var panel = new StackPanel { Spacing = 10, Margin = new(10) };
 
-        _toggleSwitch = new FAToggleSwitch
+        _toggleSwitch = new ToggleSwitch
         {
             Content = "显示悬浮窗",
             IsChecked = true
@@ -29,7 +29,7 @@ public class ShowFloatingWindowSettingsControl : ActionSettingsControlBase<ShowF
     {
         base.OnInitialized();
 
-        _toggleSwitch.Bind(FAToggleSwitch.IsCheckedProperty, new Binding(nameof(Settings.ShowFloatingWindow))
+        _toggleSwitch.Bind(ToggleSwitch.IsCheckedProperty, new Binding(nameof(Settings.ShowFloatingWindow))
         {
             Source = Settings,
             Mode = BindingMode.TwoWay

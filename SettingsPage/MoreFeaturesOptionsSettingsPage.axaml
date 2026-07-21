@@ -21,9 +21,8 @@
                                        Header="自动播放"
                                        Description="当插入U盘设备时时自动打开">
                 <controls:FASettingsExpander.Footer>
-                    <controls:FAToggleSwitch IsChecked="{Binding Config.AutoOpenUsbDriveOnInsert, Mode=TwoWay}"
-                                  Checked="AutoOpenUsbToggle_OnChanged"
-                                  Unchecked="AutoOpenUsbToggle_OnChanged" />
+                    <ToggleSwitch IsChecked="{Binding Config.AutoOpenUsbDriveOnInsert, Mode=TwoWay}"
+                                  IsCheckedChanged="AutoOpenUsbToggle_OnChanged" />
                 </controls:FASettingsExpander.Footer>
             </controls:FASettingsExpander>
 
@@ -31,9 +30,8 @@
                                        Header="自动清理 ClassIsland 内存"
                                        Description="当软件内存占用超过 500MB 时自动执行垃圾回收与工作集修剪。">
                 <controls:FASettingsExpander.Footer>
-                    <controls:FAToggleSwitch IsChecked="{Binding Config.AutoCleanupClassIslandMemory, Mode=TwoWay}"
-                                  Checked="AutoCleanupMemoryToggle_OnChanged"
-                                  Unchecked="AutoCleanupMemoryToggle_OnChanged" />
+                    <ToggleSwitch IsChecked="{Binding Config.AutoCleanupClassIslandMemory, Mode=TwoWay}"
+                                  IsCheckedChanged="AutoCleanupMemoryToggle_OnChanged" />
                 </controls:FASettingsExpander.Footer>
             </controls:FASettingsExpander>
 

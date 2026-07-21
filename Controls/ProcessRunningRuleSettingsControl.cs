@@ -5,6 +5,7 @@ using ClassIsland.Core.Abstractions.Controls;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Avalonia.Input.Platform;
 using SystemTools.Rules;
 
 namespace SystemTools.Controls;

@@ -28,7 +28,7 @@
                                            Description="开启后会显示对应课程时间段"
                                            IconSource="{ci:FluentIconSource &#xF361;}">
                     <controls:FASettingsExpander.Footer>
-                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowTimeRange, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowTimeRange, Mode=TwoWay}" />
                     </controls:FASettingsExpander.Footer>
                 </controls:FASettingsExpander>
 
@@ -36,7 +36,7 @@
                                           Description="开启后会显示任教老师姓名"
                                           IconSource="{ci:FluentIconSource &#xED4F;}">
                     <controls:FASettingsExpander.Footer>
-                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowTeacherName, Mode=TwoWay}" />
+                        <ToggleSwitch IsChecked="{Binding Settings.ShowTeacherName, Mode=TwoWay}" />
                     </controls:FASettingsExpander.Footer>
                 </controls:FASettingsExpander>
 

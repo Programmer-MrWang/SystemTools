@@ -19,11 +19,11 @@
     <Grid DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:LocalQuoteSettingsControl}}">
         <ScrollViewer>
             <StackPanel>
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Header="选择 txt 文件"
                     Description="每行一句，自动忽略空行"
                     IconSource="{ci:FluentIconSource &#xE6FD;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                             <TextBox Grid.Column="0"
                                      MinWidth="220"
@@ -32,35 +32,35 @@
                                     Content="浏览"
                                     Click="BrowseQuotesFileButton_OnClick" />
                         </Grid>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Header="启用动画"
                     Description="切换句子时使用翻页动画"
                     IconSource="{ci:FluentIconSource &#xF001;}">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.EnableAnimation, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding Settings.EnableAnimation, Mode=TwoWay}" />
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Header="轮播间隔（秒）"
                     Description="每次切换到下一句的时间间隔"
                     IconSource="{ci:FluentIconSource &#xEF75;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <NumericUpDown Minimum="1"
                                        Maximum="8000"
                                        Increment="1"
                                        Value="{Binding Settings.CarouselIntervalSeconds, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Header="轮播顺序"
                     Description="设置一言文本的轮播方式"
                     IconSource="{ci:FluentIconSource &#xE143;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <ComboBox SelectedItem="{Binding Settings.PlaybackOrder, Mode=TwoWay}"
                                   ItemsSource="{Binding PlaybackOrders}">
                             <ComboBox.ItemTemplate>
@@ -69,25 +69,25 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
                 
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Header="记忆轮播行"
                     Description="重启软件后从上次的位置和剩余时间继续"
                     IconSource="{ci:FluentIconSource &#xF35B;}">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.IsPersistenceEnabled, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding Settings.IsPersistenceEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Header="显示进度条"
                     Description="显示当前句子剩余显示时长的进度条"
                     IconSource="{ci:FluentIconSource &#xE093;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <ToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
+                            <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
                             <ComboBox Width="140"
                                       IsVisible="{Binding Settings.ShowProgressBar}"
                                       SelectedItem="{Binding Settings.ProgressBarPosition, Mode=TwoWay}"
@@ -99,8 +99,8 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                         </StackPanel>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
 
                 <Label HorizontalAlignment="Center"

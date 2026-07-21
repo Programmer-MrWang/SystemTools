@@ -1,4 +1,4 @@
-﻿<ci:SettingsPageBase x:Class="SystemTools.SystemToolsSettingsPage"
+<ci:SettingsPageBase x:Class="SystemTools.SystemToolsSettingsPage"
                      xmlns="https://github.com/avaloniaui"
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,6 +8,7 @@
                      xmlns:systemTools="clr-namespace:SystemTools"
                      xmlns:behavior="clr-namespace:System.Windows.Forms.Design.Behavior;assembly=System.Windows.Forms.Design"
                      xmlns:controls1="clr-namespace:SystemTools.Controls"
+                     x:CompileBindings="False"
                      mc:Ignorable="d"
                      d:DesignHeight="450"
                      d:DesignWidth="800">
@@ -144,95 +145,95 @@
                     <Label VerticalAlignment="Center" FontSize="28">功能 · 主设置</Label>
                 </StackPanel>
 
-                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE079;}"
+                <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE079;}"
                                            Header="启用功能选项"
                                            Description="选择需要本插件要启用的功能">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal">
                             <Button Content="管理启用的功能..."
                                     Width="165"
                                     Click="OnManageFeaturesClick" />
                         </StackPanel>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE508;}"
+                <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE508;}"
                                            Header="实验性功能"
                                            Description="启用后可以使用实验性功能，不保证其稳定性。">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal">
                             <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
-                            <ToggleSwitch
+                            <controls:FAToggleSwitch
                                 IsChecked="{Binding ViewModel.Settings.EnableExperimentalFeatures, Mode=TwoWay}" />
                         </StackPanel>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
                 
                 
-                <!--<controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
+                <!--<controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
                                            Header="更多功能选项……"
                                            Description="在这里启用相对小众的 / 正处于预览阶段的更多功能">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <Button Content="更多功能选项..."
                                 Width="165"
                                 Click="OnOpenMoreFeaturesClick" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>-->
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>-->
                 
-                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
+                <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
                                            Header="更多功能选项……"
                                            Description="在这里启用相对小众的 / 正处于预览阶段的更多功能"
                                            ActionIconSource="{ci:FluentIconSource &#xEC2E;}"
                                            Click="OnOpenMoreFeaturesClick" />
 
-                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
+                <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
                                            Header="启用悬浮窗功能"
                                            Description="关闭后将禁用悬浮窗相关全部功能">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFloatingWindowFeature, Mode=TwoWay}"
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFloatingWindowFeature, Mode=TwoWay}"
                                       Click="OnFloatingFeatureToggleClick" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE071;}"
+                <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE071;}"
                                            Header="启用扩展功能"
                                            Description="启用需要下载依赖的更多可选功能">
 
-                    <controls:SettingsExpanderItem Content="启用需要添加 FFmpeg 依赖的功能">
-                        <controls:SettingsExpanderItem.Footer>
-                            <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFfmpegFeatures, Mode=TwoWay}"
+                    <controls:FASettingsExpanderItem Content="启用需要添加 FFmpeg 依赖的功能">
+                        <controls:FASettingsExpanderItem.Footer>
+                            <controls:FAToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFfmpegFeatures, Mode=TwoWay}"
                                           Click="OnFfmpegToggleClick" />
-                        </controls:SettingsExpanderItem.Footer>
-                    </controls:SettingsExpanderItem>
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
 
-                    <controls:SettingsExpanderItem Content="下载插件所需 FFmpeg 依赖">
-                        <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem Content="下载插件所需 FFmpeg 依赖">
+                        <controls:FASettingsExpanderItem.Footer>
                             <Button Content="点击下载（190 MB）"
                                     Width="165"
                                     Click="OnDownloadFfmpegClick"
                                     IsEnabled="{Binding ViewModel.IsFfmpegDownloadEnabled}" />
-                        </controls:SettingsExpanderItem.Footer>
-                    </controls:SettingsExpanderItem>
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
 
-                    <controls:SettingsExpanderItem Content="启用人脸识别验证功能">
-                        <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem Content="启用人脸识别验证功能">
+                        <controls:FASettingsExpanderItem.Footer>
                             <StackPanel Orientation="Horizontal">
                                 <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
-                                <ToggleSwitch
+                                <controls:FAToggleSwitch
                                     IsChecked="{Binding ViewModel.Settings.EnableFaceRecognition, Mode=TwoWay}"
                                     Click="OnFaceRecognitionToggleClick" />
                             </StackPanel>
-                        </controls:SettingsExpanderItem.Footer>
-                    </controls:SettingsExpanderItem>
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
 
-                    <controls:SettingsExpanderItem Content="下载人脸识别验证模型及运行时">
-                        <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem Content="下载人脸识别验证模型及运行时">
+                        <controls:FASettingsExpanderItem.Footer>
                             <Button Content="点击下载（138 MB）"
                                     Width="165"
                                     Click="OnDownloadFaceModelsClick"
                                     IsEnabled="{Binding ViewModel.IsFaceModelsDownloadEnabled}" />
-                        </controls:SettingsExpanderItem.Footer>
-                    </controls:SettingsExpanderItem>
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
 
                     <StackPanel IsVisible="{Binding ViewModel.ShowDownloadProgress}"
                                 Margin="12,0,12,12"
@@ -244,7 +245,7 @@
                                      Maximum="100"
                                      Height="4" />
                     </StackPanel>
-                </controls:SettingsExpander>
+                </controls:FASettingsExpander>
 
                 <TextBlock Text="Programmer_Wang ©2026"
                            Foreground="Gray"

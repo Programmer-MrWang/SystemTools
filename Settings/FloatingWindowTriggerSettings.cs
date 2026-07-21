@@ -25,7 +25,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
     private readonly TextBox _nameTextBox;
     private readonly List<string> _iconTokens = new();
 
-    private ContentDialog? _iconPickerDialog;
+    private FAContentDialog? _iconPickerDialog;
 
     public FloatingWindowTriggerSettings()
     {
@@ -88,11 +88,11 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
         EnsureIconsLoaded();
         var rows = BuildVirtualizedRows(460);
 
-        _iconPickerDialog = new ContentDialog
+        _iconPickerDialog = new FAContentDialog
         {
             Title = "选择悬浮窗图标",
             PrimaryButtonText = "关闭",
-            DefaultButton = ContentDialogButton.Primary,
+            DefaultButton = FAContentDialogButton.Primary,
             Content = BuildIconPickerContent(rows)
         };
 

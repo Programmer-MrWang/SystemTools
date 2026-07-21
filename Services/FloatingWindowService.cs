@@ -308,7 +308,7 @@ public class FloatingWindowService
             Height = 64,
             ShowActivated = false,
             Topmost = _configHandler.Data.FloatingWindowLayer == 1,
-            SystemDecorations = SystemDecorations.None,
+            WindowDecorations = WindowDecorations.None,
             Background = Brushes.Transparent,
             CanResize = false,
             ShowInTaskbar = false,

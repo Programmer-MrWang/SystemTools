@@ -1,4 +1,4 @@
-﻿<ci:SettingsPageBase x:Class="SystemTools.AboutSettingsPage"
+<ci:SettingsPageBase x:Class="SystemTools.AboutSettingsPage"
                      xmlns="https://github.com/avaloniaui"
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,6 +7,7 @@
                      xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
                      xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
                      xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
+                     x:CompileBindings="False"
                      mc:Ignorable="d"
                      d:DesignHeight="450"
                      d:DesignWidth="800">
@@ -29,7 +30,7 @@
 
             <!-- 信息卡片 -->
             <Border ClipToBounds="True" CornerRadius="4" Margin="0,0,0,12">
-                <controls:SettingsExpanderItem>
+                <controls:FASettingsExpanderItem>
                     <Grid HorizontalAlignment="Stretch" Margin="12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -95,7 +96,7 @@
                             </Button>
                         </StackPanel>
                     </Grid>
-                </controls:SettingsExpanderItem>
+                </controls:FASettingsExpanderItem>
             </Border>
 
             <!-- 标签页 -->
@@ -123,34 +124,34 @@
                     <Border Grid.Row="1" BorderThickness="0">
                         <StackPanel>
                             <StackPanel IsVisible="{Binding IsHelpTab}">
-                                <controls:SettingsExpander Header="Lyricify Lite 适配帮助"
+                                <controls:FASettingsExpander Header="Lyricify Lite 适配帮助"
                                                            Description="点击查看 Lyricify Lite 适配说明"
                                                            IconSource="{ci:FluentIconSource &#xE236;}"
                                                            Click="OnLyricifyLiteHelpClick"
                                                            HorizontalAlignment="Stretch"
                                                            ActionIconSource="{ci:FluentIconSource &#xEC2E;} "
                                                            IsClickEnabled="True"/>
-                                <controls:SettingsExpander Header="反馈渠道" IconSource="{ci:FluentIconSource &#xE3F6;}"
+                                <controls:FASettingsExpander Header="反馈渠道" IconSource="{ci:FluentIconSource &#xE3F6;}"
                                                             IsExpanded="True">
-                                    <controls:SettingsExpanderItem
+                                    <controls:FASettingsExpanderItem
                                         Click="UriNavigationCommands_OnClick"
                                         CommandParameter="https://github.com/Programmer-MrWang/SystemTools/issues/new"
                                         Content="问题反馈/功能建议"
                                         ActionIconSource="{ci:FluentIconSource &#xEC2E;} "
                                         IsClickEnabled="True"/>
-                                    <controls:SettingsExpanderItem
+                                    <controls:FASettingsExpanderItem
                                         Click="UriNavigationCommands_OnClick"
                                         CommandParameter="https://v.wjx.cn/vm/rjA0NBq.aspx#"
                                         Content="调研问卷"
                                         ActionIconSource="{ci:FluentIconSource &#xEC2E;} "
                                         IsClickEnabled="True"/>
-                                    <controls:SettingsExpanderItem
+                                    <controls:FASettingsExpanderItem
                                         Click="UriNavigationCommands_OnClick"
                                         CommandParameter="https://qm.qq.com/q/fEUW3A9zR6"
                                         Content="插件社群"
                                         ActionIconSource="{ci:FluentIconSource &#xEC2E;} "
                                         IsClickEnabled="True"/>
-                                </controls:SettingsExpander>
+                                </controls:FASettingsExpander>
                             </StackPanel>
 
                             <mdxaml:MarkdownScrollViewer 

@@ -15,30 +15,30 @@
     <Grid DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NextClassDisplaySettingsControl}}">
         <ScrollViewer>
             <StackPanel>
-                <controls:SettingsExpander Header="前缀文本"
+                <controls:FASettingsExpander Header="前缀文本"
                                           Description="显示在课程名前的前缀文本"
                                           IconSource="{ci:FluentIconSource &#xF171;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <TextBox MinWidth="220"
                                  Text="{Binding Settings.PrefixText, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
                 
-                <controls:SettingsExpander Header="显示时间段"
+                <controls:FASettingsExpander Header="显示时间段"
                                            Description="开启后会显示对应课程时间段"
                                            IconSource="{ci:FluentIconSource &#xF361;}">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.ShowTimeRange, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowTimeRange, Mode=TwoWay}" />
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Header="显示任教老师"
+                <controls:FASettingsExpander Header="显示任教老师"
                                           Description="开启后会显示任教老师姓名"
                                           IconSource="{ci:FluentIconSource &#xED4F;}">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.ShowTeacherName, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowTeacherName, Mode=TwoWay}" />
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
                 <Label HorizontalAlignment="Center"
                        Foreground="{DynamicResource MaterialDesignBodyLight}">

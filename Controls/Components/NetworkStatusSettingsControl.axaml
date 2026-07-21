@@ -1,4 +1,4 @@
-﻿<ci:ComponentBase
+<ci:ComponentBase
     x:Class="SystemTools.Controls.Components.NetworkStatusSettingsControl"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -21,20 +21,20 @@
         <ScrollViewer>
             <StackPanel>
 
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Header="延迟检测网址"
                     Description="要检测的网址,默认 https://baidu.com"
                     IconSource="{ci:FluentIconSource &#xEAB6;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <TextBox MinWidth="200"
                                  Text="{Binding Settings.PingUrl, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Description="选择网络延迟检测方式"
                     IconSource="{ci:FluentIconSource &#xE923;}">
-                    <controls:SettingsExpander.Header>
+                    <controls:FASettingsExpander.Header>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="检测模式" 
                                        VerticalAlignment="Center"/>
@@ -47,9 +47,9 @@
                                                Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                             </Button>
                         </StackPanel>
-                    </controls:SettingsExpander.Header>
+                    </controls:FASettingsExpander.Header>
     
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <ComboBox MinWidth="120"
                                   SelectedItem="{Binding Settings.DetectMode, Mode=TwoWay}">
                             <ComboBox.Items>
@@ -63,18 +63,18 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander
+                <controls:FASettingsExpander
                     Header="前缀文本内容"
                     Description="显示在延迟数值前的前缀文字"
                     IconSource="{ci:FluentIconSource &#xF171;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <TextBox MinWidth="150"
                                  Text="{Binding Settings.DisplayText, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
                 <Label HorizontalAlignment="Center"
                        Foreground="{DynamicResource MaterialDesignBodyLight}">

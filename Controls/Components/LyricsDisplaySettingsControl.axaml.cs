@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
@@ -38,24 +38,24 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
             var topLevel = TopLevel.GetTopLevel(this);
             if (topLevel == null) return;
 
-            var dialog = new ContentDialog
+            var dialog = new FAContentDialog
             {
                 Title = "帮助",
                 Content = "     在使用适配 Lyricify Lite 的功能前，强烈建议您阅读相关使用方法！        \n\n     点击“不再提示”后您仍可以在本插件“关于”页面查看相关帮助。",
                 PrimaryButtonText = "前往了解…",
                 CloseButtonText = "以后再说",
                 SecondaryButtonText = "关闭并不再显示",
-                DefaultButton = ContentDialogButton.Primary
+                DefaultButton = FAContentDialogButton.Primary
             };
 
             var result = await dialog.ShowAsync(topLevel);
 
-            if (result == ContentDialogResult.Secondary && GlobalConstants.MainConfig != null)
+            if (result == FAContentDialogResult.Secondary && GlobalConstants.MainConfig != null)
             {
                 GlobalConstants.MainConfig.Data.LyricifyLiteWarningDismissed = true;
                 GlobalConstants.MainConfig.Save();
             }
-            else if (result == ContentDialogResult.Primary)
+            else if (result == FAContentDialogResult.Primary)
             {
                 OpenLyricifyLiteReadme();
             }
@@ -96,12 +96,12 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
                 Width = 550
             };
 
-            var dialog = new ContentDialog
+            var dialog = new FAContentDialog
             {
                 Title = "Lyricify Lite 适配帮助",
                 Content = border,
                 PrimaryButtonText = "了解",
-                DefaultButton = ContentDialogButton.Primary
+                DefaultButton = FAContentDialogButton.Primary
             };
 
             await dialog.ShowAsync(topLevel);
@@ -120,12 +120,12 @@ public partial class LyricsDisplaySettingsControl : ComponentBase<LyricsDisplayS
             var topLevel = TopLevel.GetTopLevel(this);
             if (topLevel == null) return;
 
-            var dialog = new ContentDialog
+            var dialog = new FAContentDialog
             {
                 Title = title,
                 Content = message,
                 PrimaryButtonText = "了解",
-                DefaultButton = ContentDialogButton.Primary
+                DefaultButton = FAContentDialogButton.Primary
             };
 
             await dialog.ShowAsync(topLevel);

@@ -68,8 +68,8 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     private FloatingTriggerItem? _currentButtonTarget;
     private FloatingTriggerRow? _currentRowTarget;
 
-    private ToggleSwitch? _drawerIsVisibleToggle;
-    private ToggleSwitch? _drawerHideOnRuleToggle;
+    private FAToggleSwitch? _drawerIsVisibleToggle;
+    private FAToggleSwitch? _drawerHideOnRuleToggle;
     private RulesetControl? _drawerRulesetControl;
 
     private Ruleset? _currentDrawerRuleset;
@@ -181,7 +181,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private void OnFloatingWindowVisibleToggleChanged(object? sender, RoutedEventArgs e)
     {
-        if (sender is not ToggleSwitch toggle)
+        if (sender is not FAToggleSwitch toggle)
         {
             return;
         }
@@ -214,10 +214,10 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     private async void OnAddFloatingWindowProfileClick(object? sender, RoutedEventArgs e)
     {
         var textBox = new TextBox { Text = "" };
-        var dialogResult = await new ContentDialog
+        var dialogResult = await new FAContentDialog
         {
             Title = "新建悬浮窗配置方案",
-            DefaultButton = ContentDialogButton.Primary,
+            DefaultButton = FAContentDialogButton.Primary,
             PrimaryButtonText = "创建",
             SecondaryButtonText = "取消",
             Content = new Field
@@ -228,7 +228,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             }
         }.ShowAsync();
 
-        if (dialogResult != ContentDialogResult.Primary)
+        if (dialogResult != FAContentDialogResult.Primary)
         {
             return;
         }
@@ -329,7 +329,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             Margin = new Thickness(22, 0, 0, -15)
         };
 
-        _drawerIsVisibleToggle = new ToggleSwitch
+        _drawerIsVisibleToggle = new FAToggleSwitch
         {
             OnContent = "显示",
             OffContent = "隐藏",
@@ -339,7 +339,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         ToolTip.SetTip(_drawerIsVisibleToggle, "控制此项目是否显示");
         _drawerIsVisibleToggle.IsCheckedChanged += OnDrawerIsVisibleChanged;
 
-        _drawerHideOnRuleToggle = new ToggleSwitch
+        _drawerHideOnRuleToggle = new FAToggleSwitch
         {
             OnContent = "按规则隐藏",
             OffContent = "禁用规则",
@@ -638,25 +638,25 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             return;
         }
 
-        var data = new DataObject();
-        data.Set("FloatingTriggerButtonId", buttonId);
+        var data = new DataTransfer();
+        data.SetData("FloatingTriggerButtonId", buttonId);
 
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
         var isTouchOrPen = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
-        await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+        await e.DoDragDrop(data, DragDropEffects.Move);
         e.Handled = isTouchOrPen;
     }
 
     private static bool TryGetDragButtonId(DragEventArgs e, out string buttonId)
     {
         buttonId = string.Empty;
-        if (!e.Data.Contains("FloatingTriggerButtonId"))
+        if (!e.DataTransfer.Contains("FloatingTriggerButtonId"))
         {
             return false;
         }
 
-        buttonId = e.Data.Get("FloatingTriggerButtonId") as string ?? string.Empty;
+        buttonId = e.DataTransfer.Get("FloatingTriggerButtonId") as string ?? string.Empty;
         return !string.IsNullOrWhiteSpace(buttonId);
     }
 

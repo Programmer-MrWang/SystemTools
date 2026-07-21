@@ -1,4 +1,4 @@
-﻿<ci:ComponentBase
+<ci:ComponentBase
     x:Class="SystemTools.Controls.Components.BetterCarouselContainerSettingsControl"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -21,10 +21,10 @@
         DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:BetterCarouselContainerSettingsControl}}">
         <ScrollViewer>
             <StackPanel>
-                <controls:SettingsExpander Header="轮换模式"
+                <controls:FASettingsExpander Header="轮换模式"
                                            Description="设定容器轮换组件的顺序行为"
                                            IconSource="{ci:FluentIconSource &#xEFCD;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <ComboBox Width="140"
                                   SelectedItem="{Binding Settings.RotationMode, Mode=TwoWay}"
                                   ItemsSource="{Binding RotationModes}">
@@ -34,21 +34,21 @@
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
                         </ComboBox>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Header="启用动画"
+                <controls:FASettingsExpander Header="启用动画"
                                            Description="启用后，在轮换组件时播放过渡动画"
                                            IconSource="{ci:FluentIconSource &#xEDC1;}"
                                            IsExpanded="True">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.IsAnimationEnabled, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                    <controls:SettingsExpanderItem Content="动画样式"
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding Settings.IsAnimationEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpander.Footer>
+                    <controls:FASettingsExpanderItem Content="动画样式"
                                                    Description="切换组件时使用的动画样式"
                                                    IconSource="{ci:FluentIconSource &#xF06B;}"
                                                    IsVisible="{Binding Settings.IsAnimationEnabled}">
-                        <controls:SettingsExpanderItem.Footer>
+                        <controls:FASettingsExpanderItem.Footer>
                             <ComboBox Width="140"
                                       SelectedItem="{Binding Settings.AnimationStyle, Mode=TwoWay}"
                                       ItemsSource="{Binding AnimationStyles}">
@@ -58,16 +58,16 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                        </controls:SettingsExpanderItem.Footer>
-                    </controls:SettingsExpanderItem>
-                </controls:SettingsExpander>
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Header="显示进度条"
+                <controls:FASettingsExpander Header="显示进度条"
                                            Description="显示当前组件剩余显示时长的进度条"
                                            IconSource="{ci:FluentIconSource &#xE093;}">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <ToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
+                            <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowProgressBar, Mode=TwoWay}" />
                             <ComboBox Width="140"
                                       IsVisible="{Binding Settings.ShowProgressBar}"
                                       SelectedItem="{Binding Settings.ProgressBarPosition, Mode=TwoWay}"
@@ -79,27 +79,27 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                         </StackPanel>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Header="降低进度条精度"
+                <controls:FASettingsExpander Header="降低进度条精度"
                                            Description="开启后进度条每秒刷新一次，降低刷新频率"
                                            IconSource="{ci:FluentIconSource &#xEDC1;}"
                                            IsVisible="{Binding Settings.ShowProgressBar}">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.ReduceProgressBarPrecision, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ReduceProgressBarPrecision, Mode=TwoWay}" />
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Header="添加分隔符样式"
+                <controls:FASettingsExpander Header="添加分隔符样式"
                                            Description="在容器左右两侧固定显示“&lt;”和“&gt;”"
                                            IconSource="{ci:FluentIconSource &#xEEDF;}">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.ShowSideSeparators, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowSideSeparators, Mode=TwoWay}" />
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Header="设置组件显示时长"
+                <controls:FASettingsExpander Header="设置组件显示时长"
                                            Description="分别设置每个组件的显示秒数"
                                            IconSource="{ci:FluentIconSource &#xF361;}"
                                            IsExpanded="True">
@@ -134,7 +134,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                </controls:SettingsExpander>
+                </controls:FASettingsExpander>
                 <Label HorizontalAlignment="Center"
                        Foreground="{DynamicResource MaterialDesignBodyLight}">
                     Added by SystemTools

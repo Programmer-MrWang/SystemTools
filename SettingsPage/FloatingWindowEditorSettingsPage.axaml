@@ -8,6 +8,7 @@
                      xmlns:controls1="clr-namespace:SystemTools.Controls"
                      xmlns:ruleset="clr-namespace:ClassIsland.Core.Controls.Ruleset;assembly=ClassIsland.Core"
                      xmlns:local="clr-namespace:SystemTools"
+                     x:CompileBindings="False"
                      mc:Ignorable="d"
                      d:DesignHeight="800"
                      d:DesignWidth="800">
@@ -54,7 +55,7 @@
                                 Theme="{StaticResource TransparentButton}" />
                     </StackPanel>
                 </ci:Field>
-                <ToggleSwitch Grid.Column="1"
+                <controls:FAToggleSwitch Grid.Column="1"
                               OnContent="显示" OffContent="隐藏"
                               IsChecked="{Binding ViewModel.Settings.ShowFloatingWindow, Mode=OneWay}"
                               IsEnabled="{Binding ViewModel.HasFloatingTriggerEntries}"
@@ -63,7 +64,7 @@
             </Grid>
 
             <!-- ===== 按钮布局区域 ===== -->
-            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
                                        Header="悬浮窗按钮布局"
                                        Description="您可在下方通过拖拽调整行内按钮顺序，或添加行以实现纵列排布等功能"
                                        IsExpanded="True">
@@ -183,18 +184,18 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </controls:SettingsExpander>
+            </controls:FASettingsExpander>
 
             <!-- 外观设置 -->
-            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xE51E;}"
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE51E;}"
                                        Header="外观设置"
                                        Description="设置悬浮窗外观"
                                        IsExpanded="False">
 
-                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xE10B;}"
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE10B;}"
                                                Content="悬浮窗缩放"
                                                Description="调整悬浮窗缩放大小">
-                    <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Slider Width="160"
                                     Minimum="0.5"
@@ -208,13 +209,13 @@
                                 Width="46"
                                 VerticalAlignment="Center" />
                         </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
 
-                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xE721;}"
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE721;}"
                                                Content="图标大小"
                                                Description="调整悬浮窗内图标缩放">
-                    <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Slider Width="160"
                                     Minimum="15"
@@ -228,13 +229,13 @@
                                 Width="46"
                                 VerticalAlignment="Center" />
                         </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
 
-                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xF26F;}"
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xF26F;}"
                                                Content="文字大小"
                                                Description="调整悬浮窗内文字缩放">
-                    <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Slider Width="160"
                                     Minimum="8"
@@ -248,13 +249,13 @@
                                 Width="46"
                                 VerticalAlignment="Center" />
                         </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
 
-                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xE772;}"
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE772;}"
                                                Content="透明度"
                                                Description="调整悬浮窗透明度">
-                    <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Slider Width="160"
                                     Minimum="10"
@@ -267,13 +268,13 @@
                                        Width="46"
                                        VerticalAlignment="Center" />
                         </StackPanel>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
 
-                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xE5CB;}"
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE5CB;}"
                                                Content="主题"
                                                Description="设置悬浮窗主题">
-                    <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem.Footer>
                         <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowTheme, Mode=TwoWay}">
                             <ComboBoxItem>
                                 <ci:IconText Glyph="&#xE5CB;" Text="跟随ClassIsland" />
@@ -285,32 +286,32 @@
                                 <ci:IconText Glyph="&#xF44B;" Text="黑暗" />
                             </ComboBoxItem>
                         </ComboBox>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
 
-                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xE20B;}"
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE20B;}"
                                                Content="阴影效果"
                                                Description="悬浮窗阴影效果">
-                    <controls:SettingsExpanderItem.Footer>
-                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowShadowEnabled, Mode=TwoWay}" />
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
+                    <controls:FASettingsExpanderItem.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowShadowEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
 
-                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xE7C3;}"
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE7C3;}"
                                                Content="一直显示拖动把手"
                                                Description="即使未检测到触摸设备也显示拖动把手">
-                    <controls:SettingsExpanderItem.Footer>
-                        <ToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowDragHandleAlwaysVisible, Mode=TwoWay}" />
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
-            </controls:SettingsExpander>
+                    <controls:FASettingsExpanderItem.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding ViewModel.Settings.FloatingWindowDragHandleAlwaysVisible, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
 
             <!-- 层级设置 -->
-            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA2F;}"
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEA2F;}"
                                        Header="悬浮窗层级"
                                        Description="悬浮窗在屏幕上的层级。置底则会显示在所有窗口的后方，置顶则将显示在所有窗口的前方。"
                                        IsExpanded="False">
-                <controls:SettingsExpander.Footer>
+                <controls:FASettingsExpander.Footer>
                     <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowLayer, Mode=TwoWay}">
                         <ComboBoxItem>
                             <ci:IconText Glyph="&#xE0CB;" Text="置底" />
@@ -319,11 +320,11 @@
                             <ci:IconText Glyph="&#xE197;" Text="置顶" />
                         </ComboBoxItem>
                     </ComboBox>
-                </controls:SettingsExpander.Footer>
-                <controls:SettingsExpanderItem IconSource="{ci:FluentIconSource &#xE125;}"
+                </controls:FASettingsExpander.Footer>
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE125;}"
                                                Content="层级设置频率"
                                                Description="在什么时候重新设置悬浮窗层级。请注意，较高的频率可能会产生较高的性能占用并导致悬浮窗闪烁。">
-                    <controls:SettingsExpanderItem.Footer>
+                    <controls:FASettingsExpanderItem.Footer>
                         <ComboBox
                             SelectedIndex="{Binding ViewModel.Settings.FloatingWindowLayerRecheckMode, Mode=TwoWay}">
                             <ComboBoxItem>窗口层级变化时</ComboBoxItem>
@@ -351,15 +352,15 @@
                                 </StackPanel>
                             </ComboBoxItem>
                         </ComboBox>
-                    </controls:SettingsExpanderItem.Footer>
-                </controls:SettingsExpanderItem>
-            </controls:SettingsExpander>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
 
             <!-- 规则集设置（全局设置，不随方案切换） -->
-            <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEFBF;}"
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEFBF;}"
                                        Header="按规则隐藏"
                                        Description="在指定规则满足时，自动隐藏悬浮窗。此为全局设置，不随配置方案切换。">
-                <controls:SettingsExpander.Footer>
+                <controls:FASettingsExpander.Footer>
                     <StackPanel Orientation="Horizontal">
                         <Button HorizontalAlignment="Left"
                                 Theme="{StaticResource TransparentButton}"
@@ -367,12 +368,12 @@
                                 IsVisible="{Binding ViewModel.Settings.FloatingWindowRulesetEnabled}">
                             <ci:IconText Glyph="&#xF17E;" Text="编辑规则集…" />
                         </Button>
-                        <ToggleSwitch VerticalAlignment="Center"
+                        <controls:FAToggleSwitch VerticalAlignment="Center"
                                       OnContent="启用" OffContent="禁用"
                                       IsChecked="{Binding ViewModel.Settings.FloatingWindowRulesetEnabled}" />
                     </StackPanel>
-                </controls:SettingsExpander.Footer>
-            </controls:SettingsExpander>
+                </controls:FASettingsExpander.Footer>
+            </controls:FASettingsExpander>
 
             <TextBlock Text="Programmer_Wang ©2026"
                        Foreground="Gray"

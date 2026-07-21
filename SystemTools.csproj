@@ -6,6 +6,7 @@
         <UseWindowsForms>true</UseWindowsForms>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <CreateCipx>true</CreateCipx>
+        <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
         <Platforms>x64</Platforms>
     </PropertyGroup>
     <ItemGroup>

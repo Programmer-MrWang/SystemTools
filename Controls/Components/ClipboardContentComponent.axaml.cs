@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using SystemTools.Models.ComponentSettings;
 using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
 
@@ -93,7 +94,7 @@ public partial class ClipboardContentComponent : ComponentBase<ClipboardContentS
                 return;
             }
 
-            var text = await clipboard.GetTextAsync();
+            var text = await ClipboardExtensions.TryGetTextAsync(clipboard);
             if (text == _lastClipboardText)
             {
                 return;

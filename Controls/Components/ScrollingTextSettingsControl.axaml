@@ -11,37 +11,37 @@
     <Grid DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:ScrollingTextSettingsControl}}">
         <ScrollViewer>
             <StackPanel>
-                <controls:SettingsExpander Header="显示文本设置" 
+                <controls:FASettingsExpander Header="显示文本设置" 
                                            IconSource="{ci:FluentIconSource &#xEEDF;}"
                                            Description="设置显示文本">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <TextBox Width="250" Text="{Binding Settings.TextContent, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Header="组件长度" 
+                <controls:FASettingsExpander Header="组件长度" 
                                            IconSource="{ci:FluentIconSource &#xE093;}"
                                            Description="设置固定显示宽度；仅当宽度小于文字长度时开始滚动">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <NumericUpDown Minimum="100" Maximum="2000" Value="{Binding Settings.ComponentWidth, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Header="滚动速度" 
+                <controls:FASettingsExpander Header="滚动速度" 
                                            IconSource="{ci:FluentIconSource &#xE8E1;}"
                                            Description="数值越大滚动速度越快">
-                    <controls:SettingsExpander.Footer>
+                    <controls:FASettingsExpander.Footer>
                         <NumericUpDown Minimum="10" Maximum="500" Value="{Binding Settings.ScrollSpeed, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
 
-                <!--<controls:SettingsExpander Header="启用边框动画"
+                <!--<controls:FASettingsExpander Header="启用边框动画"
                                            IconSource="{ci:FluentIconSource &#xE093;}"
                                            Description="启用后">
-                    <controls:SettingsExpander.Footer>
-                        <ToggleSwitch IsChecked="{Binding Settings.ShowBorder, Mode=TwoWay}" />
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>-->
+                    <controls:FASettingsExpander.Footer>
+                        <controls:FAToggleSwitch IsChecked="{Binding Settings.ShowBorder, Mode=TwoWay}" />
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>-->
             </StackPanel>
         </ScrollViewer>
     </Grid>

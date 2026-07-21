@@ -1,4 +1,5 @@
 using Avalonia.Interactivity;
+using FluentAvalonia.UI.Controls;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
 using SystemTools.ConfigHandlers;
@@ -31,7 +32,7 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
 
     private void AutoOpenUsbToggle_OnChanged(object? sender, RoutedEventArgs e)
     {
-        if (sender is Avalonia.Controls.ToggleSwitch toggleSwitch)
+        if (sender is FAToggleSwitch toggleSwitch)
         {
             Config.AutoOpenUsbDriveOnInsert = toggleSwitch.IsChecked == true;
         }
@@ -43,7 +44,7 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
 
     private void AutoCleanupMemoryToggle_OnChanged(object? sender, RoutedEventArgs e)
     {
-        if (sender is Avalonia.Controls.ToggleSwitch toggleSwitch)
+        if (sender is FAToggleSwitch toggleSwitch)
         {
             Config.AutoCleanupClassIslandMemory = toggleSwitch.IsChecked == true;
         }

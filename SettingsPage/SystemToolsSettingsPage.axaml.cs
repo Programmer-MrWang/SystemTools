@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.ComponentModel;
@@ -81,7 +81,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private async void OnFfmpegToggleClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not ToggleSwitch toggle) return;
+        if (sender is not FAToggleSwitch toggle) return;
 
         if (toggle.IsChecked == true)
         {
@@ -117,12 +117,12 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private async Task ShowFfmpegNotFoundDialogAsync()
     {
-        var dialog = new ContentDialog
+        var dialog = new FAContentDialog
         {
             Title = "提示",
             Content = "请您先下载本插件专用的ffmpeg模块！",
             PrimaryButtonText = "确定",
-            DefaultButton = ContentDialogButton.Primary
+            DefaultButton = FAContentDialogButton.Primary
         };
 
         await dialog.ShowAsync();
@@ -130,19 +130,19 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private async void OnFaceRecognitionToggleClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not ToggleSwitch toggle) return;
+        if (sender is not FAToggleSwitch toggle) return;
 
         if (toggle.IsChecked == true)
         {
             if (!ViewModel.CheckFaceModelsExists())
             {
                 toggle.IsChecked = false;
-                var dialog = new ContentDialog
+                var dialog = new FAContentDialog
                 {
                     Title = "提示",
                     Content = "请您先下载人脸识别验证模型及运行时依赖！",
                     PrimaryButtonText = "确定",
-                    DefaultButton = ContentDialogButton.Primary
+                    DefaultButton = FAContentDialogButton.Primary
                 };
                 await dialog.ShowAsync();
             }
@@ -180,24 +180,24 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private async Task ShowErrorDialogAsync()
     {
-        var dialog = new ContentDialog
+        var dialog = new FAContentDialog
         {
             Title = "错误",
             Content = "下载出错，请重试！",
             PrimaryButtonText = "确定",
-            DefaultButton = ContentDialogButton.Primary
+            DefaultButton = FAContentDialogButton.Primary
         };
         await dialog.ShowAsync();
     }
 
     private async Task ShowMd5ErrorDialogAsync()
     {
-        var dialog = new ContentDialog
+        var dialog = new FAContentDialog
         {
             Title = "错误",
             Content = "下载文件MD5校验错误，请重新下载！",
             PrimaryButtonText = "确定",
-            DefaultButton = ContentDialogButton.Primary
+            DefaultButton = FAContentDialogButton.Primary
         };
         await dialog.ShowAsync();
     }
@@ -298,24 +298,24 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
             return;
         }
 
-        var data = new DataObject();
-        data.Set("FloatingTriggerButtonId", buttonId);
+        var data = new DataTransfer();
+        data.SetData("FloatingTriggerButtonId", buttonId);
 
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
-        await DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
+        await e.DoDragDrop(data, DragDropEffects.Move);
         e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
     }
 
     private static bool TryGetDragButtonId(DragEventArgs e, out string buttonId)
     {
         buttonId = string.Empty;
-        if (!e.Data.Contains("FloatingTriggerButtonId"))
+        if (!e.DataTransfer.Contains("FloatingTriggerButtonId"))
         {
             return false;
         }
 
-        buttonId = e.Data.Get("FloatingTriggerButtonId") as string ?? string.Empty;
+        buttonId = e.DataTransfer.Get("FloatingTriggerButtonId") as string ?? string.Empty;
         return !string.IsNullOrWhiteSpace(buttonId);
     }
 

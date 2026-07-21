@@ -17,11 +17,18 @@
         <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1">
             <ExcludeAssets>runtime; native</ExcludeAssets>
         </PackageReference>
-        <PackageReference Include="ClassIsland.Core" Version="2.1.1">
+        <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0">
+            <!--
+              ClassIsland's PluginLoadContext resolves assemblies from the plugin directory before
+              falling back to the host. Do not copy Microsoft.Extensions.* into the plugin package:
+              PluginBase.Initialize is declared by the host with the host's IServiceCollection type,
+              and a plugin-local copy of Microsoft.Extensions.DependencyInjection.Abstractions gives
+              SystemTools.Plugin.Initialize a different parameter type identity, causing
+              TypeLoadException while PluginService enumerates ExportedTypes.
+            -->
             <ExcludeAssets>runtime; native</ExcludeAssets>
         </PackageReference>
-        <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

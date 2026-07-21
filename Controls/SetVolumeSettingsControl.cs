@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Data;
 using ClassIsland.Core.Abstractions.Controls;
 using SystemTools.Actions;
@@ -45,10 +45,10 @@ public class SetVolumeSettingsControl : ActionSettingsControlBase<SetVolumeSetti
     {
         base.OnInitialized();
 
-        _volumeInput[!NumericUpDown.ValueProperty] = new Binding(nameof(Settings.VolumePercent))
+        _volumeInput.Bind(NumericUpDown.ValueProperty, new Binding(nameof(Settings.VolumePercent))
         {
             Source = Settings,
             Mode = BindingMode.TwoWay
-        };
+        });
     }
 }

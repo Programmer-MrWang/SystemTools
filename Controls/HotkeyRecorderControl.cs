@@ -1,11 +1,10 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Layout;
 using Avalonia.VisualTree;
 using System;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrayNotify;
 
 namespace SystemTools.Controls;
 
@@ -64,7 +63,7 @@ public class HotkeyRecorderControl : Border
         };
 
         // 绑定文字
-        _displayText.Bind(TextBlock.TextProperty, this.GetObservable(HotkeyDisplayProperty).ToBinding());
+        _displayText.Bind(TextBlock.TextProperty, this.GetObservable(HotkeyDisplayProperty));
 
         // 设置内容
         Child = _displayText;

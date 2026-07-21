@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Data;
 using ClassIsland.Core.Abstractions.Controls;
 using SystemTools.Settings;
@@ -47,9 +47,9 @@ public class TriggerCustomTriggerSettingsControl : ActionSettingsControlBase<Tri
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _triggerIdTextBox[!TextBox.TextProperty] = new Binding(nameof(Settings.TriggerId))
+        _triggerIdTextBox.Bind(TextBox.TextProperty, new Binding(nameof(Settings.TriggerId))
         {
             Source = Settings
-        };
+        });
     }
 }

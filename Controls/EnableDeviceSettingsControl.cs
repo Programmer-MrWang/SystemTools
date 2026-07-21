@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Data;
 using ClassIsland.Core.Abstractions.Controls;
 using SystemTools.Settings;
@@ -40,9 +40,9 @@ public class EnableDeviceSettingsControl : ActionSettingsControlBase<EnableDevic
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _deviceIdBox[!TextBox.TextProperty] = new Binding(nameof(Settings.DeviceId))
+        _deviceIdBox.Bind(TextBox.TextProperty, new Binding(nameof(Settings.DeviceId))
         {
             Source = Settings
-        };
+        });
     }
 }

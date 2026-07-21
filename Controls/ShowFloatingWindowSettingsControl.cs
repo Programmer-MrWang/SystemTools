@@ -28,10 +28,10 @@ public class ShowFloatingWindowSettingsControl : ActionSettingsControlBase<ShowF
     {
         base.OnInitialized();
 
-        _toggleSwitch[!ToggleSwitch.IsCheckedProperty] = new Binding(nameof(Settings.ShowFloatingWindow))
+        _toggleSwitch.Bind(ToggleSwitch.IsCheckedProperty, new Binding(nameof(Settings.ShowFloatingWindow))
         {
             Source = Settings,
             Mode = BindingMode.TwoWay
-        };
+        });
     }
 }

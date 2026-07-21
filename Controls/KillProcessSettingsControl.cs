@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
@@ -79,10 +79,10 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _processNameBox[!TextBox.TextProperty] = new Avalonia.Data.Binding(nameof(Settings.ProcessName))
+        _processNameBox.Bind(TextBox.TextProperty, new Avalonia.Data.Binding(nameof(Settings.ProcessName))
         {
             Source = Settings
-        };
+        });
     }
 
     private async Task ShowProcessList()

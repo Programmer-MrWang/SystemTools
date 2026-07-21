@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Data;
 using ClassIsland.Core.Abstractions.Controls;
 using SystemTools.Settings;
@@ -33,9 +33,9 @@ public class TypeContentSettingsControl : ActionSettingsControlBase<TypeContentS
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        _textBox[!TextBox.TextProperty] = new Binding(nameof(Settings.Content))
+        _textBox.Bind(TextBox.TextProperty, new Binding(nameof(Settings.Content))
         {
             Source = Settings
-        };
+        });
     }
 }

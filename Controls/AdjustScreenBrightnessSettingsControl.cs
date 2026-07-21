@@ -53,10 +53,10 @@ public class AdjustScreenBrightnessSettingsControl : ActionSettingsControlBase<A
     {
         base.OnInitialized();
 
-        _brightnessInput[!NumericUpDown.ValueProperty] = new Binding(nameof(Settings.BrightnessPercent))
+        _brightnessInput.Bind(NumericUpDown.ValueProperty, new Binding(nameof(Settings.BrightnessPercent))
         {
             Source = Settings,
             Mode = BindingMode.TwoWay
-        };
+        });
     }
 }

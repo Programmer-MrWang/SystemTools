@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Data;
 using ClassIsland.Core.Abstractions.Controls;
 using SystemTools.Settings;
@@ -50,16 +50,16 @@ public class ShowToastSettingsControl : ActionSettingsControlBase<ShowToastSetti
     {
         base.OnInitialized();
 
-        _titleBox[!TextBox.TextProperty] = new Binding(nameof(Settings.Title))
+        _titleBox.Bind(TextBox.TextProperty, new Binding(nameof(Settings.Title))
         {
             Source = Settings,
             Mode = BindingMode.TwoWay
-        };
+        });
 
-        _contentBox[!TextBox.TextProperty] = new Binding(nameof(Settings.Content))
+        _contentBox.Bind(TextBox.TextProperty, new Binding(nameof(Settings.Content))
         {
             Source = Settings,
             Mode = BindingMode.TwoWay
-        };
+        });
     }
 }

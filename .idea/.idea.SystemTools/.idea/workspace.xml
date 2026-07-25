@@ -12,7 +12,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,6 +22,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Programmer-MrWang"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Programmer-MrWang/SystemTools.git",
+    "accountId": "aa0de770-5118-4416-9c4e-7750a23a946e"
+  }
+}]]></component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -86,7 +98,25 @@
       <workItem from="1772531590818" duration="886000" />
       <workItem from="1774843666385" duration="32000" />
       <workItem from="1784981541411" duration="1091000" />
+      <workItem from="1784982653522" duration="934000" />
     </task>
+    <task id="LOCAL-00001" summary="feat: 新增“关键词触发”触发器">
+      <option name="closed" value="true" />
+      <created>1784982726027</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1784982726027</updated>
+    </task>
+    <task id="LOCAL-00002" summary="feat: 新增“关键词触发”触发器">
+      <option name="closed" value="true" />
+      <created>1784982764680</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1784982764680</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -107,6 +137,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="feat: 新增“关键词触发”触发器" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增“关键词触发”触发器" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

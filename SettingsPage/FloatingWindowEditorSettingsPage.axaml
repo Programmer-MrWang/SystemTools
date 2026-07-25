@@ -33,43 +33,44 @@
             </StackPanel>
 
             <!-- 方案管理 + 显示开关（紧凑顶部栏） -->
-            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                <ci:Field Grid.Column="0" Label="配置方案">
-                    <StackPanel Orientation="Horizontal" Spacing="4">
-                        <ComboBox ItemsSource="{Binding ViewModel.FloatingWindowProfileNames}"
-                                  SelectedItem="{Binding ViewModel.SelectedFloatingWindowProfile, Mode=TwoWay}"
-                                  SelectionChanged="OnFloatingWindowProfileSelectionChanged"
-                                  MinWidth="150"
-                                  MaxWidth="250" />
-                        <Button Content="{ci:FluentIcon &#xE00D;}"
-                                ToolTip.Tip="新建"
-                                Click="OnAddFloatingWindowProfileClick"
-                                Theme="{StaticResource TransparentButton}" />
-                        <Button Content="{ci:FluentIcon &#xE88D;}"
-                                ToolTip.Tip="打开悬浮窗配置文件夹"
-                                Click="OnOpenFloatingWindowProfileFolderClick"
-                                Theme="{StaticResource TransparentButton}" />
-                        <Button Content="{ci:FluentIcon &#xE61D;}"
-                                ToolTip.Tip="删除当前方案"
-                                Click="OnRemoveCurrentProfileClick"
-                                Theme="{StaticResource TransparentButton}" />
-                    </StackPanel>
-                </ci:Field>
-                <ToggleSwitch Grid.Column="1"
-                              OnContent="显示" OffContent="隐藏"
-                              IsChecked="{Binding ViewModel.Settings.ShowFloatingWindow, Mode=OneWay}"
-                              IsEnabled="{Binding ViewModel.HasFloatingTriggerEntries}"
-                              VerticalAlignment="Center"
-                              IsCheckedChanged="OnFloatingWindowVisibleToggleChanged" />
-            </Grid>
-
-            <!-- ===== 按钮布局区域 ===== -->
-            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
+            
+                        <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
                                        Header="悬浮窗按钮布局"
                                        Description="您可在下方通过拖拽调整行内按钮顺序，或添加行以实现纵列排布等功能"
                                        IsExpanded="True">
                 <StackPanel Margin="12,8,12,12" Spacing="8">
-                    <Grid>
+                                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                    <ci:Field Grid.Column="0" Label="配置方案">
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <ComboBox ItemsSource="{Binding ViewModel.FloatingWindowProfileNames}"
+                                                      SelectedItem="{Binding ViewModel.SelectedFloatingWindowProfile, Mode=TwoWay}"
+                                                      SelectionChanged="OnFloatingWindowProfileSelectionChanged"
+                                                      MinWidth="150"
+                                                      MaxWidth="250" />
+                                            <Button Content="{ci:FluentIcon &#xE00D;}"
+                                                    ToolTip.Tip="新建"
+                                                    Click="OnAddFloatingWindowProfileClick"
+                                                    Theme="{StaticResource TransparentButton}" />
+                                            <Button Content="{ci:FluentIcon &#xE88D;}"
+                                                    ToolTip.Tip="打开悬浮窗配置文件夹"
+                                                    Click="OnOpenFloatingWindowProfileFolderClick"
+                                                    Theme="{StaticResource TransparentButton}" />
+                                            <Button Content="{ci:FluentIcon &#xE61D;}"
+                                                    ToolTip.Tip="删除当前方案"
+                                                    Click="OnRemoveCurrentProfileClick"
+                                                    Theme="{StaticResource TransparentButton}" />
+                                        </StackPanel>
+                                    </ci:Field>
+                                    <ToggleSwitch Grid.Column="1"
+                                                  OnContent="显示" OffContent="隐藏"
+                                                  IsChecked="{Binding ViewModel.Settings.ShowFloatingWindow, Mode=OneWay}"
+                                                  IsEnabled="{Binding ViewModel.HasFloatingTriggerEntries}"
+                                                  VerticalAlignment="Center"
+                                                  IsCheckedChanged="OnFloatingWindowVisibleToggleChanged" />
+                                </Grid>
+
+
+<Grid>
                         <Button Content="添加行" Width="92" HorizontalAlignment="Left"
                                 Click="OnAddFloatingTriggerRowClick" />
                     </Grid>

@@ -164,9 +164,10 @@ public partial class Plugin : PluginBase
         }
 
         // ========== 注册热键服务 ==========
-        services.AddSingleton<IHotkeyService, HotkeyService>();
+       services.AddSingleton<IHotkeyService, HotkeyService>();
 
-        // ========== 版本检查 ==========
+        services.AddSingleton<KeywordSpeechService>();
+       // ========== 版本检查 ==========
         AppBase.Current.AppStarted += (_, _) => { VersionCheckService.CheckAndNotify(); };
 
         // ========== 订阅关闭事件 ==========
@@ -322,9 +323,11 @@ public partial class Plugin : PluginBase
         RegisterTriggerIfEnabled<HotkeyTrigger, HotkeyTriggerSettings>(services, config, "SystemTools.HotkeyTrigger");
         RegisterTriggerIfEnabled<ActionInProgressTrigger, ActionInProgressTriggerSettings>(services, config,
             "SystemTools.ActionInProgressTrigger");
-        RegisterTriggerIfEnabled<LongIdleTrigger, LongIdleTriggerSettings>(services, config,
-            "SystemTools.LongIdleTrigger");
-        if (config.EnableFloatingWindowFeature)
+       RegisterTriggerIfEnabled<LongIdleTrigger, LongIdleTriggerSettings>(services, config,
+           "SystemTools.LongIdleTrigger");
+        RegisterTriggerIfEnabled<KeywordTrigger, KeywordTriggerSettings>(services, config,
+            "SystemTools.KeywordTrigger");
+       if (config.EnableFloatingWindowFeature)
         {
             RegisterTriggerIfEnabled<FloatingWindowTrigger, FloatingWindowTriggerSettings>(services, config,
                 "SystemTools.FloatingWindowTrigger");

@@ -18,7 +18,7 @@
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+        </PackageReference> 
         <PackageReference Include="OpenCvSharp4" Version="4.9.0.20240103" />
         <PackageReference Include="OpenCvSharp4.Extensions" Version="4.5.3.20211225" />
         <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.9.0.20240103" />

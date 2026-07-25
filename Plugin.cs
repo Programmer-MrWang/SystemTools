@@ -123,7 +123,6 @@ public partial class Plugin : PluginBase
             IAppHost.GetService<AdaptiveThemeSyncService>().Start();
            IAppHost.GetService<UsbAutoPlayService>().Start();
            IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().ApplyConfig();
-            IAppHost.GetService<KeywordSpeechService>().EnsureStarted();
            _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);

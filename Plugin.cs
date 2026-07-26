@@ -72,6 +72,7 @@ public partial class Plugin : PluginBase
         services.AddSingleton<AdaptiveThemeSyncService>();
         services.AddSingleton<UsbAutoPlayService>();
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
+        services.AddSingleton<MainWindowClickService>();
 
         services.AddSingleton<SystemToolsNotificationProvider>();
         services.AddNotificationProvider<SystemToolsNotificationProvider>();
@@ -330,6 +331,8 @@ public partial class Plugin : PluginBase
            "SystemTools.LongIdleTrigger");
         RegisterTriggerIfEnabled<KeywordTrigger, KeywordTriggerSettings>(services, config,
             "SystemTools.KeywordTrigger");
+        RegisterTriggerIfEnabled<MainWindowClickTrigger, MainWindowClickTriggerSettings>(services, config,
+            "SystemTools.MainWindowClickTrigger");
        if (config.EnableFloatingWindowFeature)
         {
             RegisterTriggerIfEnabled<FloatingWindowTrigger, FloatingWindowTriggerSettings>(services, config,

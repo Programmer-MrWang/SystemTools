@@ -14,7 +14,8 @@ namespace SystemTools.Controls;
 public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessSettings>
 {
     private TextBox _processNameBox;
-    private Button _viewProcessesButton;
+        private Button _viewProcessesButton;
+    private CheckBox _notifyCheckBox;
 
     public KillProcessSettingsControl()
     {
@@ -72,7 +73,11 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
             Margin = new(0, 10, 0, 0)
         };
         _viewProcessesButton.Click += async (s, e) => await ShowProcessList();
-        panel.Children.Add(_viewProcessesButton);
+        panel.Children.Add(_viewProcessesButton);        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
+
+        
 
         Content = panel;
     }
@@ -80,6 +85,7 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
         _processNameBox.Bind(TextBox.TextProperty, new Avalonia.Data.Binding(nameof(Settings.ProcessName))
         {
             Source = Settings

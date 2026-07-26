@@ -8,6 +8,7 @@ namespace SystemTools.Controls;
 public class EnableDeviceSettingsControl : ActionSettingsControlBase<EnableDeviceSettings>
 {
     private TextBox _deviceIdBox;
+    private CheckBox _notifyCheckBox;
 
     public EnableDeviceSettingsControl()
     {
@@ -32,7 +33,11 @@ public class EnableDeviceSettingsControl : ActionSettingsControlBase<EnableDevic
             Foreground = Avalonia.Media.Brushes.Gray,
             FontSize = 12,
             Margin = new(0, 10, 0, 0)
-        });
+        });        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
+
+        
 
         Content = panel;
     }
@@ -40,6 +45,7 @@ public class EnableDeviceSettingsControl : ActionSettingsControlBase<EnableDevic
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
         _deviceIdBox.Bind(TextBox.TextProperty, new Binding(nameof(Settings.DeviceId))
         {
             Source = Settings

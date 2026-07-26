@@ -11,6 +11,7 @@ namespace SystemTools.Controls;
 
 public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<BackgroundPlayAudioSettings>
 {
+    private CheckBox _notifyCheckBox;
     private readonly TextBox _audioPathBox;
     private readonly CheckBox _waitForCompletedCheckBox;
     private readonly TextBlock _validationHintTextBlock;
@@ -66,8 +67,15 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
         _waitForCompletedCheckBox.IsCheckedChanged += (_, _) =>
         {
             Settings.WaitForPlaybackCompleted = _waitForCompletedCheckBox.IsChecked == true;
+            _notifyCheckBox.IsEnabled = _waitForCompletedCheckBox.IsChecked != true;
+            if (!_notifyCheckBox.IsEnabled)
+                _notifyCheckBox.IsChecked = false;
         };
         panel.Children.Add(_waitForCompletedCheckBox);
+
+        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
 
         Content = panel;
     }
@@ -75,6 +83,10 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
+        _notifyCheckBox.IsEnabled = !Settings.WaitForPlaybackCompleted;
+        if (Settings.WaitForPlaybackCompleted)
+            _notifyCheckBox.IsChecked = false;
         _audioPathBox.Text = Settings.AudioFilePath;
         _waitForCompletedCheckBox.IsChecked = Settings.WaitForPlaybackCompleted;
     }

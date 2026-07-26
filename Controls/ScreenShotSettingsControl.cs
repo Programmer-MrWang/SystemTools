@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Shared;
@@ -12,6 +12,7 @@ namespace SystemTools.Controls;
 public class ScreenShotSettingsControl : ActionSettingsControlBase<ScreenShotSettings>
 {
     private TextBox _folderPathBox;
+    private CheckBox _notifyCheckBox;
 
     public ScreenShotSettingsControl()
     {
@@ -46,7 +47,11 @@ public class ScreenShotSettingsControl : ActionSettingsControlBase<ScreenShotSet
         browseButton.Click += async (s, e) => await BrowseFolder_Click();
         pathPanel.Children.Add(browseButton);
 
-        panel.Children.Add(pathPanel);
+        panel.Children.Add(pathPanel);        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
+
+        
 
         Content = panel;
     }
@@ -54,6 +59,7 @@ public class ScreenShotSettingsControl : ActionSettingsControlBase<ScreenShotSet
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
         _folderPathBox.Text = Settings.SaveFolder;
     }
 

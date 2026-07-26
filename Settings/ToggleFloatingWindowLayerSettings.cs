@@ -7,6 +7,9 @@ namespace SystemTools.Settings;
 /// </summary>
 public class ToggleFloatingWindowLayerSettings
 {
+    [JsonPropertyName("notifyOnExecute")]
+    public bool NotifyOnExecute { get; set; } = false;
+
     /// <summary>
     /// 目标层级。-1 表示切换，0 表示置底，1 表示置顶。
     /// </summary>

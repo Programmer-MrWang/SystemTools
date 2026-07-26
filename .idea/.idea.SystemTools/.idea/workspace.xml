@@ -15,6 +15,75 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/AdjustScreenBrightnessAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/AdjustScreenBrightnessAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/BackgroundPlayAudioAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/BackgroundPlayAudioAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/BlackScreenHtmlAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/BlackScreenHtmlAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/CancelShutdownAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/CancelShutdownAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ChangeWallpaperAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ChangeWallpaperAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ClearAllNotificationsAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ClearAllNotificationsAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/CloneDisplayAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/CloneDisplayAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/DisableDeviceAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/DisableDeviceAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/EnableDeviceAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/EnableDeviceAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ExtendDisplayAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ExtendDisplayAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ExternalDisplayAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ExternalDisplayAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/InternalDisplayAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/InternalDisplayAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/KillProcessAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/KillProcessAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/LoadTemporaryClassPlanAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/LoadTemporaryClassPlanAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/LockScreenAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/LockScreenAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/OpenAppSettingsAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/OpenAppSettingsAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/OpenClassSwapWindowAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/OpenClassSwapWindowAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/OpenProfileEditorAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/OpenProfileEditorAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ScreenShotAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ScreenShotAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/SetVolume.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/SetVolume.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ShowDesktopAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ShowDesktopAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ShowFloatingWindowAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ShowFloatingWindowAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ShutdownAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ShutdownAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/SimulateKeyboardAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/SimulateKeyboardAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/SimulateMouseAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/SimulateMouseAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/SwitchFloatingWindowThemeAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/SwitchFloatingWindowThemeAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/SwitchThemeAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/SwitchThemeAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ToggleFloatingWindowLayerAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ToggleFloatingWindowLayerAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ToggleFloatingWindowProfileAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ToggleFloatingWindowProfileAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/TypeContentAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/TypeContentAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/WindowOperationAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/WindowOperationAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/AdjustScreenBrightnessSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/AdjustScreenBrightnessSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/BackgroundPlayAudioSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/BackgroundPlayAudioSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/DisableDeviceSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/DisableDeviceSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/EnableDeviceSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/EnableDeviceSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/KillProcessSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/KillProcessSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/LoadTemporaryClassPlanSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/LoadTemporaryClassPlanSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/ScreenShotSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/ScreenShotSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/SetVolumeSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/SetVolumeSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/ShowFloatingWindowSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/ShowFloatingWindowSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/SimulateKeyboardSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/SimulateKeyboardSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/SimulateMouseSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/SimulateMouseSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/SwitchFloatingWindowThemeSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/SwitchFloatingWindowThemeSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/ThemeSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/ThemeSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/ToggleFloatingWindowLayerSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/ToggleFloatingWindowLayerSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/ToggleFloatingWindowProfileSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/ToggleFloatingWindowProfileSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/TypeContentSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/TypeContentSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/WallpaperSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/WallpaperSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/WindowOperationSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/WindowOperationSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/AdjustScreenBrightnessSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/AdjustScreenBrightnessSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/BackgroundPlayAudioSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/BackgroundPlayAudioSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/DisableDeviceSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/DisableDeviceSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/EnableDeviceSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/EnableDeviceSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/KeyboardInputSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/KeyboardInputSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/KillProcessSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/KillProcessSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/LoadTemporaryClassPlanSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/LoadTemporaryClassPlanSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/MouseInputSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/MouseInputSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/ScreenShotSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/ScreenShotSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/SetVolumeSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/SetVolumeSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/ShowFloatingWindowSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/ShowFloatingWindowSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/ShutdownSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/ShutdownSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/SwitchFloatingWindowThemeSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/SwitchFloatingWindowThemeSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/ThemeSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/ThemeSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/ToggleFloatingWindowLayerSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/ToggleFloatingWindowLayerSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/ToggleFloatingWindowProfileSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/ToggleFloatingWindowProfileSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/TypeContentSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/TypeContentSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/WallpaperSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/WallpaperSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/WindowOperationSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/WindowOperationSettings.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,6 +105,9 @@
     &quot;accountId&quot;: &quot;aa0de770-5118-4416-9c4e-7750a23a946e&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/936ed591523a4402b2b99e8f8d5602d223b000/35/2403941b/CompiledBinding.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -64,7 +136,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.Xaml&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -102,6 +174,8 @@
       <workItem from="1784985241975" duration="719000" />
       <workItem from="1784985988057" duration="1377000" />
       <workItem from="1784988421881" duration="990000" />
+      <workItem from="1785046871621" duration="212000" />
+      <workItem from="1785047116564" duration="7791000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />

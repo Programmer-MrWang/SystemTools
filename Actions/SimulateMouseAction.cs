@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -7,6 +7,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 using Windows.Win32;
 
 namespace SystemTools.Actions;
@@ -176,6 +179,12 @@ public class SimulateMouseAction(ILogger<SimulateMouseAction> logger) : ActionBa
                 await ExecuteBatchFile("huifu.bat", "启用鼠标");
             }
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已结束自动操作自动化", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("SimulateMouseAction OnInvoke 完成");

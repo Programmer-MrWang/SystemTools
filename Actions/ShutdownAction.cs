@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -6,6 +6,9 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -45,6 +48,12 @@ public class ShutdownAction(ILogger<ShutdownAction> logger) : ActionBase<Shutdow
             _logger.LogError(ex, "执行关机失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行计时关机", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

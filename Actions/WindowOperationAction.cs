@@ -1,10 +1,13 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 using Windows.Win32;
 
 namespace SystemTools.Actions;
@@ -52,6 +55,12 @@ public class WindowOperationAction(ILogger<WindowOperationAction> logger) : Acti
             _logger.LogError(ex, "窗口操作失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动切换窗口样式", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("WindowOperationAction OnInvoke 完成");

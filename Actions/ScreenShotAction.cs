@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -8,6 +8,9 @@ using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -58,6 +61,12 @@ public class ScreenShotAction(ILogger<ScreenShotAction> logger) : ActionBase<Scr
             _logger.LogError(ex, "屏幕截图失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动执行屏幕截图", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("ScreenShotAction OnInvoke 完成");

@@ -1,6 +1,10 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -8,7 +12,7 @@ using System.Threading.Tasks;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.CancelShutdown", "取消关机计划", "\uE4CC", false)]
-public class CancelShutdownAction(ILogger<CancelShutdownAction> logger) : ActionBase
+public class CancelShutdownAction(ILogger<CancelShutdownAction> logger) : ActionBase<ShortcutKeyNotificationSettings>
 {
     private readonly ILogger<CancelShutdownAction> _logger = logger;
 
@@ -38,6 +42,12 @@ public class CancelShutdownAction(ILogger<CancelShutdownAction> logger) : Action
             _logger.LogError(ex, "取消关机失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已取消关机计划", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("CancelShutdownAction OnInvoke 完成");

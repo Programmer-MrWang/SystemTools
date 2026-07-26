@@ -7,6 +7,9 @@ using ClassIsland.Shared;
 using Microsoft.Extensions.Logging;
 using SystemTools.Services;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 using SystemTools.Shared;
 
 namespace SystemTools.Actions;
@@ -55,6 +58,12 @@ public class SwitchFloatingWindowThemeAction(ILogger<SwitchFloatingWindowThemeAc
             _logger.LogError(ex, "切换悬浮窗主题失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动切换悬浮窗主题", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("SwitchFloatingWindowThemeAction OnInvoke 完成");

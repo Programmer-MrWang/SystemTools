@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -6,6 +6,9 @@ using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -80,6 +83,12 @@ public class KillProcessAction(ILogger<KillProcessAction> logger) : ActionBase<K
         //    _logger.LogWarning("终止进程 {ProcessName} 可能失败，退出码: {ExitCode}, 错误: {Error}",
         //        processName, process.ExitCode, error);
         //}
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行退出进程操作", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("KillProcessAction OnInvoke 完成");

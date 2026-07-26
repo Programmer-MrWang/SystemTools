@@ -6,6 +6,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -46,6 +49,12 @@ public class LoadTemporaryClassPlanAction(
         _profileService.Profile.TempClassPlanSetupTime = _exactTimeService.GetCurrentLocalDateTime();
         _profileService.SaveProfile();
         _logger.LogInformation("已加载临时课表：{ClassPlanName} ({ClassPlanId})", classPlan.Name, classPlanId);
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动加载临时课表", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

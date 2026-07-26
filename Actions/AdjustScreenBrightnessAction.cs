@@ -5,6 +5,9 @@ using System;
 using System.Management;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 using SystemTools.Shared;
 
 namespace SystemTools.Actions;
@@ -51,6 +54,12 @@ public class AdjustScreenBrightnessAction(ILogger<AdjustScreenBrightnessAction> 
                 throw;
             }
         });
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行调整屏幕亮度操作", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

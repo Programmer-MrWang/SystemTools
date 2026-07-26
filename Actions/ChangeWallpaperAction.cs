@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
@@ -8,6 +8,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 using Windows.Win32;
 
 namespace SystemTools.Actions;
@@ -75,6 +78,12 @@ public class ChangeWallpaperAction(ILogger<ChangeWallpaperAction> logger) : Acti
             // 保持向上抛出异常，让上层 UI/宿主决定如何反馈给用户
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动切换桌面壁纸", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("ChangeWallpaperAction OnInvoke 完成");

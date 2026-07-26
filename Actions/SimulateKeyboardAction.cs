@@ -1,10 +1,13 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 using Windows.Win32;
 
 namespace SystemTools.Actions;
@@ -67,6 +70,12 @@ public class SimulateKeyboardAction(ILogger<SimulateKeyboardAction> logger) : Ac
             _logger.LogError(ex, "模拟键盘失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已完成模拟键盘输入", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("SimulateKeyboardAction OnInvoke 完成");

@@ -10,6 +10,7 @@ namespace SystemTools.Controls;
 public class ToggleFloatingWindowLayerSettingsControl : ActionSettingsControlBase<ToggleFloatingWindowLayerSettings>
 {
     private ComboBox _layerComboBox;
+    private CheckBox _notifyCheckBox;
 
     public ToggleFloatingWindowLayerSettingsControl()
     {
@@ -38,7 +39,11 @@ public class ToggleFloatingWindowLayerSettingsControl : ActionSettingsControlBas
             TextWrapping = Avalonia.Media.TextWrapping.Wrap,
             Opacity = 0.7,
             FontSize = 12
-        });
+        });        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
+
+        
 
         Content = panel;
     }
@@ -46,6 +51,7 @@ public class ToggleFloatingWindowLayerSettingsControl : ActionSettingsControlBas
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
 
         _layerComboBox.SelectionChanged += OnLayerSelectionChanged;
 

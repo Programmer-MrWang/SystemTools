@@ -7,6 +7,9 @@ using ClassIsland.Shared;
 using Microsoft.Extensions.Logging;
 using SystemTools.Services;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -56,6 +59,12 @@ public class ToggleFloatingWindowProfileAction(ILogger<ToggleFloatingWindowProfi
             _logger.LogError(ex, "切换悬浮窗配置方案失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动切换悬浮窗配置方案", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("ToggleFloatingWindowProfileAction OnInvoke 完成");

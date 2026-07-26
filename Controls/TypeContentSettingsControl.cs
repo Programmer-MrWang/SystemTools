@@ -7,6 +7,7 @@ namespace SystemTools.Controls;
 
 public class TypeContentSettingsControl : ActionSettingsControlBase<TypeContentSettings>
 {
+    private CheckBox _notifyCheckBox;
     private TextBox _textBox;
 
     public TypeContentSettingsControl()
@@ -27,12 +28,17 @@ public class TypeContentSettingsControl : ActionSettingsControlBase<TypeContentS
         };
 
         panel.Children.Add(_textBox);
+        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
+
         Content = panel;
     }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
         _textBox.Bind(TextBox.TextProperty, new Binding(nameof(Settings.Content))
         {
             Source = Settings

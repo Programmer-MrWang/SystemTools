@@ -7,6 +7,9 @@ namespace SystemTools.Settings;
 /// </summary>
 public class ToggleFloatingWindowProfileSettings
 {
+    [JsonPropertyName("notifyOnExecute")]
+    public bool NotifyOnExecute { get; set; } = false;
+
     /// <summary>
     /// 目标配置方案名称。null 表示切换到下一个，其他值表示指定方案名称。
     /// </summary>

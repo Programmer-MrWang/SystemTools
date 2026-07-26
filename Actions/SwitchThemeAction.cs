@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
@@ -6,6 +6,9 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -34,6 +37,12 @@ public class SwitchThemeAction(ILogger<SwitchThemeAction> logger) : ActionBase<T
             _logger.LogError(ex, "切换主题失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动切换系统主题色", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

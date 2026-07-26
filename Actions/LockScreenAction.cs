@@ -1,6 +1,10 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -8,7 +12,7 @@ using System.Threading.Tasks;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.LockScreen", "锁定屏幕", "\uEAF0", false)]
-public class LockScreenAction(ILogger<LockScreenAction> logger) : ActionBase
+public class LockScreenAction(ILogger<LockScreenAction> logger) : ActionBase<ShortcutKeyNotificationSettings>
 {
     private readonly ILogger<LockScreenAction> _logger = logger;
 
@@ -38,6 +42,12 @@ public class LockScreenAction(ILogger<LockScreenAction> logger) : ActionBase
             _logger.LogError(ex, "锁定屏幕失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已锁定屏幕", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("LockScreenAction OnInvoke 完成");

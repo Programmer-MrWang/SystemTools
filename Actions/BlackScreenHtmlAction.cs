@@ -1,6 +1,10 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +15,7 @@ using Windows.Win32;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.BlackScreenHtml", "黑屏html", "\uE643", false)]
-public class BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger) : ActionBase
+public class BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger) : ActionBase<ShortcutKeyNotificationSettings>
 {
     private readonly ILogger<BlackScreenHtmlAction> _logger = logger;
 
@@ -69,6 +73,12 @@ public class BlackScreenHtmlAction(ILogger<BlackScreenHtmlAction> logger) : Acti
             _logger.LogError(ex, "执行黑屏html失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行黑屏操作", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("BlackScreenHtmlAction OnInvoke 完成");

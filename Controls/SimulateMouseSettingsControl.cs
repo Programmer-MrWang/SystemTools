@@ -14,6 +14,7 @@ namespace SystemTools.Controls;
 
 public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInputSettings>
 {
+    private CheckBox _notifyCheckBox;
     private Avalonia.Controls.Button _startButton;
     private Avalonia.Controls.ListBox _actionsListBox;
     private Avalonia.Controls.CheckBox _disableMouseCheckBox;
@@ -105,6 +106,10 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
         };
         panel.Children.Add(_disableMouseCheckBox);
 
+        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
+
         Content = panel;
     }
 
@@ -118,6 +123,7 @@ public class SimulateMouseSettingsControl : ActionSettingsControlBase<MouseInput
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
         if (Settings.Actions != null)
         {
             _recordedActions.Clear();

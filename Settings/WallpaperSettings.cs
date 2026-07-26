@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace SystemTools.Settings;
 
@@ -10,6 +10,9 @@ public enum ChangeWallpaperMode
 
 public class ChangeWallpaperSettings
 {
+    [JsonPropertyName("notifyOnExecute")]
+    public bool NotifyOnExecute { get; set; } = false;
+
     [JsonPropertyName("imagePath")] public string ImagePath { get; set; } = string.Empty;
 
     [JsonPropertyName("mode")] public ChangeWallpaperMode Mode { get; set; } = ChangeWallpaperMode.Image;

@@ -1,6 +1,10 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -31,6 +35,12 @@ public class SetVolumeAction(ILogger<SetVolumeAction> logger) : ActionBase<SetVo
             _logger.LogError(ex, "设置音量失败");
             throw;
         }
+
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动调整系统音量", "\uE9FB", "")
+            });
     }
 }
 

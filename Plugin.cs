@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using ClassIsland.Core;
@@ -72,6 +72,9 @@ public partial class Plugin : PluginBase
         services.AddSingleton<AdaptiveThemeSyncService>();
         services.AddSingleton<UsbAutoPlayService>();
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
+
+        services.AddSingleton<SystemToolsNotificationProvider>();
+        services.AddNotificationProvider<SystemToolsNotificationProvider>();
 
         // ========== 注册可选人脸识别 ==========
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -230,28 +233,28 @@ public partial class Plugin : PluginBase
             "SystemTools.WindowOperation");
 
         // 常用按键
-        RegisterActionIfEnabled<EnterKeyAction>(services, config, "SystemTools.EnterKey");
-        RegisterActionIfEnabled<EscAction>(services, config, "SystemTools.EscKey");
-        RegisterActionIfEnabled<AltF4Action>(services, config, "SystemTools.AltF4");
-        RegisterActionIfEnabled<CtrlZAction>(services, config, "SystemTools.CtrlZ");
-        RegisterActionIfEnabled<AltTabAction>(services, config, "SystemTools.AltTab");
-        RegisterActionIfEnabled<F11Action>(services, config, "SystemTools.F11Key");
+        RegisterActionIfEnabled<EnterKeyAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.EnterKey");
+        RegisterActionIfEnabled<EscAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.EscKey");
+        RegisterActionIfEnabled<AltF4Action, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.AltF4");
+        RegisterActionIfEnabled<CtrlZAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.CtrlZ");
+        RegisterActionIfEnabled<AltTabAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.AltTab");
+        RegisterActionIfEnabled<F11Action, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.F11Key");
 
         // 显示设置
-        RegisterActionIfEnabled<CloneDisplayAction>(services, config, "SystemTools.CloneDisplay");
-        RegisterActionIfEnabled<ExtendDisplayAction>(services, config, "SystemTools.ExtendDisplay");
-        RegisterActionIfEnabled<InternalDisplayAction>(services, config, "SystemTools.InternalDisplay");
-        RegisterActionIfEnabled<ExternalDisplayAction>(services, config, "SystemTools.ExternalDisplay");
-        RegisterActionIfEnabled<BlackScreenHtmlAction>(services, config, "SystemTools.BlackScreenHtml");
-        RegisterActionIfEnabled<ShowDesktopAction>(services, config, "SystemTools.ShowDesktop");
+        RegisterActionIfEnabled<CloneDisplayAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.CloneDisplay");
+        RegisterActionIfEnabled<ExtendDisplayAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.ExtendDisplay");
+        RegisterActionIfEnabled<InternalDisplayAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.InternalDisplay");
+        RegisterActionIfEnabled<ExternalDisplayAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.ExternalDisplay");
+        RegisterActionIfEnabled<BlackScreenHtmlAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.BlackScreenHtml");
+        RegisterActionIfEnabled<ShowDesktopAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.ShowDesktop");
         RegisterActionIfEnabled<AdjustScreenBrightnessAction, AdjustScreenBrightnessSettingsControl>(services, config, "SystemTools.AdjustScreenBrightness");
 
         // 电源选项
         RegisterActionIfEnabled<ShutdownAction, ShutdownSettingsControl>(services, config, "SystemTools.Shutdown");
         RegisterActionIfEnabled<AdvancedShutdownAction, AdvancedShutdownSettingsControl>(services, config,
             "SystemTools.AdvancedShutdown");
-        RegisterActionIfEnabled<LockScreenAction>(services, config, "SystemTools.LockScreen");
-        RegisterActionIfEnabled<CancelShutdownAction>(services, config, "SystemTools.CancelShutdown");
+        RegisterActionIfEnabled<LockScreenAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.LockScreen");
+        RegisterActionIfEnabled<CancelShutdownAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.CancelShutdown");
         RegisterActionIfEnabled<ImmediateRestartAction>(services, config, "SystemTools.ImmediateRestart");
         RegisterActionIfEnabled<ImmediateShutdownAction>(services, config, "SystemTools.ImmediateShutdown");
         RegisterActionIfEnabled<SleepAction>(services, config, "SystemTools.Sleep");
@@ -306,10 +309,10 @@ public partial class Plugin : PluginBase
         RegisterActionIfEnabled<TriggerCustomTriggerAction, TriggerCustomTriggerSettingsControl>(services, config,
             "SystemTools.TriggerCustomTrigger");
         RegisterActionIfEnabled<RestartAsAdminAction>(services, config, "SystemTools.RestartAsAdmin");
-        RegisterActionIfEnabled<ClearAllNotificationsAction>(services, config, "SystemTools.ClearAllNotifications");
-        RegisterActionIfEnabled<OpenAppSettingsAction>(services, config, "SystemTools.OpenAppSettings");
-        RegisterActionIfEnabled<OpenProfileEditorAction>(services, config, "SystemTools.OpenProfileEditor");
-        RegisterActionIfEnabled<OpenClassSwapWindowAction>(services, config, "SystemTools.OpenClassSwapWindow");
+        RegisterActionIfEnabled<ClearAllNotificationsAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.ClearAllNotifications");
+        RegisterActionIfEnabled<OpenAppSettingsAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.OpenAppSettings");
+        RegisterActionIfEnabled<OpenProfileEditorAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.OpenProfileEditor");
+        RegisterActionIfEnabled<OpenClassSwapWindowAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.OpenClassSwapWindow");
         RegisterActionIfEnabled<ToggleWorkflowAction, ToggleWorkflowSettingsControl>(services, config,
     "SystemTools.ToggleWorkflow");
     }

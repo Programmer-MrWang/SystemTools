@@ -6,6 +6,7 @@ namespace SystemTools.Controls;
 
 public class WindowOperationSettingsControl : ActionSettingsControlBase<WindowOperationSettings>
 {
+    private CheckBox _notifyCheckBox;
     private ComboBox _operationComboBox;
 
     public WindowOperationSettingsControl()
@@ -31,12 +32,17 @@ public class WindowOperationSettingsControl : ActionSettingsControlBase<WindowOp
         };
 
         panel.Children.Add(_operationComboBox);
+        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
+
         Content = panel;
     }
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
         _operationComboBox.SelectedItem = Settings.Operation;
     }
 }

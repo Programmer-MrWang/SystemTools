@@ -1,10 +1,13 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using SystemTools.Settings;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using ClassIsland.Shared;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 
@@ -49,6 +52,12 @@ public class TypeContentAction(ILogger<TypeContentAction> logger) : ActionBase<T
             _logger.LogError(ex, "键入内容失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已自动键入内容", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
         _logger.LogDebug("OnInvoke 完成");

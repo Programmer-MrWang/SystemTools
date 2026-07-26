@@ -1,6 +1,10 @@
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 using System;
 using System.Threading.Tasks;
 using Windows.Win32;
@@ -9,7 +13,7 @@ using Windows.Win32.UI.Input.KeyboardAndMouse;
 namespace SystemTools.Actions;
 
 [ActionInfo("SystemTools.ShowDesktop", "显示桌面", "\uE62F", false)]
-public class ShowDesktopAction(ILogger<ShowDesktopAction> logger) : ActionBase
+public class ShowDesktopAction(ILogger<ShowDesktopAction> logger) : ActionBase<ShortcutKeyNotificationSettings>
 {
     private readonly ILogger<ShowDesktopAction> _logger = logger;
 
@@ -39,6 +43,12 @@ public class ShowDesktopAction(ILogger<ShowDesktopAction> logger) : ActionBase
             _logger.LogError(ex, "发送 Win+D 失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行显示桌面操作", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

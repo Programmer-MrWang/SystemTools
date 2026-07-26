@@ -1,9 +1,13 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -11,7 +15,7 @@ namespace SystemTools.Actions;
 /// 复制屏幕
 /// </summary>
 [ActionInfo("SystemTools.CloneDisplay", "复制屏幕", "\uE635", false)]
-public class CloneDisplayAction(ILogger<CloneDisplayAction> logger) : ActionBase
+public class CloneDisplayAction(ILogger<CloneDisplayAction> logger) : ActionBase<ShortcutKeyNotificationSettings>
 {
     private readonly ILogger<CloneDisplayAction> _logger = logger;
 
@@ -54,6 +58,12 @@ public class CloneDisplayAction(ILogger<CloneDisplayAction> logger) : ActionBase
             _logger.LogError(ex, "复制屏幕失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行复制屏幕操作", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

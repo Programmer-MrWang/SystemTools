@@ -1,9 +1,13 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -11,7 +15,7 @@ namespace SystemTools.Actions;
 /// 仅电脑屏幕
 /// </summary>
 [ActionInfo("SystemTools.InternalDisplay", "仅电脑屏幕", "\uE62F", false)]
-public class InternalDisplayAction(ILogger<InternalDisplayAction> logger) : ActionBase
+public class InternalDisplayAction(ILogger<InternalDisplayAction> logger) : ActionBase<ShortcutKeyNotificationSettings>
 {
     private readonly ILogger<InternalDisplayAction> _logger = logger;
 
@@ -54,6 +58,12 @@ public class InternalDisplayAction(ILogger<InternalDisplayAction> logger) : Acti
             _logger.LogError(ex, "仅电脑屏幕失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行仅电脑屏幕操作", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

@@ -1,9 +1,13 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -11,7 +15,7 @@ namespace SystemTools.Actions;
 /// 扩展屏幕
 /// </summary>
 [ActionInfo("SystemTools.ExtendDisplay", "扩展屏幕", "\uE647", false)]
-public class ExtendDisplayAction(ILogger<ExtendDisplayAction> logger) : ActionBase
+public class ExtendDisplayAction(ILogger<ExtendDisplayAction> logger) : ActionBase<ShortcutKeyNotificationSettings>
 {
     private readonly ILogger<ExtendDisplayAction> _logger = logger;
 
@@ -54,6 +58,12 @@ public class ExtendDisplayAction(ILogger<ExtendDisplayAction> logger) : ActionBa
             _logger.LogError(ex, "扩展屏幕失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行扩展屏幕操作", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

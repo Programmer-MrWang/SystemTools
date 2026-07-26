@@ -1,9 +1,13 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
+using ClassIsland.Core.Models.Notification;
+using SystemTools.Services;
+using SystemTools.Settings;
+using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 
@@ -11,7 +15,7 @@ namespace SystemTools.Actions;
 /// 仅第二屏幕
 /// </summary>
 [ActionInfo("SystemTools.ExternalDisplay", "仅第二屏幕", "\uE641", false)]
-public class ExternalDisplayAction(ILogger<ExternalDisplayAction> logger) : ActionBase
+public class ExternalDisplayAction(ILogger<ExternalDisplayAction> logger) : ActionBase<ShortcutKeyNotificationSettings>
 {
     private readonly ILogger<ExternalDisplayAction> _logger = logger;
 
@@ -54,6 +58,12 @@ public class ExternalDisplayAction(ILogger<ExternalDisplayAction> logger) : Acti
             _logger.LogError(ex, "仅第二屏幕失败");
             throw;
         }
+        if (Settings.NotifyOnExecute)
+            IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest
+            {
+                MaskContent = NotificationContent.CreateTwoIconsMask("已执行仅第二屏幕操作", "\uE9FB", "")
+            });
+
 
         await base.OnInvoke();
     }

@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace SystemTools.Settings;
 
 public class MouseInputSettings
 {
+    [JsonPropertyName("notifyOnExecute")]
+    public bool NotifyOnExecute { get; set; } = false;
+
     [JsonPropertyName("actions")] public List<MouseAction> Actions { get; set; } = [];
 
     [JsonPropertyName("disableMouseDuringExecution")]

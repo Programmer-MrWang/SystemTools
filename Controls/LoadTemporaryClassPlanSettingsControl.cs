@@ -14,6 +14,7 @@ namespace SystemTools.Controls;
 
 public class LoadTemporaryClassPlanSettingsControl : ActionSettingsControlBase<LoadTemporaryClassPlanSettings>
 {
+    private CheckBox _notifyCheckBox;
     private readonly IProfileService _profileService;
     private readonly ComboBox _comboBox;
     private readonly List<ClassPlanOption> _options = [];
@@ -49,6 +50,10 @@ public class LoadTemporaryClassPlanSettingsControl : ActionSettingsControlBase<L
             Foreground = Avalonia.Media.Brushes.Gray
         });
 
+        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+        _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
+        panel.Children.Add(_notifyCheckBox);
+
         Content = panel;
 
         _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
@@ -58,6 +63,7 @@ public class LoadTemporaryClassPlanSettingsControl : ActionSettingsControlBase<L
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        _notifyCheckBox.IsChecked = Settings.NotifyOnExecute;
         RefreshClassPlanList();
         _refreshTimer.Start();
     }

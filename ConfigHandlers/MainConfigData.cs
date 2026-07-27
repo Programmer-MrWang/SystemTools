@@ -88,16 +88,16 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
-    bool _autoMatchMainBackgroundTheme;
+    bool _autoSwitchClassIslandTheme;
 
-    [JsonPropertyName("autoMatchMainBackgroundTheme")]
-    public bool AutoMatchMainBackgroundTheme
+    [JsonPropertyName("autoSwitchClassIslandTheme")]
+    public bool AutoSwitchClassIslandTheme
     {
-        get => _autoMatchMainBackgroundTheme;
+        get => _autoSwitchClassIslandTheme;
         set
         {
-            if (value == _autoMatchMainBackgroundTheme) return;
-            _autoMatchMainBackgroundTheme = value;
+            if (value == _autoSwitchClassIslandTheme) return;
+            _autoSwitchClassIslandTheme = value;
             OnPropertyChanged();
         }
     }
@@ -128,6 +128,35 @@ public class MainConfigData : INotifyPropertyChanged
         {
             if (value == _autoCleanupClassIslandMemory) return;
             _autoCleanupClassIslandMemory = value;
+            OnPropertyChanged();
+        }
+    }
+
+    bool _autoCleanupSystemMemory;
+
+    [JsonPropertyName("autoCleanupSystemMemory")]
+    public bool AutoCleanupSystemMemory
+    {
+        get => _autoCleanupSystemMemory;
+        set
+        {
+            if (value == _autoCleanupSystemMemory) return;
+            _autoCleanupSystemMemory = value;
+            OnPropertyChanged();
+        }
+    }
+
+    int _systemMemoryCleanupThresholdPercent = 90;
+
+    [JsonPropertyName("systemMemoryCleanupThresholdPercent")]
+    public int SystemMemoryCleanupThresholdPercent
+    {
+        get => _systemMemoryCleanupThresholdPercent;
+        set
+        {
+            var clamped = Math.Clamp(value, 50, 99);
+            if (clamped == _systemMemoryCleanupThresholdPercent) return;
+            _systemMemoryCleanupThresholdPercent = clamped;
             OnPropertyChanged();
         }
     }

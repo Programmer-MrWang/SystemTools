@@ -69,9 +69,14 @@ public partial class Plugin : PluginBase
         services.AddSingleton(GlobalConstants.MainConfig);
         services.AddSingleton<FloatingWindowProfileManager>();
         services.AddSingleton<FloatingWindowService>();
+        services.AddSingleton<MainWindowAreaService>();
+        services.AddSingleton<MainWindowBackgroundCaptureService>();
+        services.AddSingleton<ClassIslandSettingsService>();
         services.AddSingleton<AdaptiveThemeSyncService>();
+        services.AddSingleton<MainWindowTextOcclusionService>();
         services.AddSingleton<UsbAutoPlayService>();
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
+        services.AddSingleton<SystemMemoryCleanupService>();
         services.AddSingleton<MainWindowClickService>();
 
         services.AddSingleton<SystemToolsNotificationProvider>();
@@ -125,8 +130,10 @@ public partial class Plugin : PluginBase
                 IAppHost.GetService<FloatingWindowService>().Start();
             }
             IAppHost.GetService<AdaptiveThemeSyncService>().Start();
+            IAppHost.GetService<MainWindowTextOcclusionService>().Start();
             IAppHost.GetService<UsbAutoPlayService>().Start();
             IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().ApplyConfig();
+            IAppHost.GetService<SystemMemoryCleanupService>().ApplyConfig();
             _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
@@ -824,8 +831,10 @@ public partial class Plugin : PluginBase
     private void OnAppStopping(object? sender, EventArgs e)
     {
         IAppHost.GetService<AdaptiveThemeSyncService>().Stop();
+        IAppHost.GetService<MainWindowTextOcclusionService>().Stop(restoreMainWindow: true);
         IAppHost.GetService<UsbAutoPlayService>().Stop();
         IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop();
+        IAppHost.GetService<SystemMemoryCleanupService>().Stop();
         AdvancedShutdownAction.CancelPlanOnAppStopping();
         if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
         {

@@ -14,18 +14,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/Config/MainWindowClickTriggerConfig.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controls/ShortcutKeyNotificationSettingsControl.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Services/MainWindowClickService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Services/SystemToolsNotificationProvider.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Settings/MainWindowClickTriggerSettings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Settings/ShortcutKeyNotificationSettings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Triggers/MainWindowClickTrigger.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README-1.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-1.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/manifest.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/version.json" beforeDir="false" afterPath="$PROJECT_DIR$/version.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +111,10 @@
       <workItem from="1785046871621" duration="212000" />
       <workItem from="1785047116564" duration="7791000" />
       <workItem from="1785073772340" duration="81000" />
-      <workItem from="1785076333658" duration="878000" />
+      <workItem from="1785076333658" duration="1787000" />
+      <workItem from="1785079334483" duration="660000" />
+      <workItem from="1785081137386" duration="2994000" />
+      <workItem from="1785122170192" duration="1398000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -137,7 +132,63 @@
       <option name="project" value="LOCAL" />
       <updated>1785073831879</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="feat: 新增“单击主界面时”触发器 及其对应的服务模块">
+      <option name="closed" value="true" />
+      <created>1785077269645</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1785077269645</updated>
+    </task>
+    <task id="LOCAL-00004" summary="feat: 新增“点击主界面时”触发器">
+      <option name="closed" value="true" />
+      <created>1785123547837</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1785123547837</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat: 关于获取主界面位置的共享服务">
+      <option name="closed" value="true" />
+      <created>1785123578350</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1785123578350</updated>
+    </task>
+    <task id="LOCAL-00006" summary="feat: 新增 遮挡文字时隐藏 功能">
+      <option name="closed" value="true" />
+      <created>1785123615228</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1785123615228</updated>
+    </task>
+    <task id="LOCAL-00007" summary="feat: 新增获取主界面后侧样式服务">
+      <option name="closed" value="true" />
+      <created>1785123646546</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1785123646546</updated>
+    </task>
+    <task id="LOCAL-00008" summary="feat: 新增自动识别和更改主题功能">
+      <option name="closed" value="true" />
+      <created>1785123710486</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1785123710486</updated>
+    </task>
+    <task id="LOCAL-00009" summary="feat: 新增自动清理内存服务功能">
+      <option name="closed" value="true" />
+      <created>1785123741932</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1785123741932</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -160,7 +211,14 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="feat: 同步主分支新增“关键词触发”和UI逻辑修改" />
     <MESSAGE value="feat: 新增可选执行行动时发送通知功能" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增可选执行行动时发送通知功能" />
+    <MESSAGE value="feat: 新增“单击主界面时”触发器 及其对应的服务模块" />
+    <MESSAGE value="feat: 新增“点击主界面时”触发器" />
+    <MESSAGE value="feat: 关于获取主界面位置的共享服务" />
+    <MESSAGE value="feat: 新增 遮挡文字时隐藏 功能" />
+    <MESSAGE value="feat: 新增获取主界面后侧样式服务" />
+    <MESSAGE value="feat: 新增自动识别和更改主题功能" />
+    <MESSAGE value="feat: 新增自动清理内存服务功能" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增自动清理内存服务功能" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

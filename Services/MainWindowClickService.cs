@@ -4,15 +4,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Threading;
-using Avalonia.VisualTree;
-using ClassIsland.Core;
 using Microsoft.Extensions.Logging;
 
 namespace SystemTools.Services;
 
-public sealed class MainWindowClickService(ILogger<MainWindowClickService> logger) : IDisposable
+public sealed class MainWindowClickService(
+    MainWindowAreaService mainWindowAreaService,
+    ILogger<MainWindowClickService> logger) : IDisposable
 {
     private const int WhMouseLl = 14;
     private const uint WmLButtonDown = 0x0201;
@@ -117,41 +116,11 @@ public sealed class MainWindowClickService(ILogger<MainWindowClickService> logge
         }
     }
 
-    private static bool IsInMainWindowArea(PixelPoint point)
+    private bool IsInMainWindowArea(PixelPoint point)
     {
-        if (AppBase.Current.MainWindow is not { IsVisible: true } window)
-        {
-            return false;
-        }
-
-        try
-        {
-            return window.GetVisualDescendants()
-                .OfType<Grid>()
-                .Where(grid => grid.Name == "PART_GridWrapper" && grid.IsEffectivelyVisible)
-                .Any(grid => ContainsScreenPoint(grid, point));
-        }
-        catch (InvalidOperationException)
-        {
-            return false;
-        }
-    }
-
-    private static bool ContainsScreenPoint(Control control, PixelPoint point)
-    {
-        if (control.Bounds.Width <= 0 || control.Bounds.Height <= 0)
-        {
-            return false;
-        }
-
-        var topLeft = control.PointToScreen(new Avalonia.Point(0, 0));
-        var bottomRight = control.PointToScreen(new Avalonia.Point(control.Bounds.Width, control.Bounds.Height));
-        var left = Math.Min(topLeft.X, bottomRight.X);
-        var top = Math.Min(topLeft.Y, bottomRight.Y);
-        var right = Math.Max(topLeft.X, bottomRight.X);
-        var bottom = Math.Max(topLeft.Y, bottomRight.Y);
-
-        return point.X >= left && point.X <= right && point.Y >= top && point.Y <= bottom;
+        return mainWindowAreaService.GetVisibleAreas()
+            .Any(area => point.X >= area.Left && point.X <= area.Right &&
+                         point.Y >= area.Top && point.Y <= area.Bottom);
     }
 
     private delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);

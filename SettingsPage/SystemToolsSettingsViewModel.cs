@@ -10,6 +10,7 @@ using System;
 using System.ComponentModel;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using SystemTools.Shared;
 using SystemTools.Services;
@@ -81,10 +82,13 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     [ObservableProperty] private bool _isFfmpegDownloadEnabled = true;
     [ObservableProperty] private bool _isFaceModelsDownloadEnabled = true;
+    [ObservableProperty] private bool _isDownloadInProgress;
 
     [ObservableProperty] private bool _showDownloadProgress = false;
     [ObservableProperty] private double _downloadProgress = 0;
     [ObservableProperty] private string _downloadStatusText = string.Empty;
+
+    private readonly SemaphoreSlim _downloadSemaphore = new(1, 1);
 
     [ObservableProperty] private ObservableCollection<UnifiedFeatureItem> _featureItems = new();
 
@@ -860,25 +864,47 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     public bool CheckFaceModelsExists()
     {
-        return DependencyPaths.HasFaceRecognitionDependencies();
+        try
+        {
+            return DependencyPaths.HasFaceRecognitionDependencies();
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public void RefreshDownloadButtonStates()
+    {
+        if (IsDownloadInProgress)
+        {
+            IsFfmpegDownloadEnabled = false;
+            IsFaceModelsDownloadEnabled = false;
+            return;
+        }
+
+        IsFfmpegDownloadEnabled = !CheckFfmpegExists();
+        IsFaceModelsDownloadEnabled = !CheckFaceModelsExists();
     }
 
     public async Task<bool> DownloadFfmpegAsync(Func<Task> onError, Func<Task> onMd5Error)
     {
-        if (!IsFfmpegDownloadEnabled) return false;
+        if (!IsFfmpegDownloadEnabled || !await TryBeginDownloadAsync()) return false;
 
-        IsFfmpegDownloadEnabled = false;
-        ShowDownloadProgress = true;
-        DownloadProgress = 0;
-        DownloadStatusText = "正在下载 - 0%";
-
-        DependencyPaths.EnsureDependencyDirectories();
-        var dependencyRoot = DependencyPaths.GetDependencyRoot();
-        var tempPath = Path.Combine(dependencyRoot, TempFileName);
-        var targetPath = DependencyPaths.GetFfmpegPath();
+        string? tempPath = null;
 
         try
         {
+            ShowDownloadProgress = true;
+            DownloadProgress = 0;
+            DownloadStatusText = "正在下载 - 0%";
+
+            DependencyPaths.EnsureDependencyDirectories();
+            var dependencyRoot = DependencyPaths.GetDependencyRoot();
+            var downloadTempPath = Path.Combine(dependencyRoot, TempFileName);
+            tempPath = downloadTempPath;
+            var targetPath = DependencyPaths.GetFfmpegPath();
+
             using var httpClient = new HttpClient();
             using var response = await httpClient.GetAsync(DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
@@ -887,7 +913,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             var downloadedBytes = 0L;
 
             await using var contentStream = await response.Content.ReadAsStreamAsync();
-            await using var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None);
+            await using var fileStream = new FileStream(downloadTempPath, FileMode.Create, FileAccess.Write, FileShare.None);
 
             var buffer = new byte[4 * 1024 * 1024];
             int bytesRead;
@@ -908,10 +934,10 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             await Task.Delay(500);
             await UpdateStatusAsync("正在校验MD5…");
 
-            var actualMd5 = await CalculateMd5Async(tempPath);
+            var actualMd5 = await CalculateMd5Async(downloadTempPath);
             if (!string.Equals(actualMd5, ExpectedMd5, StringComparison.OrdinalIgnoreCase))
             {
-                File.Delete(tempPath);
+                File.Delete(downloadTempPath);
                 await onMd5Error();
                 return false;
             }
@@ -922,7 +948,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
                 File.Delete(targetPath);
             }
 
-            File.Move(tempPath, targetPath);
+            File.Move(downloadTempPath, targetPath);
             await Task.Delay(500);
             ShowDownloadProgress = false;
 
@@ -932,7 +958,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         {
             System.Diagnostics.Debug.WriteLine($"[SystemTools] 下载失败: {ex.Message}");
 
-            if (File.Exists(tempPath))
+            if (tempPath != null && File.Exists(tempPath))
             {
                 await Task.Delay(2000);
                 File.Delete(tempPath);
@@ -943,29 +969,33 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         }
         finally
         {
-            IsFfmpegDownloadEnabled = !CheckFfmpegExists();
-            if (!ShowDownloadProgress)
+            try
             {
-                DownloadProgress = 0;
-                DownloadStatusText = string.Empty;
+                CompleteDownload();
+            }
+            finally
+            {
+                _downloadSemaphore.Release();
             }
         }
     }
 
     public async Task<bool> DownloadFaceModelsAsync(Func<Task> onError, Func<Task> onMd5Error)
     {
-        if (!IsFaceModelsDownloadEnabled) return false;
+        if (!IsFaceModelsDownloadEnabled || !await TryBeginDownloadAsync()) return false;
 
-        IsFaceModelsDownloadEnabled = false;
-        ShowDownloadProgress = true;
-        DownloadProgress = 0;
-
-        DependencyPaths.EnsureDependencyDirectories();
-        var dependencyRoot = DependencyPaths.GetDependencyRoot();
-        var zipPath = Path.Combine(dependencyRoot, FaceZipFileName);
+        string? zipPath = null;
 
         try
         {
+            ShowDownloadProgress = true;
+            DownloadProgress = 0;
+
+            DependencyPaths.EnsureDependencyDirectories();
+            var dependencyRoot = DependencyPaths.GetDependencyRoot();
+            var archivePath = Path.Combine(dependencyRoot, FaceZipFileName);
+            zipPath = archivePath;
+
             using var httpClient = new HttpClient();
             using var response = await httpClient.GetAsync(FaceModelsUrl, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
@@ -974,7 +1004,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             var downloadedBytes = 0L;
 
             await using (var contentStream = await response.Content.ReadAsStreamAsync())
-            await using (var fileStream = new FileStream(zipPath, FileMode.Create))
+            await using (var fileStream = new FileStream(archivePath, FileMode.Create))
             {
                 var buffer = new byte[8192];
                 int bytesRead;
@@ -990,10 +1020,10 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             }
 
             await UpdateStatusAsync("正在校验模型 MD5…");
-            var actualMd5 = await CalculateMd5Async(zipPath);
+            var actualMd5 = await CalculateMd5Async(archivePath);
             if (!string.Equals(actualMd5, FaceModelsMd5, StringComparison.OrdinalIgnoreCase))
             {
-                File.Delete(zipPath);
+                File.Delete(archivePath);
                 await onMd5Error();
                 return false;
             }
@@ -1004,7 +1034,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
                 if (Directory.Exists(Path.Combine(dependencyRoot, "temp_extract")))
                     Directory.Delete(Path.Combine(dependencyRoot, "temp_extract"), true);
 
-                ZipFile.ExtractToDirectory(zipPath, dependencyRoot, true);
+                ZipFile.ExtractToDirectory(archivePath, dependencyRoot, true);
             });
 
             await UpdateStatusAsync("正在整理文件结构…");
@@ -1029,7 +1059,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
                 }
             });
 
-            if (File.Exists(zipPath)) File.Delete(zipPath);
+            if (File.Exists(archivePath)) File.Delete(archivePath);
 
             await UpdateStatusAsync("处理完成！");
             await Task.Delay(1000);
@@ -1039,14 +1069,43 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[SystemTools] 下载模型失败: {ex.Message}");
-            if (File.Exists(zipPath)) File.Delete(zipPath);
+            if (zipPath != null && File.Exists(zipPath)) File.Delete(zipPath);
             await onError();
             return false;
         }
         finally
         {
-            IsFaceModelsDownloadEnabled = !CheckFaceModelsExists();
+            try
+            {
+                CompleteDownload();
+            }
+            finally
+            {
+                _downloadSemaphore.Release();
+            }
         }
+    }
+
+    private async Task<bool> TryBeginDownloadAsync()
+    {
+        if (!await _downloadSemaphore.WaitAsync(0))
+        {
+            return false;
+        }
+
+        IsDownloadInProgress = true;
+        IsFfmpegDownloadEnabled = false;
+        IsFaceModelsDownloadEnabled = false;
+        return true;
+    }
+
+    private void CompleteDownload()
+    {
+        ShowDownloadProgress = false;
+        DownloadProgress = 0;
+        DownloadStatusText = string.Empty;
+        IsDownloadInProgress = false;
+        RefreshDownloadButtonStates();
     }
 
     private async Task UpdateProgressAsync(double progress)

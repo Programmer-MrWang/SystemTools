@@ -7,15 +7,23 @@
     <ScrollViewer>
         <StackPanel Classes="settings-container animated-intro">
 
-            <!--<controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE520;}"
-                                       Header="自动匹配主界面背景色到 ClassIsland 主题"
-                                       Description="实时监测主界面所在区域色彩，偏黑则切换黑暗，偏白则切换明亮">
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE5CB;}"
+                                       Header="自动切换 ClassIsland 主题"
+                                       Description="每两秒检测主界面所覆盖位置背后的画面；颜色偏暗时切换为黑暗主题，偏亮时切换为明亮主题。">
                 <controls:FASettingsExpander.Footer>
-                    <controls:FAToggleSwitch IsChecked="{Binding Config.AutoMatchMainBackgroundTheme, Mode=TwoWay}"
-                                  Checked="AutoMatchThemeToggle_OnChanged"
-                                  Unchecked="AutoMatchThemeToggle_OnChanged" />
+                    <ToggleSwitch IsChecked="{Binding Config.AutoSwitchClassIslandTheme, Mode=TwoWay}"
+                                  IsCheckedChanged="AutoMatchThemeToggle_OnChanged" />
                 </controls:FASettingsExpander.Footer>
-            </controls:FASettingsExpander>-->
+            </controls:FASettingsExpander>
+
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEEE3;}"
+                                       Header="主界面遮挡文字时"
+                                       Description="每两秒检测主界面所覆盖位置背后的文字；识别到至少 4 个文字字符时隐藏主界面，否则显示主界面。">
+                <controls:FASettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.AutoHideMainWindowWhenOccluded, Mode=TwoWay}"
+                                  IsCheckedChanged="AutoHideMainWindowOnTextToggle_OnChanged" />
+                </controls:FASettingsExpander.Footer>
+            </controls:FASettingsExpander>
 
             <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEE81;}"
                                        Header="自动播放"
@@ -33,6 +41,39 @@
                     <ToggleSwitch IsChecked="{Binding Config.AutoCleanupClassIslandMemory, Mode=TwoWay}"
                                   IsCheckedChanged="AutoCleanupMemoryToggle_OnChanged" />
                 </controls:FASettingsExpander.Footer>
+            </controls:FASettingsExpander>
+
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEE21;}"
+                                       Header="自动清理内存（管理员）"
+                                       Description="清理低优先级待机列表、注册表缓存、工作集和系统文件缓存；可能造成短暂卡顿。">
+                <controls:FASettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.AutoCleanupSystemMemory, Mode=TwoWay}"
+                                  Click="AutoCleanupSystemMemoryToggle_OnClick" />
+                </controls:FASettingsExpander.Footer>
+
+                <controls:FASettingsExpanderItem Content="自动清理阈值"
+                                                 Description="可设置 50%–99%（默认 90%）；达到阈值时触发一次，明显回落后才会再次触发。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <NumericUpDown Width="140"
+                                           Minimum="50"
+                                           Maximum="99"
+                                           Increment="1"
+                                           FormatString="F0"
+                                           Value="{Binding Config.SystemMemoryCleanupThresholdPercent, Mode=TwoWay}" />
+                            <TextBlock Text="%" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem Content="立即清理"
+                                                 Description="无需开启自动清理，也可以手动执行上述四种清理方法。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <Button Content="一键清理"
+                                Width="165"
+                                Click="CleanSystemMemoryNow_OnClick" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
         </StackPanel>

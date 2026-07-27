@@ -52,8 +52,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private void UpdateDownloadButtonStates()
     {
-        ViewModel.IsFfmpegDownloadEnabled = !ViewModel.CheckFfmpegExists();
-        ViewModel.IsFaceModelsDownloadEnabled = !ViewModel.CheckFaceModelsExists();
+        ViewModel.RefreshDownloadButtonStates();
     }
 
     private void OnRestartPropertyChanged(object? sender, EventArgs e)
@@ -97,7 +96,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
                 ViewModel.Settings.RestartPropertyChanged += OnRestartPropertyChanged;
 
                 // 关闭功能时，允许重新下载（按钮启用状态由文件存在决定）
-                ViewModel.IsFfmpegDownloadEnabled = !ViewModel.CheckFfmpegExists();
+                UpdateDownloadButtonStates();
 
                 RequestRestart();
             }
@@ -109,7 +108,7 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
             ViewModel.Settings.RestartPropertyChanged += OnRestartPropertyChanged;
 
             // 关闭功能时，允许重新下载（按钮启用状态由文件存在决定）
-            ViewModel.IsFfmpegDownloadEnabled = !ViewModel.CheckFfmpegExists();
+            UpdateDownloadButtonStates();
 
             RequestRestart();
         }

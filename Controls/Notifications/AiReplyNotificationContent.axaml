@@ -1,0 +1,18 @@
+<UserControl x:Class="SystemTools.Controls.Notifications.AiReplyNotificationContent"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="OnLoaded"
+             Unloaded="OnUnloaded">
+    <Grid ClipToBounds="True">
+        <Canvas x:Name="RootCanvas"
+                Height="{Binding Bounds.Height, ElementName=ReplyText}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center"
+                ClipToBounds="True">
+            <TextBlock x:Name="ReplyText"
+                       FontSize="17"
+                       VerticalAlignment="Center"
+                       LayoutUpdated="ReplyText_OnLayoutUpdated" />
+        </Canvas>
+    </Grid>
+</UserControl>

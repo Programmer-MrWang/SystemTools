@@ -1,0 +1,311 @@
+<ci:SettingsPageBase x:Class="SystemTools.AiChatSettingsPage"
+                     xmlns="https://github.com/avaloniaui"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:ci="http://classisland.tech/schemas/xaml/core"
+                     xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
+                     xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
+                     x:CompileBindings="False"
+                     mc:Ignorable="d"
+                     d:DesignHeight="620"
+                     d:DesignWidth="980">
+    <ci:SettingsPageBase.Styles>
+        <StyleInclude Source="avares://ClassIsland.Core/Themes/RichTextStyles.axaml" />
+    </ci:SettingsPageBase.Styles>
+
+    <Grid Margin="12" MinHeight="440">
+        <SplitView IsPaneOpen="{Binding IsHistoryOpen, Mode=TwoWay}"
+                   PanePlacement="Right"
+                   DisplayMode="Inline"
+                   OpenPaneLength="280"
+                   CompactPaneLength="0">
+            <SplitView.Pane>
+                <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1,0,0,0"
+                        Background="{DynamicResource LayerFillColorAltBrush}">
+                    <Grid RowDefinitions="Auto,*" Margin="12,0,0,0">
+                        <Grid ColumnDefinitions="*,Auto" Margin="12,10,8,10">
+                            <TextBlock Text="对话历史记录"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <Button Grid.Column="1"
+                                    Width="34"
+                                    Height="34"
+                                    Padding="0"
+                                    Content="{ci:FluentIcon &#xE53B;}"
+                                    ToolTip.Tip="新建对话"
+                                    Theme="{StaticResource TransparentButton}"
+                                    Click="NewConversationButton_OnClick" />
+                        </Grid>
+
+                        <ListBox Grid.Row="1"
+                                 Margin="4,0,4,8"
+                                 ItemsSource="{Binding Conversations}"
+                                 SelectedItem="{Binding SelectedConversation, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Width="240" MinHeight="54" Margin="4,2">
+                                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                                            <TextBlock Text="{Binding Title}"
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxLines="1" />
+                                            <TextBlock Text="{Binding UpdatedAt, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Width="30"
+                                                Height="30"
+                                                Padding="0"
+                                                VerticalAlignment="Center"
+                                                Content="{ci:FluentIcon &#xE61D;}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip.Tip="删除对话"
+                                                Theme="{StaticResource TransparentButton}"
+                                                Click="DeleteConversationButton_OnClick" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+            </SplitView.Pane>
+
+            <SplitView.Content>
+                <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Margin="0,0,12,0">
+                    <Grid ColumnDefinitions="*,Auto,Auto" Height="52" Margin="8,0,0,0">
+                        <TextBox FontSize="20"
+                                 FontWeight="SemiBold"
+                                 VerticalContentAlignment="Center"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Text="{Binding SelectedConversation.Title, Mode=TwoWay}"
+                                 LostFocus="ConversationTitle_OnLostFocus" />
+                        <ToggleSwitch Grid.Column="1"
+                                      Margin="8,0"
+                                      VerticalAlignment="Center"
+                                      OnContent="已启用 ClassIsland 通知共享"
+                                      OffContent="已断开 ClassIsland 通知共享"
+                                      IsChecked="{Binding IsClassIslandNotificationSharingEnabled, Mode=TwoWay}" />
+                        <Button Grid.Column="2"
+                                Width="36"
+                                Height="36"
+                                Padding="0"
+                                VerticalAlignment="Center"
+                                Content="{ci:FluentIcon &#xE03D;}"
+                                ToolTip.Tip="展开或收起对话历史记录"
+                                Theme="{StaticResource TransparentButton}"
+                                Click="ToggleHistoryButton_OnClick" />
+                    </Grid>
+
+                    <Grid Grid.Row="1">
+                        <ScrollViewer x:Name="MessageScrollViewer"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto"
+                                      Loaded="MessageScrollViewer_OnLoaded"
+                                      ScrollChanged="MessageScrollViewer_OnScrollChanged">
+                            <ItemsControl ItemsSource="{Binding SelectedConversation.Messages}" Margin="8,8,8,16">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,5">
+                                            <StackPanel IsVisible="{Binding IsUser}"
+                                                        HorizontalAlignment="Right"
+                                                        MaxWidth="720"
+                                                        Spacing="2">
+                                                <Border Padding="12,9"
+                                                        CornerRadius="6"
+                                                        Background="{DynamicResource AccentFillColorSecondaryBrush}">
+                                                    <StackPanel Spacing="5">
+                                                        <TextBlock Text="{Binding Content}"
+                                                                   IsVisible="{Binding IsNotEditing}"
+                                                                   TextWrapping="Wrap"
+                                                                   Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                                        <TextBox MinWidth="260"
+                                                                 MaxWidth="680"
+                                                                 MinHeight="52"
+                                                                 MaxHeight="180"
+                                                                 AcceptsReturn="True"
+                                                                 TextWrapping="Wrap"
+                                                                 IsVisible="{Binding IsEditing}"
+                                                                 Text="{Binding DraftContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                 KeyDown="EditedMessageInput_OnKeyDown" />
+                                                    </StackPanel>
+                                                </Border>
+                                                <StackPanel Orientation="Horizontal"
+                                                            HorizontalAlignment="Right"
+                                                            Spacing="2">
+                                                    <Button Width="30"
+                                                            Height="30"
+                                                            Padding="0"
+                                                            IsVisible="{Binding IsNotEditing}"
+                                                            Content="{ci:FluentIcon &#xE58B;}"
+                                                            CommandParameter="{Binding}"
+                                                            ToolTip.Tip="复制"
+                                                            Theme="{StaticResource TransparentButton}"
+                                                            Click="CopyMessageButton_OnClick" />
+                                                    <Button Width="30"
+                                                            Height="30"
+                                                            Padding="0"
+                                                            IsVisible="{Binding IsNotEditing}"
+                                                            Content="{ci:FluentIcon &#xECA7;}"
+                                                            CommandParameter="{Binding}"
+                                                            ToolTip.Tip="修改"
+                                                            Theme="{StaticResource TransparentButton}"
+                                                            Click="EditMessageButton_OnClick" />
+                                                    <Button Width="30"
+                                                            Height="30"
+                                                            Padding="0"
+                                                            IsVisible="{Binding IsEditing}"
+                                                            Content="{ci:FluentIcon &#xE73E;}"
+                                                            CommandParameter="{Binding}"
+                                                            ToolTip.Tip="保存并重新回答"
+                                                            Theme="{StaticResource TransparentButton}"
+                                                            Click="ConfirmEditMessageButton_OnClick" />
+                                                    <Button Width="30"
+                                                            Height="30"
+                                                            Padding="0"
+                                                            IsVisible="{Binding IsEditing}"
+                                                            Content="{ci:FluentIcon &#xE711;}"
+                                                            CommandParameter="{Binding}"
+                                                            ToolTip.Tip="取消修改"
+                                                            Theme="{StaticResource TransparentButton}"
+                                                            Click="CancelEditMessageButton_OnClick" />
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <Border IsVisible="{Binding IsAssistant}"
+                                                    HorizontalAlignment="Stretch"
+                                                    Padding="14,10"
+                                                    CornerRadius="6"
+                                                    Background="{DynamicResource SubtleFillColorSecondaryBrush}">
+                                                <StackPanel Spacing="4">
+                                                    <TextBlock Text="AI"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                                    <mdxaml:MarkdownScrollViewer
+                                                        Markdown="{Binding Content}"
+                                                        Engine="{x:Static helpers:MarkdownConvertHelper.Engine}"
+                                                        Margin="0" />
+                                                    <ProgressBar Height="2"
+                                                                 IsIndeterminate="True"
+                                                                 IsVisible="{Binding IsStreaming}" />
+                                                    <StackPanel Orientation="Horizontal"
+                                                                HorizontalAlignment="Left"
+                                                                Spacing="2"
+                                                                IsVisible="{Binding CanShowAssistantActions}">
+                                                        <Button Width="30"
+                                                                Height="30"
+                                                                Padding="0"
+                                                                Content="{ci:FluentIcon &#xE58B;}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip.Tip="复制"
+                                                                Theme="{StaticResource TransparentButton}"
+                                                                Click="CopyMessageButton_OnClick" />
+                                                        <Button Width="30"
+                                                                Height="30"
+                                                                Padding="0"
+                                                                Content="{ci:FluentIcon &#xE0B5;}"
+                                                                CommandParameter="{Binding}"
+                                                                ToolTip.Tip="再试一次"
+                                                                Theme="{StaticResource TransparentButton}"
+                                                                Click="RetryMessageButton_OnClick" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <StackPanel IsVisible="{Binding !HasMessages}"
+                                    IsHitTestVisible="False"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="6">
+                            <ci:FluentIcon Glyph="&#xEFFF;"
+                                           FontSize="32"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="开始一段新对话"
+                                       FontSize="16"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Grid.Row="2"
+                               Margin="12,0,12,6"
+                               Text="{Binding StatusText}"
+                               IsVisible="{Binding HasStatus}"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource SystemFillColorCriticalBrush}" />
+
+                    <Border Grid.Row="3"
+                            Margin="8,0,8,8"
+                            Padding="10,8"
+                            CornerRadius="6"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                            Background="{DynamicResource ControlFillColorDefaultBrush}">
+                        <Grid RowDefinitions="*,Auto">
+                            <TextBox MinHeight="58"
+                                     MaxHeight="140"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     PlaceholderText="{Binding InputPlaceholder}"
+                                     Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     KeyDown="MessageInput_OnKeyDown" />
+
+                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto" Margin="4,6,2,0">
+                                <TextBlock Text="{Binding CurrentModelName}"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <Button x:Name="ReturnToBottomButton"
+                                        Grid.Column="1"
+                                        Width="36"
+                                        Height="36"
+                                        Padding="0"
+                                        IsVisible="False"
+                                        Content="{ci:FluentIcon &#xE09F;}"
+                                        ToolTip.Tip="返回底部"
+                                        Theme="{StaticResource TransparentButton}"
+                                        Click="ReturnToBottomButton_OnClick" />
+                                <Button Grid.Column="2"
+                                        Width="36"
+                                        Height="36"
+                                        Padding="0"
+                                        Content="{ci:FluentIcon &#xEF11;}"
+                                        ToolTip.Tip="发送"
+                                        IsVisible="{Binding IsNotGenerating}"
+                                        IsEnabled="{Binding CanSend}"
+                                        Click="SendButton_OnClick" />
+                                <Button Grid.Column="3"
+                                        Width="36"
+                                        Height="36"
+                                        Padding="0"
+                                        Content="{ci:FluentIcon &#xEE67;}"
+                                        ToolTip.Tip="停止生成"
+                                        IsVisible="{Binding IsGenerating}"
+                                        Click="StopButton_OnClick" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <TextBlock Grid.Row="4"
+                               Margin="8,0,8,8"
+                               HorizontalAlignment="Center"
+                               FontSize="11"
+                               Text="内容由AI生成，请仔细甄别"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </Grid>
+            </SplitView.Content>
+        </SplitView>
+    </Grid>
+</ci:SettingsPageBase>

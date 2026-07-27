@@ -13,11 +13,23 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="feat: 新增调用AI API Key 服务">
+      <change afterPath="$PROJECT_DIR$/Models/AiConversation.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/AiConversationStore.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/AiPromptService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/IOpenAiCompatibleService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/OpenAiCompatibleService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/agents.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/manifest.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/version.json" beforeDir="false" afterPath="$PROJECT_DIR$/version.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/SystemToolsNotificationProvider.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/SystemToolsNotificationProvider.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +55,9 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/936ed591523a4402b2b99e8f8d5602d223b000/35/2403941b/CompiledBinding.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="SWEA" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
@@ -58,6 +73,7 @@
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
@@ -114,7 +130,10 @@
       <workItem from="1785076333658" duration="1787000" />
       <workItem from="1785079334483" duration="660000" />
       <workItem from="1785081137386" duration="2994000" />
-      <workItem from="1785122170192" duration="1398000" />
+      <workItem from="1785122170192" duration="3974000" />
+      <workItem from="1785135653013" duration="971000" />
+      <workItem from="1785139758617" duration="1162000" />
+      <workItem from="1785162840655" duration="2558000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -188,7 +207,15 @@
       <option name="project" value="LOCAL" />
       <updated>1785123741932</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="自动构建提交 - 2.5.1.106">
+      <option name="closed" value="true" />
+      <created>1785123821624</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1785123821624</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -218,7 +245,8 @@
     <MESSAGE value="feat: 新增获取主界面后侧样式服务" />
     <MESSAGE value="feat: 新增自动识别和更改主题功能" />
     <MESSAGE value="feat: 新增自动清理内存服务功能" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增自动清理内存服务功能" />
+    <MESSAGE value="自动构建提交 - 2.5.1.106" />
+    <option name="LAST_COMMIT_MESSAGE" value="自动构建提交 - 2.5.1.106" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -30,6 +30,9 @@
         <None Update="manifest.yml">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Update="agents.md">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
         <None Update="version.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>

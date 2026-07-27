@@ -78,9 +78,22 @@ public partial class Plugin : PluginBase
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
         services.AddSingleton<SystemMemoryCleanupService>();
         services.AddSingleton<MainWindowClickService>();
+        services.AddSingleton<IOpenAiCompatibleService, OpenAiCompatibleService>();
+        if (GlobalConstants.MainConfig?.Data.EnableAiService == true)
+        {
+            services.AddSingleton<AiConversationStore>();
+            services.AddSingleton<AiPromptService>();
+        }
 
-        services.AddSingleton<SystemToolsNotificationProvider>();
         services.AddNotificationProvider<SystemToolsNotificationProvider>();
+        // 让具体类型和托管服务复用同一实例，避免每个提醒渠道被注册两次。
+        var notificationHostedService = services.Single(descriptor =>
+            descriptor.ServiceType == typeof(IHostedService) &&
+            descriptor.ImplementationType == typeof(SystemToolsNotificationProvider));
+        services.Remove(notificationHostedService);
+        services.AddSingleton<SystemToolsNotificationProvider>();
+        services.AddSingleton<IHostedService>(serviceProvider =>
+            serviceProvider.GetRequiredService<SystemToolsNotificationProvider>());
 
         // ========== 注册可选人脸识别 ==========
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -102,6 +115,10 @@ public partial class Plugin : PluginBase
         // ========== 注册设置页面 ==========
         services.AddSettingsPage<SystemToolsSettingsPage>();
         services.AddSettingsPage<MoreFeaturesOptionsSettingsPage>();
+        if (GlobalConstants.MainConfig?.Data.EnableAiService == true)
+        {
+            services.AddSettingsPage<AiChatSettingsPage>();
+        }
         if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
         {
             services.AddSettingsPage<FloatingWindowEditorSettingsPage>();

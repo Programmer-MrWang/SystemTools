@@ -175,6 +175,95 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
     
+    bool _enableAiService;
+
+    [JsonPropertyName("enableAiService")]
+    public bool EnableAiService
+    {
+        get => _enableAiService;
+        set
+        {
+            if (value == _enableAiService) return;
+            _enableAiService = value;
+            OnPropertyChanged();
+            RestartPropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    string _aiProviderName = "OpenAI";
+
+    [JsonPropertyName("aiProviderName")]
+    public string AiProviderName
+    {
+        get => _aiProviderName;
+        set
+        {
+            value ??= string.Empty;
+            if (string.Equals(value, _aiProviderName, StringComparison.Ordinal)) return;
+            _aiProviderName = value;
+            OnPropertyChanged();
+        }
+    }
+
+    string _aiApiKey = string.Empty;
+
+    [JsonPropertyName("aiApiKey")]
+    public string AiApiKey
+    {
+        get => _aiApiKey;
+        set
+        {
+            value ??= string.Empty;
+            if (string.Equals(value, _aiApiKey, StringComparison.Ordinal)) return;
+            _aiApiKey = value;
+            OnPropertyChanged();
+        }
+    }
+
+    string _aiApiUrl = "https://api.openai.com/v1";
+
+    [JsonPropertyName("aiApiUrl")]
+    public string AiApiUrl
+    {
+        get => _aiApiUrl;
+        set
+        {
+            value ??= string.Empty;
+            if (string.Equals(value, _aiApiUrl, StringComparison.Ordinal)) return;
+            _aiApiUrl = value;
+            OnPropertyChanged();
+        }
+    }
+
+    string _aiModel = string.Empty;
+
+    [JsonPropertyName("aiModel")]
+    public string AiModel
+    {
+        get => _aiModel;
+        set
+        {
+            value ??= string.Empty;
+            if (string.Equals(value, _aiModel, StringComparison.Ordinal)) return;
+            _aiModel = value;
+            OnPropertyChanged();
+        }
+    }
+
+    bool _shareAiRepliesWithClassIslandNotifications;
+
+    [JsonPropertyName("shareAiRepliesWithClassIslandNotifications")]
+    public bool ShareAiRepliesWithClassIslandNotifications
+    {
+        get => _shareAiRepliesWithClassIslandNotifications;
+        set
+        {
+            if (value == _shareAiRepliesWithClassIslandNotifications) return;
+            _shareAiRepliesWithClassIslandNotifications = value;
+            OnPropertyChanged();
+        }
+    }
+
     // ========== 公告相关 ==========
     /*string _lastAcceptedAnnouncement = string.Empty;
 

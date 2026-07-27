@@ -76,6 +76,62 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xF005;}"
+                                         Header="AI 服务"
+                                         Description="配置兼容 OpenAI 格式的 AI 服务，供插件功能调用。">
+                <controls:FASettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.EnableAiService, Mode=OneWay}"
+                                  Click="AiServiceToggle_OnClick" />
+                </controls:FASettingsExpander.Footer>
+
+                <controls:FASettingsExpanderItem Content="供应商名称"
+                                                 Description="用于标识当前配置的 AI 服务供应商。"
+                                                 IsEnabled="{Binding Config.EnableAiService}">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="300"
+                                 PlaceholderText="OpenAI"
+                                 Text="{Binding Config.AiProviderName, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem Content="API Key"
+                                                 Description="请求服务时使用的 Bearer API 密钥。"
+                                                 IsEnabled="{Binding Config.EnableAiService}">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="300"
+                                 PasswordChar="*"
+                                 PlaceholderText="sk-..."
+                                 Text="{Binding Config.AiApiKey, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem Content="API 请求地址"
+                                                 Description="兼容 OpenAI 的 API 基址，例如 https://api.openai.com/v1。"
+                                                 IsEnabled="{Binding Config.EnableAiService}">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="300"
+                                 PlaceholderText="https://api.openai.com/v1"
+                                 Text="{Binding Config.AiApiUrl, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem Content="模型"
+                                                 Description="从供应商获取可用模型并选择默认模型。"
+                                                 IsEnabled="{Binding Config.EnableAiService}">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ComboBox Width="200"
+                                      ItemsSource="{Binding AvailableAiModels}"
+                                      SelectedItem="{Binding Config.AiModel, Mode=TwoWay}"
+                                      PlaceholderText="请先获取模型" />
+                            <Button Width="92"
+                                    Content="获取模型"
+                                    Click="GetAiModelsButton_OnClick" />
+                        </StackPanel>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
+
         </StackPanel>
     </ScrollViewer>
 </ci:SettingsPageBase>

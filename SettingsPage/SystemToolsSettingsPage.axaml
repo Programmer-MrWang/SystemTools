@@ -1,4 +1,4 @@
-<ci:SettingsPageBase x:Class="SystemTools.SystemToolsSettingsPage"
+﻿<ci:SettingsPageBase x:Class="SystemTools.SystemToolsSettingsPage"
                      xmlns="https://github.com/avaloniaui"
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -169,22 +169,13 @@
                     </controls:FASettingsExpander.Footer>
                 </controls:FASettingsExpander>
                 
-                
-                <!--<controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
-                                           Header="更多功能选项……"
-                                           Description="在这里启用相对小众的 / 正处于预览阶段的更多功能">
-                    <controls:FASettingsExpander.Footer>
-                        <Button Content="更多功能选项..."
-                                Width="165"
-                                Click="OnOpenMoreFeaturesClick" />
-                    </controls:FASettingsExpander.Footer>
-                </controls:FASettingsExpander>-->
-                
                 <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE28E;}"
                                            Header="更多功能选项……"
                                            Description="在这里启用相对小众的 / 正处于预览阶段的更多功能"
                                            ActionIconSource="{ci:FluentIconSource &#xEC2E;}"
+                                           IsClickEnabled="{Binding ViewModel.IsMoreFeaturesClickEnabled}"
                                            Click="OnOpenMoreFeaturesClick" />
+                
 
                 <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
                                            Header="启用悬浮窗功能"

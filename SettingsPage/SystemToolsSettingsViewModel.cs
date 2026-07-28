@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using Avalonia.Threading;
@@ -82,6 +82,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     [ObservableProperty] private bool _isFfmpegDownloadEnabled = true;
     [ObservableProperty] private bool _isFaceModelsDownloadEnabled = true;
+    [ObservableProperty] private bool _isMoreFeaturesClickEnabled = true;
     [ObservableProperty] private bool _isDownloadInProgress;
 
     [ObservableProperty] private bool _showDownloadProgress = false;

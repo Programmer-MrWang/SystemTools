@@ -434,6 +434,18 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    [JsonPropertyName("actionFlowExecutionConfirmationPositionX")]
+    public int? ActionFlowExecutionConfirmationPositionX { get; set; }
+
+    [JsonPropertyName("actionFlowExecutionConfirmationPositionY")]
+    public int? ActionFlowExecutionConfirmationPositionY { get; set; }
+
+    [JsonPropertyName("actionFlowExecutionDelayPositionX")]
+    public int? ActionFlowExecutionDelayPositionX { get; set; }
+
+    [JsonPropertyName("actionFlowExecutionDelayPositionY")]
+    public int? ActionFlowExecutionDelayPositionY { get; set; }
+
     int _floatingWindowLayer = 1;
 
     [JsonPropertyName("floatingWindowLayer")]

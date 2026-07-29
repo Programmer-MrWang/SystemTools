@@ -1,9 +1,10 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
 using System;
+using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using SystemTools.ConfigHandlers;
 using SystemTools.Services;
 using SystemTools.Shared;
 
+using ClassIsland.Shared;
 namespace SystemTools;
 
 [SettingsPageInfo("systemtools.settings.more", "更多功能选项…", "\uE28E", "\uE28E", true)]
@@ -41,7 +43,7 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
         {
             Config.EnableAiService = false;
             GlobalConstants.MainConfig?.Save();
-            RequestRestart();
+            RestartClassIsland();
             return;
         }
 
@@ -56,7 +58,7 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
 
         Config.EnableAiService = true;
         GlobalConstants.MainConfig?.Save();
-        RequestRestart();
+        RestartClassIsland();
     }
 
     private async Task<bool> ShowAiServiceAgreementAsync()
@@ -300,4 +302,35 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
 
         return $"{value:0.##} {units[unitIndex]}";
     }
+
+
+    private void RestartClassIsland()
+    {
+        try
+        {
+            var startInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = Environment.ProcessPath?.Replace(".dll", ".exe"),
+                UseShellExecute = true
+            };
+
+            startInfo.ArgumentList.Add("-m");
+
+            var args = Environment.GetCommandLineArgs().ToList();
+            args.RemoveAt(0);
+            foreach (var arg in args)
+            {
+                startInfo.ArgumentList.Add(arg);
+            }
+
+            System.Diagnostics.Process.Start(startInfo);
+            ClassIsland.Core.AppBase.Current.Stop();
+        }
+        catch
+        {
+            // Silently fail if restart is not possible
+        }
+    }
+
+
 }

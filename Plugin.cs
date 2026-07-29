@@ -340,6 +340,8 @@ public partial class Plugin : PluginBase
         RegisterActionIfEnabled<OpenClassSwapWindowAction, ShortcutKeyNotificationSettingsControl>(services, config, "SystemTools.OpenClassSwapWindow");
         RegisterActionIfEnabled<ToggleWorkflowAction, ToggleWorkflowSettingsControl>(services, config,
     "SystemTools.ToggleWorkflow");
+        RegisterActionIfEnabled<ActionFlowExecutionConfirmationAction, ActionFlowExecutionConfirmationSettingsControl>(
+            services, config, "SystemTools.ActionFlowExecutionConfirmation");
     }
 
     private void RegisterBaseTriggers(IServiceCollection services)
@@ -586,6 +588,9 @@ public partial class Plugin : PluginBase
         var standaloneActions = new List<ActionMenuTreeItem>();
         if (config.IsActionEnabled("SystemTools.TriggerCustomTrigger"))
             standaloneActions.Add(new ActionMenuTreeItem("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7"));
+        if (config.IsActionEnabled("SystemTools.ActionFlowExecutionConfirmation"))
+            standaloneActions.Add(new ActionMenuTreeItem(
+                "SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", "\uE01D"));
 
         if (standaloneActions.Count > 0)
         {

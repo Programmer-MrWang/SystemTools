@@ -35,6 +35,7 @@ public partial class AiChatFloatingWindow : Window
             IAppHost.GetService<IOpenAiCompatibleService>(),
             IAppHost.GetService<AiPromptService>(),
             IAppHost.GetService<AiChatOperationGate>(),
+            IAppHost.GetService<KeywordSpeechService>(),
             IAppHost.GetService<MainConfigHandler>(),
             IAppHost.GetService<SystemToolsNotificationProvider>(),
             IAppHost.GetService<ClassIslandProfileAiService>(),
@@ -47,6 +48,7 @@ public partial class AiChatFloatingWindow : Window
         IOpenAiCompatibleService aiService,
         AiPromptService promptService,
         AiChatOperationGate operationGate,
+        KeywordSpeechService speechService,
         MainConfigHandler configHandler,
         SystemToolsNotificationProvider notificationProvider,
         ClassIslandProfileAiService profileAiService,
@@ -57,6 +59,7 @@ public partial class AiChatFloatingWindow : Window
             aiService,
             promptService,
             operationGate,
+            speechService,
             configHandler,
             notificationProvider,
             profileAiService,
@@ -99,6 +102,13 @@ public partial class AiChatFloatingWindow : Window
     private async void SendButton_OnClick(object? sender, RoutedEventArgs e)
     {
         await SendCurrentMessageAsync();
+    }
+
+    private void VoiceInputButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel.ToggleVoiceInput();
+        MessageInput.Focus();
+        MessageInput.CaretIndex = MessageInput.Text?.Length ?? 0;
     }
 
     private async void MessageInput_OnKeyDown(object? sender, KeyEventArgs e)

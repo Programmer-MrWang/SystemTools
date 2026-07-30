@@ -15,13 +15,8 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/AiConversation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/AiConversation.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/AiChatWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiChatWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/AiConversationStore.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiConversationStore.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/AiPromptService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiPromptService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/IOpenAiCompatibleService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/IOpenAiCompatibleService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/OpenAiCompatibleService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/OpenAiCompatibleService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/KeywordSpeechService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/KeywordSpeechService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" afterDir="false" />
@@ -137,7 +132,7 @@
       <workItem from="1785324881287" duration="112000" />
       <workItem from="1785327610513" duration="7562000" />
       <workItem from="1785377495106" duration="4012000" />
-      <workItem from="1785383233056" duration="12490000" />
+      <workItem from="1785383233056" duration="15636000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -275,7 +270,23 @@
       <option name="project" value="LOCAL" />
       <updated>1785386406553</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="feat: 新增文档与图片上传功能">
+      <option name="closed" value="true" />
+      <created>1785420466516</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1785420466516</updated>
+    </task>
+    <task id="LOCAL-00019" summary="fix: 修正对于某些非标准api的不兼容问题">
+      <option name="closed" value="true" />
+      <created>1785420493302</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1785420493302</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -313,7 +324,9 @@
     <MESSAGE value="feat: 实现将AI平台接入读取/写入 课程档案功能" />
     <MESSAGE value="feat: 新增调用AI悬浮窗 行动" />
     <MESSAGE value="fix: 修正未正常释放资源的问题。" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正未正常释放资源的问题。" />
+    <MESSAGE value="feat: 新增文档与图片上传功能" />
+    <MESSAGE value="fix: 修正对于某些非标准api的不兼容问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正对于某些非标准api的不兼容问题" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

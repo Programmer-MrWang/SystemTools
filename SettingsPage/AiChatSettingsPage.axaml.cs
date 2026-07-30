@@ -60,6 +60,13 @@ public partial class AiChatSettingsPage : SettingsPageBase
         await SendCurrentMessageAsync();
     }
 
+    private void VoiceInputButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        ViewModel.ToggleVoiceInput();
+        MessageInput.Focus();
+        MessageInput.CaretIndex = MessageInput.Text?.Length ?? 0;
+    }
+
     private async void MessageInput_OnKeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key == Key.V && e.KeyModifiers.HasFlag(KeyModifiers.Control))
@@ -347,6 +354,7 @@ public partial class AiChatSettingsPage : SettingsPageBase
             IAppHost.GetService<IOpenAiCompatibleService>(),
             IAppHost.GetService<AiPromptService>(),
             IAppHost.GetService<AiChatOperationGate>(),
+            IAppHost.GetService<KeywordSpeechService>(),
             GlobalConstants.MainConfig!,
             IAppHost.GetService<SystemToolsNotificationProvider>(),
             IAppHost.GetService<ClassIslandProfileAiService>(),

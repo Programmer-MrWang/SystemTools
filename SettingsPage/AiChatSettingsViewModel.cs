@@ -24,6 +24,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     private readonly IOpenAiCompatibleService _aiService;
     private readonly AiPromptService _promptService;
     private readonly AiChatOperationGate _operationGate;
+    private readonly KeywordSpeechService _speechService;
     private readonly MainConfigHandler _configHandler;
     private readonly SystemToolsNotificationProvider _notificationProvider;
     private readonly ClassIslandProfileAiService _profileAiService;
@@ -35,6 +36,9 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     private Task _generationTask = Task.CompletedTask;
     private AiConversation? _generatingConversation;
     private IDisposable? _attachmentUpdateLease;
+    private IDisposable? _voiceInputLease;
+    private string _voiceInputPrefix = string.Empty;
+    private string _voiceInputCommittedText = string.Empty;
     private bool _isDisposed;
 
     [ObservableProperty] private AiConversation? _selectedConversation;
@@ -42,6 +46,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isHistoryOpen = true;
     [ObservableProperty] private bool _isGenerating;
     [ObservableProperty] private bool _isUpdatingAttachments;
+    [ObservableProperty] private bool _isVoiceInputActive;
     [ObservableProperty] private string _statusText = string.Empty;
 
     public ObservableCollection<AiAttachment> PendingAttachments { get; } = [];
@@ -51,6 +56,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         IOpenAiCompatibleService aiService,
         AiPromptService promptService,
         AiChatOperationGate operationGate,
+        KeywordSpeechService speechService,
         MainConfigHandler configHandler,
         SystemToolsNotificationProvider notificationProvider,
         ClassIslandProfileAiService profileAiService,
@@ -62,6 +68,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         _aiService = aiService;
         _promptService = promptService;
         _operationGate = operationGate;
+        _speechService = speechService;
         _configHandler = configHandler;
         _notificationProvider = notificationProvider;
         _profileAiService = profileAiService;
@@ -71,6 +78,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         PendingAttachments.CollectionChanged += OnPendingAttachmentsChanged;
         Conversations.CollectionChanged += OnConversationsCollectionChanged;
         _operationGate.StateChanged += OnOperationGateStateChanged;
+        _speechService.DictationStateChanged += OnDictationStateChanged;
 
         var selected = store.Conversations.FirstOrDefault(x => x.Id == store.ActiveConversationId)
                        ?? store.Conversations.FirstOrDefault()
@@ -110,6 +118,15 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                                         !IsUpdatingAttachments &&
                                         !_operationGate.IsBusy;
 
+    public bool CanToggleVoiceInput => IsVoiceInputActive ||
+                                       (!IsGenerating &&
+                                        !IsUpdatingAttachments &&
+                                        !_operationGate.IsBusy &&
+                                        SelectedConversation is not null &&
+                                        !_speechService.IsDictationActive);
+
+    public string VoiceInputToolTip => IsVoiceInputActive ? "停止语音输入" : "语音输入";
+
     public bool HasStatus => !string.IsNullOrWhiteSpace(StatusText);
 
     public bool HasMessages => SelectedConversation?.Messages.Count > 0;
@@ -134,6 +151,51 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     }
 
     public event EventHandler? ConversationContentChanged;
+
+    public void ToggleVoiceInput()
+    {
+        ThrowIfDisposed();
+        if (IsVoiceInputActive)
+        {
+            StopVoiceInput();
+            return;
+        }
+
+        if (!CanToggleVoiceInput)
+        {
+            StatusText = _speechService.IsDictationActive
+                ? "另一个 AI 对话窗口正在使用语音输入"
+                : "当前无法启用语音输入";
+            return;
+        }
+
+        _voiceInputPrefix = InputText;
+        _voiceInputCommittedText = string.Empty;
+        var lease = _speechService.TryStartDictation(
+            OnVoiceInputText,
+            OnVoiceInputError,
+            BuildVoiceInputContext());
+        if (lease == null)
+        {
+            if (string.IsNullOrWhiteSpace(StatusText))
+            {
+                StatusText = "无法启用语音输入；请确认已安装 Windows 中文语音识别并允许麦克风访问";
+            }
+            return;
+        }
+
+        _voiceInputLease = lease;
+        IsVoiceInputActive = true;
+        StatusText = string.Empty;
+    }
+
+    public void StopVoiceInput()
+    {
+        IsVoiceInputActive = false;
+        Interlocked.Exchange(ref _voiceInputLease, null)?.Dispose();
+        _voiceInputPrefix = string.Empty;
+        _voiceInputCommittedText = string.Empty;
+    }
 
     public AiConversation CreateNewConversation()
     {
@@ -195,6 +257,11 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         if (!CanSend || SelectedConversation is null)
         {
             return;
+        }
+
+        if (IsVoiceInputActive)
+        {
+            StopVoiceInput();
         }
 
         var generationLease = _operationGate.TryAcquireGeneration(this);
@@ -454,7 +521,9 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
         _isDisposed = true;
         _generationCancellation?.Cancel();
+        StopVoiceInput();
         _operationGate.StateChanged -= OnOperationGateStateChanged;
+        _speechService.DictationStateChanged -= OnDictationStateChanged;
         IsUpdatingAttachments = false;
         Interlocked.Exchange(ref _attachmentUpdateLease, null)?.Dispose();
         foreach (var attachment in PendingAttachments)
@@ -474,6 +543,10 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     partial void OnSelectedConversationChanged(AiConversation? oldValue, AiConversation? newValue)
     {
+        if (IsVoiceInputActive)
+        {
+            StopVoiceInput();
+        }
         StoreComposerDraft(oldValue);
         DetachConversation(oldValue);
         AttachConversation(newValue);
@@ -490,14 +563,26 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     partial void OnIsGeneratingChanged(bool value)
     {
+        if (value && IsVoiceInputActive)
+        {
+            StopVoiceInput();
+        }
         OnPropertyChanged(nameof(CanSend));
         OnPropertyChanged(nameof(CanModifyAttachments));
+        OnPropertyChanged(nameof(CanToggleVoiceInput));
     }
 
     partial void OnIsUpdatingAttachmentsChanged(bool value)
     {
         OnPropertyChanged(nameof(CanSend));
         OnPropertyChanged(nameof(CanModifyAttachments));
+        OnPropertyChanged(nameof(CanToggleVoiceInput));
+    }
+
+    partial void OnIsVoiceInputActiveChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanToggleVoiceInput));
+        OnPropertyChanged(nameof(VoiceInputToolTip));
     }
 
     public bool TryBeginAttachmentUpdate()
@@ -544,6 +629,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             OnPropertyChanged(nameof(IsAnyGenerationActive));
             OnPropertyChanged(nameof(IsNoGenerationActive));
             OnPropertyChanged(nameof(CanChangeConversation));
+            OnPropertyChanged(nameof(CanToggleVoiceInput));
         }
 
         if (Dispatcher.UIThread.CheckAccess())
@@ -554,6 +640,88 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         {
             Dispatcher.UIThread.Post(NotifyBindings);
         }
+    }
+
+    private void OnDictationStateChanged(object? sender, EventArgs e)
+    {
+        void NotifyBinding()
+        {
+            if (!_isDisposed)
+            {
+                OnPropertyChanged(nameof(CanToggleVoiceInput));
+            }
+        }
+
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            NotifyBinding();
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(NotifyBinding);
+        }
+    }
+
+    private void OnVoiceInputText(string text, bool isFinal)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_isDisposed || !IsVoiceInputActive)
+            {
+                return;
+            }
+
+            if (isFinal)
+            {
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    _voiceInputCommittedText = AppendRecognizedText(_voiceInputCommittedText, text);
+                }
+                InputText = _voiceInputPrefix + _voiceInputCommittedText;
+            }
+            else if (!string.IsNullOrWhiteSpace(text))
+            {
+                InputText = _voiceInputPrefix + AppendRecognizedText(_voiceInputCommittedText, text);
+            }
+        });
+    }
+
+    private string BuildVoiceInputContext()
+    {
+        var context = InputText.Trim();
+        const int maximumLength = 120;
+        return context.Length <= maximumLength ? context : context[^maximumLength..];
+    }
+
+    private static string AppendRecognizedText(string existingText, string recognizedText)
+    {
+        if (existingText.Length == 0 || recognizedText.Length == 0)
+        {
+            return existingText + recognizedText;
+        }
+
+        var needsSpace = char.IsLetterOrDigit(existingText[^1]) &&
+                         existingText[^1] <= sbyte.MaxValue &&
+                         char.IsLetterOrDigit(recognizedText[0]) &&
+                         recognizedText[0] <= sbyte.MaxValue;
+        return needsSpace
+            ? $"{existingText} {recognizedText}"
+            : existingText + recognizedText;
+    }
+
+    private void OnVoiceInputError(string message)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            IsVoiceInputActive = false;
+            Interlocked.Exchange(ref _voiceInputLease, null)?.Dispose();
+            StatusText = message;
+        });
     }
 
     private void OnPendingAttachmentsChanged(object? sender, NotifyCollectionChangedEventArgs e)

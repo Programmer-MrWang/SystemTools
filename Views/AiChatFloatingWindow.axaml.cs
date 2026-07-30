@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
@@ -9,8 +8,6 @@ using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using ClassIsland.Core.Abstractions.Controls;
-using ClassIsland.Core.Attributes;
 using ClassIsland.Shared;
 using FluentAvalonia.UI.Controls;
 using SystemTools.ConfigHandlers;
@@ -18,40 +15,76 @@ using SystemTools.Models;
 using SystemTools.Services;
 using SystemTools.Shared;
 
-namespace SystemTools;
+namespace SystemTools.Views;
 
-[HidePageTitle]
-[SettingsPageInfo("systemtools.settings.aiChat", "AI 对话", "\uEFFF", "\uEFFF")]
-public partial class AiChatSettingsPage : SettingsPageBase
+public partial class AiChatFloatingWindow : Window
 {
     private const double BottomTolerance = 12;
 
     private bool _isDisposed;
     private bool _isAtConversationBottom = true;
     private AiConversation? _displayedConversation;
+    private readonly IDisposable _windowStateSubscription;
 
-    public AiChatSettingsPage()
+    public AiChatFloatingWindow()
+        : this(
+            IAppHost.GetService<AiConversationStore>(),
+            IAppHost.GetService<IOpenAiCompatibleService>(),
+            IAppHost.GetService<AiPromptService>(),
+            IAppHost.GetService<MainConfigHandler>(),
+            IAppHost.GetService<SystemToolsNotificationProvider>(),
+            IAppHost.GetService<ClassIslandProfileAiService>())
     {
-        if (GlobalConstants.MainConfig is null)
-        {
-            GlobalConstants.MainConfig = new MainConfigHandler(GlobalConstants.PluginConfigFolder
-                                                               ?? Path.Combine(
-                                                                   Environment.GetFolderPath(Environment.SpecialFolder
-                                                                       .LocalApplicationData),
-                                                                   "ClassIsland",
-                                                                   "Plugins",
-                                                                   "SystemTools"));
-        }
+    }
 
-        ViewModel = CreateViewModel();
+    public AiChatFloatingWindow(
+        AiConversationStore store,
+        IOpenAiCompatibleService aiService,
+        AiPromptService promptService,
+        MainConfigHandler configHandler,
+        SystemToolsNotificationProvider notificationProvider,
+        ClassIslandProfileAiService profileAiService)
+    {
+        ViewModel = new AiChatSettingsViewModel(
+            store,
+            aiService,
+            promptService,
+            configHandler,
+            notificationProvider,
+            profileAiService,
+            ConfirmProfileModificationAsync);
         DataContext = ViewModel;
         InitializeComponent();
 
         _displayedConversation = ViewModel.SelectedConversation;
         ViewModel.ConversationContentChanged += ViewModel_OnConversationContentChanged;
+        _windowStateSubscription = this.GetPropertyChangedObservable(WindowStateProperty).Subscribe(_ =>
+        {
+            if (WindowState == WindowState.Normal)
+            {
+                return;
+            }
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                WindowState = WindowState.Normal;
+                Activate();
+            }, DispatcherPriority.MaxValue);
+        });
     }
 
-    public AiChatSettingsViewModel ViewModel { get; private set; }
+    public AiChatSettingsViewModel ViewModel { get; }
+
+    public void BringToFront()
+    {
+        Topmost = true;
+        WindowState = WindowState.Normal;
+        if (!IsVisible)
+        {
+            Show();
+        }
+        Activate();
+    }
 
     private async void SendButton_OnClick(object? sender, RoutedEventArgs e)
     {
@@ -78,12 +111,8 @@ public partial class AiChatSettingsPage : SettingsPageBase
 
         try
         {
-            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-            if (clipboard is null)
-            {
-                throw new InvalidOperationException("无法访问系统剪贴板");
-            }
-
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard
+                            ?? throw new InvalidOperationException("无法访问系统剪贴板");
             await clipboard.SetTextAsync(message.Content);
         }
         catch (Exception ex)
@@ -147,17 +176,6 @@ public partial class AiChatSettingsPage : SettingsPageBase
         ViewModel.StopGeneration();
     }
 
-    private void ToggleHistoryButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        ViewModel.IsHistoryOpen = !ViewModel.IsHistoryOpen;
-    }
-
-    private void NewConversationButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        ViewModel.CreateNewConversation();
-        ScrollToConversationBottom();
-    }
-
     private void ReturnToBottomButton_OnClick(object? sender, RoutedEventArgs e)
     {
         ScrollToConversationBottom();
@@ -173,74 +191,25 @@ public partial class AiChatSettingsPage : SettingsPageBase
         UpdateConversationBottomState();
     }
 
-    private async void DeleteConversationButton_OnClick(object? sender, RoutedEventArgs e)
+    private void WindowTitleBar_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is not Button { CommandParameter: AiConversation conversation })
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
+            e.Source is not Button &&
+            (e.Source as Visual)?.FindAncestorOfType<Button>() is null)
         {
-            return;
-        }
-
-        var dialog = new FAContentDialog
-        {
-            Title = "删除对话",
-            Content = $"确定要删除“{conversation.Title}”吗？此操作无法撤销。",
-            PrimaryButtonText = "删除",
-            CloseButtonText = "取消",
-            DefaultButton = FAContentDialogButton.Close
-        };
-
-        var result = await dialog.ShowAsync(TopLevel.GetTopLevel(this));
-        if (result == FAContentDialogResult.Primary)
-        {
-            await ViewModel.DeleteConversationAsync(conversation);
+            BeginMoveDrag(e);
         }
     }
 
-    private void ConversationTitle_OnLostFocus(object? sender, RoutedEventArgs e)
+    private void CloseButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        ViewModel.SaveConversationTitle();
+        Close();
     }
 
-    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    private void NewConversationButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        base.OnDetachedFromVisualTree(e);
-        if (_isDisposed)
-        {
-            return;
-        }
-
-        ViewModel.ConversationContentChanged -= ViewModel_OnConversationContentChanged;
-        ViewModel.StopGeneration();
-        ViewModel.Dispose();
-        _isDisposed = true;
-    }
-
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
-    {
-        base.OnAttachedToVisualTree(e);
-        if (!_isDisposed)
-        {
-            return;
-        }
-
-        ViewModel = CreateViewModel();
-        DataContext = ViewModel;
-        _displayedConversation = ViewModel.SelectedConversation;
-        ViewModel.ConversationContentChanged += ViewModel_OnConversationContentChanged;
-        _isDisposed = false;
+        ViewModel.CreateNewConversation();
         ScrollToConversationBottom();
-    }
-
-    private AiChatSettingsViewModel CreateViewModel()
-    {
-        return new AiChatSettingsViewModel(
-            IAppHost.GetService<AiConversationStore>(),
-            IAppHost.GetService<IOpenAiCompatibleService>(),
-            IAppHost.GetService<AiPromptService>(),
-            GlobalConstants.MainConfig!,
-            IAppHost.GetService<SystemToolsNotificationProvider>(),
-            IAppHost.GetService<ClassIslandProfileAiService>(),
-            ConfirmProfileModificationAsync);
     }
 
     private async Task SendCurrentMessageAsync()
@@ -367,5 +336,19 @@ public partial class AiChatSettingsPage : SettingsPageBase
         _isAtConversationBottom = maximumOffset <= BottomTolerance ||
                                   MessageScrollViewer.Offset.Y >= maximumOffset - BottomTolerance;
         ReturnToBottomButton.IsVisible = !_isAtConversationBottom;
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        if (!_isDisposed)
+        {
+            _isDisposed = true;
+            ViewModel.ConversationContentChanged -= ViewModel_OnConversationContentChanged;
+            ViewModel.StopGeneration();
+            ViewModel.Dispose();
+            _windowStateSubscription.Dispose();
+        }
+
+        base.OnClosed(e);
     }
 }

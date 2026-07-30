@@ -1,0 +1,318 @@
+<Window x:Class="SystemTools.Views.AiChatFloatingWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ci="http://classisland.tech/schemas/xaml/core"
+        xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
+        xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
+        x:CompileBindings="False"
+        Title="SystemTools - AI 对话"
+        Width="820"
+        Height="680"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStartupLocation="CenterScreen"
+        WindowDecorations="None"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent">
+    <Window.Styles>
+        <StyleInclude Source="avares://ClassIsland.Core/Themes/RichTextStyles.axaml" />
+    </Window.Styles>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AiChatWindowBackgroundBrush" Color="#80FFFFFF" />
+                    <SolidColorBrush x:Key="AiChatSurfaceBrush" Color="#C2C9D1" />
+                    <SolidColorBrush x:Key="AiChatSurfaceForegroundBrush" Color="#000000" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AiChatWindowBackgroundBrush" Color="#80000000" />
+                    <SolidColorBrush x:Key="AiChatSurfaceBrush" Color="#4D5155" />
+                    <SolidColorBrush x:Key="AiChatSurfaceForegroundBrush" Color="#FFFFFF" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="AiChatWindowBackgroundBrush" Color="#80FFFFFF" />
+                    <SolidColorBrush x:Key="AiChatSurfaceBrush" Color="#C2C9D1" />
+                    <SolidColorBrush x:Key="AiChatSurfaceForegroundBrush" Color="#000000" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Border CornerRadius="12"
+            Background="{DynamicResource AiChatWindowBackgroundBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            ClipToBounds="True">
+        <Grid RowDefinitions="Auto,*">
+            <Grid x:Name="WindowTitleBar"
+                  Height="46"
+                  Margin="14,0,8,0"
+                  ColumnDefinitions="Auto,*,Auto,Auto"
+                  PointerPressed="WindowTitleBar_OnPointerPressed">
+                <ci:FluentIcon Glyph="&#xEFFF;"
+                               FontSize="18"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource AccentFillColorDefaultBrush}" />
+                <TextBlock Grid.Column="1"
+                           Margin="10,0,0,0"
+                           Text="AI 对话"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
+                <Button Grid.Column="2"
+                        Width="34"
+                        Height="34"
+                        Padding="0"
+                        Content="{ci:FluentIcon &#xE53B;}"
+                        ToolTip.Tip="开始新对话"
+                        Theme="{StaticResource TransparentButton}"
+                        Click="NewConversationButton_OnClick" />
+                <Button Grid.Column="3"
+                        Width="34"
+                        Height="34"
+                        Padding="0"
+                        Content="{ci:FluentIcon &#xE670;}"
+                        ToolTip.Tip="关闭"
+                        Theme="{StaticResource TransparentButton}"
+                        Click="CloseButton_OnClick">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#E81123" />
+                            <Setter Property="Foreground" Value="White" />
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </Grid>
+
+            <Grid Grid.Row="1"
+                  RowDefinitions="*,Auto,Auto,Auto"
+                  Margin="12,0,12,8">
+                <Grid>
+                    <ScrollViewer x:Name="MessageScrollViewer"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Loaded="MessageScrollViewer_OnLoaded"
+                                  ScrollChanged="MessageScrollViewer_OnScrollChanged">
+                        <ItemsControl ItemsSource="{Binding SelectedConversation.Messages}" Margin="8,8,8,16">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,5">
+                                        <StackPanel IsVisible="{Binding IsUser}"
+                                                    HorizontalAlignment="Right"
+                                                    MaxWidth="650"
+                                                    Spacing="2">
+                                            <Border Padding="12,9"
+                                                    CornerRadius="6"
+                                                    Background="{DynamicResource AccentFillColorSecondaryBrush}">
+                                                <StackPanel Spacing="5">
+                                                    <TextBlock Text="{Binding Content}"
+                                                               IsVisible="{Binding IsNotEditing}"
+                                                               TextWrapping="Wrap"
+                                                               Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                                    <TextBox MinWidth="260"
+                                                             MaxWidth="620"
+                                                             MinHeight="52"
+                                                             MaxHeight="180"
+                                                             AcceptsReturn="True"
+                                                             TextWrapping="Wrap"
+                                                             IsVisible="{Binding IsEditing}"
+                                                             Text="{Binding DraftContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             KeyDown="EditedMessageInput_OnKeyDown" />
+                                                </StackPanel>
+                                            </Border>
+                                            <StackPanel Orientation="Horizontal"
+                                                        HorizontalAlignment="Right"
+                                                        Spacing="2">
+                                                <Button Width="30"
+                                                        Height="30"
+                                                        Padding="0"
+                                                        IsVisible="{Binding IsNotEditing}"
+                                                        Content="{ci:FluentIcon &#xE58B;}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip.Tip="复制"
+                                                        Theme="{StaticResource TransparentButton}"
+                                                        Click="CopyMessageButton_OnClick" />
+                                                <Button Width="30"
+                                                        Height="30"
+                                                        Padding="0"
+                                                        IsVisible="{Binding IsNotEditing}"
+                                                        Content="{ci:FluentIcon &#xECA7;}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip.Tip="修改"
+                                                        Theme="{StaticResource TransparentButton}"
+                                                        Click="EditMessageButton_OnClick" />
+                                                <Button Width="30"
+                                                        Height="30"
+                                                        Padding="0"
+                                                        IsVisible="{Binding IsEditing}"
+                                                        Content="{ci:FluentIcon &#xECA7;}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip.Tip="保存并重新回答"
+                                                        Theme="{StaticResource TransparentButton}"
+                                                        Click="ConfirmEditMessageButton_OnClick" />
+                                                <Button Width="30"
+                                                        Height="30"
+                                                        Padding="0"
+                                                        IsVisible="{Binding IsEditing}"
+                                                        Content="{ci:FluentIcon &#xEC9F;}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTip.Tip="取消修改"
+                                                        Theme="{StaticResource TransparentButton}"
+                                                        Click="CancelEditMessageButton_OnClick" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <Border IsVisible="{Binding IsAssistant}"
+                                                HorizontalAlignment="Stretch"
+                                                Padding="14,10"
+                                                CornerRadius="6"
+                                                Background="{DynamicResource AiChatSurfaceBrush}">
+                                            <Border.Styles>
+                                                <Style Selector="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource AiChatSurfaceForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="SelectableTextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource AiChatSurfaceForegroundBrush}" />
+                                                </Style>
+                                            </Border.Styles>
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="AI"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource AiChatSurfaceForegroundBrush}" />
+                                                <TextBlock Text="{Binding ActivityText}"
+                                                           FontSize="12"
+                                                           TextWrapping="Wrap"
+                                                           IsVisible="{Binding HasActivityText}"
+                                                           Foreground="{DynamicResource AiChatSurfaceForegroundBrush}" />
+                                                <mdxaml:MarkdownScrollViewer Markdown="{Binding Content}"
+                                                                               Engine="{x:Static helpers:MarkdownConvertHelper.Engine}"
+                                                                               Margin="0" />
+                                                <ProgressBar Height="2"
+                                                             IsIndeterminate="True"
+                                                             IsVisible="{Binding IsStreaming}" />
+                                                <StackPanel Orientation="Horizontal"
+                                                            HorizontalAlignment="Left"
+                                                            Spacing="2"
+                                                            IsVisible="{Binding CanShowAssistantActions}">
+                                                    <Button Width="30"
+                                                            Height="30"
+                                                            Padding="0"
+                                                            Content="{ci:FluentIcon &#xE58B;}"
+                                                            CommandParameter="{Binding}"
+                                                            ToolTip.Tip="复制"
+                                                            Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
+                                                            Theme="{StaticResource TransparentButton}"
+                                                            Click="CopyMessageButton_OnClick" />
+                                                    <Button Width="30"
+                                                            Height="30"
+                                                            Padding="0"
+                                                            Content="{ci:FluentIcon &#xE0B5;}"
+                                                            CommandParameter="{Binding}"
+                                                            ToolTip.Tip="再试一次"
+                                                            Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
+                                                            Theme="{StaticResource TransparentButton}"
+                                                            Click="RetryMessageButton_OnClick" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <StackPanel IsVisible="{Binding !HasMessages}"
+                                IsHitTestVisible="False"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="6">
+                        <ci:FluentIcon Glyph="&#xEFFF;"
+                                       FontSize="32"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <TextBlock Text="开始一段新对话"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Grid.Row="1"
+                           Margin="12,0,12,6"
+                           Text="{Binding StatusText}"
+                           IsVisible="{Binding HasStatus}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemFillColorCriticalBrush}" />
+
+                <Border Grid.Row="2"
+                        Margin="8,0,8,8"
+                        Padding="10,8"
+                        CornerRadius="6"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                        Background="{DynamicResource AiChatSurfaceBrush}">
+                    <Grid RowDefinitions="*,Auto">
+                        <TextBox MinHeight="58"
+                                 MaxHeight="140"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
+                                 PlaceholderText="{Binding InputPlaceholder}"
+                                 Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 KeyDown="MessageInput_OnKeyDown" />
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto" Margin="4,6,2,0">
+                            <TextBlock Text="{Binding CurrentModelName}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource AiChatSurfaceForegroundBrush}" />
+                            <Button x:Name="ReturnToBottomButton"
+                                    Grid.Column="1"
+                                    Width="36"
+                                    Height="36"
+                                    Padding="0"
+                                    IsVisible="False"
+                                    Content="{ci:FluentIcon &#xE09F;}"
+                                    ToolTip.Tip="返回底部"
+                                    Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
+                                    Theme="{StaticResource TransparentButton}"
+                                    Click="ReturnToBottomButton_OnClick" />
+                            <Button Grid.Column="2"
+                                    Width="36"
+                                    Height="36"
+                                    Padding="0"
+                                    Content="{ci:FluentIcon &#xEF11;}"
+                                    ToolTip.Tip="发送"
+                                    Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
+                                    IsVisible="{Binding IsNotGenerating}"
+                                    IsEnabled="{Binding CanSend}"
+                                    Click="SendButton_OnClick" />
+                            <Button Grid.Column="3"
+                                    Width="36"
+                                    Height="36"
+                                    Padding="0"
+                                    Content="{ci:FluentIcon &#xEE67;}"
+                                    ToolTip.Tip="停止生成"
+                                    Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
+                                    IsVisible="{Binding IsGenerating}"
+                                    Click="StopButton_OnClick" />
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <TextBlock Grid.Row="3"
+                           Margin="8,0,8,0"
+                           HorizontalAlignment="Center"
+                           FontSize="11"
+                           Text="内容由 AI 生成，请仔细甄别"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

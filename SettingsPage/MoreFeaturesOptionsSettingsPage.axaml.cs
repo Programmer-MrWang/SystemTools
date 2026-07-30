@@ -85,6 +85,7 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
                     {
                         Text = "此“AI 服务”是由SystemTools插件提供的外接 API Key 的AI辅助功能，与ClassIsland软件无关；\n" +
                                "AI的回复和相关服务由对应提供商提供，与本插件及开发者无关；\n" +
+                               "使用课表问答或修改功能时，当前档案中的课表、时间表、科目、任课教师及扩展配置会发送给您配置的 AI 服务提供商；\n" +
                                "须知应当正确使用AI，合理规避不确定性风险，明辨AI提供的相关回复。",
                         TextWrapping = Avalonia.Media.TextWrapping.Wrap
                     },

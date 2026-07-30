@@ -159,7 +159,7 @@
                                                             Height="30"
                                                             Padding="0"
                                                             IsVisible="{Binding IsEditing}"
-                                                            Content="{ci:FluentIcon &#xE73E;}"
+                                                            Content="{ci:FluentIcon &#xECA7;}"
                                                             CommandParameter="{Binding}"
                                                             ToolTip.Tip="保存并重新回答"
                                                             Theme="{StaticResource TransparentButton}"
@@ -168,7 +168,7 @@
                                                             Height="30"
                                                             Padding="0"
                                                             IsVisible="{Binding IsEditing}"
-                                                            Content="{ci:FluentIcon &#xE711;}"
+                                                            Content="{ci:FluentIcon &#xEC9F;}"
                                                             CommandParameter="{Binding}"
                                                             ToolTip.Tip="取消修改"
                                                             Theme="{StaticResource TransparentButton}"
@@ -185,6 +185,11 @@
                                                     <TextBlock Text="AI"
                                                                FontSize="12"
                                                                FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                                    <TextBlock Text="{Binding ActivityText}"
+                                                               FontSize="12"
+                                                               TextWrapping="Wrap"
+                                                               IsVisible="{Binding HasActivityText}"
                                                                Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                                                     <mdxaml:MarkdownScrollViewer
                                                         Markdown="{Binding Content}"

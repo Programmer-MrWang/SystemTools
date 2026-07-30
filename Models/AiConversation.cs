@@ -55,6 +55,7 @@ public sealed class AiConversationMessage : INotifyPropertyChanged
     private bool _isStreaming;
     private bool _isEditing;
     private string _draftContent = string.Empty;
+    private string _activityText = string.Empty;
 
     public Guid Id { get; set; } = Guid.NewGuid();
 
@@ -124,6 +125,20 @@ public sealed class AiConversationMessage : INotifyPropertyChanged
     }
 
     [JsonIgnore]
+    public string ActivityText
+    {
+        get => _activityText;
+        set
+        {
+            value ??= string.Empty;
+            if (string.Equals(value, _activityText, StringComparison.Ordinal)) return;
+            _activityText = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(HasActivityText));
+        }
+    }
+
+    [JsonIgnore]
     public bool IsUser => string.Equals(Role, "user", StringComparison.Ordinal);
 
     [JsonIgnore]
@@ -131,6 +146,9 @@ public sealed class AiConversationMessage : INotifyPropertyChanged
 
     [JsonIgnore]
     public bool IsNotEditing => !IsEditing;
+
+    [JsonIgnore]
+    public bool HasActivityText => !string.IsNullOrWhiteSpace(ActivityText);
 
     [JsonIgnore]
     public bool CanShowAssistantActions => IsAssistant && !IsStreaming;

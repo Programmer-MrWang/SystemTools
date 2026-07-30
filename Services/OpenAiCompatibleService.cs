@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -70,8 +71,31 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
         string? model = null,
         CancellationToken cancellationToken = default)
     {
+        return await CompleteChatCoreAsync(messages, null, model, cancellationToken);
+    }
+
+    public async Task<AiChatCompletionResult> CompleteChatWithToolsAsync(
+        IReadOnlyList<AiChatMessage> messages,
+        IReadOnlyList<AiToolDefinition> tools,
+        string? model = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (tools is null || tools.Count == 0)
+        {
+            throw new ArgumentException("至少需要提供一个 AI 工具。", nameof(tools));
+        }
+
+        return await CompleteChatCoreAsync(messages, tools, model, cancellationToken);
+    }
+
+    private async Task<AiChatCompletionResult> CompleteChatCoreAsync(
+        IReadOnlyList<AiChatMessage> messages,
+        IReadOnlyList<AiToolDefinition>? tools,
+        string? model,
+        CancellationToken cancellationToken)
+    {
         EnsureEnabled();
-        var (selectedModel, payload) = CreateChatCompletionPayload(messages, model, stream: false);
+        var (selectedModel, payload) = CreateChatCompletionPayload(messages, model, stream: false, tools);
 
         using var request = CreateRequest(HttpMethod.Post, "chat/completions");
         request.Content = JsonContent.Create(payload, options: SerializerOptions);
@@ -92,16 +116,44 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
             throw new InvalidDataException("AI 接口返回的内容不是有效的 OpenAI JSON 格式。", ex);
         }
 
-        var content = result?.Choices?.FirstOrDefault()?.Message?.Content;
-        if (content is null)
+        var choice = result?.Choices?.FirstOrDefault();
+        var message = choice?.Message;
+        if (message?.ToolCalls?.Any(x => !string.Equals(x.Type, "function", StringComparison.Ordinal) ||
+                                        string.IsNullOrWhiteSpace(x.Id) ||
+                                        string.IsNullOrWhiteSpace(x.Function?.Name)) == true)
         {
-            throw new InvalidDataException("AI 接口响应中缺少 choices[0].message.content。");
+            throw new InvalidDataException("AI 接口返回了无效的函数工具调用，已拒绝执行整个调用计划。");
+        }
+
+        if (message?.ToolCalls?
+                .GroupBy(x => x.Id, StringComparer.Ordinal)
+                .Any(group => group.Count() > 1) == true)
+        {
+            throw new InvalidDataException("AI 接口返回了重复的工具调用 id，已拒绝执行整个调用计划。");
+        }
+
+        var toolCalls = message?.ToolCalls?
+            .Select(x => new AiToolCall(
+                x.Id!,
+                x.Function!.Name!,
+                x.Function.Arguments ?? "{}"))
+            .ToArray() ?? [];
+        if (toolCalls.Length > 0 && string.Equals(choice?.FinishReason, "length", StringComparison.Ordinal))
+        {
+            throw new InvalidDataException("AI 工具调用因输出长度限制被截断，已拒绝执行。");
+        }
+
+        if (message?.Content is null && toolCalls.Length == 0)
+        {
+            throw new InvalidDataException("AI 接口响应中既没有回复内容，也没有工具调用。");
         }
 
         return new AiChatCompletionResult(
             result?.Id ?? string.Empty,
             result?.Model ?? selectedModel,
-            content);
+            message?.Content ?? string.Empty,
+            toolCalls,
+            choice?.FinishReason);
     }
 
     public async IAsyncEnumerable<string> StreamChatCompletionAsync(
@@ -109,8 +161,48 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
         string? model = null,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        await foreach (var update in StreamChatCompletionCoreAsync(
+                           messages,
+                           tools: null,
+                           model,
+                           cancellationToken))
+        {
+            if (!string.IsNullOrEmpty(update.ContentDelta))
+            {
+                yield return update.ContentDelta;
+            }
+        }
+    }
+
+    public async IAsyncEnumerable<AiChatStreamUpdate> StreamChatCompletionWithToolsAsync(
+        IReadOnlyList<AiChatMessage> messages,
+        IReadOnlyList<AiToolDefinition> tools,
+        string? model = null,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        if (tools is null || tools.Count == 0)
+        {
+            throw new ArgumentException("至少需要提供一个 AI 工具。", nameof(tools));
+        }
+
+        await foreach (var update in StreamChatCompletionCoreAsync(
+                           messages,
+                           tools,
+                           model,
+                           cancellationToken))
+        {
+            yield return update;
+        }
+    }
+
+    private async IAsyncEnumerable<AiChatStreamUpdate> StreamChatCompletionCoreAsync(
+        IReadOnlyList<AiChatMessage> messages,
+        IReadOnlyList<AiToolDefinition>? tools,
+        string? model,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
         EnsureEnabled();
-        var (_, payload) = CreateChatCompletionPayload(messages, model, stream: true);
+        var (selectedModel, payload) = CreateChatCompletionPayload(messages, model, stream: true, tools);
 
         using var request = CreateRequest(HttpMethod.Post, "chat/completions");
         request.Headers.Accept.Clear();
@@ -130,6 +222,11 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
         await using var responseStream = await response.Content.ReadAsStreamAsync(cancellationToken);
         using var reader = new StreamReader(responseStream);
         var receivedDataEvent = false;
+        var responseId = string.Empty;
+        var responseModel = selectedModel;
+        var content = new StringBuilder();
+        var toolCallBuilders = new Dictionary<int, StreamingToolCallBuilder>();
+        string? finishReason = null;
 
         while (await reader.ReadLineAsync(cancellationToken) is { } line)
         {
@@ -147,7 +244,7 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
             receivedDataEvent = true;
             if (string.Equals(eventData, "[DONE]", StringComparison.Ordinal))
             {
-                yield break;
+                break;
             }
 
             ChatCompletionChunk? chunk;
@@ -165,10 +262,32 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
                 throw new InvalidOperationException($"AI 服务返回错误：{chunk.Error.Message}");
             }
 
-            var content = chunk?.Choices?.FirstOrDefault()?.Delta?.Content;
-            if (!string.IsNullOrEmpty(content))
+            if (!string.IsNullOrWhiteSpace(chunk?.Id))
             {
-                yield return content;
+                responseId = chunk.Id;
+            }
+
+            if (!string.IsNullOrWhiteSpace(chunk?.Model))
+            {
+                responseModel = chunk.Model;
+            }
+
+            var choice = chunk?.Choices?.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(choice?.FinishReason))
+            {
+                finishReason = choice.FinishReason;
+            }
+
+            var contentDelta = choice?.Delta?.Content;
+            if (!string.IsNullOrEmpty(contentDelta))
+            {
+                content.Append(contentDelta);
+                yield return new AiChatStreamUpdate(contentDelta);
+            }
+
+            foreach (var toolCallDelta in choice?.Delta?.ToolCalls ?? [])
+            {
+                AccumulateToolCallDelta(toolCallBuilders, toolCallDelta);
             }
         }
 
@@ -176,6 +295,54 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
         {
             throw new InvalidDataException("AI 服务未返回 OpenAI 兼容的 SSE 流式响应。");
         }
+
+        var toolCalls = toolCallBuilders
+            .OrderBy(x => x.Key)
+            .Select(x => x.Value.Build())
+            .ToArray();
+        if (toolCalls
+            .GroupBy(x => x.Id, StringComparer.Ordinal)
+            .Any(group => group.Count() > 1))
+        {
+            throw new InvalidDataException("AI 流式接口返回了重复的工具调用 id，已拒绝执行整个调用计划。");
+        }
+
+        if (toolCalls.Length > 0 && string.Equals(finishReason, "length", StringComparison.Ordinal))
+        {
+            throw new InvalidDataException("AI 工具调用因输出长度限制被截断，已拒绝执行。");
+        }
+
+        if (content.Length == 0 && toolCalls.Length == 0)
+        {
+            throw new InvalidDataException("AI 流式响应中既没有回复内容，也没有工具调用。");
+        }
+
+        yield return new AiChatStreamUpdate(
+            string.Empty,
+            new AiChatCompletionResult(
+                responseId,
+                responseModel,
+                content.ToString(),
+                toolCalls,
+                finishReason));
+    }
+
+    private static void AccumulateToolCallDelta(
+        IDictionary<int, StreamingToolCallBuilder> builders,
+        ToolCallDelta toolCallDelta)
+    {
+        if (toolCallDelta.Index is null or < 0)
+        {
+            throw new InvalidDataException("AI 流式接口返回了缺少有效 index 的工具调用分片。");
+        }
+
+        if (!builders.TryGetValue(toolCallDelta.Index.Value, out var builder))
+        {
+            builder = new StreamingToolCallBuilder();
+            builders.Add(toolCallDelta.Index.Value, builder);
+        }
+
+        builder.Add(toolCallDelta);
     }
 
     public void Dispose()
@@ -194,7 +361,8 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
     private (string Model, ChatCompletionRequest Payload) CreateChatCompletionPayload(
         IReadOnlyList<AiChatMessage> messages,
         string? model,
-        bool stream)
+        bool stream,
+        IReadOnlyList<AiToolDefinition>? tools)
     {
         if (messages is null || messages.Count == 0)
         {
@@ -216,7 +384,26 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
             Messages = messages.Select(x => new ChatMessage
             {
                 Role = x.Role,
-                Content = x.Content
+                Content = x.Content,
+                ToolCallId = x.ToolCallId,
+                ToolCalls = x.ToolCalls?.Select(toolCall => new ToolCallPayload
+                {
+                    Id = toolCall.Id,
+                    Function = new ToolFunctionPayload
+                    {
+                        Name = toolCall.Name,
+                        Arguments = toolCall.Arguments
+                    }
+                }).ToArray()
+            }).ToArray(),
+            Tools = tools?.Select(tool => new ToolDefinitionPayload
+            {
+                Function = new ToolFunctionDefinitionPayload
+                {
+                    Name = tool.Name,
+                    Description = tool.Description,
+                    Parameters = tool.Parameters
+                }
             }).ToArray()
         };
 
@@ -322,6 +509,10 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
 
         [JsonPropertyName("stream")]
         public bool Stream { get; init; }
+
+        [JsonPropertyName("tools")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ToolDefinitionPayload[]? Tools { get; init; }
     }
 
     private sealed class ChatMessage
@@ -330,7 +521,57 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
         public required string Role { get; init; }
 
         [JsonPropertyName("content")]
-        public required string Content { get; init; }
+        public string? Content { get; init; }
+
+        [JsonPropertyName("tool_call_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? ToolCallId { get; init; }
+
+        [JsonPropertyName("tool_calls")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public ToolCallPayload[]? ToolCalls { get; init; }
+    }
+
+    private sealed class ToolDefinitionPayload
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; init; } = "function";
+
+        [JsonPropertyName("function")]
+        public required ToolFunctionDefinitionPayload Function { get; init; }
+    }
+
+    private sealed class ToolFunctionDefinitionPayload
+    {
+        [JsonPropertyName("name")]
+        public required string Name { get; init; }
+
+        [JsonPropertyName("description")]
+        public required string Description { get; init; }
+
+        [JsonPropertyName("parameters")]
+        public JsonElement Parameters { get; init; }
+    }
+
+    private sealed class ToolCallPayload
+    {
+        [JsonPropertyName("id")]
+        public string? Id { get; init; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; init; } = "function";
+
+        [JsonPropertyName("function")]
+        public ToolFunctionPayload? Function { get; init; }
+    }
+
+    private sealed class ToolFunctionPayload
+    {
+        [JsonPropertyName("name")]
+        public string? Name { get; init; }
+
+        [JsonPropertyName("arguments")]
+        public string? Arguments { get; init; }
     }
 
     private sealed class ChatCompletionResponse
@@ -349,10 +590,19 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
     {
         [JsonPropertyName("message")]
         public ChatMessage? Message { get; init; }
+
+        [JsonPropertyName("finish_reason")]
+        public string? FinishReason { get; init; }
     }
 
     private sealed class ChatCompletionChunk
     {
+        [JsonPropertyName("id")]
+        public string? Id { get; init; }
+
+        [JsonPropertyName("model")]
+        public string? Model { get; init; }
+
         [JsonPropertyName("choices")]
         public ChatChunkChoice[]? Choices { get; init; }
 
@@ -364,12 +614,93 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
     {
         [JsonPropertyName("delta")]
         public ChatDelta? Delta { get; init; }
+
+        [JsonPropertyName("finish_reason")]
+        public string? FinishReason { get; init; }
     }
 
     private sealed class ChatDelta
     {
         [JsonPropertyName("content")]
         public string? Content { get; init; }
+
+        [JsonPropertyName("tool_calls")]
+        public ToolCallDelta[]? ToolCalls { get; init; }
+    }
+
+    private sealed class ToolCallDelta
+    {
+        [JsonPropertyName("index")]
+        public int? Index { get; init; }
+
+        [JsonPropertyName("id")]
+        public string? Id { get; init; }
+
+        [JsonPropertyName("type")]
+        public string? Type { get; init; }
+
+        [JsonPropertyName("function")]
+        public ToolFunctionPayload? Function { get; init; }
+    }
+
+    private sealed class StreamingToolCallBuilder
+    {
+        private readonly StringBuilder _name = new();
+        private readonly StringBuilder _arguments = new();
+        private string? _id;
+        private string? _type;
+
+        public void Add(ToolCallDelta delta)
+        {
+            if (!string.IsNullOrEmpty(delta.Id))
+            {
+                if (_id is not null && !string.Equals(_id, delta.Id, StringComparison.Ordinal))
+                {
+                    throw new InvalidDataException("AI 流式接口为同一工具调用返回了相互冲突的 id。");
+                }
+
+                _id = delta.Id;
+            }
+
+            if (!string.IsNullOrEmpty(delta.Type))
+            {
+                if (_type is not null && !string.Equals(_type, delta.Type, StringComparison.Ordinal))
+                {
+                    throw new InvalidDataException("AI 流式接口为同一工具调用返回了相互冲突的类型。");
+                }
+
+                _type = delta.Type;
+            }
+
+            if (!string.IsNullOrEmpty(delta.Function?.Name))
+            {
+                _name.Append(delta.Function.Name);
+            }
+
+            if (!string.IsNullOrEmpty(delta.Function?.Arguments))
+            {
+                _arguments.Append(delta.Function.Arguments);
+            }
+        }
+
+        public AiToolCall Build()
+        {
+            if (!string.IsNullOrEmpty(_type) &&
+                !string.Equals(_type, "function", StringComparison.Ordinal))
+            {
+                throw new InvalidDataException("AI 流式接口返回了非 function 类型的工具调用。");
+            }
+
+            if (string.IsNullOrWhiteSpace(_id) || _name.Length == 0)
+            {
+                throw new InvalidDataException("AI 流式接口返回了缺少 id 或函数名的工具调用。");
+            }
+
+            return new AiToolCall(
+                _id,
+                _name.ToString(),
+                _arguments.Length == 0 ? "{}" : _arguments.ToString());
+        }
     }
 
     private sealed class ApiError

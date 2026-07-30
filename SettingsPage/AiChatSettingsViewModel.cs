@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -22,6 +24,8 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     private readonly AiPromptService _promptService;
     private readonly MainConfigHandler _configHandler;
     private readonly SystemToolsNotificationProvider _notificationProvider;
+    private readonly ClassIslandProfileAiService _profileAiService;
+    private readonly Func<ProfileModificationPreview, Task<bool>> _confirmProfileModificationAsync;
     private CancellationTokenSource? _generationCancellation;
     private Task _generationTask = Task.CompletedTask;
     private AiConversation? _generatingConversation;
@@ -38,13 +42,17 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         IOpenAiCompatibleService aiService,
         AiPromptService promptService,
         MainConfigHandler configHandler,
-        SystemToolsNotificationProvider notificationProvider)
+        SystemToolsNotificationProvider notificationProvider,
+        ClassIslandProfileAiService profileAiService,
+        Func<ProfileModificationPreview, Task<bool>> confirmProfileModificationAsync)
     {
         _store = store;
         _aiService = aiService;
         _promptService = promptService;
         _configHandler = configHandler;
         _notificationProvider = notificationProvider;
+        _profileAiService = profileAiService;
+        _confirmProfileModificationAsync = confirmProfileModificationAsync;
 
         var selected = store.Conversations.FirstOrDefault(x => x.Id == store.ActiveConversationId)
                        ?? store.Conversations.FirstOrDefault()
@@ -278,7 +286,8 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         var assistantMessage = new AiConversationMessage
         {
             Role = "assistant",
-            IsStreaming = true
+            IsStreaming = true,
+            ActivityText = "正在理解请求..."
         };
         conversation.Messages.Add(assistantMessage);
 
@@ -350,42 +359,194 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         CancellationToken cancellationToken)
     {
         var content = new StringBuilder();
-        var renderTimer = Stopwatch.StartNew();
+        var streamedContent = new StringBuilder();
         var generationCompleted = false;
+        var profileWasModified = false;
+        var profileStateIsUncertain = false;
+        var profileWriteWasRolledBack = false;
+        string? blockedWriteStatus = null;
 
         try
         {
-            await foreach (var delta in _aiService.StreamChatCompletionAsync(
-                               requestMessages,
-                               cancellationToken: cancellationToken))
+            var agentMessages = requestMessages.ToList();
+            const int maximumToolRounds = 8;
+            const int maximumToolCallsPerRound = 8;
+
+            for (var round = 0; round < maximumToolRounds; round++)
             {
-                content.Append(delta);
-                if (renderTimer.ElapsedMilliseconds < 40)
+                cancellationToken.ThrowIfCancellationRequested();
+                streamedContent.Clear();
+                var renderTimer = Stopwatch.StartNew();
+                var hasRenderedStreamedContent = false;
+                AiChatCompletionResult? result = null;
+
+                await foreach (var update in _aiService.StreamChatCompletionWithToolsAsync(
+                                   agentMessages,
+                                   _profileAiService.Tools,
+                                   cancellationToken: cancellationToken))
                 {
-                    continue;
+                    if (update.Completion is not null)
+                    {
+                        result = update.Completion;
+                    }
+
+                    if (string.IsNullOrEmpty(update.ContentDelta))
+                    {
+                        continue;
+                    }
+
+                    streamedContent.Append(update.ContentDelta);
+                    if (!hasRenderedStreamedContent || renderTimer.ElapsedMilliseconds >= 40)
+                    {
+                        await UpdateAssistantStreamingContentAsync(
+                            assistantMessage,
+                            streamedContent.ToString());
+                        hasRenderedStreamedContent = true;
+                        renderTimer.Restart();
+                    }
+                }
+
+                if (result is null)
+                {
+                    throw new InvalidOperationException("AI 流式响应没有返回完成信息。");
+                }
+
+                if (streamedContent.Length > 0)
+                {
+                    await UpdateAssistantStreamingContentAsync(
+                        assistantMessage,
+                        streamedContent.ToString());
+                }
+
+                var toolCalls = result.ToolCalls ?? [];
+
+                if (toolCalls.Count == 0)
+                {
+                    if (string.IsNullOrWhiteSpace(result.Content))
+                    {
+                        throw new InvalidOperationException("AI 服务没有返回最终回复。");
+                    }
+
+                    await UpdateAssistantActivityAsync(assistantMessage, string.Empty);
+                    content.Append(result.Content);
+                    await UpdateAssistantContentAsync(assistantMessage, content.ToString());
+                    generationCompleted = true;
+                    break;
+                }
+
+                if (toolCalls.Count > maximumToolCallsPerRound)
+                {
+                    throw new InvalidOperationException(
+                        $"AI 一次请求了 {toolCalls.Count} 个工具调用，超过安全上限 {maximumToolCallsPerRound}。");
                 }
 
                 await UpdateAssistantContentAsync(assistantMessage, content.ToString());
-                renderTimer.Restart();
+                streamedContent.Clear();
+
+                agentMessages.Add(new AiChatMessage(
+                    "assistant",
+                    string.IsNullOrWhiteSpace(result.Content) ? null : result.Content)
+                {
+                    ToolCalls = toolCalls
+                });
+
+                foreach (var toolCall in toolCalls)
+                {
+                    await UpdateAssistantActivityAsync(
+                        assistantMessage,
+                        GetToolActivityText(toolCall.Name));
+
+                    string toolResult;
+                    if (blockedWriteStatus is not null &&
+                        toolCall.Name == ClassIslandProfileAiService.PatchProfileToolName)
+                    {
+                        toolResult = JsonSerializer.Serialize(new
+                        {
+                            status = blockedWriteStatus,
+                            message = blockedWriteStatus == "denied"
+                                ? "用户已拒绝本轮档案写入，不再重复询问。"
+                                : "本轮档案提交已经发生保存或回滚异常，为避免扩大影响，不再执行后续写入。"
+                        });
+                    }
+                    else
+                    {
+                        toolResult = await _profileAiService.ExecuteToolAsync(
+                            toolCall,
+                            _confirmProfileModificationAsync,
+                            cancellationToken);
+                    }
+
+                    var toolStatus = TryGetToolStatus(toolResult);
+                    profileWasModified |= string.Equals(toolStatus, "applied", StringComparison.Ordinal);
+                    profileStateIsUncertain |= string.Equals(toolStatus, "possibly_applied", StringComparison.Ordinal);
+                    profileWriteWasRolledBack |= string.Equals(toolStatus, "rolled_back", StringComparison.Ordinal);
+                    if (toolStatus is "denied" or "possibly_applied" or "rolled_back")
+                    {
+                        blockedWriteStatus = toolStatus;
+                    }
+
+                    await UpdateAssistantActivityAsync(
+                        assistantMessage,
+                        GetToolResultActivityText(toolCall.Name, toolStatus));
+
+                    agentMessages.Add(new AiChatMessage("tool", toolResult)
+                    {
+                        ToolCallId = toolCall.Id
+                    });
+                }
             }
 
-            await UpdateAssistantContentAsync(assistantMessage, content.ToString());
-            generationCompleted = true;
+            if (!generationCompleted)
+            {
+                throw new InvalidOperationException($"AI 连续调用工具超过 {maximumToolRounds} 轮，已停止以避免循环执行。");
+            }
+
+            if (profileStateIsUncertain)
+            {
+                StatusText = "档案提交和自动回滚均发生异常，当前内容可能已改变，请立即在档案编辑器中核对。";
+            }
+            else if (profileWriteWasRolledBack)
+            {
+                StatusText = profileWasModified
+                    ? "此前档案修改已保存；后一次写入失败并已自动回滚。"
+                    : "档案写入失败，已自动恢复并保存修改前的内容。";
+            }
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            await UpdateAssistantContentAsync(assistantMessage, content.ToString());
-            StatusText = "已停止生成";
+            await UpdateAssistantContentAsync(
+                assistantMessage,
+                content.Length > 0 ? content.ToString() : streamedContent.ToString());
+            StatusText = profileStateIsUncertain
+                ? "档案提交和自动回滚均发生异常，当前内容可能已改变，请立即在档案编辑器中核对。"
+                : profileWriteWasRolledBack
+                    ? profileWasModified
+                        ? "此前档案修改已保存；后一次写入失败并已回滚。"
+                        : "档案写入失败，已自动恢复并保存修改前的内容。"
+                    : profileWasModified
+                        ? "档案修改已经保存；已停止生成后续回复"
+                        : "已停止生成";
         }
         catch (Exception ex)
         {
-            await UpdateAssistantContentAsync(assistantMessage, content.ToString());
-            StatusText = $"请求失败：{ex.Message}";
+            await UpdateAssistantContentAsync(
+                assistantMessage,
+                content.Length > 0 ? content.ToString() : streamedContent.ToString());
+            StatusText = profileStateIsUncertain
+                ? "档案提交和自动回滚均发生异常，当前内容可能已改变，请立即在档案编辑器中核对。"
+                : profileWriteWasRolledBack
+                    ? profileWasModified
+                        ? $"此前档案修改已保存；后一次写入失败并已回滚。后续回复失败：{ex.Message}"
+                        : $"档案写入失败但已回滚；后续回复失败：{ex.Message}"
+                    : profileWasModified
+                        ? $"档案修改已经保存，但生成后续回复失败：{ex.Message}"
+                        : $"请求失败：{ex.Message}";
         }
         finally
         {
             await RunOnUiThreadAsync(() =>
             {
+                assistantMessage.ActivityText = string.Empty;
                 assistantMessage.IsStreaming = false;
                 if (string.IsNullOrWhiteSpace(assistantMessage.Content))
                 {
@@ -415,9 +576,72 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    private static string GetToolActivityText(string toolName)
+    {
+        return toolName switch
+        {
+            ClassIslandProfileAiService.ReadProfileToolName => "正在查看档案...",
+            ClassIslandProfileAiService.PatchProfileToolName => "正在生成并校验修改预览...",
+            _ => "正在处理档案请求..."
+        };
+    }
+
+    private static string GetToolResultActivityText(string toolName, string? status)
+    {
+        if (toolName == ClassIslandProfileAiService.ReadProfileToolName)
+        {
+            return string.Equals(status, "success", StringComparison.Ordinal)
+                ? "正在理解档案..."
+                : "档案读取未完成，正在整理结果...";
+        }
+
+        if (toolName != ClassIslandProfileAiService.PatchProfileToolName)
+        {
+            return "正在整理档案处理结果...";
+        }
+
+        return status switch
+        {
+            "applied" => "修改已保存，正在核对档案...",
+            "denied" => "修改已取消，正在整理结果...",
+            "rolled_back" => "写入已回滚，正在整理结果...",
+            "possibly_applied" => "正在核对档案写入状态...",
+            _ => "修改未完成，正在整理结果..."
+        };
+    }
+
+    private static string? TryGetToolStatus(string toolResult)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(toolResult);
+            return document.RootElement.TryGetProperty("status", out var status)
+                ? status.GetString()
+                : null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
     private Task UpdateAssistantContentAsync(AiConversationMessage message, string content)
     {
         return RunOnUiThreadAsync(() => message.Content = content);
+    }
+
+    private Task UpdateAssistantStreamingContentAsync(AiConversationMessage message, string content)
+    {
+        return RunOnUiThreadAsync(() =>
+        {
+            message.ActivityText = string.Empty;
+            message.Content = content;
+        });
+    }
+
+    private Task UpdateAssistantActivityAsync(AiConversationMessage message, string activityText)
+    {
+        return RunOnUiThreadAsync(() => message.ActivityText = activityText);
     }
 
     private bool TryLoadSystemPrompt(out string systemPrompt)
@@ -519,7 +743,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     private void OnMessagePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(AiConversationMessage.Content))
+        if (e.PropertyName is nameof(AiConversationMessage.Content) or nameof(AiConversationMessage.ActivityText))
         {
             ConversationContentChanged?.Invoke(this, EventArgs.Empty);
         }

@@ -14,14 +14,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/Services/ClassIslandProfileAiService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Models/AiConversation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/AiConversation.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/AiPromptService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiPromptService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/IOpenAiCompatibleService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/IOpenAiCompatibleService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/OpenAiCompatibleService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/OpenAiCompatibleService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/agents.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,7 +133,8 @@
       <workItem from="1785232567476" duration="2430000" />
       <workItem from="1785237628119" duration="2826000" />
       <workItem from="1785324881287" duration="112000" />
-      <workItem from="1785327610513" duration="3392000" />
+      <workItem from="1785327610513" duration="7562000" />
+      <workItem from="1785377495106" duration="1320000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -228,7 +232,23 @@
       <option name="project" value="LOCAL" />
       <updated>1785234014539</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="feat: 新增“行动前确认”行动">
+      <option name="closed" value="true" />
+      <created>1785333345218</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1785333345218</updated>
+    </task>
+    <task id="LOCAL-00014" summary="fix: 修正提示词暴露问题">
+      <option name="closed" value="true" />
+      <created>1785333426628</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1785333426628</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -261,7 +281,9 @@
     <MESSAGE value="自动构建提交 - 2.5.1.106" />
     <MESSAGE value="feat: 新增调用AI API Key 服务、“AI 对话”UI、“AI回复”通知渠道" />
     <MESSAGE value="fix: 修正“更多功能选项”右侧图标不正常显示的问题" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正“更多功能选项”右侧图标不正常显示的问题" />
+    <MESSAGE value="feat: 新增“行动前确认”行动" />
+    <MESSAGE value="fix: 修正提示词暴露问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正提示词暴露问题" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

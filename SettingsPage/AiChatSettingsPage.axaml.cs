@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -47,7 +48,9 @@ public partial class AiChatSettingsPage : SettingsPageBase
             IAppHost.GetService<IOpenAiCompatibleService>(),
             IAppHost.GetService<AiPromptService>(),
             GlobalConstants.MainConfig,
-            IAppHost.GetService<SystemToolsNotificationProvider>());
+            IAppHost.GetService<SystemToolsNotificationProvider>(),
+            IAppHost.GetService<ClassIslandProfileAiService>(),
+            ConfirmProfileModificationAsync);
         DataContext = ViewModel;
         InitializeComponent();
 
@@ -224,6 +227,86 @@ public partial class AiChatSettingsPage : SettingsPageBase
         var generationTask = ViewModel.SendAsync();
         ScrollToConversationBottom();
         await generationTask;
+    }
+
+    private Task<bool> ConfirmProfileModificationAsync(ProfileModificationPreview preview)
+    {
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            return ShowProfileModificationDialogAsync(preview);
+        }
+
+        var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Dispatcher.UIThread.Post(async () =>
+        {
+            try
+            {
+                completion.SetResult(await ShowProfileModificationDialogAsync(preview));
+            }
+            catch (Exception ex)
+            {
+                completion.SetException(ex);
+            }
+        });
+        return completion.Task;
+    }
+
+    private async Task<bool> ShowProfileModificationDialogAsync(ProfileModificationPreview preview)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is null || _isDisposed)
+        {
+            return false;
+        }
+
+        var operationText = string.Join(
+            Environment.NewLine + Environment.NewLine,
+            preview.Operations.Select(operation =>
+                operation.Operation switch
+                {
+                    "add" => $"ADD {operation.Path}\n  新值：{operation.After}",
+                    "remove" => $"REMOVE {operation.Path}\n  原值：{operation.Before}",
+                    _ => $"REPLACE {operation.Path}\n  原值：{operation.Before}\n  新值：{operation.After}"
+                }));
+        var dialog = new FAContentDialog
+        {
+            Title = "允许 AI 修改 ClassIsland 档案？",
+            Content = new StackPanel
+            {
+                Spacing = 12,
+                MaxWidth = 620,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = $"档案文件：{preview.ProfileFilePath}\n修改说明：{preview.Summary}",
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                    },
+                    new ScrollViewer
+                    {
+                        MaxHeight = 260,
+                        HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+                        VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+                        Content = new TextBlock
+                        {
+                            Text = operationText,
+                            FontFamily = new Avalonia.Media.FontFamily("Consolas"),
+                            TextWrapping = Avalonia.Media.TextWrapping.NoWrap
+                        }
+                    },
+                    new TextBlock
+                    {
+                        Text = "风险：AI 可能误解指令；课表、时间表或教师信息的错误修改可能立即影响显示、提醒和自动化。保存过程并非事务性，也不保证本次修改可由 .bak 完整撤销。请确认上方路径和值准确后再允许。",
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                    }
+                }
+            },
+            PrimaryButtonText = "允许并保存",
+            CloseButtonText = "取消",
+            DefaultButton = FAContentDialogButton.Close
+        };
+
+        return await dialog.ShowAsync(topLevel) == FAContentDialogResult.Primary;
     }
 
     private void ViewModel_OnConversationContentChanged(object? sender, EventArgs e)

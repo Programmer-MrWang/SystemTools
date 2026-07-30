@@ -1,12 +1,34 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SystemTools.Services;
 
-public sealed record AiChatMessage(string Role, string Content);
+public sealed record AiToolCall(string Id, string Name, string Arguments);
 
-public sealed record AiChatCompletionResult(string Id, string Model, string Content);
+public sealed record AiToolDefinition(
+    string Name,
+    string Description,
+    JsonElement Parameters);
+
+public sealed record AiChatMessage(string Role, string? Content)
+{
+    public string? ToolCallId { get; init; }
+
+    public IReadOnlyList<AiToolCall>? ToolCalls { get; init; }
+}
+
+public sealed record AiChatCompletionResult(
+    string Id,
+    string Model,
+    string Content,
+    IReadOnlyList<AiToolCall>? ToolCalls = null,
+    string? FinishReason = null);
+
+public sealed record AiChatStreamUpdate(
+    string ContentDelta,
+    AiChatCompletionResult? Completion = null);
 
 public interface IOpenAiCompatibleService
 {
@@ -17,8 +39,20 @@ public interface IOpenAiCompatibleService
         string? model = null,
         CancellationToken cancellationToken = default);
 
+    Task<AiChatCompletionResult> CompleteChatWithToolsAsync(
+        IReadOnlyList<AiChatMessage> messages,
+        IReadOnlyList<AiToolDefinition> tools,
+        string? model = null,
+        CancellationToken cancellationToken = default);
+
     IAsyncEnumerable<string> StreamChatCompletionAsync(
         IReadOnlyList<AiChatMessage> messages,
+        string? model = null,
+        CancellationToken cancellationToken = default);
+
+    IAsyncEnumerable<AiChatStreamUpdate> StreamChatCompletionWithToolsAsync(
+        IReadOnlyList<AiChatMessage> messages,
+        IReadOnlyList<AiToolDefinition> tools,
         string? model = null,
         CancellationToken cancellationToken = default);
 }

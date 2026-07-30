@@ -83,6 +83,7 @@ public partial class Plugin : PluginBase
         {
             services.AddSingleton<AiConversationStore>();
             services.AddSingleton<AiPromptService>();
+            services.AddSingleton<ClassIslandProfileAiService>();
         }
 
         services.AddNotificationProvider<SystemToolsNotificationProvider>();

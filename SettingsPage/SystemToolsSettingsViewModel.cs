@@ -255,6 +255,11 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.ToggleWorkflow", "开关自动化", "ClassIsland"),
         };
 
+        if (Settings.EnableAiService)
+        {
+            actions.Add(("SystemTools.ShowAiChatDialog", "显示AI对话框", null));
+        }
+
         if (Settings.EnableFloatingWindowFeature)
         {
             actions.Add(("SystemTools.ShowFloatingWindow", "显示悬浮窗", "悬浮窗设置"));

@@ -84,6 +84,7 @@ public partial class Plugin : PluginBase
             services.AddSingleton<AiConversationStore>();
             services.AddSingleton<AiPromptService>();
             services.AddSingleton<ClassIslandProfileAiService>();
+            services.AddSingleton<AiChatWindowService>();
         }
 
         services.AddNotificationProvider<SystemToolsNotificationProvider>();
@@ -343,6 +344,10 @@ public partial class Plugin : PluginBase
     "SystemTools.ToggleWorkflow");
         RegisterActionIfEnabled<ActionFlowExecutionConfirmationAction, ActionFlowExecutionConfirmationSettingsControl>(
             services, config, "SystemTools.ActionFlowExecutionConfirmation");
+        if (config.EnableAiService)
+        {
+            RegisterActionIfEnabled<ShowAiChatDialogAction>(services, config, "SystemTools.ShowAiChatDialog");
+        }
     }
 
     private void RegisterBaseTriggers(IServiceCollection services)
@@ -592,6 +597,9 @@ public partial class Plugin : PluginBase
         if (config.IsActionEnabled("SystemTools.ActionFlowExecutionConfirmation"))
             standaloneActions.Add(new ActionMenuTreeItem(
                 "SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", "\uE01D"));
+        if (config.EnableAiService && config.IsActionEnabled("SystemTools.ShowAiChatDialog"))
+            standaloneActions.Add(new ActionMenuTreeItem(
+                "SystemTools.ShowAiChatDialog", "显示AI对话框", "\uEFFF"));
 
         if (standaloneActions.Count > 0)
         {
@@ -859,6 +867,7 @@ public partial class Plugin : PluginBase
         IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop();
         IAppHost.GetService<SystemMemoryCleanupService>().Stop();
         AdvancedShutdownAction.CancelPlanOnAppStopping();
+        IAppHost.TryGetService<AiChatWindowService>()?.Close();
         if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
         {
             IAppHost.GetService<FloatingWindowService>().Stop();

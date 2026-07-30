@@ -59,6 +59,20 @@ public sealed class AiConversationMessage : INotifyPropertyChanged
 
     public Guid Id { get; set; } = Guid.NewGuid();
 
+    public ObservableCollection<AiAttachment> Attachments { get; set; } = [];
+
+    public void InitializeRuntimeState()
+    {
+        Attachments.CollectionChanged -= AttachmentsOnCollectionChanged;
+        Attachments.CollectionChanged += AttachmentsOnCollectionChanged;
+        foreach (var attachment in Attachments)
+        {
+            attachment.NotifyRuntimePropertiesChanged();
+        }
+
+        OnPropertyChanged(nameof(HasAttachments));
+    }
+
     public string Role
     {
         get => _role;
@@ -153,7 +167,17 @@ public sealed class AiConversationMessage : INotifyPropertyChanged
     [JsonIgnore]
     public bool CanShowAssistantActions => IsAssistant && !IsStreaming;
 
+    [JsonIgnore]
+    public bool HasAttachments => Attachments.Count > 0;
+
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void AttachmentsOnCollectionChanged(
+        object? sender,
+        System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(HasAttachments));
+    }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {

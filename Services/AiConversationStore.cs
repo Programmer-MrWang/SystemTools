@@ -74,6 +74,11 @@ public sealed class AiConversationStore
             return false;
         }
 
+        foreach (var attachment in conversation.Messages.SelectMany(message => message.Attachments))
+        {
+            attachment.Dispose();
+        }
+
         if (ActiveConversationId == conversation.Id)
         {
             ActiveConversationId = Conversations.FirstOrDefault()?.Id;
@@ -122,7 +127,9 @@ public sealed class AiConversationStore
                 conversation.Messages ??= [];
                 foreach (var message in conversation.Messages)
                 {
+                    message.Attachments ??= [];
                     message.IsStreaming = false;
+                    message.InitializeRuntimeState();
                 }
 
                 Conversations.Add(conversation);

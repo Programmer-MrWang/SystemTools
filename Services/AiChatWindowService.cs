@@ -10,9 +10,11 @@ public sealed class AiChatWindowService(
     AiConversationStore store,
     IOpenAiCompatibleService aiService,
     AiPromptService promptService,
+    AiChatOperationGate operationGate,
     MainConfigHandler configHandler,
     SystemToolsNotificationProvider notificationProvider,
-    ClassIslandProfileAiService profileAiService)
+    ClassIslandProfileAiService profileAiService,
+    ClassIslandActionAiService actionAiService)
 {
     private AiChatFloatingWindow? _window;
 
@@ -26,9 +28,11 @@ public sealed class AiChatWindowService(
                     store,
                     aiService,
                     promptService,
+                    operationGate,
                     configHandler,
                     notificationProvider,
-                    profileAiService);
+                    profileAiService,
+                    actionAiService);
                 _window.Closed += Window_OnClosed;
             }
 

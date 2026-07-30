@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -22,37 +23,54 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     private readonly AiConversationStore _store;
     private readonly IOpenAiCompatibleService _aiService;
     private readonly AiPromptService _promptService;
+    private readonly AiChatOperationGate _operationGate;
     private readonly MainConfigHandler _configHandler;
     private readonly SystemToolsNotificationProvider _notificationProvider;
     private readonly ClassIslandProfileAiService _profileAiService;
+    private readonly ClassIslandActionAiService _actionAiService;
     private readonly Func<ProfileModificationPreview, Task<bool>> _confirmProfileModificationAsync;
+    private readonly Func<ActionExecutionPreview, Task<bool>> _confirmActionExecutionAsync;
+    private readonly Dictionary<Guid, ComposerDraft> _composerDrafts = [];
     private CancellationTokenSource? _generationCancellation;
     private Task _generationTask = Task.CompletedTask;
     private AiConversation? _generatingConversation;
+    private IDisposable? _attachmentUpdateLease;
     private bool _isDisposed;
 
     [ObservableProperty] private AiConversation? _selectedConversation;
     [ObservableProperty] private string _inputText = string.Empty;
     [ObservableProperty] private bool _isHistoryOpen = true;
     [ObservableProperty] private bool _isGenerating;
+    [ObservableProperty] private bool _isUpdatingAttachments;
     [ObservableProperty] private string _statusText = string.Empty;
+
+    public ObservableCollection<AiAttachment> PendingAttachments { get; } = [];
 
     public AiChatSettingsViewModel(
         AiConversationStore store,
         IOpenAiCompatibleService aiService,
         AiPromptService promptService,
+        AiChatOperationGate operationGate,
         MainConfigHandler configHandler,
         SystemToolsNotificationProvider notificationProvider,
         ClassIslandProfileAiService profileAiService,
-        Func<ProfileModificationPreview, Task<bool>> confirmProfileModificationAsync)
+        ClassIslandActionAiService actionAiService,
+        Func<ProfileModificationPreview, Task<bool>> confirmProfileModificationAsync,
+        Func<ActionExecutionPreview, Task<bool>> confirmActionExecutionAsync)
     {
         _store = store;
         _aiService = aiService;
         _promptService = promptService;
+        _operationGate = operationGate;
         _configHandler = configHandler;
         _notificationProvider = notificationProvider;
         _profileAiService = profileAiService;
+        _actionAiService = actionAiService;
         _confirmProfileModificationAsync = confirmProfileModificationAsync;
+        _confirmActionExecutionAsync = confirmActionExecutionAsync;
+        PendingAttachments.CollectionChanged += OnPendingAttachmentsChanged;
+        Conversations.CollectionChanged += OnConversationsCollectionChanged;
+        _operationGate.StateChanged += OnOperationGateStateChanged;
 
         var selected = store.Conversations.FirstOrDefault(x => x.Id == store.ActiveConversationId)
                        ?? store.Conversations.FirstOrDefault()
@@ -76,15 +94,29 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         : "输入消息，Alt+Enter 发送";
 
     public bool CanSend => !IsGenerating &&
+                           !IsUpdatingAttachments &&
+                           !_operationGate.IsBusy &&
                            SelectedConversation is not null &&
-                           !string.IsNullOrWhiteSpace(InputText) &&
+                           (!string.IsNullOrWhiteSpace(InputText) || PendingAttachments.Count > 0) &&
                            !string.IsNullOrWhiteSpace(_configHandler.Data.AiModel);
 
-    public bool IsNotGenerating => !IsGenerating;
+    public bool IsAnyGenerationActive => _operationGate.IsGenerationActive;
+
+    public bool IsNoGenerationActive => !IsAnyGenerationActive;
+
+    public bool CanChangeConversation => !_operationGate.IsBusy;
+
+    public bool CanModifyAttachments => !IsGenerating &&
+                                        !IsUpdatingAttachments &&
+                                        !_operationGate.IsBusy;
 
     public bool HasStatus => !string.IsNullOrWhiteSpace(StatusText);
 
     public bool HasMessages => SelectedConversation?.Messages.Count > 0;
+
+    public bool HasPendingAttachments => PendingAttachments.Count > 0;
+
+    public long PendingAttachmentBytes => PendingAttachments.Sum(x => x.Size);
 
     public bool IsClassIslandNotificationSharingEnabled
     {
@@ -106,6 +138,13 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     public AiConversation CreateNewConversation()
     {
         ThrowIfDisposed();
+        if (_operationGate.IsBusy)
+        {
+            StatusText = "另一个聊天窗口正在处理附件或生成回复，请稍后再新建对话";
+            return SelectedConversation ?? throw new InvalidOperationException(
+                "AI 聊天正忙且当前没有可用对话。");
+        }
+
         var conversation = _store.CreateConversation();
         SelectedConversation = conversation;
         StatusText = string.Empty;
@@ -115,6 +154,12 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     public async Task DeleteConversationAsync(AiConversation conversation)
     {
         ThrowIfDisposed();
+
+        if (_operationGate.IsBusy && !ReferenceEquals(conversation, _generatingConversation))
+        {
+            StatusText = "另一个聊天窗口正在处理附件或生成回复，请稍后再删除对话";
+            return;
+        }
 
         if (ReferenceEquals(conversation, _generatingConversation))
         {
@@ -134,7 +179,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     public void SaveConversationTitle()
     {
-        if (SelectedConversation is null)
+        if (SelectedConversation is null || _operationGate.IsBusy)
         {
             return;
         }
@@ -152,38 +197,55 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var conversation = SelectedConversation;
-        var userText = InputText.Trim();
-        if (!TryLoadSystemPrompt(out var systemPrompt))
+        var generationLease = _operationGate.TryAcquireGeneration(this);
+        if (generationLease is null)
         {
+            StatusText = "另一个聊天窗口正在处理附件或生成回复，请稍后再试";
             return;
         }
 
-        InputText = string.Empty;
-        StatusText = string.Empty;
-
-        var isFirstUserMessage = conversation.Messages.All(x => !x.IsUser);
-        conversation.Messages.Add(new AiConversationMessage
+        using (generationLease)
         {
-            Role = "user",
-            Content = userText
-        });
+            var conversation = SelectedConversation;
+            var userText = InputText.Trim();
+            if (!TryLoadSystemPrompt(out var systemPrompt))
+            {
+                return;
+            }
 
-        if (isFirstUserMessage)
-        {
-            conversation.Title = CreateConversationTitle(userText);
+            InputText = string.Empty;
+            StatusText = string.Empty;
+
+            var isFirstUserMessage = conversation.Messages.All(x => !x.IsUser);
+            var attachments = PendingAttachments.ToList();
+            PendingAttachments.Clear();
+            var userMessage = new AiConversationMessage
+            {
+                Role = "user",
+                Content = userText,
+                Attachments = new ObservableCollection<AiAttachment>(attachments)
+            };
+            userMessage.InitializeRuntimeState();
+            conversation.Messages.Add(userMessage);
+
+            if (isFirstUserMessage)
+            {
+                conversation.Title = CreateConversationTitle(
+                    string.IsNullOrWhiteSpace(userText) ? attachments[0].FileName : userText);
+            }
+
+            _store.Touch(conversation);
+            TrySaveStore();
+
+            await GenerateResponseForConversationAsync(conversation, systemPrompt);
         }
-
-        _store.Touch(conversation);
-        TrySaveStore();
-
-        await GenerateResponseForConversationAsync(conversation, systemPrompt);
     }
 
     public void BeginEditUserMessage(AiConversationMessage message)
     {
         ThrowIfDisposed();
-        if (IsGenerating || !message.IsUser || SelectedConversation?.Messages.Contains(message) != true)
+        if (IsGenerating || _operationGate.IsBusy || !message.IsUser ||
+            SelectedConversation?.Messages.Contains(message) != true)
         {
             return;
         }
@@ -215,7 +277,8 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
         var messageIndex = conversation.Messages.IndexOf(message);
         var editedText = message.DraftContent.Trim();
-        if (messageIndex < 0 || string.IsNullOrWhiteSpace(editedText))
+        if (messageIndex < 0 ||
+            (string.IsNullOrWhiteSpace(editedText) && message.Attachments.Count == 0))
         {
             StatusText = "消息内容不能为空";
             return;
@@ -226,20 +289,33 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             return;
         }
 
-        message.Content = editedText;
-        message.DraftContent = editedText;
-        message.IsEditing = false;
-        RemoveMessagesAfter(conversation, messageIndex);
-
-        if (conversation.Messages.Take(messageIndex).All(x => !x.IsUser))
+        var generationLease = _operationGate.TryAcquireGeneration(this);
+        if (generationLease is null)
         {
-            conversation.Title = CreateConversationTitle(editedText);
+            StatusText = "另一个聊天窗口正在处理附件或生成回复，请稍后再试";
+            return;
         }
 
-        _store.Touch(conversation);
-        TrySaveStore();
-        StatusText = string.Empty;
-        await GenerateResponseForConversationAsync(conversation, systemPrompt);
+        using (generationLease)
+        {
+            message.Content = editedText;
+            message.DraftContent = editedText;
+            message.IsEditing = false;
+            RemoveMessagesAfter(conversation, messageIndex);
+
+            if (conversation.Messages.Take(messageIndex).All(x => !x.IsUser))
+            {
+                conversation.Title = CreateConversationTitle(
+                    string.IsNullOrWhiteSpace(editedText)
+                        ? message.Attachments[0].FileName
+                        : editedText);
+            }
+
+            _store.Touch(conversation);
+            TrySaveStore();
+            StatusText = string.Empty;
+            await GenerateResponseForConversationAsync(conversation, systemPrompt);
+        }
     }
 
     public async Task RetryAssistantMessageAsync(AiConversationMessage assistantMessage)
@@ -263,11 +339,21 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             return;
         }
 
-        RemoveMessagesAfter(conversation, userMessageIndex);
-        _store.Touch(conversation);
-        TrySaveStore();
-        StatusText = string.Empty;
-        await GenerateResponseForConversationAsync(conversation, systemPrompt);
+        var generationLease = _operationGate.TryAcquireGeneration(this);
+        if (generationLease is null)
+        {
+            StatusText = "另一个聊天窗口正在处理附件或生成回复，请稍后再试";
+            return;
+        }
+
+        using (generationLease)
+        {
+            RemoveMessagesAfter(conversation, userMessageIndex);
+            _store.Touch(conversation);
+            TrySaveStore();
+            StatusText = string.Empty;
+            await GenerateResponseForConversationAsync(conversation, systemPrompt);
+        }
     }
 
     public void ReportError(string message)
@@ -275,13 +361,58 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         StatusText = message;
     }
 
+    public void AddPendingAttachments(IEnumerable<AiAttachment> attachments)
+    {
+        var accepted = attachments.ToList();
+        if (_isDisposed || _attachmentUpdateLease is null)
+        {
+            foreach (var attachment in accepted)
+            {
+                attachment.Dispose();
+            }
+
+            return;
+        }
+
+        foreach (var attachment in accepted)
+        {
+            PendingAttachments.Add(attachment);
+        }
+    }
+
+    public void RemovePendingAttachment(AiAttachment attachment)
+    {
+        ThrowIfDisposed();
+        if (!CanModifyAttachments)
+        {
+            return;
+        }
+
+        using var attachmentLease = _operationGate.TryAcquireAttachmentUpdate(this);
+        if (attachmentLease is null || !PendingAttachments.Remove(attachment))
+        {
+            return;
+        }
+
+        attachment.Dispose();
+    }
+
     private async Task GenerateResponseForConversationAsync(AiConversation conversation, string systemPrompt)
     {
-        var requestMessages = new[] { new AiChatMessage("system", systemPrompt) }
-            .Concat(conversation.Messages
-                .Where(x => !string.IsNullOrWhiteSpace(x.Content))
-                .Select(x => new AiChatMessage(x.Role, x.Content)))
-            .ToArray();
+        AiChatMessage[] requestMessages;
+        try
+        {
+            requestMessages = new[] { new AiChatMessage("system", systemPrompt) }
+                .Concat(conversation.Messages
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Content) || x.Attachments.Count > 0)
+                    .Select(CreateRequestMessage))
+                .ToArray();
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"无法读取历史附件：{ex.Message}";
+            return;
+        }
 
         var assistantMessage = new AiConversationMessage
         {
@@ -323,14 +454,30 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
         _isDisposed = true;
         _generationCancellation?.Cancel();
-        _generationCancellation?.Dispose();
+        _operationGate.StateChanged -= OnOperationGateStateChanged;
+        IsUpdatingAttachments = false;
+        Interlocked.Exchange(ref _attachmentUpdateLease, null)?.Dispose();
+        foreach (var attachment in PendingAttachments)
+        {
+            attachment.Dispose();
+        }
+        PendingAttachments.Clear();
+        foreach (var draft in _composerDrafts.Values)
+        {
+            DisposeAttachments(draft.Attachments);
+        }
+        _composerDrafts.Clear();
+        PendingAttachments.CollectionChanged -= OnPendingAttachmentsChanged;
+        Conversations.CollectionChanged -= OnConversationsCollectionChanged;
         DetachConversation(SelectedConversation);
     }
 
     partial void OnSelectedConversationChanged(AiConversation? oldValue, AiConversation? newValue)
     {
+        StoreComposerDraft(oldValue);
         DetachConversation(oldValue);
         AttachConversation(newValue);
+        RestoreComposerDraft(newValue);
         TrySetActiveConversation(newValue);
         OnPropertyChanged(nameof(HasMessages));
         ConversationContentChanged?.Invoke(this, EventArgs.Empty);
@@ -344,7 +491,76 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     partial void OnIsGeneratingChanged(bool value)
     {
         OnPropertyChanged(nameof(CanSend));
-        OnPropertyChanged(nameof(IsNotGenerating));
+        OnPropertyChanged(nameof(CanModifyAttachments));
+    }
+
+    partial void OnIsUpdatingAttachmentsChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanSend));
+        OnPropertyChanged(nameof(CanModifyAttachments));
+    }
+
+    public bool TryBeginAttachmentUpdate()
+    {
+        ThrowIfDisposed();
+        if (!CanModifyAttachments)
+        {
+            return false;
+        }
+
+        var lease = _operationGate.TryAcquireAttachmentUpdate(this);
+        if (lease is null)
+        {
+            return false;
+        }
+
+        _attachmentUpdateLease = lease;
+        IsUpdatingAttachments = true;
+        return true;
+    }
+
+    public void EndAttachmentUpdate()
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        IsUpdatingAttachments = false;
+        Interlocked.Exchange(ref _attachmentUpdateLease, null)?.Dispose();
+    }
+
+    private void OnOperationGateStateChanged(object? sender, EventArgs e)
+    {
+        void NotifyBindings()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            OnPropertyChanged(nameof(CanSend));
+            OnPropertyChanged(nameof(CanModifyAttachments));
+            OnPropertyChanged(nameof(IsAnyGenerationActive));
+            OnPropertyChanged(nameof(IsNoGenerationActive));
+            OnPropertyChanged(nameof(CanChangeConversation));
+        }
+
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            NotifyBindings();
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(NotifyBindings);
+        }
+    }
+
+    private void OnPendingAttachmentsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(HasPendingAttachments));
+        OnPropertyChanged(nameof(PendingAttachmentBytes));
+        OnPropertyChanged(nameof(CanSend));
     }
 
     partial void OnStatusTextChanged(string value)
@@ -365,6 +581,12 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         var profileStateIsUncertain = false;
         var profileWriteWasRolledBack = false;
         string? blockedWriteStatus = null;
+        var actionExecutionWasAuthorized = false;
+        var actionExecutionCompleted = false;
+        var actionExecutionWasDenied = false;
+        var listedActionIds = new HashSet<string>(StringComparer.Ordinal);
+        var describedActionIds = new HashSet<string>(StringComparer.Ordinal);
+        var listedAppSettingNames = new HashSet<string>(StringComparer.Ordinal);
 
         try
         {
@@ -382,7 +604,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
                 await foreach (var update in _aiService.StreamChatCompletionWithToolsAsync(
                                    agentMessages,
-                                   _profileAiService.Tools,
+                                   _profileAiService.Tools.Concat(_actionAiService.Tools).ToArray(),
                                    cancellationToken: cancellationToken))
                 {
                     if (update.Completion is not null)
@@ -440,8 +662,21 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                         $"AI 一次请求了 {toolCalls.Count} 个工具调用，超过安全上限 {maximumToolCallsPerRound}。");
                 }
 
+                if (toolCalls.Count(toolCall =>
+                        toolCall.Name == ClassIslandActionAiService.ExecuteActionsToolName) > 1)
+                {
+                    throw new InvalidOperationException(
+                        "AI 在同一轮拆分了多个行动执行批次，已在显示审批前拒绝。请将同一请求的全部行动合并为一个批次。");
+                }
+
                 await UpdateAssistantContentAsync(assistantMessage, content.ToString());
                 streamedContent.Clear();
+
+                var listedBeforeRound = new HashSet<string>(listedActionIds, StringComparer.Ordinal);
+                var describedBeforeRound = new HashSet<string>(describedActionIds, StringComparer.Ordinal);
+                var listedAppSettingsBeforeRound = new HashSet<string>(
+                    listedAppSettingNames,
+                    StringComparer.Ordinal);
 
                 agentMessages.Add(new AiChatMessage(
                     "assistant",
@@ -457,7 +692,18 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                         GetToolActivityText(toolCall.Name));
 
                     string toolResult;
-                    if (blockedWriteStatus is not null &&
+                    if ((actionExecutionWasDenied || actionExecutionWasAuthorized) &&
+                        toolCall.Name == ClassIslandActionAiService.ExecuteActionsToolName)
+                    {
+                        toolResult = JsonSerializer.Serialize(new
+                        {
+                            status = actionExecutionWasDenied ? "denied" : "already_executed",
+                            message = actionExecutionWasDenied
+                                ? "用户已拒绝本轮行动执行，不再重复询问。"
+                                : "本轮已经审批并执行过一个行动批次，不允许拆分或重复执行。"
+                        });
+                    }
+                    else if (blockedWriteStatus is not null &&
                         toolCall.Name == ClassIslandProfileAiService.PatchProfileToolName)
                     {
                         toolResult = JsonSerializer.Serialize(new
@@ -468,6 +714,21 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                                 : "本轮档案提交已经发生保存或回滚异常，为避免扩大影响，不再执行后续写入。"
                         });
                     }
+                    else if (ClassIslandActionAiService.OwnsTool(toolCall.Name))
+                    {
+                        toolResult = await _actionAiService.ExecuteToolAsync(
+                            toolCall,
+                            async preview =>
+                            {
+                                var isAllowed = await _confirmActionExecutionAsync(preview);
+                                actionExecutionWasAuthorized |= isAllowed;
+                                return isAllowed;
+                            },
+                            listedBeforeRound,
+                            describedBeforeRound,
+                            listedAppSettingsBeforeRound,
+                            cancellationToken);
+                    }
                     else
                     {
                         toolResult = await _profileAiService.ExecuteToolAsync(
@@ -477,6 +738,26 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                     }
 
                     var toolStatus = TryGetToolStatus(toolResult);
+                    if (toolCall.Name == ClassIslandActionAiService.ListActionsToolName &&
+                        string.Equals(toolStatus, "success", StringComparison.Ordinal))
+                    {
+                        AddActionIds(toolResult, listedActionIds);
+                    }
+                    if (toolCall.Name == ClassIslandActionAiService.DescribeActionsToolName &&
+                        string.Equals(toolStatus, "success", StringComparison.Ordinal))
+                    {
+                        AddActionIds(toolResult, describedActionIds);
+                    }
+                    if (toolCall.Name == ClassIslandActionAiService.ListAppSettingsToolName &&
+                        string.Equals(toolStatus, "success", StringComparison.Ordinal))
+                    {
+                        AddAppSettingNames(toolResult, listedAppSettingNames);
+                    }
+                    if (toolCall.Name == ClassIslandActionAiService.ExecuteActionsToolName)
+                    {
+                        actionExecutionCompleted |= toolStatus is "completed" or "partially_completed";
+                        actionExecutionWasDenied |= string.Equals(toolStatus, "denied", StringComparison.Ordinal);
+                    }
                     profileWasModified |= string.Equals(toolStatus, "applied", StringComparison.Ordinal);
                     profileStateIsUncertain |= string.Equals(toolStatus, "possibly_applied", StringComparison.Ordinal);
                     profileWriteWasRolledBack |= string.Equals(toolStatus, "rolled_back", StringComparison.Ordinal);
@@ -525,7 +806,11 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                         : "档案写入失败，已自动恢复并保存修改前的内容。"
                     : profileWasModified
                         ? "档案修改已经保存；已停止生成后续回复"
-                        : "已停止生成";
+                        : actionExecutionCompleted
+                            ? "行动已执行；已停止生成后续回复"
+                            : actionExecutionWasAuthorized
+                                ? "已停止生成并请求中断行动；部分行动可能已经执行"
+                                : "已停止生成";
         }
         catch (Exception ex)
         {
@@ -540,7 +825,11 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                         : $"档案写入失败但已回滚；后续回复失败：{ex.Message}"
                     : profileWasModified
                         ? $"档案修改已经保存，但生成后续回复失败：{ex.Message}"
-                        : $"请求失败：{ex.Message}";
+                        : actionExecutionCompleted
+                            ? $"行动已经执行，但生成后续回复失败：{ex.Message}"
+                            : actionExecutionWasAuthorized
+                                ? $"行动已获允许且可能已经执行，但请求未完整结束：{ex.Message}"
+                                : $"请求失败：{ex.Message}";
         }
         finally
         {
@@ -582,6 +871,10 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         {
             ClassIslandProfileAiService.ReadProfileToolName => "正在查看档案...",
             ClassIslandProfileAiService.PatchProfileToolName => "正在生成并校验修改预览...",
+            ClassIslandActionAiService.ListActionsToolName => "正在查找可用行动...",
+            ClassIslandActionAiService.DescribeActionsToolName => "正在核对行动参数...",
+            ClassIslandActionAiService.ListAppSettingsToolName => "正在查找可用应用设置...",
+            ClassIslandActionAiService.ExecuteActionsToolName => "正在生成并校验行动执行预览...",
             _ => "正在处理档案请求..."
         };
     }
@@ -593,6 +886,38 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             return string.Equals(status, "success", StringComparison.Ordinal)
                 ? "正在理解档案..."
                 : "档案读取未完成，正在整理结果...";
+        }
+
+        if (toolName == ClassIslandActionAiService.ListActionsToolName)
+        {
+            return string.Equals(status, "success", StringComparison.Ordinal)
+                ? "正在匹配行动..."
+                : "行动目录读取未完成，正在整理结果...";
+        }
+
+        if (toolName == ClassIslandActionAiService.DescribeActionsToolName)
+        {
+            return string.Equals(status, "success", StringComparison.Ordinal)
+                ? "正在准备行动参数..."
+                : "行动参数读取未完成，正在整理结果...";
+        }
+
+        if (toolName == ClassIslandActionAiService.ListAppSettingsToolName)
+        {
+            return string.Equals(status, "success", StringComparison.Ordinal)
+                ? "正在匹配应用设置和值..."
+                : "应用设置目录读取未完成，正在整理结果...";
+        }
+
+        if (toolName == ClassIslandActionAiService.ExecuteActionsToolName)
+        {
+            return status switch
+            {
+                "completed" => "行动已执行，正在核对结果...",
+                "partially_completed" => "部分行动未完成，正在核对结果...",
+                "denied" => "行动执行已取消，正在整理结果...",
+                _ => "行动未执行，正在整理结果..."
+            };
         }
 
         if (toolName != ClassIslandProfileAiService.PatchProfileToolName)
@@ -622,6 +947,58 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         catch (JsonException)
         {
             return null;
+        }
+    }
+
+    private static void AddActionIds(string toolResult, ISet<string> actionIds)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(toolResult);
+            if (!document.RootElement.TryGetProperty("actions", out var actions) ||
+                actions.ValueKind != JsonValueKind.Array)
+            {
+                return;
+            }
+
+            foreach (var action in actions.EnumerateArray())
+            {
+                if (action.TryGetProperty("id", out var id) &&
+                    id.GetString() is { Length: > 0 } value)
+                {
+                    actionIds.Add(value);
+                }
+            }
+        }
+        catch (JsonException)
+        {
+            // The tool dispatcher will surface malformed tool results separately.
+        }
+    }
+
+    private static void AddAppSettingNames(string toolResult, ISet<string> propertyNames)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(toolResult);
+            if (!document.RootElement.TryGetProperty("settings", out var settings) ||
+                settings.ValueKind != JsonValueKind.Array)
+            {
+                return;
+            }
+
+            foreach (var setting in settings.EnumerateArray())
+            {
+                if (setting.TryGetProperty("propertyName", out var propertyName) &&
+                    propertyName.GetString() is { Length: > 0 } value)
+                {
+                    propertyNames.Add(value);
+                }
+            }
+        }
+        catch (JsonException)
+        {
+            // The tool dispatcher will surface malformed tool results separately.
         }
     }
 
@@ -659,10 +1036,59 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         }
     }
 
+    private static AiChatMessage CreateRequestMessage(AiConversationMessage message)
+    {
+        if (message.Attachments.Count == 0)
+        {
+            return new AiChatMessage(message.Role, message.Content);
+        }
+
+        var contents = new List<AiChatContent>(message.Attachments.Count);
+        foreach (var attachment in message.Attachments)
+        {
+            switch (attachment.Kind)
+            {
+                case AiAttachmentKind.Text:
+                    contents.Add(new AiTextContent(CreateAttachmentText(attachment)));
+                    break;
+                case AiAttachmentKind.Image:
+                case AiAttachmentKind.Pdf:
+                    contents.Add(new AiDataContent(
+                        attachment.Data ?? throw new InvalidDataException(
+                            $"附件 {attachment.FileName} 缺少原始数据。"),
+                        attachment.MediaType,
+                        attachment.FileName));
+                    break;
+                default:
+                    throw new InvalidDataException($"附件 {attachment.FileName} 的类型无效。");
+            }
+        }
+
+        return new AiChatMessage(message.Role, message.Content)
+        {
+            Contents = contents
+        };
+    }
+
+    private static string CreateAttachmentText(AiAttachment attachment)
+    {
+        var id = attachment.Id.ToString("D");
+        return $"[附件开始 id={id} 文件名={JsonSerializer.Serialize(attachment.FileName)}]" +
+               Environment.NewLine +
+               (attachment.Text ?? string.Empty) +
+               Environment.NewLine +
+               $"[附件结束 id={id}]";
+    }
+
     private static void RemoveMessagesAfter(AiConversation conversation, int messageIndex)
     {
         while (conversation.Messages.Count > messageIndex + 1)
         {
+            foreach (var attachment in conversation.Messages[^1].Attachments)
+            {
+                attachment.Dispose();
+            }
+
             conversation.Messages.RemoveAt(conversation.Messages.Count - 1);
         }
     }
@@ -741,6 +1167,98 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         ConversationContentChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    private void OnConversationsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        var previousInputText = InputText;
+        var previousAttachments = PendingAttachments.ToList();
+        var selectedConversationWasRemoved = SelectedConversation is not null &&
+                                             !Conversations.Contains(SelectedConversation);
+        var discardedSelectedDraft = selectedConversationWasRemoved &&
+                                     (!string.IsNullOrEmpty(previousInputText) || previousAttachments.Count > 0);
+        if (selectedConversationWasRemoved)
+        {
+            SelectedConversation = Conversations.FirstOrDefault(x => x.Id == _store.ActiveConversationId)
+                                   ?? Conversations.FirstOrDefault();
+            DisposeAttachments(previousAttachments);
+        }
+
+        if (e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            foreach (var draft in _composerDrafts.Values)
+            {
+                DisposeAttachments(draft.Attachments);
+            }
+            _composerDrafts.Clear();
+        }
+        else if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace &&
+                 e.OldItems is not null)
+        {
+            foreach (AiConversation removedConversation in e.OldItems)
+            {
+                RemoveComposerDraft(removedConversation.Id);
+            }
+        }
+
+        if (discardedSelectedDraft)
+        {
+            StatusText = "当前对话已在另一个窗口删除，未发送的正文和附件草稿已清除";
+        }
+    }
+
+    private void StoreComposerDraft(AiConversation? conversation)
+    {
+        if (conversation is null)
+        {
+            return;
+        }
+
+        RemoveComposerDraft(conversation.Id);
+        var attachments = PendingAttachments.ToList();
+        PendingAttachments.Clear();
+        var text = InputText;
+        InputText = string.Empty;
+        if (!string.IsNullOrEmpty(text) || attachments.Count > 0)
+        {
+            _composerDrafts[conversation.Id] = new ComposerDraft(text, attachments);
+        }
+    }
+
+    private void RestoreComposerDraft(AiConversation? conversation)
+    {
+        InputText = string.Empty;
+        if (conversation is null || !_composerDrafts.Remove(conversation.Id, out var draft))
+        {
+            return;
+        }
+
+        InputText = draft.Text;
+        foreach (var attachment in draft.Attachments)
+        {
+            PendingAttachments.Add(attachment);
+        }
+    }
+
+    private void RemoveComposerDraft(Guid conversationId)
+    {
+        if (_composerDrafts.Remove(conversationId, out var draft))
+        {
+            DisposeAttachments(draft.Attachments);
+        }
+    }
+
+    private static void DisposeAttachments(IEnumerable<AiAttachment> attachments)
+    {
+        foreach (var attachment in attachments)
+        {
+            attachment.Dispose();
+        }
+    }
+
     private void OnMessagePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(AiConversationMessage.Content) or nameof(AiConversationMessage.ActivityText))
@@ -787,4 +1305,6 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     {
         ObjectDisposedException.ThrowIf(_isDisposed, this);
     }
+
+    private sealed record ComposerDraft(string Text, IReadOnlyList<AiAttachment> Attachments);
 }

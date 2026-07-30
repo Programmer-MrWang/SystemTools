@@ -82,8 +82,10 @@ public partial class Plugin : PluginBase
         if (GlobalConstants.MainConfig?.Data.EnableAiService == true)
         {
             services.AddSingleton<AiConversationStore>();
+            services.AddSingleton<AiChatOperationGate>();
             services.AddSingleton<AiPromptService>();
             services.AddSingleton<ClassIslandProfileAiService>();
+            services.AddSingleton<ClassIslandActionAiService>();
             services.AddSingleton<AiChatWindowService>();
         }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ClassIsland.Core.Abstractions.Controls;
@@ -60,6 +62,16 @@ public partial class AiChatSettingsPage : SettingsPageBase
 
     private async void MessageInput_OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (e.Key == Key.V && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            if (await TryPasteBitmapAsync())
+            {
+                e.Handled = true;
+            }
+
+            return;
+        }
+
         if (e.Key != Key.Enter || !e.KeyModifiers.HasFlag(KeyModifiers.Alt))
         {
             return;
@@ -67,6 +79,103 @@ public partial class AiChatSettingsPage : SettingsPageBase
 
         e.Handled = true;
         await SendCurrentMessageAsync();
+    }
+
+    private async void AddAttachmentButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (!ViewModel.TryBeginAttachmentUpdate())
+        {
+            return;
+        }
+
+        try
+        {
+            var storageProvider = TopLevel.GetTopLevel(this)?.StorageProvider
+                                  ?? throw new InvalidOperationException("无法访问文件选择器");
+            var files = await storageProvider.OpenFilePickerAsync(
+                AiAttachmentService.CreateFilePickerOptions());
+            await AddFilesAsync(files.OfType<IStorageFile>().ToArray());
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ReportError($"无法添加附件：{ex.Message}");
+        }
+        finally
+        {
+            ViewModel.EndAttachmentUpdate();
+        }
+    }
+
+    private void RemovePendingAttachmentButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button { CommandParameter: AiAttachment attachment })
+        {
+            ViewModel.RemovePendingAttachment(attachment);
+        }
+    }
+
+    private async Task<bool> TryPasteBitmapAsync()
+    {
+        if (!ViewModel.TryBeginAttachmentUpdate())
+        {
+            return false;
+        }
+
+        try
+        {
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+            if (clipboard is null || await clipboard.TryGetTextAsync() is not null)
+            {
+                return false;
+            }
+
+            using var bitmap = await clipboard.TryGetBitmapAsync();
+            if (bitmap is null)
+            {
+                return false;
+            }
+
+            if (AiAttachmentService.TryCreatePastedBitmap(
+                    bitmap,
+                    ViewModel.PendingAttachments.Count,
+                    ViewModel.PendingAttachmentBytes,
+                    out var attachment,
+                    out var error))
+            {
+                ViewModel.AddPendingAttachments([attachment!]);
+                ViewModel.ReportError(string.Empty);
+                return true;
+            }
+
+            ViewModel.ReportError(error!);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ReportError($"无法粘贴图片：{ex.Message}");
+            return true;
+        }
+        finally
+        {
+            ViewModel.EndAttachmentUpdate();
+        }
+    }
+
+    private async Task AddFilesAsync(IReadOnlyList<IStorageFile> files)
+    {
+        if (files.Count == 0)
+        {
+            return;
+        }
+
+        var result = await AiAttachmentService.LoadFilesAsync(
+            files,
+            ViewModel.PendingAttachments.Count,
+            ViewModel.PendingAttachmentBytes);
+        ViewModel.AddPendingAttachments(result.Accepted);
+        ViewModel.ReportError(result.Rejected.Count == 0
+            ? string.Empty
+            : "以下项目未添加：" + string.Join("；", result.Rejected));
     }
 
     private async void CopyMessageButton_OnClick(object? sender, RoutedEventArgs e)
@@ -237,10 +346,13 @@ public partial class AiChatSettingsPage : SettingsPageBase
             IAppHost.GetService<AiConversationStore>(),
             IAppHost.GetService<IOpenAiCompatibleService>(),
             IAppHost.GetService<AiPromptService>(),
+            IAppHost.GetService<AiChatOperationGate>(),
             GlobalConstants.MainConfig!,
             IAppHost.GetService<SystemToolsNotificationProvider>(),
             IAppHost.GetService<ClassIslandProfileAiService>(),
-            ConfirmProfileModificationAsync);
+            IAppHost.GetService<ClassIslandActionAiService>(),
+            ConfirmProfileModificationAsync,
+            ConfirmActionExecutionAsync);
     }
 
     private async Task SendCurrentMessageAsync()
@@ -323,6 +435,83 @@ public partial class AiChatSettingsPage : SettingsPageBase
                 }
             },
             PrimaryButtonText = "允许并保存",
+            CloseButtonText = "取消",
+            DefaultButton = FAContentDialogButton.Close
+        };
+
+        return await dialog.ShowAsync(topLevel) == FAContentDialogResult.Primary;
+    }
+
+    private Task<bool> ConfirmActionExecutionAsync(ActionExecutionPreview preview)
+    {
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            return ShowActionExecutionDialogAsync(preview);
+        }
+
+        var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Dispatcher.UIThread.Post(async () =>
+        {
+            try
+            {
+                completion.SetResult(await ShowActionExecutionDialogAsync(preview));
+            }
+            catch (Exception ex)
+            {
+                completion.SetException(ex);
+            }
+        });
+        return completion.Task;
+    }
+
+    private async Task<bool> ShowActionExecutionDialogAsync(ActionExecutionPreview preview)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is null || _isDisposed)
+        {
+            return false;
+        }
+
+        var actionText = string.Join(
+            Environment.NewLine + Environment.NewLine,
+            preview.Items.Select(item =>
+                $"{item.Index}. {item.Name}\nID: {item.Id}\n参数: {item.SettingsJson}"));
+        var dialog = new FAContentDialog
+        {
+            Title = preview.Items.Count == 1
+                ? "允许 AI 执行此行动？"
+                : $"允许 AI 执行这 {preview.Items.Count} 项行动？",
+            Content = new StackPanel
+            {
+                Spacing = 12,
+                MaxWidth = 640,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = $"执行说明：{preview.Summary}",
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                    },
+                    new ScrollViewer
+                    {
+                        MaxHeight = 320,
+                        HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+                        VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+                        Content = new TextBlock
+                        {
+                            Text = actionText,
+                            FontFamily = new Avalonia.Media.FontFamily("Consolas"),
+                            TextWrapping = Avalonia.Media.TextWrapping.NoWrap
+                        }
+                    },
+                    new TextBlock
+                    {
+                        Text = "这些行动可能启动程序、模拟输入、修改文件或系统状态。允许后将按上方顺序立即执行；请确认行动 ID 和参数符合你的要求。",
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                    }
+                }
+            },
+            PrimaryButtonText = "允许执行",
             CloseButtonText = "取消",
             DefaultButton = FAContentDialogButton.Close
         };

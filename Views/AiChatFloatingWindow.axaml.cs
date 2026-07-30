@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ClassIsland.Shared;
@@ -31,9 +34,11 @@ public partial class AiChatFloatingWindow : Window
             IAppHost.GetService<AiConversationStore>(),
             IAppHost.GetService<IOpenAiCompatibleService>(),
             IAppHost.GetService<AiPromptService>(),
+            IAppHost.GetService<AiChatOperationGate>(),
             IAppHost.GetService<MainConfigHandler>(),
             IAppHost.GetService<SystemToolsNotificationProvider>(),
-            IAppHost.GetService<ClassIslandProfileAiService>())
+            IAppHost.GetService<ClassIslandProfileAiService>(),
+            IAppHost.GetService<ClassIslandActionAiService>())
     {
     }
 
@@ -41,18 +46,23 @@ public partial class AiChatFloatingWindow : Window
         AiConversationStore store,
         IOpenAiCompatibleService aiService,
         AiPromptService promptService,
+        AiChatOperationGate operationGate,
         MainConfigHandler configHandler,
         SystemToolsNotificationProvider notificationProvider,
-        ClassIslandProfileAiService profileAiService)
+        ClassIslandProfileAiService profileAiService,
+        ClassIslandActionAiService actionAiService)
     {
         ViewModel = new AiChatSettingsViewModel(
             store,
             aiService,
             promptService,
+            operationGate,
             configHandler,
             notificationProvider,
             profileAiService,
-            ConfirmProfileModificationAsync);
+            actionAiService,
+            ConfirmProfileModificationAsync,
+            ConfirmActionExecutionAsync);
         DataContext = ViewModel;
         InitializeComponent();
 
@@ -93,6 +103,16 @@ public partial class AiChatFloatingWindow : Window
 
     private async void MessageInput_OnKeyDown(object? sender, KeyEventArgs e)
     {
+        if (e.Key == Key.V && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            if (await TryPasteBitmapAsync())
+            {
+                e.Handled = true;
+            }
+
+            return;
+        }
+
         if (e.Key != Key.Enter || !e.KeyModifiers.HasFlag(KeyModifiers.Alt))
         {
             return;
@@ -100,6 +120,112 @@ public partial class AiChatFloatingWindow : Window
 
         e.Handled = true;
         await SendCurrentMessageAsync();
+    }
+
+    private async void AddAttachmentButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (!ViewModel.TryBeginAttachmentUpdate())
+        {
+            return;
+        }
+
+        try
+        {
+            var files = await StorageProvider.OpenFilePickerAsync(
+                AiAttachmentService.CreateFilePickerOptions());
+
+            await AddFilesAsync(files.OfType<IStorageFile>().ToArray());
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ReportError($"无法添加附件：{ex.Message}");
+        }
+        finally
+        {
+            ViewModel.EndAttachmentUpdate();
+        }
+    }
+
+    private void RemovePendingAttachmentButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button { CommandParameter: AiAttachment attachment })
+        {
+            ViewModel.RemovePendingAttachment(attachment);
+        }
+    }
+
+    private async Task<bool> TryPasteBitmapAsync()
+    {
+        if (!ViewModel.TryBeginAttachmentUpdate())
+        {
+            return false;
+        }
+
+        try
+        {
+            var clipboard = Clipboard;
+            if (clipboard is null)
+            {
+                return false;
+            }
+
+            // Text keeps the TextBox's normal paste behavior even if another format is also present.
+            if (await clipboard.TryGetTextAsync() is not null)
+            {
+                return false;
+            }
+
+            using var bitmap = await clipboard.TryGetBitmapAsync();
+            if (bitmap is null)
+            {
+                return false;
+            }
+
+            if (AiAttachmentService.TryCreatePastedBitmap(
+                    bitmap,
+                    ViewModel.PendingAttachments.Count,
+                    ViewModel.PendingAttachmentBytes,
+                    out var attachment,
+                    out var error))
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    ViewModel.AddPendingAttachments([attachment!]);
+                    ViewModel.ReportError(string.Empty);
+                });
+                return true;
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(() => ViewModel.ReportError(error!));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+                ViewModel.ReportError($"无法粘贴图片：{ex.Message}"));
+            return true;
+        }
+        finally
+        {
+            ViewModel.EndAttachmentUpdate();
+        }
+    }
+
+    private async Task AddFilesAsync(IReadOnlyList<IStorageFile> files)
+    {
+        if (files.Count == 0)
+        {
+            return;
+        }
+
+        var result = await AiAttachmentService.LoadFilesAsync(
+            files,
+            ViewModel.PendingAttachments.Count,
+            ViewModel.PendingAttachmentBytes);
+        ViewModel.AddPendingAttachments(result.Accepted);
+        ViewModel.ReportError(result.Rejected.Count == 0
+            ? string.Empty
+            : "以下项目未添加：" + string.Join("；", result.Rejected));
     }
 
     private async void CopyMessageButton_OnClick(object? sender, RoutedEventArgs e)
@@ -292,6 +418,83 @@ public partial class AiChatFloatingWindow : Window
                 }
             },
             PrimaryButtonText = "允许并保存",
+            CloseButtonText = "取消",
+            DefaultButton = FAContentDialogButton.Close
+        };
+
+        return await dialog.ShowAsync(topLevel) == FAContentDialogResult.Primary;
+    }
+
+    private Task<bool> ConfirmActionExecutionAsync(ActionExecutionPreview preview)
+    {
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            return ShowActionExecutionDialogAsync(preview);
+        }
+
+        var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Dispatcher.UIThread.Post(async () =>
+        {
+            try
+            {
+                completion.SetResult(await ShowActionExecutionDialogAsync(preview));
+            }
+            catch (Exception ex)
+            {
+                completion.SetException(ex);
+            }
+        });
+        return completion.Task;
+    }
+
+    private async Task<bool> ShowActionExecutionDialogAsync(ActionExecutionPreview preview)
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is null || _isDisposed)
+        {
+            return false;
+        }
+
+        var actionText = string.Join(
+            Environment.NewLine + Environment.NewLine,
+            preview.Items.Select(item =>
+                $"{item.Index}. {item.Name}\nID: {item.Id}\n参数: {item.SettingsJson}"));
+        var dialog = new FAContentDialog
+        {
+            Title = preview.Items.Count == 1
+                ? "允许 AI 执行此行动？"
+                : $"允许 AI 执行这 {preview.Items.Count} 项行动？",
+            Content = new StackPanel
+            {
+                Spacing = 12,
+                MaxWidth = 640,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = $"执行说明：{preview.Summary}",
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                    },
+                    new ScrollViewer
+                    {
+                        MaxHeight = 320,
+                        HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+                        VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+                        Content = new TextBlock
+                        {
+                            Text = actionText,
+                            FontFamily = new Avalonia.Media.FontFamily("Consolas"),
+                            TextWrapping = Avalonia.Media.TextWrapping.NoWrap
+                        }
+                    },
+                    new TextBlock
+                    {
+                        Text = "这些行动可能启动程序、模拟输入、修改文件或系统状态。允许后将按上方顺序立即执行；请确认行动 ID 和参数符合你的要求。",
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap
+                    }
+                }
+            },
+            PrimaryButtonText = "允许执行",
             CloseButtonText = "取消",
             DefaultButton = FAContentDialogButton.Close
         };

@@ -35,6 +35,7 @@
                                     Height="34"
                                     Padding="0"
                                     Content="{ci:FluentIcon &#xE53B;}"
+                                    IsEnabled="{Binding CanChangeConversation}"
                                     ToolTip.Tip="新建对话"
                                     Theme="{StaticResource TransparentButton}"
                                     Click="NewConversationButton_OnClick" />
@@ -42,6 +43,7 @@
 
                         <ListBox Grid.Row="1"
                                  Margin="4,0,4,8"
+                                 IsEnabled="{Binding CanChangeConversation}"
                                  ItemsSource="{Binding Conversations}"
                                  SelectedItem="{Binding SelectedConversation, Mode=TwoWay}">
                             <ListBox.ItemTemplate>
@@ -62,6 +64,7 @@
                                                 Padding="0"
                                                 VerticalAlignment="Center"
                                                 Content="{ci:FluentIcon &#xE61D;}"
+                                                IsEnabled="{Binding DataContext.CanChangeConversation, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip.Tip="删除对话"
                                                 Theme="{StaticResource TransparentButton}"
@@ -82,6 +85,7 @@
                                  VerticalContentAlignment="Center"
                                  Background="Transparent"
                                  BorderThickness="0"
+                                 IsEnabled="{Binding CanChangeConversation}"
                                  Text="{Binding SelectedConversation.Title, Mode=TwoWay}"
                                  LostFocus="ConversationTitle_OnLostFocus" />
                         <ToggleSwitch Grid.Column="1"
@@ -117,8 +121,56 @@
                                                         Spacing="2">
                                                 <Border Padding="12,9"
                                                         CornerRadius="6"
-                                                        Background="{DynamicResource AccentFillColorSecondaryBrush}">
+                                                    Background="{DynamicResource AccentFillColorSecondaryBrush}">
                                                     <StackPanel Spacing="5">
+                                                        <ItemsControl ItemsSource="{Binding Attachments}"
+                                                                      IsVisible="{Binding HasAttachments}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel Orientation="Horizontal" />
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Margin="0,0,6,6"
+                                                                            Padding="6"
+                                                                            CornerRadius="4"
+                                                                            BorderThickness="1"
+                                                                            BorderBrush="{DynamicResource TextOnAccentFillColorSecondaryBrush}">
+                                                                        <Grid Width="180" ColumnDefinitions="Auto,*">
+                                                                            <Border Width="52"
+                                                                                    Height="52"
+                                                                                    CornerRadius="3"
+                                                                                    ClipToBounds="True"
+                                                                                    IsVisible="{Binding IsImage}">
+                                                                                <Image Source="{Binding Thumbnail}"
+                                                                                       Stretch="UniformToFill" />
+                                                                            </Border>
+                                                                            <ci:FluentIcon Width="52"
+                                                                                           Height="52"
+                                                                                           Glyph="&#xE8A5;"
+                                                                                           FontSize="24"
+                                                                                           HorizontalAlignment="Center"
+                                                                                           VerticalAlignment="Center"
+                                                                                           Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}"
+                                                                                           IsVisible="{Binding IsFile}" />
+                                                                            <StackPanel Grid.Column="1"
+                                                                                        Margin="8,0,0,0"
+                                                                                        VerticalAlignment="Center">
+                                                                                <TextBlock Text="{Binding FileName}"
+                                                                                           MaxLines="2"
+                                                                                           TextWrapping="Wrap"
+                                                                                           TextTrimming="CharacterEllipsis"
+                                                                                           Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                                                                <TextBlock Text="{Binding DetailText}"
+                                                                                           FontSize="11"
+                                                                                           Foreground="{DynamicResource TextOnAccentFillColorSecondaryBrush}" />
+                                                                            </StackPanel>
+                                                                        </Grid>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
                                                         <TextBlock Text="{Binding Content}"
                                                                    IsVisible="{Binding IsNotEditing}"
                                                                    TextWrapping="Wrap"
@@ -253,11 +305,76 @@
                             Margin="8,0,8,8"
                             Padding="10,8"
                             CornerRadius="6"
-                            BorderThickness="1"
-                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
-                            Background="{DynamicResource ControlFillColorDefaultBrush}">
-                        <Grid RowDefinitions="*,Auto">
-                            <TextBox MinHeight="58"
+                             BorderThickness="1"
+                             BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                             Background="{DynamicResource ControlFillColorDefaultBrush}">
+                        <Grid RowDefinitions="Auto,*,Auto">
+                            <ScrollViewer MaxHeight="116"
+                                          Margin="0,0,0,6"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          VerticalScrollBarVisibility="Auto"
+                                          IsEnabled="{Binding CanModifyAttachments}"
+                                          IsVisible="{Binding HasPendingAttachments}">
+                                <ItemsControl ItemsSource="{Binding PendingAttachments}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Margin="0,0,6,6"
+                                                    Padding="6"
+                                                    CornerRadius="4"
+                                                    BorderThickness="1"
+                                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
+                                                <Grid Width="190" ColumnDefinitions="Auto,*,Auto">
+                                                    <Border Width="44"
+                                                            Height="44"
+                                                            CornerRadius="3"
+                                                            ClipToBounds="True"
+                                                            IsVisible="{Binding IsImage}">
+                                                        <Image Source="{Binding Thumbnail}"
+                                                               Stretch="UniformToFill" />
+                                                    </Border>
+                                                    <ci:FluentIcon Width="44"
+                                                                   Height="44"
+                                                                   Glyph="&#xE8A5;"
+                                                                   FontSize="22"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                                                   IsVisible="{Binding IsFile}" />
+                                                    <StackPanel Grid.Column="1"
+                                                                Margin="7,0,4,0"
+                                                                VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding FileName}"
+                                                                   MaxLines="1"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding DetailText}"
+                                                                   FontSize="11"
+                                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                                    </StackPanel>
+                                                    <Button Grid.Column="2"
+                                                            Width="28"
+                                                            Height="28"
+                                                            Padding="0"
+                                                            Content="{ci:FluentIcon &#xE670;}"
+                                                            CommandParameter="{Binding}"
+                                                            IsEnabled="{Binding DataContext.CanModifyAttachments, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            ToolTip.Tip="移除附件"
+                                                            Theme="{StaticResource TransparentButton}"
+                                                            Click="RemovePendingAttachmentButton_OnClick" />
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <TextBox x:Name="MessageInput"
+                                     Grid.Row="1"
+                                     MinHeight="58"
                                      MaxHeight="140"
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
@@ -267,13 +384,23 @@
                                      Text="{Binding InputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      KeyDown="MessageInput_OnKeyDown" />
 
-                            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto" Margin="4,6,2,0">
-                                <TextBlock Text="{Binding CurrentModelName}"
+                            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="4,6,2,0">
+                                <Button Width="36"
+                                        Height="36"
+                                        Padding="0"
+                                        Content="{ci:FluentIcon &#xE00C;}"
+                                        ToolTip.Tip="添加文件或图片"
+                                        Theme="{StaticResource TransparentButton}"
+                                        IsEnabled="{Binding CanModifyAttachments}"
+                                        Click="AddAttachmentButton_OnClick" />
+                                <TextBlock Grid.Column="1"
+                                           Margin="4,0,0,0"
+                                           Text="{Binding CurrentModelName}"
                                            VerticalAlignment="Center"
                                            TextTrimming="CharacterEllipsis"
                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                                 <Button x:Name="ReturnToBottomButton"
-                                        Grid.Column="1"
+                                        Grid.Column="2"
                                         Width="36"
                                         Height="36"
                                         Padding="0"
@@ -282,22 +409,23 @@
                                         ToolTip.Tip="返回底部"
                                         Theme="{StaticResource TransparentButton}"
                                         Click="ReturnToBottomButton_OnClick" />
-                                <Button Grid.Column="2"
+                                <Button Grid.Column="3"
                                         Width="36"
                                         Height="36"
                                         Padding="0"
                                         Content="{ci:FluentIcon &#xEF11;}"
                                         ToolTip.Tip="发送"
-                                        IsVisible="{Binding IsNotGenerating}"
+                                        IsVisible="{Binding IsNoGenerationActive}"
                                         IsEnabled="{Binding CanSend}"
                                         Click="SendButton_OnClick" />
-                                <Button Grid.Column="3"
+                                <Button Grid.Column="4"
                                         Width="36"
                                         Height="36"
                                         Padding="0"
                                         Content="{ci:FluentIcon &#xEE67;}"
                                         ToolTip.Tip="停止生成"
-                                        IsVisible="{Binding IsGenerating}"
+                                        IsVisible="{Binding IsAnyGenerationActive}"
+                                        IsEnabled="{Binding IsGenerating}"
                                         Click="StopButton_OnClick" />
                             </Grid>
                         </Grid>

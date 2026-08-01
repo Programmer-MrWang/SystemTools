@@ -26,16 +26,53 @@ public sealed class MainWindowTextOcclusionService(
 
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(2) };
     private readonly SemaphoreSlim _recognitionLock = new(1, 1);
+    private readonly object _stateLock = new();
     private CancellationTokenSource? _cancellationTokenSource;
     private OcrEngine? _ocrEngine;
     private bool _hiddenByThisService;
     private IDisposable? _continuousCaptureLease;
+    private int _suspensionCount;
+    private bool _isShuttingDown;
 
     public void Start()
     {
+        lock (_stateLock)
+        {
+            _isShuttingDown = false;
+        }
+
         _timer.Tick -= OnTimerTick;
         _timer.Tick += OnTimerTick;
         ApplyConfig();
+    }
+
+    public IDisposable Suspend()
+    {
+        var shouldStop = false;
+        lock (_stateLock)
+        {
+            if (!_isShuttingDown)
+            {
+                shouldStop = _suspensionCount++ == 0;
+            }
+        }
+
+        if (shouldStop)
+        {
+            Stop(restoreMainWindow: false);
+        }
+
+        return new SuspensionLease(this);
+    }
+
+    public void Shutdown(bool restoreMainWindow = false)
+    {
+        lock (_stateLock)
+        {
+            _isShuttingDown = true;
+        }
+
+        Stop(restoreMainWindow);
     }
 
     public void Stop(bool restoreMainWindow = false)
@@ -56,7 +93,18 @@ public sealed class MainWindowTextOcclusionService(
 
     public void ApplyConfig()
     {
-        Stop(restoreMainWindow: !configHandler.Data.AutoHideMainWindowWhenOccluded);
+        bool isSuspended;
+        lock (_stateLock)
+        {
+            isSuspended = _isShuttingDown || _suspensionCount > 0;
+        }
+
+        Stop(restoreMainWindow: !isSuspended && !configHandler.Data.AutoHideMainWindowWhenOccluded);
+        if (isSuspended)
+        {
+            return;
+        }
+
         if (!configHandler.Data.AutoHideMainWindowWhenOccluded || !OperatingSystem.IsWindows())
         {
             return;
@@ -77,6 +125,45 @@ public sealed class MainWindowTextOcclusionService(
         _ = DetectAndApplyAsync(_cancellationTokenSource.Token);
     }
 
+    private void Resume()
+    {
+        bool shouldApply;
+        lock (_stateLock)
+        {
+            if (_suspensionCount == 0)
+            {
+                return;
+            }
+
+            _suspensionCount--;
+            shouldApply = _suspensionCount == 0 && !_isShuttingDown;
+        }
+
+        if (!shouldApply)
+        {
+            return;
+        }
+
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            ApplyConfig();
+        }
+        else
+        {
+            Dispatcher.UIThread.Post(ApplyConfig);
+        }
+    }
+
+    private sealed class SuspensionLease(MainWindowTextOcclusionService service) : IDisposable
+    {
+        private MainWindowTextOcclusionService? _service = service;
+
+        public void Dispose()
+        {
+            Interlocked.Exchange(ref _service, null)?.Resume();
+        }
+    }
+
     private async void OnTimerTick(object? sender, EventArgs e)
     {
         if (_cancellationTokenSource is { } source)
@@ -95,9 +182,12 @@ public sealed class MainWindowTextOcclusionService(
         try
         {
             using var frame = await backgroundCaptureService.CaptureAsync(cancellationToken);
-            if (frame == null || cancellationToken.IsCancellationRequested)
+            if (frame == null ||
+                cancellationToken.IsCancellationRequested ||
+                IsSuspendedOrShuttingDown())
             {
-                if (!cancellationToken.IsCancellationRequested)
+                if (!cancellationToken.IsCancellationRequested &&
+                    !IsSuspendedOrShuttingDown())
                 {
                     classIslandSettingsService.SetMainWindowVisible(true);
                     _hiddenByThisService = false;
@@ -106,7 +196,7 @@ public sealed class MainWindowTextOcclusionService(
             }
 
             var characterCount = await CountRecognizedCharactersAsync(frame, cancellationToken);
-            if (cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested || IsSuspendedOrShuttingDown())
             {
                 return;
             }
@@ -130,7 +220,7 @@ public sealed class MainWindowTextOcclusionService(
         catch (Exception exception)
         {
             logger.LogDebug(exception, "检测主界面后方文字失败，将在下次计时重试。");
-            if (!cancellationToken.IsCancellationRequested)
+            if (!cancellationToken.IsCancellationRequested && !IsSuspendedOrShuttingDown())
             {
                 classIslandSettingsService.SetMainWindowVisible(true);
                 _hiddenByThisService = false;
@@ -139,6 +229,14 @@ public sealed class MainWindowTextOcclusionService(
         finally
         {
             _recognitionLock.Release();
+        }
+    }
+
+    private bool IsSuspendedOrShuttingDown()
+    {
+        lock (_stateLock)
+        {
+            return _isShuttingDown || _suspensionCount > 0;
         }
     }
 

@@ -11,7 +11,7 @@ public sealed class AiChatWindowService(
     IOpenAiCompatibleService aiService,
     AiPromptService promptService,
     AiChatOperationGate operationGate,
-    KeywordSpeechService speechService,
+    VoskSpeechService speechService,
     MainConfigHandler configHandler,
     SystemToolsNotificationProvider notificationProvider,
     ClassIslandProfileAiService profileAiService,

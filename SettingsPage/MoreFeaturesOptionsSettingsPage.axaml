@@ -130,6 +130,26 @@
                         </StackPanel>
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem Content="语音唤醒 AI"
+                                                 Description="检测唤醒词后进入连续语音对话。"
+                                                 IconSource="{ci:FluentIconSource &#xED53;}"
+                                                 IsEnabled="{Binding Config.EnableAiService}">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Config.EnableVoiceWakeAi, Mode=OneWay}"
+                                      Click="VoiceWakeAiToggle_OnClick" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem Content="AI 唤醒词"
+                                                 Description="用于进入语音对话的关键词，默认为“你好ci”。"
+                                                 IsEnabled="{Binding Config.EnableAiService}">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="260"
+                                 PlaceholderText="你好ci"
+                                 Text="{Binding Config.AiWakeWord, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
         </StackPanel>

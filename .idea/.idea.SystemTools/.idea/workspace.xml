@@ -14,12 +14,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/Controls/AiAttachmentDropConfirmation.axaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/AiAttachmentDropConfirmation.axaml.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/AiAttachmentDropOverlay.axaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/AiAttachmentDropOverlay.axaml.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/AiAttachmentDropService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/AiChatWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiChatWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/AiPromptService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiPromptService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/ClassIslandSettingsService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClassIslandSettingsService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Services/KeywordSpeechService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/KeywordSpeechService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/MainWindowTextOcclusionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/MainWindowTextOcclusionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shared/DependencyPaths.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/DependencyPaths.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml.cs" afterDir="false" />
     </list>
@@ -133,6 +147,9 @@
       <workItem from="1785327610513" duration="7562000" />
       <workItem from="1785377495106" duration="4012000" />
       <workItem from="1785383233056" duration="15636000" />
+      <workItem from="1785469563464" duration="657000" />
+      <workItem from="1785486362177" duration="6891000" />
+      <workItem from="1785550962878" duration="723000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />

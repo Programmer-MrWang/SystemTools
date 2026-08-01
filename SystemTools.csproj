@@ -27,6 +27,26 @@
    </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="VoskWorker\SystemTools.VoskWorker.csproj"
+                          ReferenceOutputAssembly="false"
+                          Private="false" />
+        <Compile Remove="VoskWorker\**\*.cs" />
+    </ItemGroup>
+
+    <Target Name="CopyVoskWorkerToPluginOutput" AfterTargets="Build">
+        <ItemGroup>
+            <VoskWorkerFiles Include="$(MSBuildProjectDirectory)\VoskWorker\bin\$(Configuration)\net10.0\win-x64\**\*" />
+        </ItemGroup>
+        <RemoveDir Directories="$(OutDir)VoskWorker" />
+        <Copy SourceFiles="@(VoskWorkerFiles)"
+              DestinationFiles="@(VoskWorkerFiles->'$(OutDir)VoskWorker\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+        <ItemGroup>
+            <FileWrites Include="@(VoskWorkerFiles->'$(OutDir)VoskWorker\%(RecursiveDir)%(Filename)%(Extension)')" />
+        </ItemGroup>
+    </Target>
+
+    <ItemGroup>
         <None Update="manifest.yml">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>

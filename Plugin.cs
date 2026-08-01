@@ -87,6 +87,7 @@ public partial class Plugin : PluginBase
             services.AddSingleton<ClassIslandProfileAiService>();
             services.AddSingleton<ClassIslandActionAiService>();
             services.AddSingleton<AiChatWindowService>();
+            services.AddSingleton<AiVoiceConversationService>();
         }
 
         services.AddNotificationProvider<SystemToolsNotificationProvider>();
@@ -150,6 +151,7 @@ public partial class Plugin : PluginBase
             {
                 IAppHost.GetService<FloatingWindowService>().Start();
             }
+            IAppHost.TryGetService<AiVoiceConversationService>()?.Start();
             IAppHost.GetService<AdaptiveThemeSyncService>().Start();
             IAppHost.GetService<MainWindowTextOcclusionService>().Start();
             IAppHost.GetService<UsbAutoPlayService>().Start();
@@ -199,6 +201,7 @@ public partial class Plugin : PluginBase
        services.AddSingleton<IHotkeyService, HotkeyService>();
 
         services.AddSingleton<KeywordSpeechService>();
+        services.AddSingleton<VoskSpeechService>();
        // ========== 版本检查 ==========
         AppBase.Current.AppStarted += (_, _) => { VersionCheckService.CheckAndNotify(); };
 
@@ -864,12 +867,15 @@ public partial class Plugin : PluginBase
     private void OnAppStopping(object? sender, EventArgs e)
     {
         IAppHost.GetService<AdaptiveThemeSyncService>().Stop();
-        IAppHost.GetService<MainWindowTextOcclusionService>().Stop(restoreMainWindow: true);
+        IAppHost.TryGetService<AiVoiceConversationService>()?.Dispose();
+        IAppHost.GetService<MainWindowTextOcclusionService>().Shutdown(restoreMainWindow: true);
         IAppHost.GetService<UsbAutoPlayService>().Stop();
         IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop();
         IAppHost.GetService<SystemMemoryCleanupService>().Stop();
         AdvancedShutdownAction.CancelPlanOnAppStopping();
         IAppHost.TryGetService<AiChatWindowService>()?.Close();
+        IAppHost.TryGetService<VoskSpeechService>()?.Dispose();
+        IAppHost.TryGetService<KeywordSpeechService>()?.Dispose();
         if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
         {
             IAppHost.GetService<FloatingWindowService>().Stop();

@@ -27,6 +27,112 @@ public static class DependencyPaths
 
     public static string GetFfmpegPath() => Path.Combine(GetDependencyRoot(), "ffmpeg.exe");
 
+    public static string? FindVoskModelDirectory()
+    {
+        var root = GetDependencyRoot();
+        if (!Directory.Exists(root))
+        {
+            return null;
+        }
+
+        var preferredNames = new[]
+        {
+            "VoskModel",
+            "vosk-model",
+            "model",
+            "vosk-model-small-cn-0.22",
+            "vosk-model-cn"
+        };
+        foreach (var name in preferredNames)
+        {
+            var candidate = Path.Combine(root, name);
+            if (IsVoskModelDirectory(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return Directory.EnumerateDirectories(root)
+            .FirstOrDefault(IsVoskModelDirectory);
+    }
+
+    public static string? FindVoskWorkerPath()
+    {
+        var rootCandidate = Path.Combine(
+            GetDependencyRoot(),
+            "VoskWorker",
+            "SystemTools.VoskWorker.exe");
+        if (IsVoskWorkerInstallation(rootCandidate))
+        {
+            return rootCandidate;
+        }
+
+        var modelDirectory = FindVoskModelDirectory();
+        if (modelDirectory is null)
+        {
+            return null;
+        }
+
+        var modelCandidate = Path.Combine(
+            modelDirectory,
+            "VoskWorker",
+            "SystemTools.VoskWorker.exe");
+        if (IsVoskWorkerInstallation(modelCandidate))
+        {
+            return modelCandidate;
+        }
+
+        var pluginCandidate = Path.Combine(
+            GlobalConstants.Information.PluginFolder,
+            "VoskWorker",
+            "SystemTools.VoskWorker.exe");
+        return IsVoskWorkerInstallation(pluginCandidate) ? pluginCandidate : null;
+    }
+
+    public static (bool IsAvailable, string Message) CheckVoskDependencies()
+    {
+        try
+        {
+            var model = FindVoskModelDirectory();
+            if (model is null)
+            {
+                return (false, $"找不到完整的 Vosk 语音识别模型。请将模型放入 {GetDependencyRoot()} 下。");
+            }
+
+            if (FindVoskWorkerPath() is null)
+            {
+                return (false, $"找不到 Vosk 工作进程。请确认 VoskWorker 文件夹位于 {GetDependencyRoot()} 或插件目录下。");
+            }
+
+            return (true, string.Empty);
+        }
+        catch (Exception ex)
+        {
+            return (false, $"检查 Vosk 依赖失败：{ex.Message}");
+        }
+    }
+
+    private static bool IsVoskModelDirectory(string path)
+    {
+        return Directory.Exists(path) &&
+               File.Exists(Path.Combine(path, "conf", "mfcc.conf")) &&
+               File.Exists(Path.Combine(path, "am", "final.mdl")) &&
+               File.Exists(Path.Combine(path, "graph", "HCLG.fst")) &&
+               File.Exists(Path.Combine(path, "graph", "words.txt"));
+    }
+
+    private static bool IsVoskWorkerInstallation(string executablePath)
+    {
+        var directory = Path.GetDirectoryName(executablePath);
+        return directory is not null &&
+               File.Exists(executablePath) &&
+               File.Exists(Path.Combine(directory, "SystemTools.VoskWorker.dll")) &&
+               File.Exists(Path.Combine(directory, "Vosk.dll")) &&
+               File.Exists(Path.Combine(directory, "libvosk.dll")) &&
+               File.Exists(Path.Combine(directory, "hostfxr.dll")) &&
+               File.Exists(Path.Combine(directory, "coreclr.dll"));
+    }
+
     public static string GetFaceModelsDirectory() => Path.Combine(GetDependencyRoot(), "Models");
 
     public static string GetDependencyFile(string fileName) => Path.Combine(GetDependencyRoot(), fileName);

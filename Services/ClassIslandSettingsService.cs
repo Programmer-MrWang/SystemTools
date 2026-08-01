@@ -1,4 +1,6 @@
+using System;
 using System.Reflection;
+using Avalonia.Threading;
 using ClassIsland.Core;
 using ClassIsland.Shared;
 
@@ -9,6 +11,27 @@ public sealed class ClassIslandSettingsService
     public bool SetTheme(int theme) => SetProperty("Theme", theme);
 
     public bool SetMainWindowVisible(bool isVisible) => SetProperty("IsMainWindowVisible", isVisible);
+
+    public bool? GetMainWindowVisible() => GetProperty<bool>("IsMainWindowVisible");
+
+    public IDisposable? HideMainWindow()
+    {
+        var previous = GetMainWindowVisible();
+        if (previous is null)
+        {
+            return null;
+        }
+
+        // Setting the same value is reported as "unchanged" by the host
+        // settings object. That is still a successful hide operation from the
+        // caller's perspective; the lease must remember the original state.
+        if (previous.Value && !SetMainWindowVisible(false))
+        {
+            return null;
+        }
+
+        return new RestoreMainWindowVisibility(this, previous.Value);
+    }
 
     public bool? GetWindowCaptureBlockingEnabled() =>
         GetProperty<bool>("IsWindowCaptureBlockingEnabled");
@@ -54,5 +77,30 @@ public sealed class ClassIslandSettingsService
         return settingsServiceType
             .GetProperty("Settings", BindingFlags.Instance | BindingFlags.Public)
             ?.GetValue(settingsService);
+    }
+
+    private sealed class RestoreMainWindowVisibility(
+        ClassIslandSettingsService service,
+        bool previousValue) : IDisposable
+    {
+        private ClassIslandSettingsService? _service = service;
+
+        public void Dispose()
+        {
+            var owner = System.Threading.Interlocked.Exchange(ref _service, null);
+            if (owner is null)
+            {
+                return;
+            }
+
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                owner.SetMainWindowVisible(previousValue);
+            }
+            else
+            {
+                Dispatcher.UIThread.Post(() => owner.SetMainWindowVisible(previousValue));
+            }
+        }
     }
 }

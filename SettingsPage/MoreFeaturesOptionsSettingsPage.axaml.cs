@@ -61,6 +61,72 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
         RestartClassIsland();
     }
 
+    private async void VoiceWakeAiToggle_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not ToggleSwitch toggleSwitch)
+        {
+            return;
+        }
+
+        if (toggleSwitch.IsChecked != true)
+        {
+            Config.EnableVoiceWakeAi = false;
+            GlobalConstants.MainConfig?.Save();
+            ClassIsland.Shared.IAppHost.TryGetService<AiVoiceConversationService>()?.ApplyConfig();
+            return;
+        }
+
+        if (!Config.EnableAiService)
+        {
+            toggleSwitch.IsChecked = false;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(Config.AiModel))
+        {
+            toggleSwitch.IsChecked = false;
+            await ShowAiMessageAsync("无法启用语音唤醒", "请先在上方获取并选择一个 AI 模型。");
+            return;
+        }
+
+        var dependencyCheck = DependencyPaths.CheckVoskDependencies();
+        if (!dependencyCheck.IsAvailable)
+        {
+            toggleSwitch.IsChecked = false;
+            await ShowAiMessageAsync("无法启用语音唤醒", dependencyCheck.Message);
+            return;
+        }
+
+        toggleSwitch.IsEnabled = false;
+        try
+        {
+            Config.EnableVoiceWakeAi = true;
+            GlobalConstants.MainConfig?.Save();
+            var service = ClassIsland.Shared.IAppHost.TryGetService<AiVoiceConversationService>();
+            if (service == null)
+            {
+                Config.EnableVoiceWakeAi = false;
+                GlobalConstants.MainConfig?.Save();
+                toggleSwitch.IsChecked = false;
+                await ShowAiMessageAsync("需要重启 ClassIsland", "AI 服务尚未在本次运行中加载，请重启 ClassIsland 后再启用语音唤醒。");
+                return;
+            }
+
+            service.ApplyConfig();
+            if (!service.IsWakeWordEnabled)
+            {
+                Config.EnableVoiceWakeAi = false;
+                GlobalConstants.MainConfig?.Save();
+                toggleSwitch.IsChecked = false;
+                await ShowAiMessageAsync("无法启用语音唤醒", service.LastError ?? "语音唤醒服务未能启动。");
+            }
+        }
+        finally
+        {
+            toggleSwitch.IsEnabled = true;
+        }
+    }
+
     private async Task<bool> ShowAiServiceAgreementAsync()
     {
         var agreementCheckBox = new CheckBox

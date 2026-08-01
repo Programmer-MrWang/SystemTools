@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <SelfContained>true</SelfContained>
+        <UseAppHost>true</UseAppHost>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <PlatformTarget>x64</PlatformTarget>
+        <AssemblyName>SystemTools.VoskWorker</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NAudio.Core" Version="2.2.1" />
+        <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+        <PackageReference Include="Vosk" Version="0.3.38" />
+    </ItemGroup>
+</Project>

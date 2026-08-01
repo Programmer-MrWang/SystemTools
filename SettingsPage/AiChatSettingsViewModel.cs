@@ -20,11 +20,13 @@ namespace SystemTools;
 
 public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 {
+    private const string VoiceInputModelLoadingMessage =
+        "\u6B63\u5728\u52A0\u8F7D\u8BED\u97F3\u8F93\u5165\u6A21\u578B\u2026\u2026";
     private readonly AiConversationStore _store;
     private readonly IOpenAiCompatibleService _aiService;
     private readonly AiPromptService _promptService;
     private readonly AiChatOperationGate _operationGate;
-    private readonly KeywordSpeechService _speechService;
+    private readonly VoskSpeechService _speechService;
     private readonly MainConfigHandler _configHandler;
     private readonly SystemToolsNotificationProvider _notificationProvider;
     private readonly ClassIslandProfileAiService _profileAiService;
@@ -37,8 +39,10 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     private AiConversation? _generatingConversation;
     private IDisposable? _attachmentUpdateLease;
     private IDisposable? _voiceInputLease;
+    private CancellationTokenSource? _voiceInputStartCancellation;
     private string _voiceInputPrefix = string.Empty;
     private string _voiceInputCommittedText = string.Empty;
+    private bool _isVoiceInputStarting;
     private bool _isDisposed;
 
     [ObservableProperty] private AiConversation? _selectedConversation;
@@ -56,7 +60,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         IOpenAiCompatibleService aiService,
         AiPromptService promptService,
         AiChatOperationGate operationGate,
-        KeywordSpeechService speechService,
+        VoskSpeechService speechService,
         MainConfigHandler configHandler,
         SystemToolsNotificationProvider notificationProvider,
         ClassIslandProfileAiService profileAiService,
@@ -119,13 +123,16 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                                         !_operationGate.IsBusy;
 
     public bool CanToggleVoiceInput => IsVoiceInputActive ||
+                                       _isVoiceInputStarting ||
                                        (!IsGenerating &&
                                         !IsUpdatingAttachments &&
                                         !_operationGate.IsBusy &&
                                         SelectedConversation is not null &&
                                         !_speechService.IsDictationActive);
 
-    public string VoiceInputToolTip => IsVoiceInputActive ? "停止语音输入" : "语音输入";
+    public string VoiceInputToolTip => IsVoiceInputActive
+        ? "停止语音输入"
+        : _isVoiceInputStarting ? VoiceInputModelLoadingMessage : "语音输入";
 
     public bool HasStatus => !string.IsNullOrWhiteSpace(StatusText);
 
@@ -152,10 +159,10 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     public event EventHandler? ConversationContentChanged;
 
-    public void ToggleVoiceInput()
+    public async Task ToggleVoiceInputAsync()
     {
         ThrowIfDisposed();
-        if (IsVoiceInputActive)
+        if (IsVoiceInputActive || _isVoiceInputStarting)
         {
             StopVoiceInput();
             return;
@@ -171,30 +178,68 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
         _voiceInputPrefix = InputText;
         _voiceInputCommittedText = string.Empty;
-        var lease = _speechService.TryStartDictation(
-            OnVoiceInputText,
-            OnVoiceInputError,
-            BuildVoiceInputContext());
-        if (lease == null)
-        {
-            if (string.IsNullOrWhiteSpace(StatusText))
-            {
-                StatusText = "无法启用语音输入；请确认已安装 Windows 中文语音识别并允许麦克风访问";
-            }
-            return;
-        }
+        var startCancellation = new CancellationTokenSource();
+        _voiceInputStartCancellation = startCancellation;
+        _isVoiceInputStarting = true;
+        IsVoiceInputActive = false;
+        StatusText = VoiceInputModelLoadingMessage;
+        OnPropertyChanged(nameof(CanToggleVoiceInput));
+        OnPropertyChanged(nameof(VoiceInputToolTip));
 
-        _voiceInputLease = lease;
-        IsVoiceInputActive = true;
-        StatusText = string.Empty;
+        try
+        {
+            var lease = await _speechService.TryStartDictationAsync(
+                OnVoiceInputText,
+                OnVoiceInputError,
+                BuildVoiceInputContext(),
+                startCancellation.Token);
+            if (_isDisposed || startCancellation.IsCancellationRequested)
+            {
+                lease?.Dispose();
+                return;
+            }
+
+            if (lease == null)
+            {
+                IsVoiceInputActive = false;
+                if (string.IsNullOrWhiteSpace(StatusText) ||
+                    StatusText == VoiceInputModelLoadingMessage)
+                {
+                    StatusText = "无法启用 Vosk 语音输入；请确认依赖目录中存在模型和最新的 VoskWorker 文件夹，并允许麦克风访问";
+                }
+                return;
+            }
+
+            _voiceInputLease = lease;
+            IsVoiceInputActive = true;
+            StatusText = string.Empty;
+        }
+        finally
+        {
+            Interlocked.CompareExchange(
+                ref _voiceInputStartCancellation,
+                null,
+                startCancellation);
+            startCancellation.Dispose();
+            _isVoiceInputStarting = false;
+            OnPropertyChanged(nameof(CanToggleVoiceInput));
+            OnPropertyChanged(nameof(VoiceInputToolTip));
+        }
     }
 
     public void StopVoiceInput()
     {
+        var startCancellation = Interlocked.Exchange(ref _voiceInputStartCancellation, null);
+        startCancellation?.Cancel();
+        startCancellation?.Dispose();
         IsVoiceInputActive = false;
         Interlocked.Exchange(ref _voiceInputLease, null)?.Dispose();
         _voiceInputPrefix = string.Empty;
         _voiceInputCommittedText = string.Empty;
+        if (StatusText == VoiceInputModelLoadingMessage)
+        {
+            StatusText = string.Empty;
+        }
     }
 
     public AiConversation CreateNewConversation()
@@ -259,7 +304,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             return;
         }
 
-        if (IsVoiceInputActive)
+        if (IsVoiceInputActive || _isVoiceInputStarting)
         {
             StopVoiceInput();
         }
@@ -543,7 +588,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     partial void OnSelectedConversationChanged(AiConversation? oldValue, AiConversation? newValue)
     {
-        if (IsVoiceInputActive)
+        if (IsVoiceInputActive || _isVoiceInputStarting)
         {
             StopVoiceInput();
         }
@@ -563,7 +608,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     partial void OnIsGeneratingChanged(bool value)
     {
-        if (value && IsVoiceInputActive)
+        if (value && (IsVoiceInputActive || _isVoiceInputStarting))
         {
             StopVoiceInput();
         }

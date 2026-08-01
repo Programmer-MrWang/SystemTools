@@ -2,6 +2,7 @@
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ci="http://classisland.tech/schemas/xaml/core"
+        xmlns:controls="clr-namespace:SystemTools.Controls"
         xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
         xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
         x:CompileBindings="False"
@@ -46,7 +47,12 @@
             Background="{DynamicResource AiChatWindowBackgroundBrush}"
             BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
-            ClipToBounds="True">
+            ClipToBounds="True"
+            DragDrop.AllowDrop="True"
+            DragDrop.DragEnter="ChatWindow_OnDragEnter"
+            DragDrop.DragOver="ChatWindow_OnDragEnter"
+            DragDrop.DragLeave="ChatWindow_OnDragLeave"
+            DragDrop.Drop="ChatWindow_OnDrop">
         <Grid RowDefinitions="Auto,*">
             <Grid x:Name="WindowTitleBar"
                   Height="46"
@@ -460,6 +466,8 @@
                            Text="内容由 AI 生成，请仔细甄别"
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
             </Grid>
+            <controls:AiAttachmentDropOverlay x:Name="AttachmentDropOverlay"
+                                              Grid.RowSpan="2" />
         </Grid>
     </Border>
 </Window>

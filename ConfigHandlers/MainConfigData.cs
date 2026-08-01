@@ -264,6 +264,35 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    bool _enableVoiceWakeAi;
+
+    [JsonPropertyName("enableVoiceWakeAi")]
+    public bool EnableVoiceWakeAi
+    {
+        get => _enableVoiceWakeAi;
+        set
+        {
+            if (value == _enableVoiceWakeAi) return;
+            _enableVoiceWakeAi = value;
+            OnPropertyChanged();
+        }
+    }
+
+    string _aiWakeWord = "你好ci";
+
+    [JsonPropertyName("aiWakeWord")]
+    public string AiWakeWord
+    {
+        get => _aiWakeWord;
+        set
+        {
+            value = string.IsNullOrWhiteSpace(value) ? "你好ci" : value.Trim();
+            if (string.Equals(value, _aiWakeWord, StringComparison.Ordinal)) return;
+            _aiWakeWord = value;
+            OnPropertyChanged();
+        }
+    }
+
     // ========== 公告相关 ==========
     /*string _lastAcceptedAnnouncement = string.Empty;
 

@@ -60,9 +60,9 @@ public partial class AiChatSettingsPage : SettingsPageBase
         await SendCurrentMessageAsync();
     }
 
-    private void VoiceInputButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void VoiceInputButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        ViewModel.ToggleVoiceInput();
+        await ViewModel.ToggleVoiceInputAsync();
         MessageInput.Focus();
         MessageInput.CaretIndex = MessageInput.Text?.Length ?? 0;
     }
@@ -183,6 +183,67 @@ public partial class AiChatSettingsPage : SettingsPageBase
         ViewModel.ReportError(result.Rejected.Count == 0
             ? string.Empty
             : "以下项目未添加：" + string.Join("；", result.Rejected));
+    }
+
+    private void ChatPage_OnDragEnter(object? sender, DragEventArgs e)
+    {
+        var files = GetDroppedFiles(e);
+        var availableSlots = Math.Max(
+            0,
+            AiAttachmentService.MaximumAttachmentCount - ViewModel.PendingAttachments.Count);
+        var canAccept = AttachmentDropOverlay.ShowForFiles(
+            files.Count,
+            availableSlots,
+            ViewModel.CanModifyAttachments);
+        e.DragEffects = canAccept ? DragDropEffects.Copy : DragDropEffects.None;
+    }
+
+    private void ChatPage_OnDragLeave(object? sender, DragEventArgs e)
+    {
+        AttachmentDropOverlay.Hide();
+    }
+
+    private async void ChatPage_OnDrop(object? sender, DragEventArgs e)
+    {
+        AttachmentDropOverlay.Hide();
+        var files = GetDroppedFiles(e);
+        if (files.Count == 0 || !ViewModel.TryBeginAttachmentUpdate())
+        {
+            return;
+        }
+
+        try
+        {
+            var topLevel = TopLevel.GetTopLevel(this)
+                           ?? throw new InvalidOperationException("无法访问当前窗口");
+            var result = await AiAttachmentDropService.LoadAndConfirmAsync(
+                topLevel,
+                files,
+                ViewModel.PendingAttachments.Count,
+                ViewModel.PendingAttachmentBytes);
+            if (result is null)
+            {
+                return;
+            }
+
+            ViewModel.AddPendingAttachments(result.Accepted);
+            ViewModel.ReportError(result.Rejected.Count == 0
+                ? string.Empty
+                : "以下项目未添加：" + string.Join("；", result.Rejected));
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ReportError($"无法添加拖入的附件：{ex.Message}");
+        }
+        finally
+        {
+            ViewModel.EndAttachmentUpdate();
+        }
+    }
+
+    private static IReadOnlyList<IStorageFile> GetDroppedFiles(DragEventArgs e)
+    {
+        return e.DataTransfer.TryGetFiles()?.OfType<IStorageFile>().ToArray() ?? [];
     }
 
     private async void CopyMessageButton_OnClick(object? sender, RoutedEventArgs e)
@@ -354,7 +415,7 @@ public partial class AiChatSettingsPage : SettingsPageBase
             IAppHost.GetService<IOpenAiCompatibleService>(),
             IAppHost.GetService<AiPromptService>(),
             IAppHost.GetService<AiChatOperationGate>(),
-            IAppHost.GetService<KeywordSpeechService>(),
+            IAppHost.GetService<VoskSpeechService>(),
             GlobalConstants.MainConfig!,
             IAppHost.GetService<SystemToolsNotificationProvider>(),
             IAppHost.GetService<ClassIslandProfileAiService>(),

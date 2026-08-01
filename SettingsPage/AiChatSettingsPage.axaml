@@ -4,6 +4,7 @@
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:ci="http://classisland.tech/schemas/xaml/core"
+                     xmlns:controls="clr-namespace:SystemTools.Controls"
                      xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
                      xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
                      x:CompileBindings="False"
@@ -14,7 +15,13 @@
         <StyleInclude Source="avares://ClassIsland.Core/Themes/RichTextStyles.axaml" />
     </ci:SettingsPageBase.Styles>
 
-    <Grid Margin="12" MinHeight="440">
+    <Grid Margin="12"
+          MinHeight="440"
+          DragDrop.AllowDrop="True"
+          DragDrop.DragEnter="ChatPage_OnDragEnter"
+          DragDrop.DragOver="ChatPage_OnDragEnter"
+          DragDrop.DragLeave="ChatPage_OnDragLeave"
+          DragDrop.Drop="ChatPage_OnDrop">
         <SplitView IsPaneOpen="{Binding IsHistoryOpen, Mode=TwoWay}"
                    PanePlacement="Right"
                    DisplayMode="Inline"
@@ -460,5 +467,6 @@
                 </Grid>
             </SplitView.Content>
         </SplitView>
+        <controls:AiAttachmentDropOverlay x:Name="AttachmentDropOverlay" />
     </Grid>
 </ci:SettingsPageBase>

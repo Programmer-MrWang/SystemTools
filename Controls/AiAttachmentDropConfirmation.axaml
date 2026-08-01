@@ -1,0 +1,86 @@
+<UserControl x:Class="SystemTools.Controls.AiAttachmentDropConfirmation"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ci="http://classisland.tech/schemas/xaml/core"
+             x:CompileBindings="False">
+    <DockPanel MaxWidth="520">
+        <Border x:Name="RejectedItemsWarning"
+                DockPanel.Dock="Bottom"
+                Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                CornerRadius="6"
+                Padding="10"
+                Margin="0,10,0,0">
+            <Grid ColumnDefinitions="Auto,*">
+                <ci:FluentIcon Glyph="&#xF430;"
+                               VerticalAlignment="Top"
+                               Margin="0,1,8,0" />
+                <StackPanel Grid.Column="1" Spacing="4">
+                    <TextBlock Text="部分文件无法添加"
+                               FontWeight="SemiBold" />
+                    <ScrollViewer MaxHeight="100">
+                        <ItemsControl ItemsSource="{Binding Rejected}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding StringFormat='• {0}'}"
+                                               FontSize="12"
+                                               TextWrapping="Wrap" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <StackPanel Spacing="8">
+            <TextBlock Text="{Binding Summary}"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       TextWrapping="Wrap" />
+            <ScrollViewer MaxHeight="360">
+                <ItemsControl ItemsSource="{Binding Accepted}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Margin="0,0,0,8"
+                                    Padding="10">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Border Width="48"
+                                            Height="48"
+                                            CornerRadius="4"
+                                            ClipToBounds="True"
+                                            IsVisible="{Binding IsImage}">
+                                        <Image Source="{Binding Thumbnail}"
+                                               Stretch="UniformToFill" />
+                                    </Border>
+                                    <ci:FluentIcon Width="48"
+                                                   Height="48"
+                                                   Glyph="&#xE8A5;"
+                                                   FontSize="24"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding IsFile}" />
+                                    <StackPanel Grid.Column="1"
+                                                Margin="10,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Spacing="2">
+                                        <TextBlock Text="{Binding FileName}"
+                                                   FontWeight="SemiBold"
+                                                   MaxLines="2"
+                                                   TextWrapping="Wrap"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding DetailText}"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

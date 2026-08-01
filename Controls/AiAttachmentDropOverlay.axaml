@@ -1,0 +1,52 @@
+<UserControl x:Class="SystemTools.Controls.AiAttachmentDropOverlay"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ci="http://classisland.tech/schemas/xaml/core"
+             x:CompileBindings="False"
+             IsVisible="False"
+             IsHitTestVisible="False">
+    <Grid>
+        <Border Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+                Opacity="0.75" />
+
+        <Border Background="{DynamicResource ControlFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20"
+                Width="360"
+                MaxWidth="420"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel Spacing="8">
+                <ci:FluentIcon x:Name="ValidIcon"
+                               Glyph="&#xE162;"
+                               HorizontalAlignment="Center"
+                               FontSize="72"
+                               Margin="0,0,0,4" />
+                <ci:FluentIcon x:Name="InvalidIcon"
+                               Glyph="&#xEA39;"
+                               HorizontalAlignment="Center"
+                               FontSize="72"
+                               Margin="0,0,0,4"
+                               IsVisible="False" />
+
+                <TextBlock x:Name="HintText"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Center" />
+                <TextBlock x:Name="SubHintText"
+                           Opacity="0.7"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="支持图片、PDF 与文本文件"
+                           Opacity="0.55"
+                           FontSize="12"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

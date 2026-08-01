@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Speech.Recognition;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace SystemTools.Services;
@@ -19,12 +20,15 @@ public class KeywordSpeechService : IDisposable
     private readonly object _lock = new();
     private readonly List<RegisteredKeyword> _registrations = new();
     private RegisteredDictation? _dictation;
+    private int _listeningSuspensionCount;
 
     private class RegisteredKeyword
     {
         public string Keyword { get; init; } = "";
         public double Threshold { get; init; }
         public Action? OnMatched { get; init; }
+        public Action<IDisposable>? OnWakeMatched { get; init; }
+        public bool IsWakeWord { get; init; }
     }
 
     private sealed class RegisteredDictation
@@ -56,17 +60,66 @@ public class KeywordSpeechService : IDisposable
     }
 
     public IDisposable Register(string keyword, double threshold, Action onMatched)
+        => RegisterCore(keyword, threshold, onMatched, onWakeMatched: null, isWakeWord: false);
+
+    public IDisposable RegisterWakeWord(
+        string keyword,
+        double threshold,
+        Action<IDisposable> onMatched)
+        => RegisterCore(keyword, threshold, onMatched: null, onWakeMatched: onMatched, isWakeWord: true);
+
+    private IDisposable RegisterCore(
+        string keyword,
+        double threshold,
+        Action? onMatched,
+        Action<IDisposable>? onWakeMatched,
+        bool isWakeWord)
     {
         var reg = new RegisteredKeyword
         {
-            Keyword = keyword,
+            Keyword = NormalizeForComparison(keyword),
             Threshold = Math.Clamp(threshold, 0.0, 1.0),
-            OnMatched = onMatched
+            OnMatched = onMatched,
+            OnWakeMatched = onWakeMatched,
+            IsWakeWord = isWakeWord
         };
         lock (_lock) { _registrations.Add(reg); }
         EnsureStarted();
-        _logger.LogDebug("[KeywordSpeech] Registered: \"{Keyword}\" (threshold: {Threshold:F2})", keyword, threshold);
+        _logger.LogDebug("[KeywordSpeech] Registered {Kind}: \"{Keyword}\" (threshold: {Threshold:F2})",
+            isWakeWord ? "wake word" : "keyword", keyword, threshold);
         return new UnregisterHandle(this, reg);
+    }
+
+    public IDisposable SuspendListening()
+        => AcquireListeningSuspension(stopEngineSynchronously: true);
+
+    /// <summary>
+    /// Acquires the logical suppression used by a wake-word callback before
+    /// dispatching that callback. The SAPI engine is stopped asynchronously so
+    /// the recognition thread can return promptly, but subsequent results are
+    /// ignored immediately under the same lock that checks the registrations.
+    /// </summary>
+    private IDisposable AcquireWakeWordSuspension()
+        => AcquireListeningSuspension(stopEngineSynchronously: false);
+
+    private IDisposable AcquireListeningSuspension(bool stopEngineSynchronously)
+    {
+        bool shouldStop;
+        lock (_lock)
+        {
+            shouldStop = _listeningSuspensionCount++ == 0;
+        }
+
+        if (shouldStop && stopEngineSynchronously)
+        {
+            StopEngine();
+        }
+        else if (shouldStop)
+        {
+            _ = Task.Run(StopEngineIfSuspended);
+        }
+
+        return new ListeningSuspensionHandle(this);
     }
 
     public IDisposable? TryStartDictation(
@@ -155,7 +208,7 @@ public class KeywordSpeechService : IDisposable
         if (_engine != null) return;
         lock (_lock)
         {
-            if (_engine != null) return;
+            if (_engine != null || _listeningSuspensionCount > 0) return;
             if (_thread is { IsAlive: true }) return;
             _thread = new Thread(SpeechThread)
             {
@@ -170,10 +223,12 @@ public class KeywordSpeechService : IDisposable
     private void SpeechThread()
     {
         var startFailed = false;
+        SpeechRecognitionEngine? createdEngine = null;
         try
         {
             var culture = new CultureInfo("zh-CN");
             var engine = new SpeechRecognitionEngine(culture);
+            createdEngine = engine;
             engine.SetInputToDefaultAudioDevice();
             TryConfigureDictationEngine(engine);
 
@@ -202,7 +257,9 @@ public class KeywordSpeechService : IDisposable
 
             lock (_lock)
             {
-                if (_disposed || (_registrations.Count == 0 && _dictation == null))
+                if (_disposed ||
+                    _listeningSuspensionCount > 0 ||
+                    (_registrations.Count == 0 && _dictation == null))
                 {
                     engine.Dispose();
                     return;
@@ -213,14 +270,31 @@ public class KeywordSpeechService : IDisposable
 
             engine.RecognizeAsync(RecognizeMode.Multiple);
             _logger.LogInformation("[KeywordSpeech] Started (zh-CN)");
-            while (!_disposed && _engine != null) { Thread.Sleep(500); }
+            while (!_disposed)
+            {
+                lock (_lock)
+                {
+                    if (!ReferenceEquals(_engine, engine))
+                    {
+                        break;
+                    }
+                }
+
+                Thread.Sleep(500);
+            }
         }
         catch (Exception ex)
         {
             startFailed = true;
             _logger.LogError(ex, "[KeywordSpeech] Start failed: {Message}", ex.Message);
-            _engine?.Dispose();
-            _engine = null;
+            lock (_lock)
+            {
+                if (ReferenceEquals(_engine, createdEngine))
+                {
+                    _engine = null;
+                }
+            }
+            DisposeEngine(createdEngine);
             FailDictation($"无法启动语音输入：{ex.Message}");
         }
         finally
@@ -231,6 +305,7 @@ public class KeywordSpeechService : IDisposable
                 _thread = null;
                 shouldRestart = !startFailed &&
                                 !_disposed &&
+                                _listeningSuspensionCount == 0 &&
                                 _engine == null &&
                                 (_registrations.Count > 0 || _dictation != null);
             }
@@ -247,6 +322,10 @@ public class KeywordSpeechService : IDisposable
         RegisteredDictation? dictation;
         lock (_lock)
         {
+            if (_listeningSuspensionCount > 0)
+            {
+                return;
+            }
             dictation = _dictation;
         }
 
@@ -278,6 +357,10 @@ public class KeywordSpeechService : IDisposable
         RegisteredDictation? dictation;
         lock (_lock)
         {
+            if (_listeningSuspensionCount > 0)
+            {
+                return;
+            }
             dictation = _dictation;
         }
         if (dictation != null)
@@ -295,36 +378,129 @@ public class KeywordSpeechService : IDisposable
         lock (_lock) { snapshot = _registrations.ToArray(); }
         if (snapshot.Length == 0) return;
 
-        var normalized = text.Replace(" ", "");
+        var normalized = NormalizeForComparison(text);
+        var wakeMatches = snapshot.Where(reg => reg.IsWakeWord && IsMatch(reg, normalized, confidence)).ToArray();
+        foreach (var reg in wakeMatches)
+        {
+            var suspension = AcquireWakeWordSuspension();
+            try
+            {
+                _logger.LogInformation("[KeywordSpeech] Matched: \"{Keyword}\" (text: \"{Text}\", confidence: {Confidence:F2})", reg.Keyword, text, confidence);
+                if (reg.OnWakeMatched is null)
+                {
+                    suspension.Dispose();
+                }
+                else
+                {
+                    reg.OnWakeMatched(suspension);
+                }
+            }
+            catch (Exception ex)
+            {
+                suspension.Dispose();
+                _logger.LogError(ex, "[KeywordSpeech] Wake word callback failed");
+            }
+        }
+
+        // A wake phrase owns the recognition result. This prevents the same phrase
+        // from firing the ordinary automation keyword triggers in the same pass.
+        if (wakeMatches.Length > 0)
+        {
+            return;
+        }
+
         foreach (var reg in snapshot)
         {
-            if (string.IsNullOrWhiteSpace(reg.Keyword)) continue;
-            if (confidence < reg.Threshold) continue;
-            if (normalized.Contains(reg.Keyword, StringComparison.OrdinalIgnoreCase))
+            if (reg.IsWakeWord || !IsMatch(reg, normalized, confidence)) continue;
+            try
             {
                 _logger.LogInformation("[KeywordSpeech] Matched: \"{Keyword}\" (text: \"{Text}\", confidence: {Confidence:F2})", reg.Keyword, text, confidence);
                 reg.OnMatched?.Invoke();
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[KeywordSpeech] Keyword callback failed");
+            }
         }
+    }
+
+    private static bool IsMatch(RegisteredKeyword registration, string normalized, double confidence)
+    {
+        return registration.Keyword.Length > 0 &&
+               confidence >= registration.Threshold &&
+               normalized.Contains(registration.Keyword, StringComparison.OrdinalIgnoreCase);
     }
 
     private void StopEngine()
     {
+        SpeechRecognitionEngine? engine;
+        lock (_lock)
+        {
+            engine = _engine;
+            _engine = null;
+        }
+
+        DisposeEngine(engine);
+    }
+
+    private void StopEngineIfSuspended()
+    {
+        SpeechRecognitionEngine? engine;
+        lock (_lock)
+        {
+            if (_listeningSuspensionCount == 0)
+            {
+                return;
+            }
+
+            // Detach the engine while holding the same lock used by
+            // ResumeListening. If the suspension is released immediately,
+            // a newly created engine cannot be stopped by this cleanup.
+            engine = _engine;
+            _engine = null;
+        }
+
+        DisposeEngine(engine);
+    }
+
+    private void DisposeEngine(SpeechRecognitionEngine? engine)
+    {
         try
         {
-            if (_engine != null)
+            if (engine != null)
             {
-                _engine.SpeechHypothesized -= OnSpeechHypothesized;
-                _engine.SpeechRecognized -= OnSpeechRecognized;
-                _engine.RecognizeAsyncStop();
-                _engine.Dispose();
-                _engine = null;
+                engine.SpeechHypothesized -= OnSpeechHypothesized;
+                engine.SpeechRecognized -= OnSpeechRecognized;
+                engine.RecognizeAsyncStop();
+                engine.Dispose();
                 _logger.LogInformation("[KeywordSpeech] Stopped");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "[KeywordSpeech] Stop error: {Message}", ex.Message);
+        }
+    }
+
+    private void ResumeListening()
+    {
+        bool shouldStart;
+        lock (_lock)
+        {
+            if (_listeningSuspensionCount == 0)
+            {
+                return;
+            }
+
+            _listeningSuspensionCount--;
+            shouldStart = _listeningSuspensionCount == 0 &&
+                          !_disposed &&
+                          (_registrations.Count > 0 || _dictation != null);
+        }
+
+        if (shouldStart)
+        {
+            EnsureStarted();
         }
     }
 
@@ -505,6 +681,16 @@ public class KeywordSpeechService : IDisposable
         public void Dispose()
         {
             Interlocked.Exchange(ref _service, null)?.StopDictation(_dictation);
+        }
+    }
+
+    private sealed class ListeningSuspensionHandle(KeywordSpeechService service) : IDisposable
+    {
+        private KeywordSpeechService? _service = service;
+
+        public void Dispose()
+        {
+            Interlocked.Exchange(ref _service, null)?.ResumeListening();
         }
     }
 }

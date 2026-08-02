@@ -12,6 +12,7 @@ namespace SystemTools.Services;
 public class KeywordSpeechService : IDisposable
 {
     private const int MaximumDictationContextLength = 120;
+    private const int MaximumRecognitionAlternates = 8;
 
     private readonly ILogger<KeywordSpeechService> _logger;
     private SpeechRecognitionEngine? _engine;
@@ -38,6 +39,11 @@ public class KeywordSpeechService : IDisposable
         public string Context { get; init; } = string.Empty;
         public string LastHypothesis { get; set; } = string.Empty;
     }
+
+    private readonly record struct RecognitionCandidate(
+        string Text,
+        string NormalizedText,
+        double Confidence);
 
     public bool IsListening => _engine != null;
 
@@ -378,14 +384,37 @@ public class KeywordSpeechService : IDisposable
         lock (_lock) { snapshot = _registrations.ToArray(); }
         if (snapshot.Length == 0) return;
 
-        var normalized = NormalizeForComparison(text);
-        var wakeMatches = snapshot.Where(reg => reg.IsWakeWord && IsMatch(reg, normalized, confidence)).ToArray();
-        foreach (var reg in wakeMatches)
+        var candidates = GetRecognitionCandidates(e.Result, text, confidence);
+        var wakeMatches = new List<(RegisteredKeyword Registration, RecognitionCandidate Candidate)>();
+        foreach (var reg in snapshot)
+        {
+            if (!reg.IsWakeWord)
+            {
+                continue;
+            }
+
+            foreach (var candidate in candidates)
+            {
+                if (!IsMatch(reg, candidate.NormalizedText, candidate.Confidence))
+                {
+                    continue;
+                }
+
+                wakeMatches.Add((reg, candidate));
+                break;
+            }
+        }
+
+        foreach (var (reg, candidate) in wakeMatches)
         {
             var suspension = AcquireWakeWordSuspension();
             try
             {
-                _logger.LogInformation("[KeywordSpeech] Matched: \"{Keyword}\" (text: \"{Text}\", confidence: {Confidence:F2})", reg.Keyword, text, confidence);
+                _logger.LogInformation(
+                    "[KeywordSpeech] Matched: \"{Keyword}\" (text: \"{Text}\", confidence: {Confidence:F2})",
+                    reg.Keyword,
+                    candidate.Text,
+                    candidate.Confidence);
                 if (reg.OnWakeMatched is null)
                 {
                     suspension.Dispose();
@@ -404,11 +433,12 @@ public class KeywordSpeechService : IDisposable
 
         // A wake phrase owns the recognition result. This prevents the same phrase
         // from firing the ordinary automation keyword triggers in the same pass.
-        if (wakeMatches.Length > 0)
+        if (wakeMatches.Count > 0)
         {
             return;
         }
 
+        var normalized = NormalizeForComparison(text);
         foreach (var reg in snapshot)
         {
             if (reg.IsWakeWord || !IsMatch(reg, normalized, confidence)) continue;
@@ -429,6 +459,46 @@ public class KeywordSpeechService : IDisposable
         return registration.Keyword.Length > 0 &&
                confidence >= registration.Threshold &&
                normalized.Contains(registration.Keyword, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private List<RecognitionCandidate> GetRecognitionCandidates(
+        RecognitionResult result,
+        string primaryText,
+        double primaryConfidence)
+    {
+        var candidates = new List<RecognitionCandidate>
+        {
+            new(primaryText, NormalizeForComparison(primaryText), primaryConfidence)
+        };
+
+        try
+        {
+            foreach (var alternate in result.Alternates)
+            {
+                if (candidates.Count >= MaximumRecognitionAlternates + 1)
+                {
+                    break;
+                }
+
+                var alternateText = alternate.Text;
+                if (string.IsNullOrWhiteSpace(alternateText))
+                {
+                    continue;
+                }
+
+                candidates.Add(new(
+                    alternateText,
+                    NormalizeForComparison(alternateText),
+                    alternate.Confidence));
+            }
+        }
+        catch (Exception ex)
+        {
+            // A malformed alternate must not hide the primary recognition result.
+            _logger.LogDebug(ex, "[KeywordSpeech] SAPI alternates unavailable; using primary result");
+        }
+
+        return candidates;
     }
 
     private void StopEngine()
@@ -526,7 +596,7 @@ public class KeywordSpeechService : IDisposable
     {
         try
         {
-            engine.MaxAlternates = 10;
+            engine.MaxAlternates = MaximumRecognitionAlternates;
         }
         catch (Exception ex)
         {

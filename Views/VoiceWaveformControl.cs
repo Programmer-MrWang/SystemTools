@@ -12,6 +12,11 @@ namespace SystemTools.Views;
 /// </summary>
 public sealed class VoiceWaveformControl : Control
 {
+    private const double EnvelopePower = 2.4;
+    private const double LevelResponsePower = 0.68;
+    private const double AttackSmoothing = 0.34;
+    private const double ReleaseSmoothing = 0.13;
+
     private static readonly Color[] RibbonColors =
     [
         Color.FromArgb(115, 91, 222, 255),
@@ -75,9 +80,9 @@ public sealed class VoiceWaveformControl : Control
         }
 
         var center = height / 2;
-        var speakingEnergy = Math.Clamp(_smoothedLevel, 0, 1);
+        var speakingEnergy = Math.Pow(Math.Clamp(_smoothedLevel, 0, 1), LevelResponsePower);
         var idleEnergy = 1.4 + (Math.Sin(_phase * 0.68) + 1) * 0.65;
-        var energy = _isListening ? 4 + speakingEnergy * (height * 0.42) : idleEnergy;
+        var energy = _isListening ? 3.2 + speakingEnergy * (height * 0.37) : idleEnergy;
 
         for (var ribbon = 0; ribbon < RibbonColors.Length; ribbon++)
         {
@@ -90,10 +95,11 @@ public sealed class VoiceWaveformControl : Control
                 {
                     var x = width * i / 64;
                     var position = i / 64d;
-                    var envelope = Math.Pow(Math.Sin(Math.PI * position), 0.72);
+                    var envelope = GetEnvelope(position);
                     var harmonic = Math.Sin(position * Math.PI * (2.1 + ribbon * 0.14) + _phase * (0.66 + ribbon * 0.045) + tint);
                     var detail = Math.Sin(position * Math.PI * (5.2 + ribbon * 0.25) - _phase * 0.86 + tint * 0.5) * 0.18;
-                    var amplitude = energy * envelope * (0.72 + ribbon * 0.045);
+                    var centerEmphasis = 1 + envelope * 0.12;
+                    var amplitude = energy * envelope * centerEmphasis * (0.72 + ribbon * 0.045);
                     builder.LineTo(new Point(x, center - amplitude * (harmonic + detail)));
                 }
 
@@ -101,10 +107,11 @@ public sealed class VoiceWaveformControl : Control
                 {
                     var x = width * i / 64;
                     var position = i / 64d;
-                    var envelope = Math.Pow(Math.Sin(Math.PI * position), 0.72);
+                    var envelope = GetEnvelope(position);
                     var harmonic = Math.Sin(position * Math.PI * (2.1 + ribbon * 0.14) + _phase * (0.66 + ribbon * 0.045) + tint);
                     var detail = Math.Sin(position * Math.PI * (5.2 + ribbon * 0.25) - _phase * 0.86 + tint * 0.5) * 0.18;
-                    var amplitude = energy * envelope * (0.72 + ribbon * 0.045);
+                    var centerEmphasis = 1 + envelope * 0.12;
+                    var amplitude = energy * envelope * centerEmphasis * (0.72 + ribbon * 0.045);
                     builder.LineTo(new Point(x, center + amplitude * (harmonic + detail)));
                 }
 
@@ -122,7 +129,7 @@ public sealed class VoiceWaveformControl : Control
             {
                 var x = width * i / 64;
                 var position = i / 64d;
-                var envelope = Math.Pow(Math.Sin(Math.PI * position), 0.72);
+                var envelope = GetEnvelope(position);
                 var harmonic = Math.Sin(position * Math.PI * 3.8 + _phase * 0.92) * energy * envelope * 0.18;
                 builder.LineTo(new Point(x, center - harmonic));
             }
@@ -137,7 +144,16 @@ public sealed class VoiceWaveformControl : Control
     private void OnTick(object? sender, EventArgs e)
     {
         _phase += 0.085;
-        _smoothedLevel += (_audioLevel - _smoothedLevel) * (_isListening ? 0.22 : 0.075);
+        var smoothing = !_isListening
+            ? 0.075
+            : _audioLevel > _smoothedLevel ? AttackSmoothing : ReleaseSmoothing;
+        _smoothedLevel += (_audioLevel - _smoothedLevel) * smoothing;
         InvalidateVisual();
+    }
+
+    private static double GetEnvelope(double position)
+    {
+        var taper = Math.Max(0, Math.Sin(Math.PI * position));
+        return Math.Pow(taper, EnvelopePower);
     }
 }

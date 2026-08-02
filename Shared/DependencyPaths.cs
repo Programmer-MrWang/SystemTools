@@ -96,7 +96,7 @@ public static class DependencyPaths
             var model = FindVoskModelDirectory();
             if (model is null)
             {
-                return (false, $"找不到完整的 Vosk 语音识别模型。请将模型放入 {GetDependencyRoot()} 下。");
+                return (false, $"找不到 Vosk 语音识别模型目录。请将模型目录放入 {GetDependencyRoot()} 下。");
             }
 
             if (FindVoskWorkerPath() is null)
@@ -114,11 +114,12 @@ public static class DependencyPaths
 
     private static bool IsVoskModelDirectory(string path)
     {
+        var name = Path.GetFileName(path);
         return Directory.Exists(path) &&
-               File.Exists(Path.Combine(path, "conf", "mfcc.conf")) &&
-               File.Exists(Path.Combine(path, "am", "final.mdl")) &&
-               File.Exists(Path.Combine(path, "graph", "HCLG.fst")) &&
-               File.Exists(Path.Combine(path, "graph", "words.txt"));
+               !string.Equals(name, "VoskWorker", StringComparison.OrdinalIgnoreCase) &&
+               !string.Equals(name, "runtimes", StringComparison.OrdinalIgnoreCase) &&
+               !string.Equals(name, "Models", StringComparison.OrdinalIgnoreCase) &&
+               !string.Equals(name, "FloatingWindowProfiles", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsVoskWorkerInstallation(string executablePath)

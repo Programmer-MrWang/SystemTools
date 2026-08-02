@@ -32,7 +32,7 @@ public class SystemToolsNotificationProvider : NotificationProviderBase
             {
                 Duration = AiReplyNotificationContent.EstimateDisplayDuration(notificationText),
                 SpeechContent = notificationText,
-                IsSpeechEnabled = false
+                IsSpeechEnabled = true
             },
             ChannelId = Guid.Parse(AiReplyChannelId)
         };

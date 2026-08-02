@@ -33,6 +33,8 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     private readonly ClassIslandActionAiService _actionAiService;
     private readonly Func<ProfileModificationPreview, Task<bool>> _confirmProfileModificationAsync;
     private readonly Func<ActionExecutionPreview, Task<bool>> _confirmActionExecutionAsync;
+    private readonly bool _suppressClassIslandNotificationSharing;
+    private readonly bool _useVoiceWakePrompt;
     private readonly Dictionary<Guid, ComposerDraft> _composerDrafts = [];
     private CancellationTokenSource? _generationCancellation;
     private Task _generationTask = Task.CompletedTask;
@@ -66,7 +68,9 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         ClassIslandProfileAiService profileAiService,
         ClassIslandActionAiService actionAiService,
         Func<ProfileModificationPreview, Task<bool>> confirmProfileModificationAsync,
-        Func<ActionExecutionPreview, Task<bool>> confirmActionExecutionAsync)
+        Func<ActionExecutionPreview, Task<bool>> confirmActionExecutionAsync,
+        bool suppressClassIslandNotificationSharing = false,
+        bool useVoiceWakePrompt = false)
     {
         _store = store;
         _aiService = aiService;
@@ -79,6 +83,8 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         _actionAiService = actionAiService;
         _confirmProfileModificationAsync = confirmProfileModificationAsync;
         _confirmActionExecutionAsync = confirmActionExecutionAsync;
+        _suppressClassIslandNotificationSharing = suppressClassIslandNotificationSharing;
+        _useVoiceWakePrompt = useVoiceWakePrompt;
         PendingAttachments.CollectionChanged += OnPendingAttachmentsChanged;
         Conversations.CollectionChanged += OnConversationsCollectionChanged;
         _operationGate.StateChanged += OnOperationGateStateChanged;
@@ -806,6 +812,11 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             var agentMessages = requestMessages.ToList();
             const int maximumToolRounds = 8;
             const int maximumToolCallsPerRound = 8;
+            var tools = _useVoiceWakePrompt
+                ? _profileAiService.Tools
+                    .Where(tool => tool.Name == ClassIslandProfileAiService.ReadProfileToolName)
+                    .ToArray()
+                : _profileAiService.Tools.Concat(_actionAiService.Tools).ToArray();
 
             for (var round = 0; round < maximumToolRounds; round++)
             {
@@ -817,7 +828,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
                 await foreach (var update in _aiService.StreamChatCompletionWithToolsAsync(
                                    agentMessages,
-                                   _profileAiService.Tools.Concat(_actionAiService.Tools).ToArray(),
+                                   tools,
                                    cancellationToken: cancellationToken))
                 {
                     if (update.Completion is not null)
@@ -905,7 +916,17 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                         GetToolActivityText(toolCall.Name));
 
                     string toolResult;
-                    if ((actionExecutionWasDenied || actionExecutionWasAuthorized) &&
+                    if (_useVoiceWakePrompt &&
+                        (ClassIslandActionAiService.OwnsTool(toolCall.Name) ||
+                         toolCall.Name == ClassIslandProfileAiService.PatchProfileToolName))
+                    {
+                        toolResult = JsonSerializer.Serialize(new
+                        {
+                            status = "denied",
+                            message = "当前无权限，在AI对话文本对话框中操作。"
+                        });
+                    }
+                    else if ((actionExecutionWasDenied || actionExecutionWasAuthorized) &&
                         toolCall.Name == ClassIslandActionAiService.ExecuteActionsToolName)
                     {
                         toolResult = JsonSerializer.Serialize(new
@@ -1063,7 +1084,8 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             _generationCancellation?.Dispose();
             _generationCancellation = null;
 
-            if (generationCompleted && IsClassIslandNotificationSharingEnabled)
+            if (generationCompleted && IsClassIslandNotificationSharingEnabled &&
+                !_suppressClassIslandNotificationSharing)
             {
                 try
                 {
@@ -1238,7 +1260,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     {
         try
         {
-            systemPrompt = _promptService.LoadSystemPrompt();
+            systemPrompt = _promptService.LoadSystemPrompt(_useVoiceWakePrompt);
             return true;
         }
         catch (Exception ex)

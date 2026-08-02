@@ -37,6 +37,17 @@ public sealed class AiPromptService
 31\.对必须拒绝的请求，简短说明无法协助，并尽量提供安全、合法、合规且适合教学环境的替代方案；不要复述、补全或转换被禁止的可操作细节。
 """;
 
+    private const string VoiceWakeRulesPrompt = """
+32\.以下规则在整个语音唤醒对话流程中始终生效，并优先于第 4、9、20 条中关于 Markdown 格式的要求。
+33\.不得使用任何 Markdown 语法回复；不要使用标题、列表、加粗、行内代码、引用或其它标记。
+34\.不得生成任何形式的表格。
+35\.公式内容必须使用普通文本描述，不要使用 LaTeX、Markdown 数学公式或代码块。
+36\.回答必须极简，只输出必要内容；每一轮回复都必须遵守上述全部规则。
+37\.回复尽量控制在 50 字以内；绝对不得超过 245 字。
+38\.语音唤醒模式下只允许普通对话和读取档案；禁止调用行动目录、应用设置、执行行动或修改档案等工具。
+39\.若用户要求执行行动或修改档案，必须回复“当前无权限，在AI对话文本对话框中操作。”，不得执行、不得尝试绕过或提示其它操作路径。
+""";
+
     private static readonly string[] ChineseWeekdays =
     [
         "星期日",
@@ -87,13 +98,21 @@ public sealed class AiPromptService
 14\.patch_classisland_profile 会由本地程序校验并向用户弹窗确认。用户拒绝后必须尊重决定，本轮不得再次请求写入；校验或版本冲突时，根据工具错误重新读取或向用户说明，不得绕过本地确认机制。
 """;
 
-    public string LoadSystemPrompt()
+    public string LoadSystemPrompt() => LoadSystemPrompt(false);
+
+    public string LoadSystemPrompt(bool useVoiceWakePrompt)
     {
         var now = _exactTimeService.GetCurrentLocalDateTime();
         var weekday = ChineseWeekdays[(int)now.DayOfWeek];
         var currentTimePrompt =
             $"15\\.本次请求的 ClassIsland 当前时间是：{now.Year:D4}年{now.Month:D2}月{now.Day:D2}日 {weekday} {now.Hour:D2}时{now.Minute:D2}分{now.Second:D2}秒。" +
             "这是本次请求的权威当地时间；涉及‘现在’、日期、星期、课程时间或相对时间的回答必须以此为准。";
-        return $"{SystemPrompt}{Environment.NewLine}{Environment.NewLine}{currentTimePrompt}{Environment.NewLine}{ActionToolPrompt}{Environment.NewLine}{TeachingSafetyPrompt}";
+        var prompt = $"{SystemPrompt}{Environment.NewLine}{Environment.NewLine}{currentTimePrompt}{Environment.NewLine}{ActionToolPrompt}{Environment.NewLine}{TeachingSafetyPrompt}";
+        if (useVoiceWakePrompt)
+        {
+            prompt += $"{Environment.NewLine}{Environment.NewLine}{VoiceWakeRulesPrompt}";
+        }
+
+        return prompt;
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -9,9 +10,14 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using ClassIsland.Core;
+using ClassIsland.Core.Abstractions.Services;
+using ClassIsland.Core.Abstractions.Services.SpeechService;
 using ClassIsland.Core.Assists;
 using FluentAvalonia.UI.Controls;
 using Microsoft.Extensions.Logging;
+using SoundFlow.Abstracts.Devices;
+using SoundFlow.Enums;
+using SoundFlow.Interfaces;
 using SystemTools.ConfigHandlers;
 using SystemTools.Models;
 using SystemTools.Shared;
@@ -20,8 +26,8 @@ using SystemTools.Views;
 namespace SystemTools.Services;
 
 /// <summary>
-/// Continuous voice conversation controller. Speech playback is intentionally
-/// represented by a short delay until the plugin has a real TTS implementation.
+/// Continuous voice conversation controller. AI replies are broadcast through
+/// ClassIsland's configured speech service before the next listening turn starts.
 /// </summary>
 public sealed class AiVoiceConversationService(
     KeywordSpeechService keywordSpeechService,
@@ -38,15 +44,23 @@ public sealed class AiVoiceConversationService(
     MainWindowAreaService mainWindowAreaService,
     MainWindowTextOcclusionService mainWindowTextOcclusionService,
     IHotkeyService hotkeyService,
-    ILogger<AiVoiceConversationService> logger) : IDisposable
+    ILogger<AiVoiceConversationService> logger,
+    ISpeechService classIslandSpeechService,
+    IAudioService audioService) : IDisposable
 {
     private const uint EscapeVirtualKey = 0x1B;
-   private static readonly TimeSpan FakeSpeechPlaybackDuration = TimeSpan.FromSeconds(3);
-   private static readonly TimeSpan SilenceDuration = TimeSpan.FromSeconds(3);
-   private const double DefaultMainWindowCornerRadius = 8.0;
-   private readonly object _syncRoot = new();
+    private const string SystemSpeechProviderId = "classisland.speech.system";
+    private const double EstimatedSpeechCharactersPerSecond = 3.0;
+    private static readonly TimeSpan SilenceDuration = TimeSpan.FromSeconds(3);
+    private static readonly TimeSpan SpeechPlaybackIdleThreshold = TimeSpan.FromMilliseconds(500);
+    private static readonly TimeSpan SpeechPlaybackStartTimeout = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan SpeechPlaybackTotalTimeout = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan EstimatedSpeechStartupOverhead = TimeSpan.FromSeconds(1.5);
+    private const double DefaultMainWindowCornerRadius = 8.0;
+    private readonly object _syncRoot = new();
     private IDisposable? _wakeRegistration;
     private CancellationTokenSource? _conversationCancellation;
+    private RefCounted<AudioPlaybackDevice>.Lease? _audioPlaybackLease;
     private AiVoiceConversationOverlayWindow? _overlay;
     private FAContentDialog? _activeConfirmationDialog;
     private int _conversationRunning;
@@ -207,6 +221,20 @@ public sealed class AiVoiceConversationService(
         {
             cancellation.Token.ThrowIfCancellationRequested();
 
+            RefCounted<AudioPlaybackDevice>.Lease? audioPlaybackLease = null;
+            try
+            {
+                audioPlaybackLease = await audioService.TryInitializeDefaultPlaybackDeviceSafeAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "无法获取语音播放设备租约，将使用估算等待");
+            }
+            lock (_syncRoot)
+            {
+                _audioPlaybackLease = audioPlaybackLease;
+            }
+
             var windowInfo = await Dispatcher.UIThread.InvokeAsync(CaptureMainWindowInfo);
             if (windowInfo is null)
             {
@@ -243,7 +271,9 @@ public sealed class AiVoiceConversationService(
                     profileAiService,
                     actionAiService,
                     ConfirmProfileModificationAsync,
-                    ConfirmActionExecutionAsync);
+                    ConfirmActionExecutionAsync,
+                    suppressClassIslandNotificationSharing: true,
+                    useVoiceWakePrompt: true);
 
                 var appearanceMainWindow = AppBase.Current.MainWindow;
                 opacitySource = appearanceMainWindow?.FindControl<Control>("GridRoot");
@@ -288,7 +318,6 @@ public sealed class AiVoiceConversationService(
                     logger.LogWarning("语音唤醒 AI 无法加载模型：{Message}", message);
                 },
                 cancellation.Token);
-            var greetingDelay = Task.Delay(FakeSpeechPlaybackDuration, cancellation.Token);
             speechConversation = await modelLoadTask;
             if (speechConversation is null)
             {
@@ -298,7 +327,6 @@ public sealed class AiVoiceConversationService(
             }
 
             await SetOverlayStatusAsync("已就绪；请讲……", null, cancellation.Token);
-            await greetingDelay;
 
             while (!cancellation.IsCancellationRequested)
             {
@@ -360,7 +388,10 @@ public sealed class AiVoiceConversationService(
                     "正在回复……",
                     string.IsNullOrWhiteSpace(reply) ? "AI 暂时没有返回内容。" : null,
                     cancellation.Token);
-                await Task.Delay(FakeSpeechPlaybackDuration, cancellation.Token);
+                if (!string.IsNullOrWhiteSpace(reply))
+                {
+                    await SpeakReplyAsync(reply, cancellation.Token);
+                }
             }
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
@@ -374,6 +405,21 @@ public sealed class AiVoiceConversationService(
         }
         finally
         {
+            try
+            {
+                RefCounted<AudioPlaybackDevice>.Lease? audioLease;
+                lock (_syncRoot)
+                {
+                    audioLease = _audioPlaybackLease;
+                    _audioPlaybackLease = null;
+                }
+                audioLease?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                logger.LogDebug(ex, "释放语音播放设备租约失败");
+            }
+
             try
             {
                 try
@@ -466,6 +512,14 @@ public sealed class AiVoiceConversationService(
                     if (ReferenceEquals(_conversationCancellation, cancellation))
                     {
                         _conversationCancellation = null;
+                        try
+                        {
+                            classIslandSpeechService.ClearSpeechQueue();
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogDebug(ex, "清空语音播报队列失败");
+                        }
                     }
                 }
 
@@ -570,6 +624,123 @@ public sealed class AiVoiceConversationService(
                         : viewModel.StatusText);
             });
         }
+    }
+
+    private async Task SpeakReplyAsync(string reply, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var existingPlayers =
+                TryGetActivePlaybackComponents()?.ToHashSet() ?? new HashSet<ISoundPlayer>();
+            classIslandSpeechService.ClearSpeechQueue();
+            var speechText = SystemToolsNotificationProvider.NormalizeAiReply(reply);
+            if (string.IsNullOrWhiteSpace(speechText))
+            {
+                return;
+            }
+
+            classIslandSpeechService.EnqueueSpeechQueue(speechText);
+            await WaitForSpeechPlaybackAsync(speechText, existingPlayers, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "语音播报失败，继续下一轮聆听");
+        }
+    }
+
+    private async Task WaitForSpeechPlaybackAsync(
+        string text,
+        HashSet<ISoundPlayer> existingPlayers,
+        CancellationToken cancellationToken)
+    {
+        var usesSoundFlowPlayback = !string.Equals(
+            classIslandSettingsService.GetSelectedSpeechProvider(),
+            SystemSpeechProviderId,
+            StringComparison.OrdinalIgnoreCase);
+        var startUtc = DateTime.UtcNow;
+        var estimatedDeadline = startUtc + EstimateSpeechDuration(text);
+        var playbackStartDeadline = startUtc + SpeechPlaybackStartTimeout;
+        var playbackSeen = false;
+        var canObservePlayback = _audioPlaybackLease is not null;
+        DateTime? idleSinceUtc = null;
+
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var now = DateTime.UtcNow;
+            var activePlayers = TryGetActivePlaybackComponents();
+            if (activePlayers is null)
+            {
+                idleSinceUtc = null;
+            }
+            else
+            {
+                var newPlayers = activePlayers
+                    .Where(player => !existingPlayers.Contains(player))
+                    .ToArray();
+                if (newPlayers.Length > 0)
+                {
+                    playbackSeen = true;
+                    idleSinceUtc = null;
+                }
+                else if (playbackSeen)
+                {
+                    idleSinceUtc ??= now;
+                    if (now - idleSinceUtc >= SpeechPlaybackIdleThreshold)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            if (!playbackSeen)
+            {
+                var fallbackDeadline = canObservePlayback && usesSoundFlowPlayback
+                    ? playbackStartDeadline
+                    : estimatedDeadline;
+                if (now >= fallbackDeadline)
+                {
+                    return;
+                }
+            }
+            else if (now - startUtc >= SpeechPlaybackTotalTimeout)
+            {
+                return;
+            }
+
+            await Task.Delay(100, cancellationToken);
+        }
+    }
+
+    private IReadOnlyList<ISoundPlayer>? TryGetActivePlaybackComponents()
+    {
+        if (_audioPlaybackLease is null)
+        {
+            return [];
+        }
+
+        try
+        {
+            return _audioPlaybackLease.Value.MasterMixer.Components
+                .OfType<ISoundPlayer>()
+                .Where(player => player.State == PlaybackState.Playing)
+                .ToArray();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static TimeSpan EstimateSpeechDuration(string text)
+    {
+        var seconds = EstimatedSpeechStartupOverhead.TotalSeconds +
+                      text.Length / EstimatedSpeechCharactersPerSecond;
+        return TimeSpan.FromSeconds(Math.Max(2.0, seconds));
     }
 
     private Task<bool> ConfirmProfileModificationAsync(ProfileModificationPreview preview)

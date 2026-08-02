@@ -36,6 +36,14 @@ public sealed class ClassIslandSettingsService
     public bool? GetWindowCaptureBlockingEnabled() =>
         GetProperty<bool>("IsWindowCaptureBlockingEnabled");
 
+    public string? GetSelectedSpeechProvider()
+    {
+        var settings = GetSettings();
+        var property = settings?.GetType()
+            .GetProperty("SelectedSpeechProvider", BindingFlags.Instance | BindingFlags.Public);
+        return property?.CanRead == true ? property.GetValue(settings) as string : null;
+    }
+
     private static T? GetProperty<T>(string propertyName) where T : struct
     {
         var settings = GetSettings();

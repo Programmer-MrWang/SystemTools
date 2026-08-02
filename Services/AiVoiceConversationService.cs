@@ -41,9 +41,10 @@ public sealed class AiVoiceConversationService(
     ILogger<AiVoiceConversationService> logger) : IDisposable
 {
     private const uint EscapeVirtualKey = 0x1B;
-    private static readonly TimeSpan FakeSpeechPlaybackDuration = TimeSpan.FromSeconds(3);
-    private static readonly TimeSpan SilenceDuration = TimeSpan.FromSeconds(3);
-    private readonly object _syncRoot = new();
+   private static readonly TimeSpan FakeSpeechPlaybackDuration = TimeSpan.FromSeconds(3);
+   private static readonly TimeSpan SilenceDuration = TimeSpan.FromSeconds(3);
+   private const double DefaultMainWindowCornerRadius = 8.0;
+   private readonly object _syncRoot = new();
     private IDisposable? _wakeRegistration;
     private CancellationTokenSource? _conversationCancellation;
     private AiVoiceConversationOverlayWindow? _overlay;
@@ -120,27 +121,58 @@ public sealed class AiVoiceConversationService(
     }
 
     private void OnWakeWordMatched(IDisposable keywordSuspension)
+        => TryStartConversation(keywordSuspension, allowWhenDisabled: false);
+
+    public bool TryStartDebugConversation()
     {
-        if (_disposed || !configHandler.Data.EnableVoiceWakeAi ||
-            Interlocked.CompareExchange(ref _conversationRunning, 1, 0) != 0)
+        if (_disposed || string.IsNullOrWhiteSpace(configHandler.Data.AiModel))
         {
-            keywordSuspension.Dispose();
-            return;
+            return false;
+        }
+
+        var dependencyCheck = DependencyPaths.CheckVoskDependencies();
+        if (!dependencyCheck.IsAvailable)
+        {
+            LastError = dependencyCheck.Message;
+            return false;
         }
 
         try
         {
-            _ = Task.Run(() => RunConversationAsync(keywordSuspension));
+            return TryStartConversation(keywordSpeechService.SuspendListening(), allowWhenDisabled: true);
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            logger.LogWarning(ex, "无法启动调试语音唤醒 AI");
+            return false;
+        }
+    }
+
+    private bool TryStartConversation(IDisposable keywordSuspension, bool allowWhenDisabled)
+    {
+        if (_disposed || (!allowWhenDisabled && !configHandler.Data.EnableVoiceWakeAi) ||
+            Interlocked.CompareExchange(ref _conversationRunning, 1, 0) != 0)
+        {
+            keywordSuspension.Dispose();
+            return false;
+        }
+
+        try
+        {
+            _ = Task.Run(() => RunConversationAsync(keywordSuspension, allowWhenDisabled));
+            return true;
         }
         catch (Exception ex)
         {
             keywordSuspension.Dispose();
             Interlocked.Exchange(ref _conversationRunning, 0);
             logger.LogWarning(ex, "无法调度语音对话任务");
+            return false;
         }
     }
 
-    private async Task RunConversationAsync(IDisposable keywordSuspension)
+    private async Task RunConversationAsync(IDisposable keywordSuspension, bool allowWhenDisabled)
     {
         var cancellation = new CancellationTokenSource();
         lock (_syncRoot)
@@ -154,7 +186,7 @@ public sealed class AiVoiceConversationService(
             }
 
             _conversationCancellation = cancellation;
-            if (!configHandler.Data.EnableVoiceWakeAi)
+            if (!allowWhenDisabled && !configHandler.Data.EnableVoiceWakeAi)
             {
                 cancellation.Cancel();
             }
@@ -186,16 +218,18 @@ public sealed class AiVoiceConversationService(
                 occlusionSuspension = mainWindowTextOcclusionService.Suspend();
                 mainWindowVisibilityLease = classIslandSettingsService.HideMainWindow()
                     ?? throw new InvalidOperationException("无法隐藏 ClassIsland 主界面。");
-                overlay = new AiVoiceConversationOverlayWindow(
-                    windowInfo.Value.Position,
-                    windowInfo.Value.Width,
-                    windowInfo.Value.Height,
-                    windowInfo.Value.IsDark,
-                    windowInfo.Value.Opacity);
-                overlay.SetStatus("你好，我是ci，请稍后……");
+               overlay = new AiVoiceConversationOverlayWindow(
+                   windowInfo.Value.Position,
+                   windowInfo.Value.Width,
+                   windowInfo.Value.Height,
+                   windowInfo.Value.IsDark,
+                   windowInfo.Value.Opacity,
+                   windowInfo.Value.CornerRadius);
+               overlay.SetStatus("你好，我是ci，请稍后……");
                 overlay.EscapePressed += OverlayOnEscapePressed;
                 overlay.Show();
                 overlay.Activate();
+                _ = overlay.PlayEntranceAsync();
                 _overlay = overlay;
                 escapeHotkeyLease = TryRegisterEscapeHotkey();
                 chatViewModel = new AiChatSettingsViewModel(
@@ -270,20 +304,35 @@ public sealed class AiVoiceConversationService(
             {
                 await SetOverlayStatusAsync("正在聆听……", null, cancellation.Token);
                 var turn = new CaptureTurn(SilenceDuration);
-                captureLease = await speechConversation.TryStartCaptureAsync(
-                    turn.OnText,
-                    turn.OnError,
-                    turn.OnSpeechActivity,
-                    cancellation.Token);
-                if (captureLease is null)
+                await SetOverlayListeningAsync(true);
+                try
                 {
-                    throw new InvalidOperationException("无法启动语音识别麦克风。");
-                }
+                    captureLease = await speechConversation.TryStartCaptureAsync(
+                        turn.OnText,
+                        turn.OnError,
+                        turn.OnSpeechActivity,
+                        level => Dispatcher.UIThread.Post(() =>
+                        {
+                            if (ReferenceEquals(_overlay, overlay))
+                            {
+                                overlay?.SetAudioLevel(level);
+                            }
+                        }),
+                        cancellation.Token);
+                    if (captureLease is null)
+                    {
+                        throw new InvalidOperationException("无法启动语音识别麦克风。");
+                    }
 
-                await turn.WaitForSilenceAsync(cancellation.Token);
-                await speechConversation.StopCaptureAsync();
-                captureLease.Dispose();
-                captureLease = null;
+                    await turn.WaitForSilenceAsync(cancellation.Token);
+                    await speechConversation.StopCaptureAsync();
+                    captureLease.Dispose();
+                    captureLease = null;
+                }
+                finally
+                {
+                    await SetOverlayListeningAsync(false);
+                }
 
                 var userText = turn.GetText();
                 if (string.IsNullOrWhiteSpace(userText))
@@ -713,34 +762,47 @@ public sealed class AiVoiceConversationService(
         {
             var bounds = mainWindow.Bounds;
             var position = mainWindow.Position;
-            return new WindowInfo(
-                position,
-                Math.Max(1, bounds.Width),
-                Math.Max(1, bounds.Height),
-                mainWindow.ActualThemeVariant == ThemeVariant.Dark,
-                GetMainWindowOpacity(mainWindow));
+           return new WindowInfo(
+               position,
+               Math.Max(1, bounds.Width),
+               Math.Max(1, bounds.Height),
+               mainWindow.ActualThemeVariant == ThemeVariant.Dark,
+               GetMainWindowOpacity(mainWindow),
+               GetMainWindowCornerRadius(mainWindow));
         }
 
         var union = areas.Skip(1).Aggregate(areas[0], Rectangle.Union);
         var scaling = Math.Max(0.1, mainWindow.RenderScaling);
-        return new WindowInfo(
-            new PixelPoint(union.Left, union.Top),
-            union.Width / scaling,
-            union.Height / scaling,
-            mainWindow.ActualThemeVariant == ThemeVariant.Dark,
-            GetMainWindowOpacity(mainWindow));
+       return new WindowInfo(
+           new PixelPoint(union.Left, union.Top),
+           union.Width / scaling,
+           union.Height / scaling,
+           mainWindow.ActualThemeVariant == ThemeVariant.Dark,
+           GetMainWindowOpacity(mainWindow),
+           GetMainWindowCornerRadius(mainWindow));
     }
 
-    private static double GetMainWindowOpacity(Control mainWindow)
-    {
-        var gridRoot = mainWindow.FindControl<Control>("GridRoot");
-        if (gridRoot is null)
-        {
-            return 0.5;
-        }
+   private static double GetMainWindowOpacity(Control mainWindow)
+   {
+       var gridRoot = mainWindow.FindControl<Control>("GridRoot");
+       if (gridRoot is null)
+       {
+           return 0.5;
+       }
 
-        return MainWindowStylesAssist.GetBackgroundOpacity(gridRoot);
-    }
+       return MainWindowStylesAssist.GetBackgroundOpacity(gridRoot);
+   }
+
+   private static double GetMainWindowCornerRadius(Control mainWindow)
+   {
+       var gridRoot = mainWindow.FindControl<Control>("GridRoot");
+       if (gridRoot is null)
+       {
+           return DefaultMainWindowCornerRadius;
+       }
+
+       return MainWindowStylesAssist.GetCornerRadius(gridRoot);
+   }
 
     private async Task SetOverlayStatusAsync(string status, string? detail, CancellationToken cancellationToken)
     {
@@ -758,6 +820,18 @@ public sealed class AiVoiceConversationService(
         catch
         {
             // Error reporting must never prevent cleanup.
+        }
+    }
+
+    private async Task SetOverlayListeningAsync(bool isListening)
+    {
+        try
+        {
+            await Dispatcher.UIThread.InvokeAsync(() => _overlay?.SetListening(isListening));
+        }
+        catch
+        {
+            // The overlay may have been closed while a capture lease unwinds.
         }
     }
 
@@ -839,12 +913,13 @@ public sealed class AiVoiceConversationService(
         UnregisterWakeWord();
     }
 
-    private readonly record struct WindowInfo(
-        PixelPoint Position,
-        double Width,
-        double Height,
-        bool IsDark,
-        double Opacity);
+   private readonly record struct WindowInfo(
+       PixelPoint Position,
+       double Width,
+       double Height,
+       bool IsDark,
+       double Opacity,
+       double CornerRadius);
 
     private readonly record struct VoiceTurnStart(
         AiConversation Conversation,

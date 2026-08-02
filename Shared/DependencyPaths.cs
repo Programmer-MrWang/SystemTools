@@ -10,6 +10,8 @@ public static class DependencyPaths
 {
     private const string CacheFolderName = "Cache";
     private const string DependencyFolderName = "SystemTools";
+    private const string VoskModelMarkerFileName = "copyright.txt";
+    private const string VoskModelMarkerContent = "Officially certified by SystemTools";
     private static bool _initialized;
     private static readonly object SyncRoot = new();
 
@@ -114,11 +116,30 @@ public static class DependencyPaths
 
     private static bool IsVoskModelDirectory(string path)
     {
-        return Directory.Exists(path) &&
-               File.Exists(Path.Combine(path, "conf", "mfcc.conf")) &&
-               File.Exists(Path.Combine(path, "am", "final.mdl")) &&
-               File.Exists(Path.Combine(path, "graph", "HCLG.fst")) &&
-               File.Exists(Path.Combine(path, "graph", "words.txt"));
+        if (!Directory.Exists(path))
+        {
+            return false;
+        }
+
+        var markerPath = Path.Combine(path, VoskModelMarkerFileName);
+        if (!File.Exists(markerPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            var markerContent = File.ReadAllText(markerPath).Trim();
+            return string.Equals(markerContent, VoskModelMarkerContent, StringComparison.Ordinal);
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     private static bool IsVoskWorkerInstallation(string executablePath)

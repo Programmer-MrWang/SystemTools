@@ -151,6 +151,8 @@ internal static class Program
             WriteMessage("capture_started");
         }
 
+        WriteMessage("audio_level", level: session.GetAudioLevel(e.Audio));
+
         if (session.ShouldReportSpeechActivity(e.Audio))
         {
             WriteMessage("speech_activity");
@@ -207,9 +209,9 @@ internal static class Program
             : string.Empty;
     }
 
-    private static void WriteMessage(string type, string? text = null, string? message = null)
+    private static void WriteMessage(string type, string? text = null, string? message = null, double? level = null)
     {
-        var json = JsonSerializer.Serialize(new WorkerMessage(type, text, message));
+        var json = JsonSerializer.Serialize(new WorkerMessage(type, text, message, level));
         lock (OutputLock)
         {
             Console.Out.WriteLine(json);
@@ -284,6 +286,25 @@ internal static class Program
 
             Volatile.Write(ref _lastSpeechActivityTimestamp, now);
             return true;
+        }
+
+        public double GetAudioLevel(byte[] audio)
+        {
+            var sampleCount = audio.Length / sizeof(short);
+            if (sampleCount == 0)
+            {
+                return 0;
+            }
+
+            double squaredLevel = 0;
+            for (var offset = 0; offset + 1 < audio.Length; offset += sizeof(short))
+            {
+                var sample = BitConverter.ToInt16(audio, offset);
+                squaredLevel += (double)sample * sample;
+            }
+
+            var rms = Math.Sqrt(squaredLevel / sampleCount);
+            return Math.Clamp((rms - SpeechLevelThreshold * 0.35) / 6000d, 0, 1);
         }
 
         public string GetFinalText()
@@ -457,5 +478,5 @@ internal static class Program
     {
         public string Message { get; } = message;
     }
-    private sealed record WorkerMessage(string Type, string? Text, string? Message);
+    private sealed record WorkerMessage(string Type, string? Text, string? Message, double? Level = null);
 }

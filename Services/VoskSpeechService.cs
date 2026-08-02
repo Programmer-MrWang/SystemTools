@@ -41,6 +41,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         public required Action<string, bool> OnText { get; init; }
         public required Action<string> OnError { get; init; }
         public Action? OnSpeechActivity { get; init; }
+        public Action<double>? OnAudioLevel { get; init; }
         public object? Owner { get; init; }
         public TaskCompletionSource<bool> Started { get; } =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -49,7 +50,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         public bool StopRequested { get; set; }
     }
 
-    private sealed record WorkerMessage(string? Type, string? Text, string? Message);
+    private sealed record WorkerMessage(string? Type, string? Text, string? Message, double? Level);
 
     public bool IsDictationActive
     {
@@ -204,6 +205,20 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
             onText,
             onError,
             onSpeechActivity: null,
+            onAudioLevel: null,
+            owner: null,
+            cancellationToken);
+
+    public async Task<IDisposable?> TryStartCaptureAsync(
+        Action<string, bool> onText,
+        Action<string> onError,
+        Action<double> onAudioLevel,
+        CancellationToken cancellationToken = default)
+        => await TryStartCaptureCoreAsync(
+            onText,
+            onError,
+            onSpeechActivity: null,
+            onAudioLevel: onAudioLevel,
             owner: null,
             cancellationToken);
 
@@ -211,6 +226,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         Action<string, bool> onText,
         Action<string> onError,
         Action? onSpeechActivity,
+        Action<double>? onAudioLevel,
         object? owner,
         CancellationToken cancellationToken)
     {
@@ -239,6 +255,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
                 OnText = onText,
                 OnError = onError,
                 OnSpeechActivity = onSpeechActivity,
+                OnAudioLevel = onAudioLevel,
                 Owner = owner
             };
             _capture = capture;
@@ -609,6 +626,9 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
             case "speech_activity" when capture is not null:
                 SafeInvokeSpeechActivity(capture);
                 break;
+            case "audio_level" when capture is not null:
+                SafeInvokeAudioLevel(capture, message.Level ?? 0);
+                break;
             case "final" when capture is not null && !string.IsNullOrWhiteSpace(message.Text):
                 SafeInvokeText(capture, message.Text!, true);
                 break;
@@ -654,6 +674,18 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "[VoskSpeech] Speech activity callback failed");
+        }
+    }
+
+    private void SafeInvokeAudioLevel(CaptureSession capture, double level)
+    {
+        try
+        {
+            capture.OnAudioLevel?.Invoke(level);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "[VoskSpeech] Audio level callback failed");
         }
     }
 
@@ -980,6 +1012,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
             Action<string, bool> onText,
             Action<string> onError,
             Action onSpeechActivity,
+            Action<double>? onAudioLevel = null,
             CancellationToken cancellationToken = default)
         {
             var service = Volatile.Read(ref _service);
@@ -989,6 +1022,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
                     onText,
                     onError,
                     onSpeechActivity,
+                    onAudioLevel,
                     _owner,
                     cancellationToken);
         }

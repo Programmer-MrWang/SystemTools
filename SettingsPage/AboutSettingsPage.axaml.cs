@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Shared;
 using SystemTools.Shared;
+using SystemTools.Services;
 
 namespace SystemTools;
 
@@ -79,6 +80,23 @@ public partial class AboutSettingsPage : SettingsPageBase
     private async void OnLyricifyLiteHelpClick(object? sender, RoutedEventArgs e)
     {
         await ShowLyricifyLiteWarningAsync();
+    }
+
+    private void OnDebugVoiceWakeAiClick(object? sender, RoutedEventArgs e)
+    {
+        var service = IAppHost.TryGetService<AiVoiceConversationService>();
+        if (service is null)
+        {
+            ShowSimpleMessage("无法调试语音唤醒 AI", "请先启用 AI 服务并重启 ClassIsland。");
+            return;
+        }
+
+        if (!service.TryStartDebugConversation())
+        {
+            ShowSimpleMessage(
+                "无法调试语音唤醒 AI",
+                service.LastError ?? "请先选择 AI 模型，或等待当前语音对话结束。");
+        }
     }
 
     private async Task ShowLyricifyLiteWarningAsync()

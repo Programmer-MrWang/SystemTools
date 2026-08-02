@@ -1,7 +1,8 @@
 <Window x:Class="SystemTools.Views.AiVoiceConversationOverlayWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="AI 语音对话"
+        xmlns:local="clr-namespace:SystemTools.Views"
+        Title="AI voice conversation"
         CanResize="False"
         CanMaximize="False"
         CanMinimize="False"
@@ -14,28 +15,39 @@
         KeyDown="Window_OnKeyDown"
         Closing="Window_OnClosing">
     <Border x:Name="RootBorder"
-            Padding="8"
-            CornerRadius="0">
-        <Viewbox Stretch="Uniform"
-                 StretchDirection="DownOnly"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center">
-            <StackPanel HorizontalAlignment="Center"
+            Padding="28,24,28,26"
+            CornerRadius="22">
+        <Grid RowDefinitions="Auto,*"
+              RowSpacing="18">
+            <StackPanel Grid.Row="0"
+                        HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Spacing="4">
+                        Spacing="7">
                 <TextBlock x:Name="StatusText"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
-                           FontSize="20"
-                           FontWeight="SemiBold" />
+                           FontSize="25"
+                           FontWeight="SemiBold"
+                           LetterSpacing="0.2" />
                 <TextBlock x:Name="DetailText"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
                            MaxWidth="720"
                            FontSize="14"
+                           Opacity="0.72"
                            IsVisible="False" />
             </StackPanel>
-        </Viewbox>
+
+            <Border Grid.Row="1"
+                    MinHeight="116"
+                    CornerRadius="16"
+                    Padding="10,8"
+                    Background="#16000000">
+                <local:VoiceWaveformControl x:Name="Waveform"
+                                             HorizontalAlignment="Stretch"
+                                             VerticalAlignment="Stretch" />
+            </Border>
+        </Grid>
     </Border>
 </Window>

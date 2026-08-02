@@ -124,6 +124,11 @@
                     <Border Grid.Row="1" BorderThickness="0">
                         <StackPanel>
                             <StackPanel IsVisible="{Binding IsHelpTab}">
+                                <controls:FASettingsExpander Header="调试语音唤醒AI"
+                                                             IconSource="{ci:FluentIconSource &#xF4C5;}"
+                                                             Click="OnDebugVoiceWakeAiClick"
+                                                             ActionIconSource="{ci:FluentIconSource &#xEC2E;}"
+                                                             IsClickEnabled="True" />
                                 <controls:FASettingsExpander Header="Lyricify Lite 适配帮助"
                                                            Description="点击查看 Lyricify Lite 适配说明"
                                                            IconSource="{ci:FluentIconSource &#xE236;}"

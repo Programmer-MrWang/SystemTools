@@ -81,7 +81,7 @@ public class KeywordTriggerSettings : TriggerSettingsControlBase<KeywordTriggerC
         Grid.SetColumn(_thresholdLabel, 1);
         var tipText = new TextBlock
         {
-            Text = "阈值越低越灵敏，越高越严格",
+            Text = "阈值越低越灵敏，越高越严格 建议 < 0.3",
             FontSize = 12,
             Foreground = new SolidColorBrush(Color.Parse("#888888")),
             TextWrapping = TextWrapping.Wrap,

@@ -121,7 +121,7 @@ public sealed class AiVoiceConversationService(
         LastError = null;
         UnregisterWakeWord();
         var keyword = string.IsNullOrWhiteSpace(config.AiWakeWord) ? "你好ci" : config.AiWakeWord;
-        _wakeRegistration = keywordSpeechService.RegisterWakeWord(keyword, 0.5, OnWakeWordMatched);
+        _wakeRegistration = keywordSpeechService.RegisterWakeWord(keyword, 0.2, OnWakeWordMatched);
         logger.LogInformation("语音唤醒 AI 已启用，唤醒词：{WakeWord}", keyword);
     }
 
@@ -336,7 +336,18 @@ public sealed class AiVoiceConversationService(
                 try
                 {
                     captureLease = await speechConversation.TryStartCaptureAsync(
-                        turn.OnText,
+                        (text, isFinal) =>
+                        {
+                            turn.OnText(text, isFinal);
+                            var recognizedText = turn.GetText();
+                            Dispatcher.UIThread.Post(() =>
+                            {
+                                if (ReferenceEquals(_overlay, overlay))
+                                {
+                                    overlay?.SetRecognizedText(recognizedText);
+                                }
+                            });
+                        },
                         turn.OnError,
                         turn.OnSpeechActivity,
                         level => Dispatcher.UIThread.Post(() =>

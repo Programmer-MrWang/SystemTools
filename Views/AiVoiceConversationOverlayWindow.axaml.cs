@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using Avalonia;
@@ -12,13 +13,25 @@ namespace SystemTools.Views;
 
 public partial class AiVoiceConversationOverlayWindow : Window
 {
+    private const double HeightSpringAngularFrequency = 18;
+
     private bool _allowClose;
     private bool _exitAnimationStarted;
+    private bool _entranceAnimationRunning;
+    private bool _heightAnimationRunning;
+    private bool _transcriptMeasurePending;
+    private bool _isListening;
     private readonly IDisposable _windowStateSubscription;
+    private readonly DispatcherTimer _heightAnimationTimer;
     private readonly double _cornerRadius;
     private readonly PixelPoint _initialPosition;
     private readonly double _initialWidth;
     private readonly double _initialHeight;
+    private double _defaultExpandedHeight;
+    private double _transcriptHeightDelta;
+    private double _targetHeight;
+    private double _heightVelocity;
+    private long _heightAnimationTimestamp;
 
     public AiVoiceConversationOverlayWindow()
         : this(new PixelPoint(0, 0), 1, 1, isDark: false, opacity: 0.5, cornerRadius: 8.0)
@@ -40,8 +53,14 @@ public partial class AiVoiceConversationOverlayWindow : Window
         _initialPosition = Position;
         _initialWidth = Width;
         _initialHeight = Height;
+        _defaultExpandedHeight = Height;
+        _targetHeight = Height;
         Topmost = true;
         _cornerRadius = Math.Max(0, cornerRadius);
+        _heightAnimationTimer = new DispatcherTimer(
+            TimeSpan.FromMilliseconds(16),
+            DispatcherPriority.Render,
+            OnHeightAnimationTick);
         ApplyTheme(isDark, opacity);
         RootBorder.CornerRadius = new CornerRadius(_cornerRadius + 10);
         Waveform.SetDarkTheme(isDark);
@@ -67,11 +86,33 @@ public partial class AiVoiceConversationOverlayWindow : Window
     public void SetStatus(string status, string? detail = null)
     {
         StatusText.Text = status;
+        StatusText.IsVisible = true;
         DetailText.Text = detail ?? string.Empty;
         DetailText.IsVisible = !string.IsNullOrWhiteSpace(detail);
+        TranscriptText.Text = string.Empty;
+        TranscriptText.IsVisible = false;
+        SetTranscriptHeightDelta(0);
     }
 
-    public void SetListening(bool isListening) => Waveform.SetListening(isListening);
+    public void SetListening(bool isListening)
+    {
+        _isListening = isListening;
+        Waveform.SetListening(isListening);
+    }
+
+    public void SetRecognizedText(string text)
+    {
+        if (!_isListening || string.IsNullOrWhiteSpace(text))
+        {
+            return;
+        }
+
+        TranscriptText.Text = text.Trim();
+        TranscriptText.IsVisible = true;
+        StatusText.IsVisible = false;
+        DetailText.IsVisible = false;
+        QueueTranscriptHeightUpdate();
+    }
 
     public void SetAudioLevel(double level) => Waveform.SetAudioLevel(level);
 
@@ -91,12 +132,15 @@ public partial class AiVoiceConversationOverlayWindow : Window
         var targetPosition = new PixelPoint(
             startPosition.X - (int)Math.Round(widthDelta / 2),
             startPosition.Y);
+        _entranceAnimationRunning = true;
+        _defaultExpandedHeight = targetHeight;
+        _targetHeight = targetHeight + _transcriptHeightDelta;
 
         try
         {
             for (var frame = 1; frame <= 22; frame++)
             {
-                if (_allowClose || !IsVisible)
+                if (_allowClose || _exitAnimationStarted || !IsVisible)
                 {
                     return;
                 }
@@ -108,10 +152,10 @@ public partial class AiVoiceConversationOverlayWindow : Window
                 Position = new PixelPoint(
                     startPosition.X + (int)Math.Round((targetPosition.X - startPosition.X) * eased),
                     startPosition.Y + (int)Math.Round((targetPosition.Y - startPosition.Y) * eased));
-                await Task.Delay(16);
+                await Task.Delay(8);
             }
 
-            if (_allowClose || !IsVisible)
+            if (_allowClose || _exitAnimationStarted || !IsVisible)
             {
                 return;
             }
@@ -123,6 +167,19 @@ public partial class AiVoiceConversationOverlayWindow : Window
         catch (InvalidOperationException)
         {
             // A cancellation can close the owner while the entrance is settling.
+        }
+        finally
+        {
+            _entranceAnimationRunning = false;
+            if (!_allowClose && !_exitAnimationStarted && IsVisible)
+            {
+                if (TranscriptText.IsVisible)
+                {
+                    QueueTranscriptHeightUpdate();
+                }
+
+                AnimateHeightTo(_defaultExpandedHeight + _transcriptHeightDelta);
+            }
         }
     }
 
@@ -136,6 +193,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
         }
 
         _exitAnimationStarted = true;
+        StopHeightAnimation();
         _ = PlayExitAsync();
     }
 
@@ -161,7 +219,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
                 Position = new PixelPoint(
                     startPosition.X + (int)Math.Round((_initialPosition.X - startPosition.X) * eased),
                     _initialPosition.Y);
-                await Task.Delay(16);
+                await Task.Delay(8);
             }
         }
         catch (InvalidOperationException)
@@ -182,8 +240,112 @@ public partial class AiVoiceConversationOverlayWindow : Window
         }
 
         _allowClose = true;
+        StopHeightAnimation();
         _windowStateSubscription.Dispose();
         Close();
+    }
+
+    private void QueueTranscriptHeightUpdate()
+    {
+        if (_transcriptMeasurePending)
+        {
+            return;
+        }
+
+        _transcriptMeasurePending = true;
+        Dispatcher.UIThread.Post(() =>
+        {
+            _transcriptMeasurePending = false;
+            if (!TranscriptText.IsVisible)
+            {
+                return;
+            }
+
+            var layoutWidth = RootBorder.Bounds.Width;
+            if (!double.IsFinite(layoutWidth) || layoutWidth <= 0)
+            {
+                layoutWidth = Width;
+            }
+
+            var contentWidth = Math.Max(1, layoutWidth - RootBorder.Padding.Left - RootBorder.Padding.Right);
+            var availableWidth = double.IsFinite(TranscriptText.MaxWidth)
+                ? Math.Min(TranscriptText.MaxWidth, contentWidth)
+                : contentWidth;
+            TranscriptText.Measure(new Size(availableWidth, double.PositiveInfinity));
+            var singleLineHeight = double.IsFinite(TranscriptText.LineHeight) && TranscriptText.LineHeight > 0
+                ? TranscriptText.LineHeight
+                : TranscriptText.FontSize * 1.45;
+            var requiredHeight = Math.Max(singleLineHeight, TranscriptText.DesiredSize.Height);
+            SetTranscriptHeightDelta(Math.Ceiling(requiredHeight - singleLineHeight));
+        }, DispatcherPriority.Loaded);
+    }
+
+    private void SetTranscriptHeightDelta(double heightDelta)
+    {
+        _transcriptHeightDelta = Math.Max(0, heightDelta);
+        if (!_entranceAnimationRunning)
+        {
+            AnimateHeightTo(_defaultExpandedHeight + _transcriptHeightDelta);
+        }
+    }
+
+    private void AnimateHeightTo(double targetHeight)
+    {
+        if (_allowClose || _exitAnimationStarted)
+        {
+            return;
+        }
+
+        _targetHeight = Math.Max(1, targetHeight);
+        if (Math.Abs(Height - _targetHeight) < 0.25 && Math.Abs(_heightVelocity) < 1)
+        {
+            Height = _targetHeight;
+            StopHeightAnimation();
+            return;
+        }
+
+        if (_heightAnimationRunning)
+        {
+            return;
+        }
+
+        _heightAnimationRunning = true;
+        _heightAnimationTimestamp = Stopwatch.GetTimestamp();
+        _heightAnimationTimer.Start();
+    }
+
+    private void OnHeightAnimationTick(object? sender, EventArgs e)
+    {
+        if (_allowClose || _exitAnimationStarted || _entranceAnimationRunning)
+        {
+            StopHeightAnimation();
+            return;
+        }
+
+        var timestamp = Stopwatch.GetTimestamp();
+        var elapsed = Stopwatch.GetElapsedTime(_heightAnimationTimestamp, timestamp).TotalSeconds;
+        _heightAnimationTimestamp = timestamp;
+        var deltaTime = Math.Clamp(elapsed, 1d / 240, 0.05);
+
+        var displacement = Height - _targetHeight;
+        var springTerm = _heightVelocity + HeightSpringAngularFrequency * displacement;
+        var decay = Math.Exp(-HeightSpringAngularFrequency * deltaTime);
+        var nextDisplacement = (displacement + springTerm * deltaTime) * decay;
+        _heightVelocity = (_heightVelocity - HeightSpringAngularFrequency * springTerm * deltaTime) * decay;
+        Height = Math.Max(1, _targetHeight + nextDisplacement);
+
+        if (Math.Abs(Height - _targetHeight) < 0.25 && Math.Abs(_heightVelocity) < 1)
+        {
+            Height = _targetHeight;
+            StopHeightAnimation();
+        }
+    }
+
+    private void StopHeightAnimation()
+    {
+        _heightAnimationTimer.Stop();
+        _heightAnimationRunning = false;
+        _heightVelocity = 0;
     }
 
     private void ApplyTheme(bool isDark, double opacity)
@@ -223,6 +385,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
         RootBorder.BorderThickness = new Thickness(1);
         StatusText.Foreground = new SolidColorBrush(foreground);
         DetailText.Foreground = new SolidColorBrush(foreground);
+        TranscriptText.Foreground = new SolidColorBrush(foreground);
         Waveform.SetDarkTheme(isDark);
     }
 

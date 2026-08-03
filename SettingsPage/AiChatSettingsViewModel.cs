@@ -35,6 +35,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
     private readonly Func<ActionExecutionPreview, Task<bool>> _confirmActionExecutionAsync;
     private readonly bool _suppressClassIslandNotificationSharing;
     private readonly bool _useVoiceWakePrompt;
+    private readonly bool _useTransientConversation;
     private readonly Dictionary<Guid, ComposerDraft> _composerDrafts = [];
     private CancellationTokenSource? _generationCancellation;
     private Task _generationTask = Task.CompletedTask;
@@ -70,7 +71,8 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         Func<ProfileModificationPreview, Task<bool>> confirmProfileModificationAsync,
         Func<ActionExecutionPreview, Task<bool>> confirmActionExecutionAsync,
         bool suppressClassIslandNotificationSharing = false,
-        bool useVoiceWakePrompt = false)
+        bool useVoiceWakePrompt = false,
+        bool useTransientConversation = false)
     {
         _store = store;
         _aiService = aiService;
@@ -85,14 +87,17 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         _confirmActionExecutionAsync = confirmActionExecutionAsync;
         _suppressClassIslandNotificationSharing = suppressClassIslandNotificationSharing;
         _useVoiceWakePrompt = useVoiceWakePrompt;
+        _useTransientConversation = useTransientConversation;
         PendingAttachments.CollectionChanged += OnPendingAttachmentsChanged;
         Conversations.CollectionChanged += OnConversationsCollectionChanged;
         _operationGate.StateChanged += OnOperationGateStateChanged;
         _speechService.DictationStateChanged += OnDictationStateChanged;
 
-        var selected = store.Conversations.FirstOrDefault(x => x.Id == store.ActiveConversationId)
-                       ?? store.Conversations.FirstOrDefault()
-                       ?? store.CreateConversation();
+        var selected = useTransientConversation
+            ? new AiConversation()
+            : store.Conversations.FirstOrDefault(x => x.Id == store.ActiveConversationId)
+              ?? store.Conversations.FirstOrDefault()
+              ?? store.CreateConversation();
         SelectedConversation = selected;
 
         if (!string.IsNullOrWhiteSpace(store.LastLoadError))
@@ -812,11 +817,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             var agentMessages = requestMessages.ToList();
             const int maximumToolRounds = 8;
             const int maximumToolCallsPerRound = 8;
-            var tools = _useVoiceWakePrompt
-                ? _profileAiService.Tools
-                    .Where(tool => tool.Name == ClassIslandProfileAiService.ReadProfileToolName)
-                    .ToArray()
-                : _profileAiService.Tools.Concat(_actionAiService.Tools).ToArray();
+            var tools = _profileAiService.Tools.Concat(_actionAiService.Tools).ToArray();
 
             for (var round = 0; round < maximumToolRounds; round++)
             {
@@ -916,17 +917,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                         GetToolActivityText(toolCall.Name));
 
                     string toolResult;
-                    if (_useVoiceWakePrompt &&
-                        (ClassIslandActionAiService.OwnsTool(toolCall.Name) ||
-                         toolCall.Name == ClassIslandProfileAiService.PatchProfileToolName))
-                    {
-                        toolResult = JsonSerializer.Serialize(new
-                        {
-                            status = "denied",
-                            message = "当前无权限，在AI对话文本对话框中操作。"
-                        });
-                    }
-                    else if ((actionExecutionWasDenied || actionExecutionWasAuthorized) &&
+                    if ((actionExecutionWasDenied || actionExecutionWasAuthorized) &&
                         toolCall.Name == ClassIslandActionAiService.ExecuteActionsToolName)
                     {
                         toolResult = JsonSerializer.Serialize(new
@@ -1404,7 +1395,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     private void OnConversationsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (_isDisposed)
+        if (_isDisposed || _useTransientConversation)
         {
             return;
         }
@@ -1504,6 +1495,11 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     private void TrySetActiveConversation(AiConversation? conversation)
     {
+        if (_useTransientConversation)
+        {
+            return;
+        }
+
         try
         {
             _store.SetActiveConversation(conversation);
@@ -1516,6 +1512,11 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     private void TrySaveStore()
     {
+        if (_useTransientConversation)
+        {
+            return;
+        }
+
         try
         {
             _store.Save();

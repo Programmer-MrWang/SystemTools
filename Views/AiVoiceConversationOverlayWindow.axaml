@@ -17,46 +17,104 @@
     <Border x:Name="RootBorder"
             Padding="28,24,28,26"
             CornerRadius="22">
-        <Grid RowDefinitions="Auto,*"
-              RowSpacing="18">
-            <StackPanel Grid.Row="0"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Center"
-                        Spacing="7">
-                <TextBlock x:Name="TranscriptText"
-                           HorizontalAlignment="Stretch"
-                           TextAlignment="Left"
-                           TextWrapping="Wrap"
-                           MaxWidth="720"
-                           FontSize="20"
-                           FontWeight="Medium"
-                           LineHeight="29"
-                           IsVisible="False" />
-                <TextBlock x:Name="StatusText"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           FontSize="25"
-                           FontWeight="SemiBold"
-                           LetterSpacing="0.2" />
-                <TextBlock x:Name="DetailText"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           MaxWidth="720"
-                           FontSize="14"
-                           Opacity="0.72"
-                           IsVisible="False" />
-            </StackPanel>
+        <Grid>
+            <Grid x:Name="ConversationContent"
+                  RowDefinitions="Auto,*"
+                  RowSpacing="18">
+                <StackPanel Grid.Row="0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            Spacing="7">
+                    <TextBlock x:Name="TranscriptText"
+                               HorizontalAlignment="Stretch"
+                               TextAlignment="Left"
+                               TextWrapping="Wrap"
+                               MaxWidth="720"
+                               FontSize="20"
+                               FontWeight="Medium"
+                               LineHeight="29"
+                               IsVisible="False" />
+                    <TextBlock x:Name="StatusText"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               FontSize="25"
+                               FontWeight="SemiBold"
+                               LetterSpacing="0" />
+                    <TextBlock x:Name="DetailText"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               MaxWidth="720"
+                               FontSize="14"
+                               Opacity="0.72"
+                               IsVisible="False" />
+                </StackPanel>
 
-            <Border Grid.Row="1"
-                    MinHeight="116"
-                    CornerRadius="16"
-                    Padding="10,8"
-                    Background="#0063B100">
-                <local:VoiceWaveformControl x:Name="Waveform"
-                                             HorizontalAlignment="Stretch"
-                                             VerticalAlignment="Stretch" />
-            </Border>
+                <Border Grid.Row="1"
+                        MinHeight="116"
+                        CornerRadius="16"
+                        Padding="10,8"
+                        Background="#0063B100">
+                    <local:VoiceWaveformControl x:Name="Waveform"
+                                                 HorizontalAlignment="Stretch"
+                                                 VerticalAlignment="Stretch" />
+                </Border>
+            </Grid>
+
+            <Grid x:Name="ApprovalContent"
+                  RowDefinitions="Auto,Auto,Auto,Auto,*"
+                  RowSpacing="12"
+                  IsVisible="False">
+                <TextBlock x:Name="ApprovalTitleText"
+                           Grid.Row="0"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap" />
+
+                <TextBlock x:Name="ApprovalSummaryText"
+                           Grid.Row="1"
+                           FontSize="14"
+                           LineHeight="21"
+                           TextWrapping="Wrap" />
+
+                <ScrollViewer Grid.Row="2"
+                              MaxHeight="260"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="ApprovalDetailsText"
+                               FontFamily="Consolas"
+                               FontSize="13"
+                               LineHeight="20"
+                               TextWrapping="Wrap" />
+                </ScrollViewer>
+
+                <TextBlock x:Name="ApprovalWarningText"
+                           Grid.Row="3"
+                           FontSize="13"
+                           LineHeight="20"
+                           Opacity="0.76"
+                           TextWrapping="Wrap" />
+
+                <Grid Grid.Row="4"
+                      Margin="0,4,0,0"
+                      VerticalAlignment="Bottom"
+                      ColumnDefinitions="*,*"
+                      ColumnSpacing="12">
+                    <Button Grid.Column="0"
+                            MinHeight="44"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Content="拒绝请求"
+                            Click="DenyApprovalButton_OnClick" />
+                    <Button Grid.Column="1"
+                            MinHeight="44"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            Classes="accent"
+                            Content="批准请求"
+                            Click="ApproveApprovalButton_OnClick" />
+                </Grid>
+            </Grid>
         </Grid>
     </Border>
 </Window>

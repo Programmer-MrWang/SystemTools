@@ -6,14 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using ClassIsland.Core;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Abstractions.Services.SpeechService;
 using ClassIsland.Core.Assists;
-using FluentAvalonia.UI.Controls;
 using Microsoft.Extensions.Logging;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Enums;
@@ -50,19 +48,20 @@ public sealed class AiVoiceConversationService(
 {
     private const uint EscapeVirtualKey = 0x1B;
     private const string SystemSpeechProviderId = "classisland.speech.system";
+    private const string DebugAutomaticRequest = "把今天最后一节课改成自习";
     private const double EstimatedSpeechCharactersPerSecond = 3.0;
     private static readonly TimeSpan SilenceDuration = TimeSpan.FromSeconds(3);
     private static readonly TimeSpan SpeechPlaybackIdleThreshold = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan SpeechPlaybackStartTimeout = TimeSpan.FromSeconds(60);
     private static readonly TimeSpan SpeechPlaybackTotalTimeout = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan EstimatedSpeechStartupOverhead = TimeSpan.FromSeconds(1.5);
+    private static readonly TimeSpan DebugAutomaticRequestDelayAfterModelLoad = TimeSpan.FromSeconds(1);
     private const double DefaultMainWindowCornerRadius = 8.0;
     private readonly object _syncRoot = new();
     private IDisposable? _wakeRegistration;
     private CancellationTokenSource? _conversationCancellation;
     private RefCounted<AudioPlaybackDevice>.Lease? _audioPlaybackLease;
     private AiVoiceConversationOverlayWindow? _overlay;
-    private FAContentDialog? _activeConfirmationDialog;
     private int _conversationRunning;
     private bool _started;
     private bool _disposed;
@@ -153,7 +152,10 @@ public sealed class AiVoiceConversationService(
 
         try
         {
-            return TryStartConversation(keywordSpeechService.SuspendListening(), allowWhenDisabled: true);
+            return TryStartConversation(
+                keywordSpeechService.SuspendListening(),
+                allowWhenDisabled: true,
+                initialRequest: DebugAutomaticRequest);
         }
         catch (Exception ex)
         {
@@ -163,7 +165,10 @@ public sealed class AiVoiceConversationService(
         }
     }
 
-    private bool TryStartConversation(IDisposable keywordSuspension, bool allowWhenDisabled)
+    private bool TryStartConversation(
+        IDisposable keywordSuspension,
+        bool allowWhenDisabled,
+        string? initialRequest = null)
     {
         if (_disposed || (!allowWhenDisabled && !configHandler.Data.EnableVoiceWakeAi) ||
             Interlocked.CompareExchange(ref _conversationRunning, 1, 0) != 0)
@@ -174,7 +179,10 @@ public sealed class AiVoiceConversationService(
 
         try
         {
-            _ = Task.Run(() => RunConversationAsync(keywordSuspension, allowWhenDisabled));
+            _ = Task.Run(() => RunConversationAsync(
+                keywordSuspension,
+                allowWhenDisabled,
+                initialRequest));
             return true;
         }
         catch (Exception ex)
@@ -186,7 +194,10 @@ public sealed class AiVoiceConversationService(
         }
     }
 
-    private async Task RunConversationAsync(IDisposable keywordSuspension, bool allowWhenDisabled)
+    private async Task RunConversationAsync(
+        IDisposable keywordSuspension,
+        bool allowWhenDisabled,
+        string? initialRequest)
     {
         var cancellation = new CancellationTokenSource();
         lock (_syncRoot)
@@ -216,6 +227,7 @@ public sealed class AiVoiceConversationService(
         Control? opacitySource = null;
         EventHandler<AvaloniaPropertyChangedEventArgs>? applicationPropertyChanged = null;
         EventHandler<AvaloniaPropertyChangedEventArgs>? opacityPropertyChanged = null;
+        var toolApprovalWasRequested = 0;
 
         try
         {
@@ -270,10 +282,19 @@ public sealed class AiVoiceConversationService(
                     notificationProvider,
                     profileAiService,
                     actionAiService,
-                    ConfirmProfileModificationAsync,
-                    ConfirmActionExecutionAsync,
+                    async preview =>
+                    {
+                        Interlocked.Exchange(ref toolApprovalWasRequested, 1);
+                        return await ConfirmProfileModificationAsync(preview);
+                    },
+                    async preview =>
+                    {
+                        Interlocked.Exchange(ref toolApprovalWasRequested, 1);
+                        return await ConfirmActionExecutionAsync(preview);
+                    },
                     suppressClassIslandNotificationSharing: true,
-                    useVoiceWakePrompt: true);
+                    useVoiceWakePrompt: true,
+                    useTransientConversation: !string.IsNullOrWhiteSpace(initialRequest));
 
                 var appearanceMainWindow = AppBase.Current.MainWindow;
                 opacitySource = appearanceMainWindow?.FindControl<Control>("GridRoot");
@@ -311,19 +332,35 @@ public sealed class AiVoiceConversationService(
 
             await SetOverlayStatusAsync("你好，我是ci，请稍后……", null, cancellation.Token);
             string? modelLoadError = null;
-            var modelLoadTask = speechService.TryAcquireConversationAsync(
+            speechConversation = await speechService.TryAcquireConversationAsync(
                 message =>
                 {
                     modelLoadError = message;
                     logger.LogWarning("语音唤醒 AI 无法加载模型：{Message}", message);
                 },
                 cancellation.Token);
-            speechConversation = await modelLoadTask;
+
             if (speechConversation is null)
             {
                 cancellation.Token.ThrowIfCancellationRequested();
                 throw new InvalidOperationException(
                     modelLoadError ?? "无法加载语音识别模型。");
+            }
+
+            if (!string.IsNullOrWhiteSpace(initialRequest))
+            {
+                await Task.Delay(DebugAutomaticRequestDelayAfterModelLoad, cancellation.Token);
+                await ProcessUserTurnAsync(
+                    chatViewModel,
+                    initialRequest,
+                    cancellation.Token,
+                    async () =>
+                    {
+                        if (Volatile.Read(ref toolApprovalWasRequested) == 0)
+                        {
+                            await ShowDebugApprovalPreviewAsync(cancellation.Token);
+                        }
+                    });
             }
 
             await SetOverlayStatusAsync("已就绪；请讲……", null, cancellation.Token);
@@ -379,30 +416,7 @@ public sealed class AiVoiceConversationService(
                     continue;
                 }
 
-                await SetOverlayStatusAsync("正在等待回应……", null, cancellation.Token);
-                string? reply;
-                try
-                {
-                    reply = await SendTurnAsync(chatViewModel, userText, cancellation.Token);
-                }
-                catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex, "语音对话 AI 请求失败");
-                    reply = null;
-                }
-
-                await SetOverlayStatusAsync(
-                    "正在回复……",
-                    string.IsNullOrWhiteSpace(reply) ? "AI 暂时没有返回内容。" : null,
-                    cancellation.Token);
-                if (!string.IsNullOrWhiteSpace(reply))
-                {
-                    await SpeakReplyAsync(reply, cancellation.Token);
-                }
+                await ProcessUserTurnAsync(chatViewModel, userText, cancellation.Token);
             }
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
@@ -538,6 +552,54 @@ public sealed class AiVoiceConversationService(
                 Interlocked.Exchange(ref _conversationRunning, 0);
             }
         }
+    }
+
+    private async Task ProcessUserTurnAsync(
+        AiChatSettingsViewModel? chatViewModel,
+        string userText,
+        CancellationToken cancellationToken,
+        Func<Task>? beforeReplyAsync = null)
+    {
+        await SetOverlayStatusAsync("正在等待回应……", null, cancellationToken);
+        string? reply;
+        try
+        {
+            reply = await SendTurnAsync(chatViewModel, userText, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "语音对话 AI 请求失败");
+            reply = null;
+        }
+
+        if (beforeReplyAsync is not null)
+        {
+            await beforeReplyAsync();
+        }
+
+        await SetOverlayStatusAsync(
+            "正在回复……",
+            string.IsNullOrWhiteSpace(reply) ? "AI 暂时没有返回内容。" : null,
+            cancellationToken);
+        if (!string.IsNullOrWhiteSpace(reply))
+        {
+            await SpeakReplyAsync(reply, cancellationToken);
+        }
+    }
+
+    private async Task ShowDebugApprovalPreviewAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        await ShowToolConfirmationAsync(
+            "允许 AI 修改 ClassIsland 档案？",
+            "修改说明：把今天最后一节课改成自习",
+            "目标：今天最后一节课\n新值：自习",
+            "当前档案没有产生可提交的修改。此审批仅用于调试界面，不会写入档案。");
+        cancellationToken.ThrowIfCancellationRequested();
     }
 
     private async Task<string?> SendTurnAsync(
@@ -769,8 +831,7 @@ public sealed class AiVoiceConversationService(
             "允许 AI 修改 ClassIsland 档案？",
             $"档案文件：{preview.ProfileFilePath}\n修改说明：{preview.Summary}",
             operationText,
-            "AI 可能误解指令；课表、时间表或教师信息的错误修改可能立即影响显示、提醒和自动化。请确认上方路径和值准确后再允许。",
-            "允许并保存");
+            "AI 可能误解指令；课表、时间表或教师信息的错误修改可能立即影响显示、提醒和自动化。请确认上方路径和值准确后再允许。");
     }
 
     private Task<bool> ConfirmActionExecutionAsync(ActionExecutionPreview preview)
@@ -785,16 +846,14 @@ public sealed class AiVoiceConversationService(
                 : $"允许 AI 执行这 {preview.Items.Count} 项行动？",
             $"执行说明：{preview.Summary}",
             actionText,
-            "这些行动可能启动程序、模拟输入、修改文件或系统状态。允许后将按上方顺序立即执行，请确认行动 ID 和参数符合要求。",
-            "允许执行");
+            "这些行动可能启动程序、模拟输入、修改文件或系统状态。允许后将按上方顺序立即执行，请确认行动 ID 和参数符合要求。");
     }
 
     private Task<bool> ShowToolConfirmationAsync(
         string title,
         string summary,
         string details,
-        string warning,
-        string primaryButtonText)
+        string warning)
     {
         if (Dispatcher.UIThread.CheckAccess())
         {
@@ -802,8 +861,7 @@ public sealed class AiVoiceConversationService(
                 title,
                 summary,
                 details,
-                warning,
-                primaryButtonText);
+                warning);
         }
 
         var completion = new TaskCompletionSource<bool>(
@@ -816,8 +874,7 @@ public sealed class AiVoiceConversationService(
                     title,
                     summary,
                     details,
-                    warning,
-                    primaryButtonText));
+                    warning));
             }
             catch (Exception ex)
             {
@@ -827,109 +884,34 @@ public sealed class AiVoiceConversationService(
         return completion.Task;
     }
 
-    private async Task<bool> ShowToolConfirmationOnUiThreadAsync(
+    private Task<bool> ShowToolConfirmationOnUiThreadAsync(
         string title,
         string summary,
         string details,
-        string warning,
-        string primaryButtonText)
+        string warning)
     {
         if (_overlay is not { IsVisible: true } overlay)
         {
-            return false;
+            return Task.FromResult(false);
         }
-
-        var dialog = new FAContentDialog
-        {
-            Title = title,
-            Content = new StackPanel
-            {
-                Spacing = 12,
-                MaxWidth = 640,
-                Children =
-                {
-                    new TextBlock
-                    {
-                        Text = summary,
-                        TextWrapping = TextWrapping.Wrap
-                    },
-                    new ScrollViewer
-                    {
-                        MaxHeight = 300,
-                        HorizontalScrollBarVisibility =
-                            Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
-                        VerticalScrollBarVisibility =
-                            Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
-                        Content = new TextBlock
-                        {
-                            Text = details,
-                            FontFamily = new Avalonia.Media.FontFamily("Consolas"),
-                            TextWrapping = TextWrapping.NoWrap
-                        }
-                    },
-                    new TextBlock
-                    {
-                        Text = warning,
-                        TextWrapping = TextWrapping.Wrap
-                    }
-                }
-            },
-            PrimaryButtonText = primaryButtonText,
-            CloseButtonText = "取消",
-            DefaultButton = FAContentDialogButton.Close
-        };
 
         CancellationToken cancellationToken;
         lock (_syncRoot)
         {
             if (_conversationCancellation is null)
             {
-                return false;
+                return Task.FromResult(false);
             }
 
             cancellationToken = _conversationCancellation.Token;
         }
 
-        _activeConfirmationDialog = dialog;
-        using var cancellationRegistration = cancellationToken.Register(() =>
-        {
-            try
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    if (ReferenceEquals(_activeConfirmationDialog, dialog))
-                    {
-                        try
-                        {
-                            dialog.Hide();
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogDebug(ex, "取消 AI 工具确认对话框失败");
-                        }
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                logger.LogDebug(ex, "调度 AI 工具确认对话框取消操作失败");
-            }
-        });
-        try
-        {
-            // The host window is deliberately hidden during a voice session;
-            // keeping the dialog owned by the topmost overlay guarantees that
-            // confirmations remain reachable instead of appearing underneath
-            // the hidden host window.
-            return await dialog.ShowAsync(overlay) == FAContentDialogResult.Primary;
-        }
-        finally
-        {
-            if (ReferenceEquals(_activeConfirmationDialog, dialog))
-            {
-                _activeConfirmationDialog = null;
-            }
-        }
+        return overlay.RequestToolApprovalAsync(
+            title,
+            summary,
+            details,
+            warning,
+            cancellationToken);
     }
 
     private WindowInfo? CaptureMainWindowInfo()

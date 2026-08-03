@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using Avalonia;
@@ -20,7 +21,10 @@ public partial class AiVoiceConversationOverlayWindow : Window
     private bool _entranceAnimationRunning;
     private bool _heightAnimationRunning;
     private bool _transcriptMeasurePending;
+    private bool _approvalMeasurePending;
     private bool _isListening;
+    private TaskCompletionSource<bool>? _approvalCompletion;
+    private CancellationTokenRegistration _approvalCancellationRegistration;
     private readonly IDisposable _windowStateSubscription;
     private readonly DispatcherTimer _heightAnimationTimer;
     private readonly double _cornerRadius;
@@ -29,6 +33,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
     private readonly double _initialHeight;
     private double _defaultExpandedHeight;
     private double _transcriptHeightDelta;
+    private double _approvalHeightDelta;
     private double _targetHeight;
     private double _heightVelocity;
     private long _heightAnimationTimestamp;
@@ -116,6 +121,45 @@ public partial class AiVoiceConversationOverlayWindow : Window
 
     public void SetAudioLevel(double level) => Waveform.SetAudioLevel(level);
 
+    public Task<bool> RequestToolApprovalAsync(
+        string title,
+        string summary,
+        string details,
+        string warning,
+        CancellationToken cancellationToken)
+    {
+        if (_allowClose || _exitAnimationStarted || !IsVisible || cancellationToken.IsCancellationRequested)
+        {
+            return Task.FromResult(false);
+        }
+
+        ResolveApproval(false, restoreConversation: false);
+        var completion = new TaskCompletionSource<bool>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        _approvalCompletion = completion;
+        ApprovalTitleText.Text = title;
+        ApprovalSummaryText.Text = summary;
+        ApprovalDetailsText.Text = details;
+        ApprovalWarningText.Text = warning;
+        SetListening(false);
+        ConversationContent.IsVisible = false;
+        ApprovalContent.IsVisible = true;
+        QueueApprovalHeightUpdate();
+
+        _approvalCancellationRegistration = cancellationToken.Register(() =>
+        {
+            try
+            {
+                Dispatcher.UIThread.Post(() => ResolveApproval(completion, false));
+            }
+            catch
+            {
+                completion.TrySetResult(false);
+            }
+        });
+        return completion.Task;
+    }
+
     /// <summary>
     /// Starts at the captured host size, then materializes the larger listening
     /// surface around its center so the overlay never jumps away from its source.
@@ -134,7 +178,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
             startPosition.Y);
         _entranceAnimationRunning = true;
         _defaultExpandedHeight = targetHeight;
-        _targetHeight = targetHeight + _transcriptHeightDelta;
+        _targetHeight = targetHeight + CurrentContentHeightDelta;
 
         try
         {
@@ -178,7 +222,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
                     QueueTranscriptHeightUpdate();
                 }
 
-                AnimateHeightTo(_defaultExpandedHeight + _transcriptHeightDelta);
+                AnimateHeightTo(_defaultExpandedHeight + CurrentContentHeightDelta);
             }
         }
     }
@@ -193,6 +237,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
         }
 
         _exitAnimationStarted = true;
+        ResolveApproval(false, restoreConversation: false);
         StopHeightAnimation();
         _ = PlayExitAsync();
     }
@@ -283,10 +328,86 @@ public partial class AiVoiceConversationOverlayWindow : Window
     private void SetTranscriptHeightDelta(double heightDelta)
     {
         _transcriptHeightDelta = Math.Max(0, heightDelta);
-        if (!_entranceAnimationRunning)
+        if (!_entranceAnimationRunning && !ApprovalContent.IsVisible)
         {
             AnimateHeightTo(_defaultExpandedHeight + _transcriptHeightDelta);
         }
+    }
+
+    private double CurrentContentHeightDelta =>
+        ApprovalContent.IsVisible ? _approvalHeightDelta : _transcriptHeightDelta;
+
+    private void QueueApprovalHeightUpdate()
+    {
+        if (_approvalMeasurePending)
+        {
+            return;
+        }
+
+        _approvalMeasurePending = true;
+        Dispatcher.UIThread.Post(() =>
+        {
+            _approvalMeasurePending = false;
+            if (!ApprovalContent.IsVisible)
+            {
+                return;
+            }
+
+            var layoutWidth = RootBorder.Bounds.Width;
+            if (!double.IsFinite(layoutWidth) || layoutWidth <= 0)
+            {
+                layoutWidth = Width;
+            }
+
+            var contentWidth = Math.Max(1, layoutWidth - RootBorder.Padding.Left - RootBorder.Padding.Right);
+            ApprovalContent.Measure(new Size(contentWidth, double.PositiveInfinity));
+            var requiredHeight = ApprovalContent.DesiredSize.Height +
+                                 RootBorder.Padding.Top + RootBorder.Padding.Bottom;
+            _approvalHeightDelta = Math.Max(
+                0,
+                Math.Ceiling(requiredHeight - _defaultExpandedHeight));
+            if (!_entranceAnimationRunning)
+            {
+                AnimateHeightTo(_defaultExpandedHeight + _approvalHeightDelta);
+            }
+        }, DispatcherPriority.Loaded);
+    }
+
+    private void ResolveApproval(bool approved, bool restoreConversation = true)
+    {
+        if (_approvalCompletion is not { } completion)
+        {
+            return;
+        }
+
+        ResolveApproval(completion, approved, restoreConversation);
+    }
+
+    private void ResolveApproval(
+        TaskCompletionSource<bool> completion,
+        bool approved,
+        bool restoreConversation = true)
+    {
+        if (!ReferenceEquals(_approvalCompletion, completion))
+        {
+            return;
+        }
+
+        _approvalCompletion = null;
+        _approvalCancellationRegistration.Dispose();
+        _approvalCancellationRegistration = default;
+        ApprovalContent.IsVisible = false;
+        _approvalHeightDelta = 0;
+        if (restoreConversation && !_allowClose && !_exitAnimationStarted)
+        {
+            ConversationContent.IsVisible = true;
+            if (!_entranceAnimationRunning)
+            {
+                AnimateHeightTo(_defaultExpandedHeight + _transcriptHeightDelta);
+            }
+        }
+
+        completion.TrySetResult(approved);
     }
 
     private void AnimateHeightTo(double targetHeight)
@@ -386,8 +507,18 @@ public partial class AiVoiceConversationOverlayWindow : Window
         StatusText.Foreground = new SolidColorBrush(foreground);
         DetailText.Foreground = new SolidColorBrush(foreground);
         TranscriptText.Foreground = new SolidColorBrush(foreground);
+        ApprovalTitleText.Foreground = new SolidColorBrush(foreground);
+        ApprovalSummaryText.Foreground = new SolidColorBrush(foreground);
+        ApprovalDetailsText.Foreground = new SolidColorBrush(foreground);
+        ApprovalWarningText.Foreground = new SolidColorBrush(foreground);
         Waveform.SetDarkTheme(isDark);
     }
+
+    private void DenyApprovalButton_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        => ResolveApproval(false);
+
+    private void ApproveApprovalButton_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        => ResolveApproval(true);
 
     private void Window_OnKeyDown(object? sender, KeyEventArgs e)
     {

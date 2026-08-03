@@ -15,6 +15,8 @@
     <ItemGroup>
         <PackageReference Include="NAudio.Core" Version="2.2.1" />
         <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+        <PackageReference Include="KaldiNativeFbankSharp" Version="1.1.3" />
+        <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.28.0" />
         <PackageReference Include="Vosk" Version="0.3.38" />
     </ItemGroup>
 </Project>

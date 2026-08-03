@@ -211,7 +211,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                 if (string.IsNullOrWhiteSpace(StatusText) ||
                     StatusText == VoiceInputModelLoadingMessage)
                 {
-                    StatusText = "无法启用 Vosk 语音输入；请确认依赖目录中存在模型和最新的 VoskWorker 文件夹，并允许麦克风访问";
+                    StatusText = "无法启用语音输入；请确认依赖目录中存在认证模型和最新的 VoskWorker 文件夹，并允许麦克风访问";
                 }
                 return;
             }

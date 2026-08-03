@@ -10,7 +10,7 @@ using SystemTools.Shared;
 namespace SystemTools.Services;
 
 /// <summary>
-/// Owns one persistent Vosk worker. The worker keeps the model loaded while
+/// Owns one persistent speech-recognition worker. The worker keeps the selected model loaded while
 /// individual capture leases open and close the microphone for each turn.
 /// </summary>
 public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisposable
@@ -85,7 +85,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
 
         if (!OperatingSystem.IsWindows())
         {
-            onError("Vosk 语音输入仅支持 Windows 麦克风。");
+            onError("语音输入仅支持 Windows 麦克风。");
             return null;
         }
 
@@ -97,7 +97,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
 
         if (isReserved)
         {
-            onError("语音对话正在使用 Vosk 语音识别。");
+            onError("语音对话正在使用语音识别服务。");
             return null;
         }
 
@@ -123,7 +123,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
     }
 
     /// <summary>
-    /// Reserves Vosk for a continuous conversation. Other AI chat windows cannot
+    /// Reserves speech recognition for a continuous conversation. Other AI chat windows cannot
     /// open the microphone while this session keeps the model warm.
     /// </summary>
     public async Task<ConversationSession?> TryAcquireConversationAsync(
@@ -134,7 +134,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
 
         if (!OperatingSystem.IsWindows())
         {
-            onError("Vosk 语音输入仅支持 Windows 麦克风。");
+            onError("语音输入仅支持 Windows 麦克风。");
             return null;
         }
 
@@ -265,7 +265,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         {
             if (!SendCommand(worker, "start_capture"))
             {
-                onError("Vosk 工作进程已不可用。");
+                onError("语音识别工作进程已不可用。");
                 await StopCaptureAsync(capture, owner);
                 return null;
             }
@@ -295,7 +295,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         }
         catch (Exception ex)
         {
-            onError($"无法启动 Vosk 麦克风：{ex.Message}");
+            onError($"无法启动语音输入：{ex.Message}");
             await StopCaptureAsync(capture, owner);
             return null;
         }
@@ -419,18 +419,18 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
             }
         }
 
-        var dependencyCheck = DependencyPaths.CheckVoskDependencies();
+        var dependencyCheck = DependencyPaths.CheckSpeechRecognitionDependencies();
         if (!dependencyCheck.IsAvailable)
         {
             onError(dependencyCheck.Message);
             return null;
         }
 
-        var modelPath = DependencyPaths.FindVoskModelDirectory();
-        var workerPath = DependencyPaths.FindVoskWorkerPath();
+        var modelPath = DependencyPaths.FindSpeechRecognitionModelDirectory();
+        var workerPath = DependencyPaths.FindSpeechRecognitionWorkerPath();
         if (modelPath is null || workerPath is null)
         {
-            onError("Vosk 模型或工作进程不存在。");
+            onError("语音识别模型或工作进程不存在。");
             return null;
         }
 
@@ -498,14 +498,14 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         {
             if (!process.Start())
             {
-                throw new InvalidOperationException("Vosk 工作进程未能启动。");
+                throw new InvalidOperationException("语音识别工作进程未能启动。");
             }
 
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
             if (!await session.Ready.Task.WaitAsync(ModelStartupTimeout, cancellationToken))
             {
-                throw new InvalidOperationException("Vosk 模型加载失败。");
+                throw new InvalidOperationException("语音识别模型加载失败。");
             }
 
             _logger.LogInformation("[VoskSpeech] Model loaded (PID: {ProcessId})", process.Id);
@@ -513,7 +513,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         }
         catch (TimeoutException)
         {
-            onError("Vosk 语音识别模型加载超时，请检查模型文件是否完整。");
+            onError("语音识别模型加载超时，请检查模型文件是否完整。");
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -521,7 +521,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         }
         catch (Exception ex)
         {
-            onError($"无法加载 Vosk 语音识别模型：{ex.Message}");
+            onError($"无法加载语音识别模型：{ex.Message}");
         }
 
         // Wake any concurrent callers waiting on this startup attempt before
@@ -575,7 +575,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         }
         catch (TimeoutException)
         {
-            onError("Vosk 语音识别模型加载超时，请检查模型文件是否完整。");
+            onError("语音识别模型加载超时，请检查模型文件是否完整。");
             return null;
         }
     }
@@ -642,7 +642,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
                 break;
             case "error":
                 var error = string.IsNullOrWhiteSpace(message.Message)
-                    ? "Vosk 工作进程发生未知错误。"
+                    ? "语音识别工作进程发生未知错误。"
                     : message.Message!;
                 worker.Ready.TrySetResult(false);
                 capture?.Started.TrySetResult(false);
@@ -750,7 +750,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         capture?.Stopped.TrySetResult(true);
         if (!_disposed)
         {
-            SafeInvokeError(capture, $"Vosk 工作进程意外退出（代码 {TryGetExitCode(process)}）。");
+            SafeInvokeError(capture, $"语音识别工作进程意外退出（代码 {TryGetExitCode(process)}）。");
         }
 
         RaiseDictationStateChanged();

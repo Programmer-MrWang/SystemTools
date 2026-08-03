@@ -3,7 +3,6 @@ using System.Text.Json;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using Vosk;
 
 namespace SystemTools.VoskWorker;
 
@@ -14,7 +13,7 @@ internal static class Program
     private static readonly long SpeechActivityIntervalTicks = Stopwatch.Frequency / 5;
     private static readonly object OutputLock = new();
     private static readonly SemaphoreSlim CaptureLock = new(1, 1);
-    private static Model? _model;
+    private static ISpeechRecognitionModel? _model;
     private static CaptureSession? _capture;
 
     public static async Task<int> Main(string[] args)
@@ -23,12 +22,11 @@ internal static class Program
         {
             if (args.Length != 1 || !Directory.Exists(args[0]))
             {
-                WriteMessage("error", message: "Vosk 模型目录无效。");
+                WriteMessage("error", message: "语音识别模型目录无效。");
                 return 2;
             }
 
-            Vosk.Vosk.SetLogLevel(-1);
-            _model = await Task.Run(() => new Model(args[0]));
+            _model = await Task.Run(() => SpeechRecognitionModelFactory.Load(args[0]));
             WriteMessage("model_ready");
             await MonitorParentCommandsAsync();
             await StopCaptureAsync();
@@ -36,7 +34,7 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            WriteMessage("error", message: $"Vosk 工作进程失败：{ex.Message}");
+            WriteMessage("error", message: $"语音识别工作进程失败：{ex.Message}");
             return 1;
         }
         finally
@@ -45,6 +43,7 @@ internal static class Program
             {
                 await StopCaptureAsync();
             }
+
             _model?.Dispose();
             _model = null;
         }
@@ -86,11 +85,11 @@ internal static class Program
 
             if (_model is null)
             {
-                WriteMessage("error", message: "Vosk 模型尚未加载。");
+                WriteMessage("error", message: "语音识别模型尚未加载。");
                 return;
             }
 
-            var session = new CaptureSession(_model);
+            var session = new CaptureSession(_model.CreateSession());
             _capture = session;
             session.AudioReceived += OnAudioReceived;
             session.StoppedUnexpectedly += OnCaptureStoppedUnexpectedly;
@@ -111,9 +110,10 @@ internal static class Program
     private static async Task StopCaptureAsync()
     {
         await CaptureLock.WaitAsync();
+        CaptureSession? session = null;
         try
         {
-            var session = _capture;
+            session = _capture;
             if (session is null)
             {
                 WriteMessage("capture_stopped");
@@ -124,18 +124,30 @@ internal static class Program
             session.AudioReceived -= OnAudioReceived;
             session.StoppedUnexpectedly -= OnCaptureStoppedUnexpectedly;
             session.Stop();
-            var finalText = session.GetFinalText();
+            await session.WaitForPartialRecognitionAsync();
+            var finalText = await session.GetFinalTextAsync();
             if (!string.IsNullOrWhiteSpace(finalText))
             {
                 WriteMessage("final", finalText);
             }
 
-            session.Dispose();
+            WriteMessage("capture_stopped");
+        }
+        catch (Exception ex)
+        {
+            WriteMessage("error", message: $"结束语音识别失败：{ex.Message}");
             WriteMessage("capture_stopped");
         }
         finally
         {
-            CaptureLock.Release();
+            try
+            {
+                session?.Dispose();
+            }
+            finally
+            {
+                CaptureLock.Release();
+            }
         }
     }
 
@@ -163,6 +175,28 @@ internal static class Program
         {
             WriteMessage(result.Type, result.Text, result.Message);
         }
+
+        session.TryStartPartialRecognition(() => PublishPartialRecognitionAsync(session));
+    }
+
+    private static async Task PublishPartialRecognitionAsync(CaptureSession session)
+    {
+        try
+        {
+            var text = await session.GetPartialTextAsync();
+            if (!string.IsNullOrWhiteSpace(text) && ReferenceEquals(_capture, session))
+            {
+                WriteMessage("partial", text);
+            }
+        }
+        catch (Exception ex)
+        {
+            if (ReferenceEquals(_capture, session))
+            {
+                WriteMessage("error", message: $"语音识别失败：{ex.Message}");
+                _ = Task.Run(StopCaptureAsync);
+            }
+        }
     }
 
     private static void OnCaptureStoppedUnexpectedly(object? sender, CaptureErrorEventArgs e)
@@ -176,40 +210,11 @@ internal static class Program
         _ = Task.Run(StopCaptureAsync);
     }
 
-    private static WorkerMessage? RecognizeAudio(
-        VoskRecognizer recognizer,
-        byte[] audio,
-        ref string lastPartial)
-    {
-        if (recognizer.AcceptWaveform(audio, audio.Length))
-        {
-            var text = ReadText(recognizer.Result(), "text");
-            lastPartial = string.Empty;
-            return string.IsNullOrWhiteSpace(text)
-                ? null
-                : new WorkerMessage("final", text, null);
-        }
-
-        var partial = ReadText(recognizer.PartialResult(), "partial");
-        if (string.IsNullOrWhiteSpace(partial) ||
-            string.Equals(partial, lastPartial, StringComparison.Ordinal))
-        {
-            return null;
-        }
-
-        lastPartial = partial;
-        return new WorkerMessage("partial", partial, null);
-    }
-
-    private static string ReadText(string json, string propertyName)
-    {
-        using var document = JsonDocument.Parse(json);
-        return document.RootElement.TryGetProperty(propertyName, out var value)
-            ? value.GetString() ?? string.Empty
-            : string.Empty;
-    }
-
-    private static void WriteMessage(string type, string? text = null, string? message = null, double? level = null)
+    private static void WriteMessage(
+        string type,
+        string? text = null,
+        string? message = null,
+        double? level = null)
     {
         var json = JsonSerializer.Serialize(new WorkerMessage(type, text, message, level));
         lock (OutputLock)
@@ -222,18 +227,20 @@ internal static class Program
     private sealed class CaptureSession : IDisposable
     {
         private readonly object _recognizerLock = new();
+        private readonly object _partialTaskLock = new();
         private readonly WasapiCapture _waveIn = new();
         private readonly MicrophoneAudioConverter _converter;
-        private readonly VoskRecognizer _recognizer;
-        private string _lastPartial = string.Empty;
+        private readonly IRecognitionSession _recognizer;
+        private Task _partialRecognitionTask = Task.CompletedTask;
+        private string _lastDeferredPartial = string.Empty;
         private bool _firstPacket = true;
         private bool _stopping;
         private bool _disposed;
         private long _lastSpeechActivityTimestamp;
 
-        public CaptureSession(Model model)
+        public CaptureSession(IRecognitionSession recognizer)
         {
-            _recognizer = new VoskRecognizer(model, SampleRate);
+            _recognizer = recognizer;
             _converter = new MicrophoneAudioConverter(_waveIn.WaveFormat);
             _waveIn.DataAvailable += WaveInOnDataAvailable;
             _waveIn.RecordingStopped += WaveInOnRecordingStopped;
@@ -261,12 +268,52 @@ internal static class Program
         {
             lock (_recognizerLock)
             {
-                if (_disposed)
+                return _disposed ? null : _recognizer.AcceptAudio(audio);
+            }
+        }
+
+        public void TryStartPartialRecognition(Func<Task> recognition)
+        {
+            lock (_partialTaskLock)
+            {
+                if (_disposed || !_partialRecognitionTask.IsCompleted ||
+                    !_recognizer.TryBeginPartialRecognition())
                 {
-                    return null;
+                    return;
                 }
 
-                return RecognizeAudio(_recognizer, audio, ref _lastPartial);
+                _partialRecognitionTask = Task.Run(recognition);
+            }
+        }
+
+        public async Task<string?> GetPartialTextAsync()
+        {
+            var text = await _recognizer.GetPartialTextAsync();
+            if (string.IsNullOrWhiteSpace(text) ||
+                string.Equals(text, _lastDeferredPartial, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            _lastDeferredPartial = text;
+            return text;
+        }
+
+        public Task WaitForPartialRecognitionAsync()
+        {
+            lock (_partialTaskLock)
+            {
+                return _partialRecognitionTask;
+            }
+        }
+
+        public Task<string> GetFinalTextAsync()
+        {
+            lock (_recognizerLock)
+            {
+                return _disposed
+                    ? Task.FromResult(string.Empty)
+                    : _recognizer.GetFinalTextAsync();
             }
         }
 
@@ -307,19 +354,6 @@ internal static class Program
             return Math.Clamp((rms - SpeechLevelThreshold * 0.35) / 6000d, 0, 1);
         }
 
-        public string GetFinalText()
-        {
-            lock (_recognizerLock)
-            {
-                if (_disposed)
-                {
-                    return string.Empty;
-                }
-
-                return ReadText(_recognizer.FinalResult(), "text");
-            }
-        }
-
         private static bool ContainsSpeech(byte[] audio)
         {
             var sampleCount = audio.Length / sizeof(short);
@@ -341,7 +375,10 @@ internal static class Program
 
         private void WaveInOnDataAvailable(object? sender, WaveInEventArgs e)
         {
-            if (_stopping) return;
+            if (_stopping)
+            {
+                return;
+            }
 
             foreach (var audio in _converter.Convert(e.Buffer, e.BytesRecorded))
             {
@@ -422,12 +459,18 @@ internal static class Program
             while (true)
             {
                 var bytesRead = _pcmOutput.Read(_outputBuffer, 0, _outputBuffer.Length);
-                if (bytesRead <= 0) break;
+                if (bytesRead <= 0)
+                {
+                    break;
+                }
 
                 var audio = new byte[bytesRead];
                 Buffer.BlockCopy(_outputBuffer, 0, audio, 0, bytesRead);
                 converted.Add(audio);
-                if (bytesRead < _outputBuffer.Length) break;
+                if (bytesRead < _outputBuffer.Length)
+                {
+                    break;
+                }
             }
 
             return converted;
@@ -478,5 +521,4 @@ internal static class Program
     {
         public string Message { get; } = message;
     }
-    private sealed record WorkerMessage(string Type, string? Text, string? Message, double? Level = null);
 }

@@ -107,7 +107,7 @@ public sealed class AiVoiceConversationService(
             return;
         }
 
-        var dependencyCheck = DependencyPaths.CheckVoskDependencies();
+        var dependencyCheck = DependencyPaths.CheckSpeechRecognitionDependencies();
         if (!dependencyCheck.IsAvailable)
         {
             LastError = dependencyCheck.Message;
@@ -144,7 +144,7 @@ public sealed class AiVoiceConversationService(
             return false;
         }
 
-        var dependencyCheck = DependencyPaths.CheckVoskDependencies();
+        var dependencyCheck = DependencyPaths.CheckSpeechRecognitionDependencies();
         if (!dependencyCheck.IsAvailable)
         {
             LastError = dependencyCheck.Message;
@@ -323,7 +323,7 @@ public sealed class AiVoiceConversationService(
             {
                 cancellation.Token.ThrowIfCancellationRequested();
                 throw new InvalidOperationException(
-                    modelLoadError ?? "无法加载 Vosk 语音识别模型。");
+                    modelLoadError ?? "无法加载语音识别模型。");
             }
 
             await SetOverlayStatusAsync("已就绪；请讲……", null, cancellation.Token);

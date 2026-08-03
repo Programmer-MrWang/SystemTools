@@ -150,6 +150,22 @@
                                  Text="{Binding Config.AiWakeWord, Mode=TwoWay}" />
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem Content="当前使用模型"
+                                                 Description="读取当前语音识别模型的认证信息。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button MinWidth="132"
+                                    Content="检查当前使用模型"
+                                    Click="CheckCurrentVoskModelButton_OnClick" />
+                            <TextBlock x:Name="CurrentVoskModelText"
+                                       MaxWidth="360"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       IsVisible="False" />
+                        </StackPanel>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
         </StackPanel>

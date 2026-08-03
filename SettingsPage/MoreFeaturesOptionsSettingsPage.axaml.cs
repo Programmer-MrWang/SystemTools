@@ -89,7 +89,7 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
             return;
         }
 
-        var dependencyCheck = DependencyPaths.CheckVoskDependencies();
+        var dependencyCheck = DependencyPaths.CheckSpeechRecognitionDependencies();
         if (!dependencyCheck.IsAvailable)
         {
             toggleSwitch.IsChecked = false;
@@ -125,6 +125,37 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
         {
             toggleSwitch.IsEnabled = true;
         }
+    }
+
+    private void CheckCurrentVoskModelButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button)
+        {
+            return;
+        }
+
+        button.Content = "重新检查";
+        try
+        {
+            var modelDirectory = DependencyPaths.FindSpeechRecognitionModelDirectory();
+            if (modelDirectory is null)
+            {
+                CurrentVoskModelText.Text = "未找到可用的语音识别模型。";
+            }
+            else
+            {
+                var model = DependencyPaths.GetSpeechRecognitionModelInfo(modelDirectory);
+                CurrentVoskModelText.Text = string.IsNullOrWhiteSpace(model?.Name)
+                    ? "已找到当前模型，但 copyright.txt 中未提供模型名称。"
+                    : $"当前正在使用 {model.Name} 模型";
+            }
+        }
+        catch (Exception ex)
+        {
+            CurrentVoskModelText.Text = $"检查当前模型失败：{ex.Message}";
+        }
+
+        CurrentVoskModelText.IsVisible = true;
     }
 
     private async Task<bool> ShowAiServiceAgreementAsync()

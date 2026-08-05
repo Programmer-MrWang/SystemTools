@@ -9,6 +9,7 @@
     <ItemGroup>
       <None Include=".github\workflows\dotnet-build.yml" />
       <None Remove="VoskWorker\**" />
+      <None Remove="cipx\**" />
     </ItemGroup>
     
     <ItemGroup>
@@ -30,6 +31,7 @@
     <ItemGroup>
         <Compile Remove="VoskWorker\**\*.cs" />
         <Compile Remove="VoskWorker\**" />
+        <Compile Remove="cipx\**" />
     </ItemGroup>
 
     <Target Name="CopyVoskWorkerToPluginOutput" AfterTargets="Build">
@@ -84,17 +86,21 @@
 
     <ItemGroup>
       <AvaloniaXaml Remove="VoskWorker\**" />
+      <AvaloniaXaml Remove="cipx\**" />
     </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Remove="VoskWorker\**" />
+      <EmbeddedResource Remove="cipx\**" />
     </ItemGroup>
 
     <ItemGroup>
       <AdditionalFiles Remove="VoskWorker\**" />
+      <AdditionalFiles Remove="cipx\**" />
     </ItemGroup>
 
     <ItemGroup>
       <AvaloniaResource Remove="VoskWorker\**" />
+      <AvaloniaResource Remove="cipx\**" />
     </ItemGroup>
 </Project>

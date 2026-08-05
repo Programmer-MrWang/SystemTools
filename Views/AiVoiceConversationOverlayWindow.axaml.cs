@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
@@ -23,6 +24,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
     private bool _transcriptMeasurePending;
     private bool _approvalMeasurePending;
     private bool _isListening;
+    private bool _isUserPaused;
     private TaskCompletionSource<bool>? _approvalCompletion;
     private CancellationTokenRegistration _approvalCancellationRegistration;
     private readonly IDisposable _windowStateSubscription;
@@ -70,6 +72,9 @@ public partial class AiVoiceConversationOverlayWindow : Window
         RootBorder.CornerRadius = new CornerRadius(_cornerRadius + 10);
         Waveform.SetDarkTheme(isDark);
         Waveform.SetListening(false);
+        AutomationProperties.SetLiveSetting(StatusText, AutomationLiveSetting.Polite);
+        ListeningToggleButton.Click += ListeningToggleButton_OnClick;
+        UpdateListeningToggleButton();
         _windowStateSubscription = this.GetPropertyChangedObservable(WindowStateProperty).Subscribe(_ =>
         {
             if (WindowState == WindowState.Normal)
@@ -87,6 +92,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
     }
 
     public event EventHandler? EscapePressed;
+    public event EventHandler<VoiceListeningToggleRequestedEventArgs>? ListeningToggleRequested;
 
     public void SetStatus(string status, string? detail = null)
     {
@@ -102,7 +108,36 @@ public partial class AiVoiceConversationOverlayWindow : Window
     public void SetListening(bool isListening)
     {
         _isListening = isListening;
+        _isUserPaused = false;
         Waveform.SetListening(isListening);
+        UpdateListeningToggleButton();
+    }
+
+    public void ShowListening()
+    {
+        SetStatus("正在聆听……");
+        _isListening = true;
+        _isUserPaused = false;
+        Waveform.SetListening(true);
+        UpdateListeningToggleButton();
+    }
+
+    public void ShowStartingListening()
+    {
+        SetStatus("正在开启聆听……");
+        _isListening = true;
+        _isUserPaused = false;
+        Waveform.SetListening(true);
+        UpdateListeningToggleButton();
+    }
+
+    public void ShowUserPaused()
+    {
+        SetStatus("已停止聆听");
+        _isListening = false;
+        _isUserPaused = true;
+        Waveform.SetUserPaused();
+        UpdateListeningToggleButton();
     }
 
     public void SetRecognizedText(string text)
@@ -120,6 +155,40 @@ public partial class AiVoiceConversationOverlayWindow : Window
     }
 
     public void SetAudioLevel(double level) => Waveform.SetAudioLevel(level);
+
+    private void ListeningToggleButton_OnClick(
+        object? sender,
+        Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (!ConversationContent.IsVisible || (!_isListening && !_isUserPaused))
+        {
+            UpdateListeningToggleButton();
+            return;
+        }
+
+        var shouldListen = ListeningToggleButton.IsChecked == true;
+        if (shouldListen)
+        {
+            ShowStartingListening();
+        }
+        else
+        {
+            ShowUserPaused();
+        }
+
+        ListeningToggleRequested?.Invoke(
+            this,
+            new VoiceListeningToggleRequestedEventArgs(shouldListen));
+    }
+
+    private void UpdateListeningToggleButton()
+    {
+        var isInteractive = _isListening || _isUserPaused;
+        ListeningToggleButton.IsVisible = isInteractive;
+        ListeningToggleButton.IsChecked = _isListening;
+        var actionName = _isListening ? "停止聆听" : "恢复聆听";
+        AutomationProperties.SetName(ListeningToggleButton, actionName);
+    }
 
     public Task<bool> RequestToolApprovalAsync(
         string title,
@@ -176,9 +245,18 @@ public partial class AiVoiceConversationOverlayWindow : Window
         var targetPosition = new PixelPoint(
             startPosition.X - (int)Math.Round(widthDelta / 2),
             startPosition.Y);
-        _entranceAnimationRunning = true;
         _defaultExpandedHeight = targetHeight;
         _targetHeight = targetHeight + CurrentContentHeightDelta;
+
+        if (SystemMotionPreferences.ShouldReduceMotion())
+        {
+            Width = targetWidth;
+            Height = _targetHeight;
+            Position = targetPosition;
+            return;
+        }
+
+        _entranceAnimationRunning = true;
 
         try
         {
@@ -244,6 +322,12 @@ public partial class AiVoiceConversationOverlayWindow : Window
 
     private async Task PlayExitAsync()
     {
+        if (SystemMotionPreferences.ShouldReduceMotion())
+        {
+            FinalizeClose();
+            return;
+        }
+
         try
         {
             if (!IsVisible)
@@ -418,6 +502,13 @@ public partial class AiVoiceConversationOverlayWindow : Window
         }
 
         _targetHeight = Math.Max(1, targetHeight);
+        if (SystemMotionPreferences.ShouldReduceMotion())
+        {
+            Height = _targetHeight;
+            StopHeightAnimation();
+            return;
+        }
+
         if (Math.Abs(Height - _targetHeight) < 0.25 && Math.Abs(_heightVelocity) < 1)
         {
             Height = _targetHeight;
@@ -536,4 +627,9 @@ public partial class AiVoiceConversationOverlayWindow : Window
             e.Cancel = true;
         }
     }
+}
+
+public sealed class VoiceListeningToggleRequestedEventArgs(bool shouldListen) : EventArgs
+{
+    public bool ShouldListen { get; } = shouldListen;
 }

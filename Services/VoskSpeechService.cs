@@ -24,6 +24,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
     private WorkerSession? _worker;
     private CaptureSession? _capture;
     private object? _exclusiveOwner;
+    private long _nextCaptureId;
     private int _modelLeaseCount;
     private int _workerWaiterCount;
     private bool _disposed;
@@ -37,6 +38,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
 
     private sealed class CaptureSession
     {
+        public required long Id { get; init; }
         public required WorkerSession Worker { get; init; }
         public required Action<string, bool> OnText { get; init; }
         public required Action<string> OnError { get; init; }
@@ -47,10 +49,33 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         public TaskCompletionSource<bool> Stopped { get; } =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
-        public bool StopRequested { get; set; }
+        public CancellationTokenRegistration CancellationRegistration { get; set; }
+        public CaptureStopMode RequestedStopMode { get; set; }
+        public CaptureStopMode SentStopMode { get; set; }
     }
 
-    private sealed record WorkerMessage(string? Type, string? Text, string? Message, double? Level);
+    private sealed record WorkerCommand(string Type, long CaptureId);
+
+    private sealed record WorkerMessage(
+        string? Type,
+        string? Text,
+        string? Message,
+        double? Level,
+        long? CaptureId);
+
+    private enum CaptureStopMode
+    {
+        None,
+        Finish,
+        Discard
+    }
+
+    private enum StartCommandResult
+    {
+        Sent,
+        Canceled,
+        Unavailable
+    }
 
     public bool IsDictationActive
     {
@@ -228,10 +253,15 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         Action? onSpeechActivity,
         Action<double>? onAudioLevel,
         object? owner,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool discardOnCancellation = false)
     {
         ArgumentNullException.ThrowIfNull(onText);
         ArgumentNullException.ThrowIfNull(onError);
+        if (cancellationToken.IsCancellationRequested)
+        {
+            return null;
+        }
 
         WorkerSession? worker;
         CaptureSession capture;
@@ -251,6 +281,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
 
             capture = new CaptureSession
             {
+                Id = ++_nextCaptureId,
                 Worker = worker,
                 OnText = onText,
                 OnError = onError,
@@ -258,15 +289,38 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
                 OnAudioLevel = onAudioLevel,
                 Owner = owner
             };
-            _capture = capture;
+        }
+
+        if (cancellationToken.CanBeCanceled)
+        {
+            capture.CancellationRegistration = cancellationToken.Register(() =>
+            {
+                lock (_lock)
+                {
+                    PromoteStopMode(
+                        capture,
+                        discardOnCancellation
+                            ? CaptureStopMode.Discard
+                            : CaptureStopMode.Finish);
+                }
+
+                _ = StopCaptureAsync(capture, owner, discardOnCancellation);
+            });
         }
 
         try
         {
-            if (!SendCommand(worker, "start_capture"))
+            var startResult = TrySendStartCommand(worker, capture, cancellationToken);
+            if (startResult == StartCommandResult.Canceled)
+            {
+                capture.CancellationRegistration.Dispose();
+                return null;
+            }
+
+            if (startResult == StartCommandResult.Unavailable)
             {
                 onError("语音识别工作进程已不可用。");
-                await StopCaptureAsync(capture, owner);
+                capture.CancellationRegistration.Dispose();
                 return null;
             }
 
@@ -290,7 +344,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            await StopCaptureAsync(capture, owner);
+            await StopCaptureAsync(capture, owner, discardOnCancellation);
             return null;
         }
         catch (Exception ex)
@@ -330,14 +384,25 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
 
     public Task StopCaptureAsync() => StopCaptureAsync(expected: null, owner: null);
 
-    private async Task StopCaptureAsync(CaptureSession? expected, object? owner)
+    private async Task StopCaptureAsync(
+        CaptureSession? expected,
+        object? owner,
+        bool discardResults = false)
     {
         CaptureSession? capture;
         WorkerSession? worker;
-        bool stopAlreadyRequested;
+        CaptureStopMode modeToSend;
+        var requestedMode = discardResults
+            ? CaptureStopMode.Discard
+            : CaptureStopMode.Finish;
         lock (_lock)
         {
             capture = _capture;
+            if (expected is not null)
+            {
+                PromoteStopMode(expected, requestedMode);
+            }
+
             if (capture is null ||
                 (expected is not null && !ReferenceEquals(capture, expected)) ||
                 (owner is not null && !ReferenceEquals(capture.Owner, owner)))
@@ -345,20 +410,28 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
                 return;
             }
 
-            stopAlreadyRequested = capture.StopRequested;
-            capture.StopRequested = true;
+            PromoteStopMode(capture, requestedMode);
+            modeToSend = capture.RequestedStopMode > capture.SentStopMode
+                ? capture.RequestedStopMode
+                : CaptureStopMode.None;
+            if (modeToSend != CaptureStopMode.None)
+            {
+                capture.SentStopMode = modeToSend;
+            }
+
             worker = capture.Worker;
         }
 
         try
         {
-            if (stopAlreadyRequested)
-            {
-                await capture.Stopped.Task.WaitAsync(TimeSpan.FromSeconds(5));
-                return;
-            }
-
-            if (!SendCommand(worker, "stop_capture"))
+            if (modeToSend != CaptureStopMode.None &&
+                !SendCommand(
+                    worker,
+                    new WorkerCommand(
+                        modeToSend == CaptureStopMode.Discard
+                            ? "cancel_capture"
+                            : "stop_capture",
+                        capture.Id)))
             {
                 capture.Stopped.TrySetResult(true);
                 ClearCapture(capture);
@@ -372,6 +445,14 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         {
             _logger.LogDebug(ex, "[VoskSpeech] Capture stop acknowledgement failed");
             StopWorker(worker);
+        }
+    }
+
+    private static void PromoteStopMode(CaptureSession capture, CaptureStopMode requestedMode)
+    {
+        if (requestedMode > capture.RequestedStopMode)
+        {
+            capture.RequestedStopMode = requestedMode;
         }
     }
 
@@ -602,11 +683,17 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
             return;
         }
 
+        CaptureSession? currentCapture;
         CaptureSession? capture;
         lock (_lock)
         {
-            capture = _capture;
-            if (capture is not null && !ReferenceEquals(capture.Worker, worker))
+            if (!ReferenceEquals(_worker, worker)) return;
+
+            currentCapture = _capture;
+            capture = currentCapture;
+            if (capture is not null &&
+                (!ReferenceEquals(capture.Worker, worker) ||
+                 message?.CaptureId != capture.Id))
             {
                 capture = null;
             }
@@ -641,15 +728,25 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
                 }
                 break;
             case "error":
+            {
+                var errorCapture = message.CaptureId is null
+                    ? currentCapture
+                    : capture;
+                if (message.CaptureId is not null && errorCapture is null)
+                {
+                    break;
+                }
+
                 var error = string.IsNullOrWhiteSpace(message.Message)
                     ? "语音识别工作进程发生未知错误。"
                     : message.Message!;
                 worker.Ready.TrySetResult(false);
-                capture?.Started.TrySetResult(false);
-                capture?.Stopped.TrySetResult(true);
-                SafeInvokeError(capture, error);
+                errorCapture?.Started.TrySetResult(false);
+                errorCapture?.Stopped.TrySetResult(true);
+                SafeInvokeError(errorCapture, error);
                 StopWorker(worker);
                 break;
+            }
         }
     }
 
@@ -748,6 +845,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         worker.Ready.TrySetResult(false);
         capture?.Started.TrySetResult(false);
         capture?.Stopped.TrySetResult(true);
+        capture?.CancellationRegistration.Dispose();
         if (!_disposed)
         {
             SafeInvokeError(capture, $"语音识别工作进程意外退出（代码 {TryGetExitCode(process)}）。");
@@ -760,16 +858,23 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
     private void ClearCapture(CaptureSession expected)
     {
         WorkerSession? workerToStop = null;
+        var cleared = false;
         lock (_lock)
         {
             if (ReferenceEquals(_capture, expected))
             {
                 _capture = null;
+                cleared = true;
                 if (_modelLeaseCount == 0 && _exclusiveOwner is null)
                 {
                     workerToStop = _worker;
                 }
             }
+        }
+
+        if (cleared)
+        {
+            expected.CancellationRegistration.Dispose();
         }
 
         if (workerToStop is not null)
@@ -870,37 +975,76 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         }
     }
 
-    private bool SendCommand(WorkerSession expected, string command)
+    private StartCommandResult TrySendStartCommand(
+        WorkerSession expected,
+        CaptureSession capture,
+        CancellationToken cancellationToken)
     {
-        lock (_lock)
-        {
-            if (!ReferenceEquals(_worker, expected) || expected.Process.HasExited)
-            {
-                return false;
-            }
-        }
-
+        var payload = JsonSerializer.Serialize(
+            new WorkerCommand("start_capture", capture.Id));
         lock (_stdinLock)
         {
             lock (_lock)
             {
-                if (!ReferenceEquals(_worker, expected) || expected.Process.HasExited)
+                var ownerCanCapture = capture.Owner is null
+                    ? _exclusiveOwner is null
+                    : ReferenceEquals(_exclusiveOwner, capture.Owner);
+                if (cancellationToken.IsCancellationRequested ||
+                    capture.RequestedStopMode != CaptureStopMode.None)
                 {
-                    return false;
+                    return StartCommandResult.Canceled;
                 }
 
-                try
+                if (_disposed ||
+                    !ReferenceEquals(_worker, expected) ||
+                    _capture is not null ||
+                    !ownerCanCapture ||
+                    expected.Process.HasExited)
                 {
-                    expected.Process.StandardInput.WriteLine(command);
-                    expected.Process.StandardInput.Flush();
-                    return true;
+                    return StartCommandResult.Unavailable;
                 }
-                catch (Exception ex)
+
+                _capture = capture;
+                if (TryWriteCommandLocked(expected, payload))
                 {
-                    _logger.LogDebug(ex, "[VoskSpeech] Failed to send worker command {Command}", command);
-                    return false;
+                    return StartCommandResult.Sent;
                 }
+
+                _capture = null;
+                return StartCommandResult.Unavailable;
             }
+        }
+    }
+
+    private bool SendCommand(WorkerSession expected, WorkerCommand command)
+    {
+        var payload = JsonSerializer.Serialize(command);
+        lock (_stdinLock)
+        {
+            lock (_lock)
+            {
+                return TryWriteCommandLocked(expected, payload);
+            }
+        }
+    }
+
+    private bool TryWriteCommandLocked(WorkerSession expected, string payload)
+    {
+        if (!ReferenceEquals(_worker, expected) || expected.Process.HasExited)
+        {
+            return false;
+        }
+
+        try
+        {
+            expected.Process.StandardInput.WriteLine(payload);
+            expected.Process.StandardInput.Flush();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "[VoskSpeech] Failed to send worker command {Command}", payload);
+            return false;
         }
     }
 
@@ -920,6 +1064,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
         worker.Ready.TrySetResult(false);
         capture?.Started.TrySetResult(false);
         capture?.Stopped.TrySetResult(true);
+        capture?.CancellationRegistration.Dispose();
         _ = Task.Run(() => ShutdownWorker(worker.Process));
         RaiseDictationStateChanged();
     }
@@ -1024,7 +1169,8 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
                     onSpeechActivity,
                     onAudioLevel,
                     _owner,
-                    cancellationToken);
+                    cancellationToken,
+                    discardOnCancellation: true);
         }
 
         public Task StopCaptureAsync()
@@ -1033,6 +1179,17 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
             return service is null
                 ? Task.CompletedTask
                 : service.StopCaptureAsync(expected: null, owner: _owner);
+        }
+
+        public Task CancelCaptureAsync()
+        {
+            var service = Volatile.Read(ref _service);
+            return service is null
+                ? Task.CompletedTask
+                : service.StopCaptureAsync(
+                    expected: null,
+                    owner: _owner,
+                    discardResults: true);
         }
 
         public async ValueTask DisposeAsync()

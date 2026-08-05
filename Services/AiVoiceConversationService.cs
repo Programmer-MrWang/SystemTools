@@ -227,6 +227,8 @@ public sealed class AiVoiceConversationService(
         Control? opacitySource = null;
         EventHandler<AvaloniaPropertyChangedEventArgs>? applicationPropertyChanged = null;
         EventHandler<AvaloniaPropertyChangedEventArgs>? opacityPropertyChanged = null;
+        EventHandler<VoiceListeningToggleRequestedEventArgs>? listeningToggleHandler = null;
+        var listeningGate = new ListeningGate();
         var toolApprovalWasRequested = 0;
 
         try
@@ -258,15 +260,27 @@ public sealed class AiVoiceConversationService(
                 occlusionSuspension = mainWindowTextOcclusionService.Suspend();
                 mainWindowVisibilityLease = classIslandSettingsService.HideMainWindow()
                     ?? throw new InvalidOperationException("无法隐藏 ClassIsland 主界面。");
-               overlay = new AiVoiceConversationOverlayWindow(
+                overlay = new AiVoiceConversationOverlayWindow(
                    windowInfo.Value.Position,
                    windowInfo.Value.Width,
                    windowInfo.Value.Height,
                    windowInfo.Value.IsDark,
                    windowInfo.Value.Opacity,
                    windowInfo.Value.CornerRadius);
-               overlay.SetStatus("你好，我是ci，请稍后……");
+                overlay.SetStatus("你好，我是ci，请稍后……");
                 overlay.EscapePressed += OverlayOnEscapePressed;
+                listeningToggleHandler = (_, args) =>
+                {
+                    if (args.ShouldListen)
+                    {
+                        listeningGate.Resume();
+                    }
+                    else
+                    {
+                        listeningGate.Pause();
+                    }
+                };
+                overlay.ListeningToggleRequested += listeningToggleHandler;
                 overlay.Show();
                 overlay.Activate();
                 _ = overlay.PlayEntranceAsync();
@@ -367,50 +381,148 @@ public sealed class AiVoiceConversationService(
 
             while (!cancellation.IsCancellationRequested)
             {
-                await SetOverlayStatusAsync("正在聆听……", null, cancellation.Token);
+                await listeningGate.WaitUntilResumedAsync(cancellation.Token);
                 var turn = new CaptureTurn(SilenceDuration);
-                await SetOverlayListeningAsync(true);
-                try
+                var listeningTurn = listeningGate.TryBeginTurn(turn, cancellation.Token);
+                if (listeningTurn is null)
                 {
-                    captureLease = await speechConversation.TryStartCaptureAsync(
-                        (text, isFinal) =>
-                        {
-                            turn.OnText(text, isFinal);
-                            var recognizedText = turn.GetText();
-                            Dispatcher.UIThread.Post(() =>
-                            {
-                                if (ReferenceEquals(_overlay, overlay))
-                                {
-                                    overlay?.SetRecognizedText(recognizedText);
-                                }
-                            });
-                        },
-                        turn.OnError,
-                        turn.OnSpeechActivity,
-                        level => Dispatcher.UIThread.Post(() =>
-                        {
-                            if (ReferenceEquals(_overlay, overlay))
-                            {
-                                overlay?.SetAudioLevel(level);
-                            }
-                        }),
-                        cancellation.Token);
-                    if (captureLease is null)
+                    continue;
+                }
+
+                string userText;
+                using (listeningTurn)
+                {
+                    await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        throw new InvalidOperationException("无法启动语音识别麦克风。");
+                        if (listeningGate.IsCurrent(listeningTurn) &&
+                            ReferenceEquals(_overlay, overlay))
+                        {
+                            overlay?.ShowStartingListening();
+                        }
+                    });
+                    if (!listeningGate.IsCurrent(listeningTurn))
+                    {
+                        continue;
                     }
 
-                    await turn.WaitForSilenceAsync(cancellation.Token);
-                    await speechConversation.StopCaptureAsync();
-                    captureLease.Dispose();
-                    captureLease = null;
-                }
-                finally
-                {
-                    await SetOverlayListeningAsync(false);
+                    var discardTurn = false;
+                    try
+                    {
+                        captureLease = await speechConversation.TryStartCaptureAsync(
+                            (text, isFinal) =>
+                            {
+                                if (!listeningGate.IsCurrent(listeningTurn))
+                                {
+                                    return;
+                                }
+
+                                turn.OnText(text, isFinal);
+                                var recognizedText = turn.GetText();
+                                Dispatcher.UIThread.Post(() =>
+                                {
+                                    if (listeningGate.IsCurrent(listeningTurn) &&
+                                        ReferenceEquals(_overlay, overlay))
+                                    {
+                                        overlay?.SetRecognizedText(recognizedText);
+                                    }
+                                });
+                            },
+                            turn.OnError,
+                            turn.OnSpeechActivity,
+                            level =>
+                            {
+                                if (!listeningGate.IsCurrent(listeningTurn))
+                                {
+                                    return;
+                                }
+
+                                Dispatcher.UIThread.Post(() =>
+                                {
+                                    if (listeningGate.IsCurrent(listeningTurn) &&
+                                        ReferenceEquals(_overlay, overlay))
+                                    {
+                                        overlay?.SetAudioLevel(level);
+                                    }
+                                });
+                            },
+                            listeningTurn.CancellationToken);
+                        if (captureLease is null)
+                        {
+                            cancellation.Token.ThrowIfCancellationRequested();
+                            if (!listeningGate.IsCurrent(listeningTurn))
+                            {
+                                discardTurn = true;
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("无法启动语音识别麦克风。");
+                            }
+                        }
+
+                        if (!discardTurn)
+                        {
+                            await Dispatcher.UIThread.InvokeAsync(() =>
+                            {
+                                if (listeningGate.IsCurrent(listeningTurn) &&
+                                    ReferenceEquals(_overlay, overlay))
+                                {
+                                    overlay?.ShowListening();
+                                }
+                            });
+
+                            try
+                            {
+                                await turn.WaitForSilenceAsync(listeningTurn.CancellationToken);
+                            }
+                            catch (OperationCanceledException) when (
+                                !cancellation.IsCancellationRequested &&
+                                !listeningGate.IsCurrent(listeningTurn))
+                            {
+                                discardTurn = true;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            if (cancellation.IsCancellationRequested ||
+                                discardTurn ||
+                                turn.IsDiscarded ||
+                                !listeningGate.IsCurrent(listeningTurn))
+                            {
+                                await speechConversation.CancelCaptureAsync();
+                            }
+                            else
+                            {
+                                await speechConversation.StopCaptureAsync();
+                            }
+                        }
+                        finally
+                        {
+                            DisposeBestEffort(captureLease, "释放语音采集租约");
+                            captureLease = null;
+                            await Dispatcher.UIThread.InvokeAsync(() =>
+                            {
+                                if (listeningGate.IsCurrent(listeningTurn) &&
+                                    ReferenceEquals(_overlay, overlay))
+                                {
+                                    overlay?.SetListening(false);
+                                }
+                            });
+                        }
+                    }
+
+                    if (discardTurn ||
+                        turn.IsDiscarded ||
+                        !listeningGate.IsCurrent(listeningTurn))
+                    {
+                        continue;
+                    }
+
+                    userText = turn.GetText();
                 }
 
-                var userText = turn.GetText();
                 if (string.IsNullOrWhiteSpace(userText))
                 {
                     continue;
@@ -503,6 +615,10 @@ public sealed class AiVoiceConversationService(
                             try
                             {
                                 overlay.EscapePressed -= OverlayOnEscapePressed;
+                                if (listeningToggleHandler is not null)
+                                {
+                                    overlay.ListeningToggleRequested -= listeningToggleHandler;
+                                }
                                 overlay.CloseFromOwner();
                             }
                             catch (Exception ex)
@@ -987,18 +1103,6 @@ public sealed class AiVoiceConversationService(
         }
     }
 
-    private async Task SetOverlayListeningAsync(bool isListening)
-    {
-        try
-        {
-            await Dispatcher.UIThread.InvokeAsync(() => _overlay?.SetListening(isListening));
-        }
-        catch
-        {
-            // The overlay may have been closed while a capture lease unwinds.
-        }
-    }
-
     private void OverlayOnEscapePressed(object? sender, EventArgs e) => StopConversation();
 
     private void DisposeBestEffort(IDisposable? disposable, string operation)
@@ -1091,6 +1195,141 @@ public sealed class AiVoiceConversationService(
         Task GenerationTask,
         bool Accepted);
 
+    private sealed class ListeningGate
+    {
+        private readonly object _lock = new();
+        private ListeningTurn? _activeTurn;
+        private TaskCompletionSource<bool>? _resumeSignal;
+        private int _generation;
+        private bool _isPaused;
+
+        public void Pause()
+        {
+            CaptureTurn? captureTurn;
+            CancellationTokenSource? turnCancellation;
+            lock (_lock)
+            {
+                if (_isPaused)
+                {
+                    return;
+                }
+
+                _isPaused = true;
+                _generation++;
+                _resumeSignal = new TaskCompletionSource<bool>(
+                    TaskCreationOptions.RunContinuationsAsynchronously);
+                captureTurn = _activeTurn?.CaptureTurn;
+                turnCancellation = _activeTurn?.Cancellation;
+            }
+
+            captureTurn?.Discard();
+            try
+            {
+                turnCancellation?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // The turn finished while the UI event was being delivered.
+            }
+        }
+
+        public void Resume()
+        {
+            TaskCompletionSource<bool>? resumeSignal;
+            lock (_lock)
+            {
+                if (!_isPaused)
+                {
+                    return;
+                }
+
+                _isPaused = false;
+                resumeSignal = _resumeSignal;
+                _resumeSignal = null;
+            }
+
+            resumeSignal?.TrySetResult(true);
+        }
+
+        public async Task WaitUntilResumedAsync(CancellationToken cancellationToken)
+        {
+            Task? resumeTask;
+            lock (_lock)
+            {
+                resumeTask = _isPaused ? _resumeSignal?.Task : null;
+            }
+
+            if (resumeTask is not null)
+            {
+                await resumeTask.WaitAsync(cancellationToken);
+            }
+        }
+
+        public ListeningTurn? TryBeginTurn(
+            CaptureTurn captureTurn,
+            CancellationToken conversationCancellationToken)
+        {
+            lock (_lock)
+            {
+                if (_isPaused || _activeTurn is not null)
+                {
+                    return null;
+                }
+
+                var turnCancellation = CancellationTokenSource.CreateLinkedTokenSource(
+                    conversationCancellationToken);
+                var turn = new ListeningTurn(
+                    this,
+                    captureTurn,
+                    turnCancellation,
+                    _generation);
+                _activeTurn = turn;
+                return turn;
+            }
+        }
+
+        public bool IsCurrent(ListeningTurn turn)
+        {
+            lock (_lock)
+            {
+                return !_isPaused &&
+                       ReferenceEquals(_activeTurn, turn) &&
+                       turn.Generation == _generation &&
+                       !turn.CaptureTurn.IsDiscarded;
+            }
+        }
+
+        private void EndTurn(ListeningTurn turn)
+        {
+            lock (_lock)
+            {
+                if (ReferenceEquals(_activeTurn, turn))
+                {
+                    _activeTurn = null;
+                }
+            }
+
+            turn.Cancellation.Dispose();
+        }
+
+        public sealed class ListeningTurn(
+            ListeningGate owner,
+            CaptureTurn captureTurn,
+            CancellationTokenSource cancellation,
+            int generation) : IDisposable
+        {
+            private ListeningGate? _owner = owner;
+
+            public CaptureTurn CaptureTurn { get; } = captureTurn;
+            public CancellationTokenSource Cancellation { get; } = cancellation;
+            public CancellationToken CancellationToken => Cancellation.Token;
+            public int Generation { get; } = generation;
+
+            public void Dispose() =>
+                Interlocked.Exchange(ref _owner, null)?.EndTurn(this);
+        }
+    }
+
     private sealed class CaptureTurn(TimeSpan silenceDuration)
     {
         private readonly object _lock = new();
@@ -1099,11 +1338,40 @@ public sealed class AiVoiceConversationService(
         private string? _error;
         private DateTime _lastActivityUtc;
         private bool _hasActivity;
+        private bool _discarded;
+
+        public bool IsDiscarded
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _discarded;
+                }
+            }
+        }
+
+        public void Discard()
+        {
+            lock (_lock)
+            {
+                _discarded = true;
+                _committed = string.Empty;
+                _partial = string.Empty;
+                _error = null;
+                _hasActivity = false;
+            }
+        }
 
         public void OnSpeechActivity()
         {
             lock (_lock)
             {
+                if (_discarded)
+                {
+                    return;
+                }
+
                 _hasActivity = true;
                 _lastActivityUtc = DateTime.UtcNow;
             }
@@ -1113,6 +1381,11 @@ public sealed class AiVoiceConversationService(
         {
             lock (_lock)
             {
+                if (_discarded)
+                {
+                    return;
+                }
+
                 _error = string.IsNullOrWhiteSpace(message)
                     ? "语音识别发生未知错误。"
                     : message;
@@ -1124,6 +1397,11 @@ public sealed class AiVoiceConversationService(
             if (string.IsNullOrWhiteSpace(text)) return;
             lock (_lock)
             {
+                if (_discarded)
+                {
+                    return;
+                }
+
                 if (isFinal)
                 {
                     _committed = AppendText(_committed, text);
@@ -1145,6 +1423,11 @@ public sealed class AiVoiceConversationService(
             {
                 lock (_lock)
                 {
+                    if (_discarded)
+                    {
+                        return;
+                    }
+
                     if (_error is not null)
                     {
                         throw new InvalidOperationException(_error);
@@ -1164,6 +1447,11 @@ public sealed class AiVoiceConversationService(
         {
             lock (_lock)
             {
+                if (_discarded)
+                {
+                    return string.Empty;
+                }
+
                 return AppendText(_committed, _partial).Trim();
             }
         }

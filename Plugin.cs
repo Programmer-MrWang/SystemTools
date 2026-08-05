@@ -129,6 +129,7 @@ public partial class Plugin : PluginBase
             services.AddSettingsPage<FloatingWindowEditorSettingsPage>();
         }
         services.AddSettingsPage<AboutSettingsPage>();
+        services.AddSettingsPage<PluginDebugSettingsPage>();
 
         // ========== 构建行动树（根据配置）==========
         BuildBaseActionTree();

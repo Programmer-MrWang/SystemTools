@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using ClassIsland.Core.Abstractions.Controls;
@@ -14,7 +15,6 @@ using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Shared;
 using SystemTools.Shared;
-using SystemTools.Services;
 
 namespace SystemTools;
 
@@ -22,6 +22,10 @@ namespace SystemTools;
 [SettingsPageInfo("systemtools.settings.about", "关于", "\uE9E4", "\uE9E4")]
 public partial class AboutSettingsPage : SettingsPageBase
 {
+    private const int PluginDebugClickThreshold = 5;
+
+    private int _pluginCardClickCount;
+
     public AboutSettingsViewModel ViewModel { get; }
 
     public AboutSettingsPage()
@@ -46,6 +50,26 @@ public partial class AboutSettingsPage : SettingsPageBase
         {
             IAppHost.TryGetService<IUriNavigationService>()?.NavigateWrapped(new Uri(url));
         }
+    }
+
+    private void PluginCard_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.Pointer.Type == PointerType.Mouse &&
+            !e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            return;
+        }
+
+        _pluginCardClickCount++;
+
+        if (_pluginCardClickCount < PluginDebugClickThreshold)
+        {
+            return;
+        }
+
+        _pluginCardClickCount = 0;
+        IAppHost.TryGetService<IUriNavigationService>()?.NavigateWrapped(
+            new Uri("classisland://app/settings/systemtools.settings.pluginDebug"));
     }
 
     private void CheckAutoSwitchTab()
@@ -80,23 +104,6 @@ public partial class AboutSettingsPage : SettingsPageBase
     private async void OnLyricifyLiteHelpClick(object? sender, RoutedEventArgs e)
     {
         await ShowLyricifyLiteWarningAsync();
-    }
-
-    private void OnDebugVoiceWakeAiClick(object? sender, RoutedEventArgs e)
-    {
-        var service = IAppHost.TryGetService<AiVoiceConversationService>();
-        if (service is null)
-        {
-            ShowSimpleMessage("无法调试语音唤醒 AI", "请先启用 AI 服务并重启 ClassIsland。");
-            return;
-        }
-
-        if (!service.TryStartDebugConversation())
-        {
-            ShowSimpleMessage(
-                "无法调试语音唤醒 AI",
-                service.LastError ?? "请先选择 AI 模型，或等待当前语音对话结束。");
-        }
     }
 
     private async Task ShowLyricifyLiteWarningAsync()

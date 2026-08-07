@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
-using Windows.Win32;
 
 namespace SystemTools.Actions;
 
@@ -25,26 +23,11 @@ public class FullscreenClockAction(ILogger<FullscreenClockAction> logger) : Acti
 
             var psi = new ProcessStartInfo
             {
-                FileName = "cmd",
-                Arguments = $"/c start \"\" \"{ClockUrl}\"",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden
+                FileName = ClockUrl,
+                UseShellExecute = true
             };
 
             Process.Start(psi);
-
-            _logger.LogInformation("等待3秒后发送F11全屏键");
-
-            await Task.Delay(3000);
-
-            _logger.LogDebug("发送F11键");
-            PInvoke.keybd_event(VK_F11, 0, 0, UIntPtr.Zero);
-            await Task.Delay(20);
-            PInvoke.keybd_event(VK_F11, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
-                UIntPtr.Zero);
-
-            _logger.LogInformation("F11全屏键已发送");
         }
         catch (Exception ex)
         {
@@ -55,10 +38,4 @@ public class FullscreenClockAction(ILogger<FullscreenClockAction> logger) : Acti
         await base.OnInvoke();
         _logger.LogDebug("FullscreenClockAction OnInvoke 完成");
     }
-
-    //[DllImport("user32.dll", SetLastError = true)]
-    //private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
-
-    private const byte VK_F11 = 0x7A;
-    //private const uint KEYEVENTF_KEYUP = 0x0002;
 }

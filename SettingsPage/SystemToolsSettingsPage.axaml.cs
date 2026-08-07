@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia;
@@ -28,6 +29,8 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 {
     public MainConfigData Config => GlobalConstants.MainConfig!.Data;
     public ObservableCollection<string> AvailableAiModels { get; } = [];
+    public IReadOnlyList<SpeechRecognitionDownloadOption> SpeechRecognitionModels =>
+        SystemToolsSettingsViewModel.SpeechRecognitionModels;
 
     public SystemToolsSettingsPage()
     {
@@ -701,5 +704,25 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
         {
             // Silently fail if restart is not possible.
         }
+    }
+
+    private async void OnSpeechRecognitionModelActionClick(object? sender, RoutedEventArgs e)
+    {
+        if (ViewModel.IsSelectedSpeechRecognitionModelInstalled())
+        {
+            await ViewModel.DeleteSelectedSpeechRecognitionModelAsync(ShowErrorDialogAsync);
+        }
+        else
+        {
+            await ViewModel.DownloadSpeechRecognitionModelAsync(ShowErrorDialogAsync, ShowMd5ErrorDialogAsync);
+        }
+
+        UpdateDownloadButtonStates();
+    }
+
+    private async void OnDownloadVoskWorkerClick(object? sender, RoutedEventArgs e)
+    {
+        await ViewModel.DownloadVoskWorkerAsync(ShowErrorDialogAsync, ShowMd5ErrorDialogAsync);
+        UpdateDownloadButtonStates();
     }
 }

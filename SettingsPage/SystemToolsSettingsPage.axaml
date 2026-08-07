@@ -293,7 +293,8 @@
                                            Header="启用扩展功能"
                                            Description="启用需要下载依赖的更多可选功能">
 
-                    <controls:FASettingsExpanderItem Content="启用需要添加 FFmpeg 依赖的功能">
+                    <controls:FASettingsExpanderItem Content="启用需要添加 FFmpeg 依赖的功能"
+                                                     IconSource="{ci:FluentIconSource &#xEBCC;}">
                         <controls:FASettingsExpanderItem.Footer>
                             <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableFfmpegFeatures, Mode=TwoWay}"
                                           Click="OnFfmpegToggleClick" />
@@ -309,7 +310,8 @@
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
 
-                    <controls:FASettingsExpanderItem Content="启用人脸识别验证功能">
+                    <controls:FASettingsExpanderItem Content="启用人脸识别验证功能"
+                                                     IconSource="{ci:FluentIconSource &#xED2B;}">
                         <controls:FASettingsExpanderItem.Footer>
                             <StackPanel Orientation="Horizontal">
                                 <controls1:ExperimentalBadge IsVisible="{Binding Settings.IsExperimentalModeActivated}" />
@@ -326,6 +328,39 @@
                                     Width="165"
                                     Click="OnDownloadFaceModelsClick"
                                     IsEnabled="{Binding ViewModel.IsFaceModelsDownloadEnabled}" />
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
+
+                    <controls:FASettingsExpanderItem Content="下载语音识别服务"
+                                                     Description="下载并安装语音识别所需的 VoskWorker 依赖。"
+                                                     IconSource="{ci:FluentIconSource &#xED53;}">
+                        <controls:FASettingsExpanderItem.Footer>
+                            <Button Content="点击下载（52 MB）"
+                                    Width="165"
+                                    Click="OnDownloadVoskWorkerClick"
+                                    IsEnabled="{Binding ViewModel.IsVoskWorkerDownloadEnabled}" />
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
+
+                    <controls:FASettingsExpanderItem Content="下载语音识别服务与模型"
+                                                     Description="下载包含受 SystemTools 认证的模型文件。注意：仅能选择下载一个">
+                        <controls:FASettingsExpanderItem.Footer>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <ComboBox Width="280"
+                                          ItemsSource="{Binding SpeechRecognitionModels}"
+                                          SelectedItem="{Binding ViewModel.SelectedSpeechRecognitionModel, Mode=TwoWay}"
+                                          IsEnabled="{Binding ViewModel.IsSpeechRecognitionModelSelectionEnabled}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayName}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <Button Width="72"
+                                        Content="{Binding ViewModel.SpeechRecognitionActionText}"
+                                        Click="OnSpeechRecognitionModelActionClick"
+                                        IsEnabled="{Binding ViewModel.IsSpeechRecognitionActionEnabled}" />
+                            </StackPanel>
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
 

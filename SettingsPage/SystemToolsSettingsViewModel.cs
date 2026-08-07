@@ -27,6 +27,12 @@ public enum FeatureItemType
     Rule
 }
 
+public sealed record SpeechRecognitionDownloadOption(
+    string ModelName,
+    string DisplayName,
+    string Url,
+    string ExpectedMd5);
+
 public partial class UnifiedFeatureItem : ObservableObject
 {
     [ObservableProperty] private string _id = string.Empty;
@@ -82,8 +88,14 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
     [ObservableProperty] private bool _isFfmpegDownloadEnabled = true;
     [ObservableProperty] private bool _isFaceModelsDownloadEnabled = true;
+    [ObservableProperty] private bool _isVoskWorkerDownloadEnabled = true;
     [ObservableProperty] private bool _isMoreFeaturesClickEnabled = true;
     [ObservableProperty] private bool _isDownloadInProgress;
+
+    [ObservableProperty] private SpeechRecognitionDownloadOption? _selectedSpeechRecognitionModel;
+    [ObservableProperty] private string _speechRecognitionActionText = "下载";
+    [ObservableProperty] private bool _isSpeechRecognitionActionEnabled;
+    [ObservableProperty] private bool _isSpeechRecognitionModelSelectionEnabled = true;
 
     [ObservableProperty] private bool _showDownloadProgress = false;
     [ObservableProperty] private double _downloadProgress = 0;
@@ -112,6 +124,25 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
     [ObservableProperty] private ObservableCollection<string> _floatingWindowProfileNames = new();
     [ObservableProperty] private string _selectedFloatingWindowProfile = "Default";
 
+    public static IReadOnlyList<SpeechRecognitionDownloadOption> SpeechRecognitionModels { get; } =
+    [
+        new("SenseVoiceSmall ONNX (INT8 Quantized)", "SenseVoiceSmall ONNX (INT8 Quantized)（211 MB）",
+            "https://livefile.xesimg.com/programme/python_assets/7bd22f71831a0023a2e2673773235878.zip",
+            "7bd22f71831a0023a2e2673773235878"),
+        new("vosk-model-small-en-us", "vosk-model-small-en-us（40 MB）",
+            "https://livefile.xesimg.com/programme/python_assets/a357a5217db6fd0cbc22bcf173253350.zip",
+            "a357a5217db6fd0cbc22bcf173253350"),
+        new("vosk-model-small-cn", "vosk-model-small-cn（42 MB）",
+            "https://livefile.xesimg.com/programme/python_assets/79dae7671c95fd26f1436ef2f5ec1fa0.zip",
+            "79dae7671c95fd26f1436ef2f5ec1fa0"),
+        new("vosk-model-en-us", "vosk-model-en-us（1.78 GB）",
+            "https://livefile.xesimg.com/programme/python_assets/4e57edf6e390022ea30cbf408a1fafbb.zip",
+            "4e57edf6e390022ea30cbf408a1fafbb"),
+        new("vosk-model-cn", "vosk-model-cn（1.26 GB）",
+            "https://livefile.xesimg.com/programme/python_assets/ceb27377d45f168ae08d218daf15cace.zip",
+            "ceb27377d45f168ae08d218daf15cace")
+    ];
+
     private const string DownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/f94fcfa40c9de41d6df09566a51e3130.exe";
     private const string ExpectedMd5 = "f94fcfa40c9de41d6df09566a51e3130";
@@ -122,6 +153,11 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
     private const string FaceModelsMd5 = "915f822a03487c4e5761b4fcf8f206cc";
     private const string FaceZipFileName = "FaceModels.zip";
 
+    private const string VoskWorkerUrl =
+        "https://livefile.xesimg.com/programme/python_assets/5f382436a14e07bc59186b61b02735a0.zip";
+    private const string VoskWorkerMd5 = "5f382436a14e07bc59186b61b02735a0";
+    private const string VoskWorkerZipFileName = "VoskWorker.zip";
+
     public SystemToolsSettingsViewModel(MainConfigHandler configHandler, FloatingWindowService floatingWindowService)
     {
         _configHandler = configHandler;
@@ -129,6 +165,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         _settings = configHandler.Data;
         _entriesChangedHandler = (_, _) => Dispatcher.UIThread.Post(RefreshFloatingTriggers);
         _floatingWindowService.EntriesChanged += _entriesChangedHandler;
+        _selectedSpeechRecognitionModel = SpeechRecognitionModels[0];
     }
 
     public void InitializeFeatureItems()
@@ -887,11 +924,367 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         {
             IsFfmpegDownloadEnabled = false;
             IsFaceModelsDownloadEnabled = false;
+            IsVoskWorkerDownloadEnabled = false;
+            IsSpeechRecognitionActionEnabled = false;
+            IsSpeechRecognitionModelSelectionEnabled = false;
             return;
         }
 
         IsFfmpegDownloadEnabled = !CheckFfmpegExists();
         IsFaceModelsDownloadEnabled = !CheckFaceModelsExists();
+        IsVoskWorkerDownloadEnabled = !DependencyPaths.HasDownloadedSpeechRecognitionWorker();
+        IsSpeechRecognitionModelSelectionEnabled = true;
+        if (SelectedSpeechRecognitionModel is { } model)
+        {
+            var installed = DependencyPaths.IsSpeechRecognitionModelInstalled(model.ModelName);
+            SpeechRecognitionActionText = installed ? "删除" : "下载";
+            IsSpeechRecognitionActionEnabled = true;
+        }
+        else
+        {
+            SpeechRecognitionActionText = "下载";
+            IsSpeechRecognitionActionEnabled = false;
+        }
+    }
+
+    partial void OnSelectedSpeechRecognitionModelChanged(SpeechRecognitionDownloadOption? value)
+    {
+        RefreshDownloadButtonStates();
+    }
+
+    public bool IsSelectedSpeechRecognitionModelInstalled() =>
+        SelectedSpeechRecognitionModel is { } model &&
+        DependencyPaths.IsSpeechRecognitionModelInstalled(model.ModelName);
+
+    public async Task<bool> DownloadVoskWorkerAsync(
+        Func<Task> onError,
+        Func<Task> onMd5Error)
+    {
+        if (!IsVoskWorkerDownloadEnabled || !await TryBeginDownloadAsync())
+        {
+            return false;
+        }
+
+        string? zipPath = null;
+        string? stagingPath = null;
+        string? workerPath = null;
+
+        try
+        {
+            ShowDownloadProgress = true;
+            DownloadProgress = 0;
+            DownloadStatusText = "正在下载语音识别服务 - 0%";
+
+            DependencyPaths.EnsureDependencyDirectories();
+            var dependencyRoot = DependencyPaths.GetDependencyRoot();
+            zipPath = Path.Combine(dependencyRoot, VoskWorkerZipFileName);
+            stagingPath = Path.Combine(dependencyRoot, ".VoskWorker.extracting");
+            workerPath = DependencyPaths.GetDownloadedSpeechRecognitionWorkerDirectory();
+
+            if (File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+
+            if (Directory.Exists(stagingPath))
+            {
+                Directory.Delete(stagingPath, true);
+            }
+
+            using var httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromHours(1)
+            };
+            using var response = await httpClient.GetAsync(
+                VoskWorkerUrl,
+                HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+            var downloadedBytes = 0L;
+            await using (var contentStream = await response.Content.ReadAsStreamAsync())
+            await using (var fileStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                var buffer = new byte[1024 * 1024];
+                int bytesRead;
+                while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+                {
+                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                    downloadedBytes += bytesRead;
+                    if (totalBytes > 0)
+                    {
+                        await UpdateProgressAsync((double)downloadedBytes / totalBytes * 100);
+                    }
+                }
+            }
+
+            await UpdateStatusAsync("正在校验语音识别服务 MD5…");
+            var actualMd5 = await CalculateMd5Async(zipPath);
+            if (!string.Equals(actualMd5, VoskWorkerMd5, StringComparison.OrdinalIgnoreCase))
+            {
+                File.Delete(zipPath);
+                await onMd5Error();
+                return false;
+            }
+
+            await UpdateStatusAsync("正在解压语音识别服务…");
+            Directory.CreateDirectory(stagingPath);
+            await Task.Run(() => ZipFile.ExtractToDirectory(zipPath, stagingPath, true));
+            NormalizeVoskWorkerLayout(stagingPath, workerPath);
+
+            if (!DependencyPaths.HasDownloadedSpeechRecognitionWorker())
+            {
+                throw new InvalidDataException("解压完成，但 VoskWorker 文件不满足语音识别服务检测要求。");
+            }
+
+            File.Delete(zipPath);
+            await UpdateStatusAsync("处理完成！");
+            await Task.Delay(1000);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SystemTools] VoskWorker 下载失败: {ex.Message}");
+            if (zipPath is not null && File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+
+            if (stagingPath is not null && Directory.Exists(stagingPath))
+            {
+                Directory.Delete(stagingPath, true);
+            }
+
+            if (workerPath is not null && Directory.Exists(workerPath) &&
+                !DependencyPaths.HasDownloadedSpeechRecognitionWorker())
+            {
+                Directory.Delete(workerPath, true);
+            }
+
+            await onError();
+            return false;
+        }
+        finally
+        {
+            try
+            {
+                CompleteDownload();
+            }
+            finally
+            {
+                _downloadSemaphore.Release();
+            }
+        }
+    }
+
+    private static void NormalizeVoskWorkerLayout(string stagingPath, string workerPath)
+    {
+        var sourcePath = Directory
+            .EnumerateDirectories(stagingPath, "*", SearchOption.AllDirectories)
+            .Prepend(stagingPath)
+            .FirstOrDefault(DependencyPaths.IsSpeechRecognitionWorkerInstallationDirectory)
+            ?? throw new InvalidDataException("压缩包中找不到完整的 VoskWorker 文件夹。");
+
+        if (Directory.Exists(workerPath))
+        {
+            Directory.Delete(workerPath, true);
+        }
+
+        if (string.Equals(sourcePath, stagingPath, StringComparison.OrdinalIgnoreCase))
+        {
+            Directory.Move(stagingPath, workerPath);
+        }
+        else
+        {
+            Directory.Move(sourcePath, workerPath);
+            Directory.Delete(stagingPath, true);
+        }
+    }
+
+    public async Task<bool> DownloadSpeechRecognitionModelAsync(
+        Func<Task> onError,
+        Func<Task> onMd5Error)
+    {
+        var model = SelectedSpeechRecognitionModel;
+        if (model is null || !IsSpeechRecognitionActionEnabled ||
+            !await TryBeginDownloadAsync())
+        {
+            return false;
+        }
+
+        string? zipPath = null;
+        string? stagingPath = null;
+        string? modelPath = null;
+
+        try
+        {
+            ShowDownloadProgress = true;
+            DownloadProgress = 0;
+            DownloadStatusText = $"正在下载 {model.DisplayName} - 0%";
+
+            DependencyPaths.EnsureDependencyDirectories();
+            var dependencyRoot = DependencyPaths.GetDependencyRoot();
+            modelPath = DependencyPaths.GetSpeechRecognitionModelDirectory(model.ModelName);
+            zipPath = Path.Combine(dependencyRoot, $"{model.ModelName}.zip");
+            stagingPath = Path.Combine(dependencyRoot, $".{model.ModelName}.extracting");
+
+            if (File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+
+            if (Directory.Exists(stagingPath))
+            {
+                Directory.Delete(stagingPath, true);
+            }
+
+            using var httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromHours(2)
+            };
+            using var response = await httpClient.GetAsync(
+                model.Url,
+                HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+            var downloadedBytes = 0L;
+            await using (var contentStream = await response.Content.ReadAsStreamAsync())
+            await using (var fileStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            {
+                var buffer = new byte[1024 * 1024];
+                int bytesRead;
+                while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+                {
+                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                    downloadedBytes += bytesRead;
+                    if (totalBytes > 0)
+                    {
+                        await UpdateProgressAsync((double)downloadedBytes / totalBytes * 100);
+                    }
+                }
+            }
+
+            await UpdateStatusAsync("正在校验模型 MD5…");
+            var actualMd5 = await CalculateMd5Async(zipPath);
+            if (!string.Equals(actualMd5, model.ExpectedMd5, StringComparison.OrdinalIgnoreCase))
+            {
+                File.Delete(zipPath);
+                await onMd5Error();
+                return false;
+            }
+
+            await UpdateStatusAsync("正在解压语音识别服务与模型…");
+            Directory.CreateDirectory(stagingPath);
+            await Task.Run(() => ZipFile.ExtractToDirectory(zipPath, stagingPath, true));
+            NormalizeSpeechRecognitionModelLayout(stagingPath, modelPath);
+
+            if (!DependencyPaths.IsSpeechRecognitionModelInstalled(model.ModelName))
+            {
+                throw new InvalidDataException("解压完成，但模型文件不满足语音识别检测要求。");
+            }
+
+            if (File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+
+            await UpdateStatusAsync("处理完成！");
+            await Task.Delay(1000);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SystemTools] 语音模型下载失败: {ex.Message}");
+            if (zipPath is not null && File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+
+            if (stagingPath is not null && Directory.Exists(stagingPath))
+            {
+                Directory.Delete(stagingPath, true);
+            }
+
+            if (modelPath is not null && Directory.Exists(modelPath) &&
+                !DependencyPaths.IsSpeechRecognitionModelInstalled(model.ModelName))
+            {
+                Directory.Delete(modelPath, true);
+            }
+
+            await onError();
+            return false;
+        }
+        finally
+        {
+            try
+            {
+                CompleteDownload();
+            }
+            finally
+            {
+                _downloadSemaphore.Release();
+            }
+        }
+    }
+
+    public async Task<bool> DeleteSelectedSpeechRecognitionModelAsync(Func<Task> onError)
+    {
+        var model = SelectedSpeechRecognitionModel;
+        if (model is null || !IsSelectedSpeechRecognitionModelInstalled() ||
+            !await TryBeginDownloadAsync())
+        {
+            return false;
+        }
+
+        try
+        {
+            var modelPath = DependencyPaths.GetSpeechRecognitionModelDirectory(model.ModelName);
+            await UpdateStatusAsync("正在删除语音识别服务与模型…");
+            await Task.Run(() => Directory.Delete(modelPath, true));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SystemTools] 删除语音模型失败: {ex.Message}");
+            await onError();
+            return false;
+        }
+        finally
+        {
+            try
+            {
+                CompleteDownload();
+            }
+            finally
+            {
+                _downloadSemaphore.Release();
+            }
+        }
+    }
+
+    private static void NormalizeSpeechRecognitionModelLayout(string stagingPath, string modelPath)
+    {
+        var directories = Directory.GetDirectories(stagingPath);
+        var files = Directory.GetFiles(stagingPath);
+        var sourcePath = directories.Length == 1 && files.Length == 0
+            ? directories[0]
+            : stagingPath;
+
+        if (Directory.Exists(modelPath))
+        {
+            Directory.Delete(modelPath, true);
+        }
+
+        if (string.Equals(sourcePath, stagingPath, StringComparison.OrdinalIgnoreCase))
+        {
+            Directory.Move(stagingPath, modelPath);
+        }
+        else
+        {
+            Directory.Move(sourcePath, modelPath);
+            Directory.Delete(stagingPath, true);
+        }
     }
 
     public async Task<bool> DownloadFfmpegAsync(Func<Task> onError, Func<Task> onMd5Error)
@@ -1103,6 +1496,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         IsDownloadInProgress = true;
         IsFfmpegDownloadEnabled = false;
         IsFaceModelsDownloadEnabled = false;
+        IsVoskWorkerDownloadEnabled = false;
+        IsSpeechRecognitionActionEnabled = false;
+        IsSpeechRecognitionModelSelectionEnabled = false;
         return true;
     }
 

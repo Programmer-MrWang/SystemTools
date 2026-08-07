@@ -194,17 +194,6 @@
                                       Click="AiServiceToggle_OnClick" />
                     </controls:FASettingsExpander.Footer>
 
-                    <controls:FASettingsExpanderItem Content="AI 对话悬浮窗样式"
-                                                     Description="选择语音对话悬浮窗使用的背景材质。">
-                        <controls:FASettingsExpanderItem.Footer>
-                            <ComboBox Width="180"
-                                      SelectedIndex="{Binding Config.AiConversationFloatingWindowStyle, Mode=TwoWay}">
-                                <ComboBoxItem Content="磨砂效果" />
-                                <ComboBoxItem Content="液态玻璃" />
-                            </ComboBox>
-                        </controls:FASettingsExpanderItem.Footer>
-                    </controls:FASettingsExpanderItem>
-
                     <controls:FASettingsExpanderItem Content="供应商名称"
                                                      Description="用于标识当前配置的 AI 服务供应商。"
                                                      IsEnabled="{Binding Config.EnableAiService}">
@@ -285,6 +274,18 @@
                                            TextWrapping="Wrap"
                                            IsVisible="False" />
                             </StackPanel>
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
+                    
+                    <controls:FASettingsExpanderItem Content="AI 对话悬浮窗样式"
+                                                     Description="选择 语音对话窗口 和“行动”显示AI对话框 使用的背景材质。"
+                                                     IconSource="{ci:FluentIconSource &#xED53;}">
+                        <controls:FASettingsExpanderItem.Footer>
+                            <ComboBox Width="180"
+                                      SelectedIndex="{Binding Config.AiConversationFloatingWindowStyle, Mode=TwoWay}">
+                                <ComboBoxItem Content="磨砂效果" />
+                                <ComboBoxItem Content="液态玻璃" />
+                            </ComboBox>
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
                 </controls:FASettingsExpander>

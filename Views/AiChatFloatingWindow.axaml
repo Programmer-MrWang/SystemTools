@@ -434,19 +434,20 @@
                                     Height="36"
                                     Padding="0"
                                     IsVisible="False"
-                                    Content="{ci:FluentIcon &#xE09F;}"
                                     ToolTip.Tip="返回底部"
                                     Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
                                     Theme="{StaticResource TransparentButton}"
-                                    Click="ReturnToBottomButton_OnClick" />
+                                    Click="ReturnToBottomButton_OnClick">
+                                <ci:FluentIcon Glyph="&#xE09F;" FontSize="20" />
+                            </Button>
                             <Button Grid.Column="3"
                                     Width="36"
                                     Height="36"
                                     Padding="0"
-                                    Content="{ci:FluentIcon &#xEB80;}"
                                     ToolTip.Tip="{Binding VoiceInputToolTip}"
                                     IsEnabled="{Binding CanToggleVoiceInput}"
                                     Click="VoiceInputButton_OnClick">
+                                <ci:FluentIcon Glyph="&#xEB80;" FontSize="20" />
                                 <Button.Styles>
                                     <Style Selector="Button">
                                         <Setter Property="Foreground" Value="{DynamicResource AiChatSurfaceForegroundBrush}" />
@@ -463,12 +464,13 @@
                                     Width="36"
                                     Height="36"
                                     Padding="0"
-                                    Content="{ci:FluentIcon &#xEF11;}"
                                     ToolTip.Tip="发送"
                                     Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
                                     IsVisible="{Binding IsNoGenerationActive}"
                                     IsEnabled="{Binding CanSend}"
-                                    Click="SendButton_OnClick" />
+                                    Click="SendButton_OnClick">
+                                <ci:FluentIcon Glyph="&#xEF11;" FontSize="20" />
+                            </Button>
                             <Button Grid.Column="5"
                                     Width="36"
                                     Height="36"

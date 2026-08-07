@@ -1400,6 +1400,18 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             return;
         }
 
+        var selectedConversationBeforeMove = e.Action == NotifyCollectionChangedAction.Move &&
+                                             _operationGate.IsBusy
+            ? SelectedConversation
+            : null;
+        if (selectedConversationBeforeMove is not null)
+        {
+            // ListBox may write back a different SelectedItem while processing CollectionChanged.Move.
+            Dispatcher.UIThread.Post(
+                () => RestoreSelectionAfterConversationMove(selectedConversationBeforeMove),
+                DispatcherPriority.Background);
+        }
+
         var previousInputText = InputText;
         var previousAttachments = PendingAttachments.ToList();
         var selectedConversationWasRemoved = SelectedConversation is not null &&
@@ -1434,6 +1446,17 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         {
             StatusText = "当前对话已在另一个窗口删除，未发送的正文和附件草稿已清除";
         }
+    }
+
+    private void RestoreSelectionAfterConversationMove(AiConversation expectedConversation)
+    {
+        if (_isDisposed || !Conversations.Contains(expectedConversation) ||
+            ReferenceEquals(SelectedConversation, expectedConversation))
+        {
+            return;
+        }
+
+        SelectedConversation = expectedConversation;
     }
 
     private void StoreComposerDraft(AiConversation? conversation)

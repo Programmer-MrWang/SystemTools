@@ -19,9 +19,9 @@
                                VerticalAlignment="Center" />
                 <Label VerticalAlignment="Center" FontSize="28">插件调试</Label>
             </StackPanel>
-
-            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE790;}"
-                                         Header="液态玻璃：折射与背景"
+            
+            <ci:IconText Glyph="&#xE7D7;" Text="液态玻璃外观设置 细调" Margin="0 0 0 4" />
+            <controls:FASettingsExpander Header="液态玻璃：折射与背景"
                                          Description="调整玻璃轮廓、背景采样、折射与基础模糊。">
                 <controls:FASettingsExpanderItem Content="圆角半径" Description="玻璃表面的圆角大小。">
                     <controls:FASettingsExpanderItem.Footer>
@@ -75,8 +75,7 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
-            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE790;}"
-                                         Header="液态玻璃：色彩"
+            <controls:FASettingsExpander Header="液态玻璃：色彩"
                                          Description="调整背景颜色处理和玻璃叠色。">
                 <controls:FASettingsExpanderItem Content="鲜艳度" Description="背景颜色的饱和与鲜艳程度。">
                     <controls:FASettingsExpanderItem.Footer>
@@ -120,8 +119,7 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
-            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE916;}"
-                                         Header="液态玻璃：渐进与自适应"
+            <controls:FASettingsExpander Header="液态玻璃：渐进与自适应"
                                          Description="调整垂直渐进模糊和自适应亮度。">
                 <controls:FASettingsExpanderItem Content="启用渐进模糊" Description="按垂直位置渐变玻璃模糊。">
                     <controls:FASettingsExpanderItem.Footer>
@@ -165,8 +163,7 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
-            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE706;}"
-                                         Header="液态玻璃：高光"
+            <controls:FASettingsExpander Header="液态玻璃：高光"
                                          Description="调整玻璃边缘高光。">
                 <controls:FASettingsExpanderItem Content="启用高光" Description="显示玻璃边缘高光。">
                     <controls:FASettingsExpanderItem.Footer>
@@ -200,8 +197,7 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
-            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE81C;}"
-                                         Header="液态玻璃：外阴影"
+            <controls:FASettingsExpander Header="液态玻璃：外阴影"
                                          Description="调整玻璃表面之外的投影。">
                 <controls:FASettingsExpanderItem Content="启用外阴影" Description="显示玻璃外部投影。">
                     <controls:FASettingsExpanderItem.Footer>
@@ -235,8 +231,7 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
-            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE81C;}"
-                                         Header="液态玻璃：内阴影"
+            <controls:FASettingsExpander Header="液态玻璃：内阴影"
                                          Description="调整玻璃边缘内部的投影。">
                 <controls:FASettingsExpanderItem Content="启用内阴影" Description="显示玻璃内部投影。">
                     <controls:FASettingsExpanderItem.Footer>
@@ -272,13 +267,13 @@
 
             <controls:FASettingsExpander Header="恢复液态玻璃默认参数"
                                          Description="将以上参数恢复为 LiquidGlassAvaloniaUI 的默认值。"
-                                         IconSource="{ci:FluentIconSource &#xE777;}"
                                          Click="OnResetLiquidGlassClick"
                                          ActionIconSource="{ci:FluentIconSource &#xE777;}"
                                          IsClickEnabled="True" />
-
+            
+            <ci:IconText Glyph="&#xEDBF;" Text="立即唤醒语音 AI" Margin="0 0 0 4" />
             <controls:FASettingsExpander Header="调试语音唤醒 AI"
-                                         Description="启动一次语音唤醒 AI 调试对话。"
+                                         Description="启动一次语音唤醒 AI 调试对话，并发送一个课程修改请求"
                                          IconSource="{ci:FluentIconSource &#xF4C5;}"
                                          Click="OnDebugVoiceWakeAiClick"
                                          ActionIconSource="{ci:FluentIconSource &#xEC2E;}"

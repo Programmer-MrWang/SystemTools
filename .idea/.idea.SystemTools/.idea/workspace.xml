@@ -15,10 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shared/DependencyPaths.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/DependencyPaths.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/PluginDebugSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/PluginDebugSettingsPage.axaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +140,7 @@
       <workItem from="1786064593314" duration="415000" />
       <workItem from="1786078984589" duration="547000" />
       <workItem from="1786089087859" duration="89000" />
-      <workItem from="1786109393201" duration="658000" />
+      <workItem from="1786109393201" duration="2224000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -345,7 +342,23 @@
       <option name="project" value="LOCAL" />
       <updated>1786064739070</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="feat: 实现下载模型UI和麦克风限制">
+      <option name="closed" value="true" />
+      <created>1786110808193</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1786110808194</updated>
+    </task>
+    <task id="LOCAL-00027" summary="feat: 优化UI提示">
+      <option name="closed" value="true" />
+      <created>1786110820748</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1786110820748</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -366,8 +379,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 同步主分支新增“关键词触发”和UI逻辑修改" />
-    <MESSAGE value="feat: 新增可选执行行动时发送通知功能" />
     <MESSAGE value="feat: 新增“单击主界面时”触发器 及其对应的服务模块" />
     <MESSAGE value="feat: 新增“点击主界面时”触发器" />
     <MESSAGE value="feat: 关于获取主界面位置的共享服务" />
@@ -391,7 +402,9 @@
     <MESSAGE value="更新项目" />
     <MESSAGE value="排除无关文件" />
     <MESSAGE value="feat: 更新了液态玻璃效果" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新了液态玻璃效果" />
+    <MESSAGE value="feat: 实现下载模型UI和麦克风限制" />
+    <MESSAGE value="feat: 优化UI提示" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 优化UI提示" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

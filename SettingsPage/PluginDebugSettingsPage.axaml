@@ -21,6 +21,19 @@
             </StackPanel>
             
             <ci:IconText Glyph="&#xE7D7;" Text="液态玻璃外观设置 细调" Margin="0 0 0 4" />
+            <controls:FASettingsExpanderItem Content="选择默认配置"
+                                             Description="选择一组液态玻璃外观参数，然后点击应用。">
+                <controls:FASettingsExpanderItem.Footer>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ComboBox Width="160"
+                                  ItemsSource="{Binding AppearancePresetNames}"
+                                  SelectedIndex="{Binding SelectedAppearancePreset, Mode=TwoWay}" />
+                        <Button Width="72"
+                                Content="应用"
+                                Click="OnApplyAppearancePresetClick" />
+                    </StackPanel>
+                </controls:FASettingsExpanderItem.Footer>
+            </controls:FASettingsExpanderItem>
             <controls:FASettingsExpander Header="液态玻璃：折射与背景"
                                          Description="调整玻璃轮廓、背景采样、折射与基础模糊。">
                 <controls:FASettingsExpanderItem Content="圆角半径" Description="玻璃表面的圆角大小。">

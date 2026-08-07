@@ -245,6 +245,69 @@ public sealed class LiquidGlassSettings : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
     }
 
+    /// <summary>
+    /// Replaces all persisted liquid-glass values in one notification batch.
+    /// </summary>
+    public void CopyFrom(LiquidGlassSettings source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        _suppressNotifications = true;
+        try
+        {
+            CornerRadius = source.CornerRadius;
+            BackdropRefreshIntervalMs = source.BackdropRefreshIntervalMs;
+            BackdropZoom = source.BackdropZoom;
+            BackdropOffsetX = source.BackdropOffsetX;
+            BackdropOffsetY = source.BackdropOffsetY;
+            RefractionHeight = source.RefractionHeight;
+            RefractionAmount = source.RefractionAmount;
+            DepthEffect = source.DepthEffect;
+            ChromaticAberration = source.ChromaticAberration;
+            BlurRadius = source.BlurRadius;
+            Vibrancy = source.Vibrancy;
+            Brightness = source.Brightness;
+            Contrast = source.Contrast;
+            ExposureEv = source.ExposureEv;
+            GammaPower = source.GammaPower;
+            BackdropOpacity = source.BackdropOpacity;
+            TintColor = source.TintColor;
+            SurfaceColor = source.SurfaceColor;
+            ProgressiveBlurEnabled = source.ProgressiveBlurEnabled;
+            ProgressiveBlurStart = source.ProgressiveBlurStart;
+            ProgressiveBlurEnd = source.ProgressiveBlurEnd;
+            ProgressiveTintColor = source.ProgressiveTintColor;
+            ProgressiveTintIntensity = source.ProgressiveTintIntensity;
+            AdaptiveLuminanceEnabled = source.AdaptiveLuminanceEnabled;
+            AdaptiveLuminanceUpdateIntervalMs = source.AdaptiveLuminanceUpdateIntervalMs;
+            AdaptiveLuminanceSmoothing = source.AdaptiveLuminanceSmoothing;
+            HighlightEnabled = source.HighlightEnabled;
+            HighlightWidth = source.HighlightWidth;
+            HighlightBlurRadius = source.HighlightBlurRadius;
+            HighlightOpacity = source.HighlightOpacity;
+            HighlightAngle = source.HighlightAngle;
+            HighlightFalloff = source.HighlightFalloff;
+            ShadowEnabled = source.ShadowEnabled;
+            ShadowRadius = source.ShadowRadius;
+            ShadowOffsetX = source.ShadowOffsetX;
+            ShadowOffsetY = source.ShadowOffsetY;
+            ShadowColor = source.ShadowColor;
+            ShadowOpacity = source.ShadowOpacity;
+            InnerShadowEnabled = source.InnerShadowEnabled;
+            InnerShadowRadius = source.InnerShadowRadius;
+            InnerShadowOffsetX = source.InnerShadowOffsetX;
+            InnerShadowOffsetY = source.InnerShadowOffsetY;
+            InnerShadowColor = source.InnerShadowColor;
+            InnerShadowOpacity = source.InnerShadowOpacity;
+        }
+        finally
+        {
+            _suppressNotifications = false;
+        }
+
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
+    }
+
     private bool Set<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (Equals(field, value))

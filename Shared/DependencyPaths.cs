@@ -57,7 +57,10 @@ public static class DependencyPaths
             "VoskModel",
             "vosk-model",
             "model",
+            "vosk-model-small-en-us",
+            "vosk-model-en-us",
             "vosk-model-small-cn-0.22",
+            "vosk-model-small-cn",
             "vosk-model-cn"
         };
         foreach (var name in preferredNames)
@@ -103,6 +106,27 @@ public static class DependencyPaths
             "SystemTools.VoskWorker.exe");
         return IsSpeechRecognitionWorkerInstallation(pluginCandidate) ? pluginCandidate : null;
     }
+
+    public static string GetDownloadedSpeechRecognitionWorkerDirectory() =>
+        Path.Combine(GetDependencyRoot(), "VoskWorker");
+
+    public static bool HasDownloadedSpeechRecognitionWorker()
+    {
+        try
+        {
+            return IsSpeechRecognitionWorkerInstallationDirectory(
+                GetDownloadedSpeechRecognitionWorkerDirectory());
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool IsSpeechRecognitionWorkerInstallationDirectory(string directory) =>
+        !string.IsNullOrWhiteSpace(directory) &&
+        IsSpeechRecognitionWorkerInstallation(
+            Path.Combine(directory, "SystemTools.VoskWorker.exe"));
 
     public static (bool IsAvailable, string Message) CheckSpeechRecognitionDependencies()
     {
@@ -182,6 +206,43 @@ public static class DependencyPaths
 
     public static string? GetVoskModelName(string modelDirectory) =>
         GetSpeechRecognitionModelName(modelDirectory);
+
+    public static string GetSpeechRecognitionModelDirectory(string modelName)
+    {
+        if (string.IsNullOrWhiteSpace(modelName) ||
+            modelName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 ||
+            modelName is "." or "..")
+        {
+            throw new ArgumentException("Speech recognition model name is invalid.", nameof(modelName));
+        }
+
+        return Path.Combine(GetDependencyRoot(), modelName);
+    }
+
+    public static bool IsSpeechRecognitionModelInstalled(string modelName)
+    {
+        try
+        {
+            var directory = GetSpeechRecognitionModelDirectory(modelName);
+            var info = GetSpeechRecognitionModelInfo(directory);
+            if (info is null || info.Kind == SpeechRecognitionModelKind.Unknown)
+            {
+                return false;
+            }
+
+            return info.Kind switch
+            {
+                SpeechRecognitionModelKind.SenseVoice => LooksLikeSenseVoiceModel(directory) &&
+                                                         File.Exists(Path.Combine(directory, "config.yaml")),
+                SpeechRecognitionModelKind.Vosk => LooksLikeVoskModel(directory),
+                _ => false
+            };
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     private static SpeechRecognitionModelKind GetSpeechRecognitionModelKind(
         string modelDirectory,

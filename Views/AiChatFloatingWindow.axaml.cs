@@ -352,6 +352,12 @@ public partial class AiChatFloatingWindow : Window
 
     private async void VoiceInputButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        if (!ViewModel.IsVoiceInputActive &&
+            !await SpeechRecognitionDependencyPrompt.EnsureAvailableAsync(this))
+        {
+            return;
+        }
+
         await ViewModel.ToggleVoiceInputAsync();
         MessageInput.Focus();
         MessageInput.CaretIndex = MessageInput.Text?.Length ?? 0;

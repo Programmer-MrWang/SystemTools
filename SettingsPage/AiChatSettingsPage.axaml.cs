@@ -62,6 +62,13 @@ public partial class AiChatSettingsPage : SettingsPageBase
 
     private async void VoiceInputButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        if (!ViewModel.IsVoiceInputActive &&
+            !await SpeechRecognitionDependencyPrompt.EnsureAvailableAsync(
+                TopLevel.GetTopLevel(this)))
+        {
+            return;
+        }
+
         await ViewModel.ToggleVoiceInputAsync();
         MessageInput.Focus();
         MessageInput.CaretIndex = MessageInput.Text?.Length ?? 0;

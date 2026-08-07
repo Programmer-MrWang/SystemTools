@@ -5,6 +5,7 @@
         xmlns:controls="clr-namespace:SystemTools.Controls"
         xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
         xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
+        xmlns:lg="clr-namespace:LiquidGlassAvaloniaUI"
         x:CompileBindings="False"
         Title="SystemTools - AI 对话"
         Width="820"
@@ -43,17 +44,40 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Border CornerRadius="12"
-            Background="{DynamicResource AiChatWindowBackgroundBrush}"
-            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
-            BorderThickness="1"
-            ClipToBounds="True"
-            DragDrop.AllowDrop="True"
-            DragDrop.DragEnter="ChatWindow_OnDragEnter"
-            DragDrop.DragOver="ChatWindow_OnDragEnter"
-            DragDrop.DragLeave="ChatWindow_OnDragLeave"
-            DragDrop.Drop="ChatWindow_OnDrop">
-        <Grid RowDefinitions="Auto,*">
+    <Grid>
+        <Border x:Name="FrostedBackgroundBorder"
+                CornerRadius="12"
+                Background="{DynamicResource AiChatWindowBackgroundBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                ClipToBounds="True"
+                IsHitTestVisible="False" />
+
+        <Border x:Name="LiquidGlassBackdropClip"
+                IsVisible="False"
+                IsHitTestVisible="False"
+                ClipToBounds="True">
+            <Image x:Name="LiquidGlassBackdropImage"
+                   Stretch="Fill"
+                   IsHitTestVisible="False" />
+        </Border>
+
+        <lg:LiquidGlassSurface x:Name="LiquidGlassSurface"
+                               IsVisible="False"
+                               IsHitTestVisible="False" />
+
+        <Border x:Name="RootBorder"
+                CornerRadius="12"
+                Background="Transparent"
+                BorderThickness="0"
+                ClipToBounds="True"
+                lg:LiquidGlassBackdrop.IsExcludedFromCapture="True"
+                DragDrop.AllowDrop="True"
+                DragDrop.DragEnter="ChatWindow_OnDragEnter"
+                DragDrop.DragOver="ChatWindow_OnDragEnter"
+                DragDrop.DragLeave="ChatWindow_OnDragLeave"
+                DragDrop.Drop="ChatWindow_OnDrop">
+            <Grid RowDefinitions="Auto,*">
             <Grid x:Name="WindowTitleBar"
                   Height="46"
                   Margin="14,0,8,0"
@@ -468,6 +492,7 @@
             </Grid>
             <controls:AiAttachmentDropOverlay x:Name="AttachmentDropOverlay"
                                               Grid.RowSpan="2" />
-        </Grid>
-    </Border>
+            </Grid>
+        </Border>
+    </Grid>
 </Window>

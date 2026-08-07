@@ -1,14 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ClassIsland.Shared;
@@ -17,6 +22,7 @@ using SystemTools.ConfigHandlers;
 using SystemTools.Models;
 using SystemTools.Services;
 using SystemTools.Shared;
+using DrawingRectangle = System.Drawing.Rectangle;
 
 namespace SystemTools.Views;
 
@@ -28,6 +34,16 @@ public partial class AiChatFloatingWindow : Window
     private bool _isAtConversationBottom = true;
     private AiConversation? _displayedConversation;
     private readonly IDisposable _windowStateSubscription;
+    private readonly MainConfigHandler _configHandler;
+    private readonly MainWindowBackgroundCaptureService _backgroundCaptureService;
+    private readonly DispatcherTimer _liquidGlassCaptureTimer;
+    private WriteableBitmap? _liquidGlassBackdrop;
+    private WriteableBitmap? _liquidGlassSpareBackdrop;
+    private IDisposable? _continuousCaptureLease;
+    private IDisposable? _windowCaptureExclusionLease;
+    private CancellationTokenSource? _glassCaptureCancellation;
+    private Task? _glassCaptureTask;
+    private bool _glassCaptureErrorReported;
 
     public AiChatFloatingWindow()
         : this(
@@ -39,7 +55,8 @@ public partial class AiChatFloatingWindow : Window
             IAppHost.GetService<MainConfigHandler>(),
             IAppHost.GetService<SystemToolsNotificationProvider>(),
             IAppHost.GetService<ClassIslandProfileAiService>(),
-            IAppHost.GetService<ClassIslandActionAiService>())
+            IAppHost.GetService<ClassIslandActionAiService>(),
+            IAppHost.GetService<MainWindowBackgroundCaptureService>())
     {
     }
 
@@ -52,8 +69,11 @@ public partial class AiChatFloatingWindow : Window
         MainConfigHandler configHandler,
         SystemToolsNotificationProvider notificationProvider,
         ClassIslandProfileAiService profileAiService,
-        ClassIslandActionAiService actionAiService)
+        ClassIslandActionAiService actionAiService,
+        MainWindowBackgroundCaptureService backgroundCaptureService)
     {
+        _configHandler = configHandler;
+        _backgroundCaptureService = backgroundCaptureService;
         ViewModel = new AiChatSettingsViewModel(
             store,
             aiService,
@@ -68,9 +88,17 @@ public partial class AiChatFloatingWindow : Window
             ConfirmActionExecutionAsync);
         DataContext = ViewModel;
         InitializeComponent();
+        _liquidGlassCaptureTimer = new DispatcherTimer(
+            TimeSpan.FromMilliseconds(_configHandler.Data.AiConversationLiquidGlass.BackdropRefreshIntervalMs),
+            DispatcherPriority.Background,
+            (_, _) => QueueLiquidGlassBackdropCapture());
 
         _displayedConversation = ViewModel.SelectedConversation;
         ViewModel.ConversationContentChanged += ViewModel_OnConversationContentChanged;
+        _configHandler.Data.PropertyChanged += Config_OnPropertyChanged;
+        Opened += Window_OnOpened;
+        PositionChanged += Window_OnPositionChanged;
+        ApplyLiquidGlassAppearance();
         _windowStateSubscription = this.GetPropertyChangedObservable(WindowStateProperty).Subscribe(_ =>
         {
             if (WindowState == WindowState.Normal)
@@ -98,6 +126,224 @@ public partial class AiChatFloatingWindow : Window
         }
         Activate();
     }
+
+    private void Window_OnOpened(object? sender, EventArgs e) => UpdateLiquidGlassCaptureLoop();
+
+    private void Window_OnPositionChanged(object? sender, PixelPointEventArgs e)
+        => UpdateLiquidGlassCaptureLoop();
+
+    private void Config_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is not nameof(MainConfigData.AiConversationFloatingWindowStyle) and
+            not nameof(MainConfigData.AiConversationLiquidGlass))
+        {
+            return;
+        }
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            ApplyLiquidGlassAppearance();
+            UpdateLiquidGlassCaptureLoop();
+        });
+    }
+
+    private void UpdateLiquidGlassCaptureLoop()
+    {
+        _liquidGlassCaptureTimer.Interval = TimeSpan.FromMilliseconds(
+            _configHandler.Data.AiConversationLiquidGlass.BackdropRefreshIntervalMs);
+        var shouldCapture = !_isDisposed &&
+                            IsVisible &&
+                            _configHandler.Data.AiConversationFloatingWindowStyle == 1;
+        if (shouldCapture)
+        {
+            _continuousCaptureLease ??= _backgroundCaptureService.BeginContinuousCapture();
+            if (_windowCaptureExclusionLease is null)
+            {
+                var handle = TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+                _windowCaptureExclusionLease = _backgroundCaptureService.BeginExcludedWindowCapture(handle);
+            }
+
+            if (!_liquidGlassCaptureTimer.IsEnabled)
+            {
+                _liquidGlassCaptureTimer.Start();
+            }
+
+            QueueLiquidGlassBackdropCapture();
+            return;
+        }
+
+        _liquidGlassCaptureTimer.Stop();
+        _glassCaptureCancellation?.Cancel();
+        if (_glassCaptureTask is null)
+        {
+            ReleaseLiquidGlassBackdrops();
+        }
+    }
+
+    private void QueueLiquidGlassBackdropCapture()
+    {
+        if (_isDisposed || !IsVisible ||
+            _configHandler.Data.AiConversationFloatingWindowStyle != 1)
+        {
+            return;
+        }
+
+        if (_glassCaptureTask is not null)
+        {
+            return;
+        }
+
+        var handle = TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+        var scaling = Math.Max(0.1, RenderScaling);
+        var width = Math.Max(1, (int)Math.Ceiling(ClientSize.Width * scaling));
+        var height = Math.Max(1, (int)Math.Ceiling(ClientSize.Height * scaling));
+        var area = new DrawingRectangle(Position.X, Position.Y, width, height);
+        var cancellation = new CancellationTokenSource();
+        _glassCaptureCancellation = cancellation;
+        _glassCaptureTask = CaptureLiquidGlassBackdropAsync(handle, area, cancellation.Token);
+        var captureTask = _glassCaptureTask;
+        _ = captureTask.ContinueWith(
+            _ => Dispatcher.UIThread.Post(() =>
+            {
+                if (!ReferenceEquals(_glassCaptureTask, captureTask))
+                {
+                    return;
+                }
+
+                _glassCaptureTask = null;
+                _glassCaptureCancellation?.Dispose();
+                _glassCaptureCancellation = null;
+                if (_isDisposed || !IsVisible ||
+                    _configHandler.Data.AiConversationFloatingWindowStyle != 1)
+                {
+                    ReleaseLiquidGlassBackdrops();
+                }
+            }),
+            TaskScheduler.Default);
+    }
+
+    private async Task CaptureLiquidGlassBackdropAsync(
+        IntPtr windowHandle,
+        DrawingRectangle area,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var frame = await Task.Run(
+                () => _backgroundCaptureService.CaptureAreaAsync(
+                    area,
+                    windowHandle,
+                    cancellationToken),
+                cancellationToken);
+            if (frame is null || cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (_isDisposed || cancellationToken.IsCancellationRequested ||
+                    _configHandler.Data.AiConversationFloatingWindowStyle != 1)
+                {
+                    return;
+                }
+
+                var bitmap = LiquidGlassBackdropFactory.Update(frame, _liquidGlassSpareBackdrop);
+                if (bitmap is null)
+                {
+                    return;
+                }
+
+                var previous = _liquidGlassBackdrop;
+                _liquidGlassBackdrop = bitmap;
+                _liquidGlassSpareBackdrop = previous;
+                LiquidGlassBackdropImage.Source = bitmap;
+                _glassCaptureErrorReported = false;
+                ApplyLiquidGlassAppearance();
+            });
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch (Exception ex)
+        {
+            if (!_glassCaptureErrorReported)
+            {
+                _glassCaptureErrorReported = true;
+                ViewModel.ReportError($"液态玻璃背景捕获失败：{ex.Message}");
+            }
+        }
+    }
+
+    private void ReleaseLiquidGlassBackdrops()
+    {
+        _windowCaptureExclusionLease?.Dispose();
+        _windowCaptureExclusionLease = null;
+        _continuousCaptureLease?.Dispose();
+        _continuousCaptureLease = null;
+        LiquidGlassBackdropImage.Source = null;
+        _liquidGlassBackdrop?.Dispose();
+        _liquidGlassBackdrop = null;
+        _liquidGlassSpareBackdrop?.Dispose();
+        _liquidGlassSpareBackdrop = null;
+    }
+
+    private void ApplyLiquidGlassAppearance()
+    {
+        var settings = _configHandler.Data.AiConversationLiquidGlass;
+        var useLiquidGlass = _configHandler.Data.AiConversationFloatingWindowStyle == 1 &&
+                             _liquidGlassBackdrop is not null;
+        var cornerRadius = new CornerRadius(settings.CornerRadius);
+        LiquidGlassBackdropClip.CornerRadius = cornerRadius;
+        LiquidGlassSurface.CornerRadius = cornerRadius;
+        LiquidGlassBackdropClip.IsVisible = useLiquidGlass;
+        LiquidGlassSurface.IsVisible = useLiquidGlass;
+        FrostedBackgroundBorder.IsVisible = !useLiquidGlass;
+        RootBorder.CornerRadius = useLiquidGlass ? cornerRadius : new CornerRadius(12);
+
+        LiquidGlassSurface.BackdropZoom = settings.BackdropZoom;
+        LiquidGlassSurface.BackdropOffset = new Vector(settings.BackdropOffsetX, settings.BackdropOffsetY);
+        LiquidGlassSurface.RefractionHeight = settings.RefractionHeight;
+        LiquidGlassSurface.RefractionAmount = settings.RefractionAmount;
+        LiquidGlassSurface.DepthEffect = settings.DepthEffect;
+        LiquidGlassSurface.ChromaticAberration = settings.ChromaticAberration;
+        LiquidGlassSurface.BlurRadius = settings.BlurRadius;
+        LiquidGlassSurface.Vibrancy = settings.Vibrancy;
+        LiquidGlassSurface.Brightness = settings.Brightness;
+        LiquidGlassSurface.Contrast = settings.Contrast;
+        LiquidGlassSurface.ExposureEv = settings.ExposureEv;
+        LiquidGlassSurface.GammaPower = settings.GammaPower;
+        LiquidGlassSurface.BackdropOpacity = settings.BackdropOpacity;
+        LiquidGlassSurface.TintColor = ParseColor(settings.TintColor, Colors.Transparent);
+        LiquidGlassSurface.SurfaceColor = ParseColor(settings.SurfaceColor, Colors.Transparent);
+        LiquidGlassSurface.ProgressiveBlurEnabled = settings.ProgressiveBlurEnabled;
+        LiquidGlassSurface.ProgressiveBlurStart = settings.ProgressiveBlurStart;
+        LiquidGlassSurface.ProgressiveBlurEnd = settings.ProgressiveBlurEnd;
+        LiquidGlassSurface.ProgressiveTintColor = ParseColor(settings.ProgressiveTintColor, Colors.Transparent);
+        LiquidGlassSurface.ProgressiveTintIntensity = settings.ProgressiveTintIntensity;
+        LiquidGlassSurface.AdaptiveLuminanceEnabled = settings.AdaptiveLuminanceEnabled;
+        LiquidGlassSurface.AdaptiveLuminanceUpdateIntervalMs = settings.AdaptiveLuminanceUpdateIntervalMs;
+        LiquidGlassSurface.AdaptiveLuminanceSmoothing = settings.AdaptiveLuminanceSmoothing;
+        LiquidGlassSurface.HighlightEnabled = settings.HighlightEnabled;
+        LiquidGlassSurface.HighlightWidth = settings.HighlightWidth;
+        LiquidGlassSurface.HighlightBlurRadius = settings.HighlightBlurRadius;
+        LiquidGlassSurface.HighlightOpacity = settings.HighlightOpacity;
+        LiquidGlassSurface.HighlightAngle = settings.HighlightAngle;
+        LiquidGlassSurface.HighlightFalloff = settings.HighlightFalloff;
+        LiquidGlassSurface.ShadowEnabled = settings.ShadowEnabled;
+        LiquidGlassSurface.ShadowRadius = settings.ShadowRadius;
+        LiquidGlassSurface.ShadowOffset = new Vector(settings.ShadowOffsetX, settings.ShadowOffsetY);
+        LiquidGlassSurface.ShadowColor = ParseColor(settings.ShadowColor, Color.FromArgb(26, 0, 0, 0));
+        LiquidGlassSurface.ShadowOpacity = settings.ShadowOpacity;
+        LiquidGlassSurface.InnerShadowEnabled = settings.InnerShadowEnabled;
+        LiquidGlassSurface.InnerShadowRadius = settings.InnerShadowRadius;
+        LiquidGlassSurface.InnerShadowOffset = new Vector(settings.InnerShadowOffsetX, settings.InnerShadowOffsetY);
+        LiquidGlassSurface.InnerShadowColor = ParseColor(settings.InnerShadowColor, Color.FromArgb(38, 0, 0, 0));
+        LiquidGlassSurface.InnerShadowOpacity = settings.InnerShadowOpacity;
+    }
+
+    private static Color ParseColor(string value, Color fallback) =>
+        Color.TryParse(value, out var color) ? color : fallback;
 
     private async void SendButton_OnClick(object? sender, RoutedEventArgs e)
     {
@@ -615,6 +861,17 @@ public partial class AiChatFloatingWindow : Window
         if (!_isDisposed)
         {
             _isDisposed = true;
+            _configHandler.Data.PropertyChanged -= Config_OnPropertyChanged;
+            Opened -= Window_OnOpened;
+            PositionChanged -= Window_OnPositionChanged;
+            _liquidGlassCaptureTimer.Stop();
+            _glassCaptureCancellation?.Cancel();
+            if (_glassCaptureTask is null)
+            {
+                _glassCaptureCancellation?.Dispose();
+                _glassCaptureCancellation = null;
+                ReleaseLiquidGlassBackdrops();
+            }
             ViewModel.ConversationContentChanged -= ViewModel_OnConversationContentChanged;
             ViewModel.StopGeneration();
             ViewModel.Dispose();

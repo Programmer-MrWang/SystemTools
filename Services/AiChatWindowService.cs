@@ -15,7 +15,8 @@ public sealed class AiChatWindowService(
     MainConfigHandler configHandler,
     SystemToolsNotificationProvider notificationProvider,
     ClassIslandProfileAiService profileAiService,
-    ClassIslandActionAiService actionAiService)
+    ClassIslandActionAiService actionAiService,
+    MainWindowBackgroundCaptureService backgroundCaptureService)
 {
     private AiChatFloatingWindow? _window;
 
@@ -34,7 +35,8 @@ public sealed class AiChatWindowService(
                     configHandler,
                     notificationProvider,
                     profileAiService,
-                    actionAiService);
+                    actionAiService,
+                    backgroundCaptureService);
                 _window.Closed += Window_OnClosed;
             }
 

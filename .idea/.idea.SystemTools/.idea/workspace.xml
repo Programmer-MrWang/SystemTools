@@ -14,16 +14,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/SenseVoiceSmall ONNX (INT8 Quantized)/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SenseVoiceSmall ONNX (INT8 Quantized)/am.mvn" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SenseVoiceSmall ONNX (INT8 Quantized)/config.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SenseVoiceSmall ONNX (INT8 Quantized)/configuration.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SenseVoiceSmall ONNX (INT8 Quantized)/copyright.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SenseVoiceSmall ONNX (INT8 Quantized)/gitattributes" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SenseVoiceSmall ONNX (INT8 Quantized)/model_quant.onnx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SenseVoiceSmall ONNX (INT8 Quantized)/tokens.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/VoskWorker/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/VoskWorker/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/AiChatWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiChatWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/AiVoiceConversationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiVoiceConversationService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/MainWindowBackgroundCaptureService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/MainWindowBackgroundCaptureService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/PluginDebugSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/PluginDebugSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/PluginDebugSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/PluginDebugSettingsPage.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/AiVoiceConversationOverlayWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiVoiceConversationOverlayWindow.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/AiVoiceConversationOverlayWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiVoiceConversationOverlayWindow.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +144,10 @@
       <workItem from="1785652801119" duration="6553000" />
       <workItem from="1785732280235" duration="605000" />
       <workItem from="1785778342855" duration="1758000" />
-      <workItem from="1785931540305" duration="4004000" />
+      <workItem from="1785931540305" duration="4145000" />
+      <workItem from="1785945028041" duration="696000" />
+      <workItem from="1785986828558" duration="5578000" />
+      <workItem from="1786027020425" duration="447000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -327,7 +333,15 @@
       <option name="project" value="LOCAL" />
       <updated>1785944855647</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="排除无关文件">
+      <option name="closed" value="true" />
+      <created>1785944995444</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1785944995444</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -371,7 +385,8 @@
     <MESSAGE value="feat: 调整页面布局和添加调试页面" />
     <MESSAGE value="feat: 添加停止聆听动画" />
     <MESSAGE value="更新项目" />
-    <option name="LAST_COMMIT_MESSAGE" value="更新项目" />
+    <MESSAGE value="排除无关文件" />
+    <option name="LAST_COMMIT_MESSAGE" value="排除无关文件" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

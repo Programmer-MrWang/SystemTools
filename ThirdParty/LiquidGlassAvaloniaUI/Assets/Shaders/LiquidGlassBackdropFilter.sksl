@@ -1,0 +1,51 @@
+// Single-pass backdrop filtering for continuously changing desktop captures.
+// Keeping this work inside the final draw avoids allocating an offscreen SKSurface per frame.
+
+uniform shader content;
+
+uniform float blurRadius;
+uniform float vibrancy;
+uniform float brightness;
+uniform float contrast;
+uniform float exposureEv;
+uniform float opacity;
+
+half4 sampleBackdrop(float2 coord) {
+    float radius = clamp(blurRadius, 0.0, 64.0);
+    if (radius <= 0.001) {
+        return content.eval(coord);
+    }
+
+    float axis = radius * 0.55;
+    float diagonal = radius * 0.39;
+    half4 color = content.eval(coord) * half(0.25);
+
+    color += content.eval(coord + float2(axis, 0.0)) * half(0.10);
+    color += content.eval(coord - float2(axis, 0.0)) * half(0.10);
+    color += content.eval(coord + float2(0.0, axis)) * half(0.10);
+    color += content.eval(coord - float2(0.0, axis)) * half(0.10);
+
+    color += content.eval(coord + float2(diagonal, diagonal)) * half(0.0875);
+    color += content.eval(coord + float2(diagonal, -diagonal)) * half(0.0875);
+    color += content.eval(coord + float2(-diagonal, diagonal)) * half(0.0875);
+    color += content.eval(coord - float2(diagonal, diagonal)) * half(0.0875);
+    return color;
+}
+
+half4 main(float2 coord) {
+    half4 sampled = sampleBackdrop(coord);
+    half sourceAlpha = sampled.a;
+    half3 rgb = sourceAlpha > half(0.0001)
+        ? sampled.rgb / sourceAlpha
+        : sampled.rgb;
+
+    half luminance = dot(rgb, half3(0.213, 0.715, 0.072));
+    rgb = half3(luminance) + (rgb - half3(luminance)) * half(clamp(vibrancy, 0.0, 4.0));
+    rgb = (rgb - half3(0.5)) * half(clamp(contrast, 0.0, 4.0))
+        + half3(0.5 + clamp(brightness, -1.0, 1.0));
+    rgb *= half(exp2(clamp(exposureEv, -4.0, 4.0) / 2.2));
+    rgb = clamp(rgb, half3(0.0), half3(1.0));
+
+    half outputAlpha = sourceAlpha * half(clamp(opacity, 0.0, 1.0));
+    return half4(rgb * outputAlpha, outputAlpha);
+}

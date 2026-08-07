@@ -8,8 +8,11 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using SystemTools.ConfigHandlers;
+using SystemTools.Services;
 
 namespace SystemTools.Views;
 
@@ -33,6 +36,11 @@ public partial class AiVoiceConversationOverlayWindow : Window
     private readonly PixelPoint _initialPosition;
     private readonly double _initialWidth;
     private readonly double _initialHeight;
+    private WriteableBitmap? _liquidGlassBackdrop;
+    private WriteableBitmap? _liquidGlassSpareBackdrop;
+    private bool _isDark;
+    private double _opacity;
+    private int _appearanceStyle;
     private double _defaultExpandedHeight;
     private double _transcriptHeightDelta;
     private double _approvalHeightDelta;
@@ -41,7 +49,16 @@ public partial class AiVoiceConversationOverlayWindow : Window
     private long _heightAnimationTimestamp;
 
     public AiVoiceConversationOverlayWindow()
-        : this(new PixelPoint(0, 0), 1, 1, isDark: false, opacity: 0.5, cornerRadius: 8.0)
+        : this(
+            new PixelPoint(0, 0),
+            1,
+            1,
+            isDark: false,
+            opacity: 0.5,
+            cornerRadius: 8.0,
+            appearanceStyle: 0,
+            new LiquidGlassSettings(),
+            liquidGlassBackdrop: null)
     {
     }
 
@@ -51,7 +68,10 @@ public partial class AiVoiceConversationOverlayWindow : Window
         double height,
         bool isDark,
         double opacity,
-        double cornerRadius)
+        double cornerRadius,
+        int appearanceStyle,
+        LiquidGlassSettings liquidGlassSettings,
+        WriteableBitmap? liquidGlassBackdrop)
     {
         InitializeComponent();
         Position = position;
@@ -64,12 +84,15 @@ public partial class AiVoiceConversationOverlayWindow : Window
         _targetHeight = Height;
         Topmost = true;
         _cornerRadius = Math.Max(0, cornerRadius);
+        _appearanceStyle = appearanceStyle == 1 ? 1 : 0;
+        _liquidGlassBackdrop = liquidGlassBackdrop;
+        LiquidGlassBackdropImage.Source = liquidGlassBackdrop;
         _heightAnimationTimer = new DispatcherTimer(
             TimeSpan.FromMilliseconds(16),
             DispatcherPriority.Render,
             OnHeightAnimationTick);
+        ApplyLiquidGlassSettings(liquidGlassSettings);
         ApplyTheme(isDark, opacity);
-        RootBorder.CornerRadius = new CornerRadius(_cornerRadius + 10);
         Waveform.SetDarkTheme(isDark);
         Waveform.SetListening(false);
         AutomationProperties.SetLiveSetting(StatusText, AutomationLiveSetting.Polite);
@@ -306,6 +329,42 @@ public partial class AiVoiceConversationOverlayWindow : Window
     }
 
     public void UpdateAppearance(bool isDark, double opacity) => ApplyTheme(isDark, opacity);
+
+    public void UpdateLiquidGlassAppearance(int appearanceStyle, LiquidGlassSettings settings)
+    {
+        _appearanceStyle = appearanceStyle == 1 ? 1 : 0;
+        if (_appearanceStyle != 1)
+        {
+            ReleaseLiquidGlassBackdrops();
+        }
+
+        ApplyLiquidGlassSettings(settings);
+        ApplyTheme(_isDark, _opacity);
+    }
+
+    public void UpdateLiquidGlassBackdrop(MainWindowBackgroundFrame frame)
+    {
+        var backdrop = LiquidGlassBackdropFactory.Update(frame, _liquidGlassSpareBackdrop);
+        if (backdrop is null)
+        {
+            return;
+        }
+
+        var previous = _liquidGlassBackdrop;
+        _liquidGlassBackdrop = backdrop;
+        _liquidGlassSpareBackdrop = previous;
+        LiquidGlassBackdropImage.Source = backdrop;
+        ApplyTheme(_isDark, _opacity);
+    }
+
+    private void ReleaseLiquidGlassBackdrops()
+    {
+        LiquidGlassBackdropImage.Source = null;
+        _liquidGlassBackdrop?.Dispose();
+        _liquidGlassBackdrop = null;
+        _liquidGlassSpareBackdrop?.Dispose();
+        _liquidGlassSpareBackdrop = null;
+    }
 
     public void CloseFromOwner()
     {
@@ -562,6 +621,8 @@ public partial class AiVoiceConversationOverlayWindow : Window
 
     private void ApplyTheme(bool isDark, double opacity)
     {
+        _isDark = isDark;
+        _opacity = opacity;
         RequestedThemeVariant = isDark ? ThemeVariant.Dark : ThemeVariant.Light;
         if (!double.IsFinite(opacity))
         {
@@ -592,9 +653,21 @@ public partial class AiVoiceConversationOverlayWindow : Window
             };
 
         var foreground = isDark ? Colors.White : Color.FromRgb(20, 27, 38);
-        RootBorder.Background = background;
-        RootBorder.BorderBrush = new SolidColorBrush(Color.FromArgb((byte)Math.Min(210, alpha + 20), foreground.R, foreground.G, foreground.B));
-        RootBorder.BorderThickness = new Thickness(1);
+        var useLiquidGlass = _appearanceStyle == 1 && _liquidGlassBackdrop is not null;
+        LiquidGlassBackdropClip.IsVisible = useLiquidGlass;
+        LiquidGlassSurface.IsVisible = useLiquidGlass;
+        RootBorder.CornerRadius = useLiquidGlass
+            ? LiquidGlassSurface.CornerRadius
+            : new CornerRadius(_cornerRadius + 10);
+        RootBorder.Background = useLiquidGlass ? Brushes.Transparent : background;
+        RootBorder.BorderBrush = useLiquidGlass
+            ? Brushes.Transparent
+            : new SolidColorBrush(Color.FromArgb(
+                (byte)Math.Min(210, alpha + 20),
+                foreground.R,
+                foreground.G,
+                foreground.B));
+        RootBorder.BorderThickness = useLiquidGlass ? new Thickness(0) : new Thickness(1);
         StatusText.Foreground = new SolidColorBrush(foreground);
         DetailText.Foreground = new SolidColorBrush(foreground);
         TranscriptText.Foreground = new SolidColorBrush(foreground);
@@ -604,6 +677,61 @@ public partial class AiVoiceConversationOverlayWindow : Window
         ApprovalWarningText.Foreground = new SolidColorBrush(foreground);
         Waveform.SetDarkTheme(isDark);
     }
+
+    private void ApplyLiquidGlassSettings(LiquidGlassSettings settings)
+    {
+        var cornerRadius = new CornerRadius(settings.CornerRadius);
+        LiquidGlassBackdropClip.CornerRadius = cornerRadius;
+        LiquidGlassSurface.CornerRadius = cornerRadius;
+        LiquidGlassSurface.BackdropZoom = settings.BackdropZoom;
+        LiquidGlassSurface.BackdropOffset = new Vector(settings.BackdropOffsetX, settings.BackdropOffsetY);
+        LiquidGlassSurface.RefractionHeight = settings.RefractionHeight;
+        LiquidGlassSurface.RefractionAmount = settings.RefractionAmount;
+        LiquidGlassSurface.DepthEffect = settings.DepthEffect;
+        LiquidGlassSurface.ChromaticAberration = settings.ChromaticAberration;
+        LiquidGlassSurface.BlurRadius = settings.BlurRadius;
+        LiquidGlassSurface.Vibrancy = settings.Vibrancy;
+        LiquidGlassSurface.Brightness = settings.Brightness;
+        LiquidGlassSurface.Contrast = settings.Contrast;
+        LiquidGlassSurface.ExposureEv = settings.ExposureEv;
+        LiquidGlassSurface.GammaPower = settings.GammaPower;
+        LiquidGlassSurface.BackdropOpacity = settings.BackdropOpacity;
+        LiquidGlassSurface.TintColor = ParseColor(settings.TintColor, Colors.Transparent);
+        LiquidGlassSurface.SurfaceColor = ParseColor(settings.SurfaceColor, Colors.Transparent);
+        LiquidGlassSurface.ProgressiveBlurEnabled = settings.ProgressiveBlurEnabled;
+        LiquidGlassSurface.ProgressiveBlurStart = settings.ProgressiveBlurStart;
+        LiquidGlassSurface.ProgressiveBlurEnd = settings.ProgressiveBlurEnd;
+        LiquidGlassSurface.ProgressiveTintColor = ParseColor(settings.ProgressiveTintColor, Colors.Transparent);
+        LiquidGlassSurface.ProgressiveTintIntensity = settings.ProgressiveTintIntensity;
+        LiquidGlassSurface.AdaptiveLuminanceEnabled = settings.AdaptiveLuminanceEnabled;
+        LiquidGlassSurface.AdaptiveLuminanceUpdateIntervalMs = settings.AdaptiveLuminanceUpdateIntervalMs;
+        LiquidGlassSurface.AdaptiveLuminanceSmoothing = settings.AdaptiveLuminanceSmoothing;
+        LiquidGlassSurface.HighlightEnabled = settings.HighlightEnabled;
+        LiquidGlassSurface.HighlightWidth = settings.HighlightWidth;
+        LiquidGlassSurface.HighlightBlurRadius = settings.HighlightBlurRadius;
+        LiquidGlassSurface.HighlightOpacity = settings.HighlightOpacity;
+        LiquidGlassSurface.HighlightAngle = settings.HighlightAngle;
+        LiquidGlassSurface.HighlightFalloff = settings.HighlightFalloff;
+        LiquidGlassSurface.ShadowEnabled = settings.ShadowEnabled;
+        LiquidGlassSurface.ShadowRadius = settings.ShadowRadius;
+        LiquidGlassSurface.ShadowOffset = new Vector(settings.ShadowOffsetX, settings.ShadowOffsetY);
+        LiquidGlassSurface.ShadowColor = ParseColor(
+            settings.ShadowColor,
+            Color.FromArgb(26, 0, 0, 0));
+        LiquidGlassSurface.ShadowOpacity = settings.ShadowOpacity;
+        LiquidGlassSurface.InnerShadowEnabled = settings.InnerShadowEnabled;
+        LiquidGlassSurface.InnerShadowRadius = settings.InnerShadowRadius;
+        LiquidGlassSurface.InnerShadowOffset = new Vector(
+            settings.InnerShadowOffsetX,
+            settings.InnerShadowOffsetY);
+        LiquidGlassSurface.InnerShadowColor = ParseColor(
+            settings.InnerShadowColor,
+            Color.FromArgb(38, 0, 0, 0));
+        LiquidGlassSurface.InnerShadowOpacity = settings.InnerShadowOpacity;
+    }
+
+    private static Color ParseColor(string value, Color fallback) =>
+        Color.TryParse(value, out var color) ? color : fallback;
 
     private void DenyApprovalButton_OnClick(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
         => ResolveApproval(false);
@@ -625,7 +753,10 @@ public partial class AiVoiceConversationOverlayWindow : Window
         if (!_allowClose)
         {
             e.Cancel = true;
+            return;
         }
+
+        ReleaseLiquidGlassBackdrops();
     }
 }
 

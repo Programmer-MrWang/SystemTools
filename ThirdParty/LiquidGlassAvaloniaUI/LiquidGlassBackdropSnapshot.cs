@@ -1,0 +1,111 @@
+using System;
+using Avalonia;
+using SkiaSharp;
+
+namespace LiquidGlassAvaloniaUI
+{
+    internal sealed class LiquidGlassBackdropSnapshot : IDisposable
+    {
+        private int _leases;
+        private int _disposeRequested;
+        private int _disposed;
+        private readonly object _disposeCallbackLock = new();
+        private Action? _disposedCallback;
+
+        public LiquidGlassBackdropSnapshot(SKImage image, PixelPoint originInPixels, PixelSize pixelSize, double scaling)
+        {
+            Image = image ?? throw new ArgumentNullException(nameof(image));
+            OriginInPixels = originInPixels;
+            PixelSize = pixelSize;
+            Scaling = scaling;
+        }
+
+        public SKImage Image { get; }
+
+        /// <summary>
+        /// Snapshot origin in device pixels (TopLevel coordinate space).
+        /// </summary>
+        public PixelPoint OriginInPixels { get; }
+
+        public PixelSize PixelSize { get; }
+
+        public double Scaling { get; }
+
+        public bool TryAddLease()
+        {
+            while (true)
+            {
+                if (System.Threading.Volatile.Read(ref _disposed) != 0)
+                    return false;
+
+                int current = System.Threading.Volatile.Read(ref _leases);
+                if (System.Threading.Interlocked.CompareExchange(ref _leases, current + 1, current) == current)
+                {
+                    if (System.Threading.Volatile.Read(ref _disposed) != 0)
+                    {
+                        ReleaseLease();
+                        return false;
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        public void ReleaseLease()
+        {
+            int remaining = System.Threading.Interlocked.Decrement(ref _leases);
+            if (remaining < 0)
+                return;
+
+            if (remaining == 0 && System.Threading.Volatile.Read(ref _disposeRequested) != 0)
+                Dispose();
+        }
+
+        public void RequestDispose(Action? onDisposed = null)
+        {
+            if (onDisposed is not null)
+            {
+                bool invokeImmediately;
+                lock (_disposeCallbackLock)
+                {
+                    invokeImmediately = System.Threading.Volatile.Read(ref _disposed) != 0;
+                    if (!invokeImmediately)
+                        _disposedCallback += onDisposed;
+                }
+
+                if (invokeImmediately)
+                {
+                    onDisposed();
+                    return;
+                }
+            }
+
+            System.Threading.Volatile.Write(ref _disposeRequested, 1);
+            if (System.Threading.Volatile.Read(ref _leases) == 0)
+                Dispose();
+        }
+
+        public void Dispose()
+        {
+            if (System.Threading.Interlocked.Exchange(ref _disposed, 1) != 0)
+                return;
+
+            try
+            {
+                Image.Dispose();
+            }
+            finally
+            {
+                Action? callback;
+                lock (_disposeCallbackLock)
+                {
+                    callback = _disposedCallback;
+                    _disposedCallback = null;
+                }
+
+                callback?.Invoke();
+            }
+        }
+    }
+}

@@ -20,8 +20,265 @@
                 <Label VerticalAlignment="Center" FontSize="28">插件调试</Label>
             </StackPanel>
 
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE790;}"
+                                         Header="液态玻璃：折射与背景"
+                                         Description="调整玻璃轮廓、背景采样、折射与基础模糊。">
+                <controls:FASettingsExpanderItem Content="圆角半径" Description="玻璃表面的圆角大小。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="96" Increment="1" FormatString="F1" Value="{Binding Glass.CornerRadius, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="背景刷新间隔" Description="重新捕获窗口覆盖区域的间隔，单位为毫秒。数值越低越流畅，但资源占用越高。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="5" Maximum="200" Increment="5" FormatString="F0" Value="{Binding Glass.BackdropRefreshIntervalMs, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="背景缩放" Description="折射采样区域的缩放倍数。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0.1" Maximum="10" Increment="0.05" FormatString="F2" Value="{Binding Glass.BackdropZoom, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="背景水平偏移" Description="背景采样在 X 轴上的偏移量。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="-500" Maximum="500" Increment="1" FormatString="F1" Value="{Binding Glass.BackdropOffsetX, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="背景垂直偏移" Description="背景采样在 Y 轴上的偏移量。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="-500" Maximum="500" Increment="1" FormatString="F1" Value="{Binding Glass.BackdropOffsetY, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="折射边缘高度" Description="控制产生折射的边缘宽度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="100" Increment="0.5" FormatString="F1" Value="{Binding Glass.RefractionHeight, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="折射强度" Description="控制背景在玻璃边缘的弯曲程度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="200" Increment="1" FormatString="F1" Value="{Binding Glass.RefractionAmount, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="景深效果" Description="为折射区域增加景深变化。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Glass.DepthEffect, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="色差" Description="在折射边缘分离颜色通道。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Glass.ChromaticAberration, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="模糊半径" Description="背景高斯模糊强度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="64" Increment="0.5" FormatString="F1" Value="{Binding Glass.BlurRadius, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
+
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE790;}"
+                                         Header="液态玻璃：色彩"
+                                         Description="调整背景颜色处理和玻璃叠色。">
+                <controls:FASettingsExpanderItem Content="鲜艳度" Description="背景颜色的饱和与鲜艳程度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="4" Increment="0.05" FormatString="F2" Value="{Binding Glass.Vibrancy, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="亮度" Description="背景颜色的线性亮度偏移。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="-1" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.Brightness, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="对比度" Description="背景明暗区域的对比程度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="4" Increment="0.05" FormatString="F2" Value="{Binding Glass.Contrast, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="曝光" Description="以 EV 为单位调整背景曝光。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="-4" Maximum="4" Increment="0.05" FormatString="F2" Value="{Binding Glass.ExposureEv, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="伽马" Description="调整背景颜色的伽马曲线。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0.1" Maximum="4" Increment="0.05" FormatString="F2" Value="{Binding Glass.GammaPower, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="背景不透明度" Description="玻璃内背景采样的可见程度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.BackdropOpacity, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="色调颜色" Description="支持 #AARRGGBB、#RRGGBB 或颜色名称。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="160" PlaceholderText="#00000000" Text="{Binding Glass.TintColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="表面颜色" Description="叠加在玻璃表面上的颜色。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="160" PlaceholderText="#00000000" Text="{Binding Glass.SurfaceColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
+
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE916;}"
+                                         Header="液态玻璃：渐进与自适应"
+                                         Description="调整垂直渐进模糊和自适应亮度。">
+                <controls:FASettingsExpanderItem Content="启用渐进模糊" Description="按垂直位置渐变玻璃模糊。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Glass.ProgressiveBlurEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="渐进起点" Description="完全显示模糊的相对起始位置。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.ProgressiveBlurStart, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="渐进终点" Description="模糊淡出的相对结束位置。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.ProgressiveBlurEnd, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="渐进色调" Description="渐进区域使用的叠加颜色。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="160" PlaceholderText="#00000000" Text="{Binding Glass.ProgressiveTintColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="渐进色调强度" Description="渐进区域叠加颜色的强度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.ProgressiveTintIntensity, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="启用自适应亮度" Description="根据背景亮度动态调整玻璃参数。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Glass.AdaptiveLuminanceEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="亮度采样间隔" Description="重新采样背景亮度的间隔，单位为毫秒。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="16" Maximum="5000" Increment="10" FormatString="F0" Value="{Binding Glass.AdaptiveLuminanceUpdateIntervalMs, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="亮度平滑" Description="自适应亮度变化的平滑系数。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.AdaptiveLuminanceSmoothing, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
+
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE706;}"
+                                         Header="液态玻璃：高光"
+                                         Description="调整玻璃边缘高光。">
+                <controls:FASettingsExpanderItem Content="启用高光" Description="显示玻璃边缘高光。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Glass.HighlightEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="高光宽度" Description="边缘高光的宽度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="12" Increment="0.05" FormatString="F2" Value="{Binding Glass.HighlightWidth, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="高光模糊" Description="高光边缘的柔化半径。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="12" Increment="0.05" FormatString="F2" Value="{Binding Glass.HighlightBlurRadius, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="高光不透明度" Description="高光的可见程度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.HighlightOpacity, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="高光角度" Description="高光方向，单位为度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="360" Increment="1" FormatString="F0" Value="{Binding Glass.HighlightAngle, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="高光衰减" Description="高光从边缘向内衰减的速度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="8" Increment="0.05" FormatString="F2" Value="{Binding Glass.HighlightFalloff, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
+
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE81C;}"
+                                         Header="液态玻璃：外阴影"
+                                         Description="调整玻璃表面之外的投影。">
+                <controls:FASettingsExpanderItem Content="启用外阴影" Description="显示玻璃外部投影。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Glass.ShadowEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影半径" Description="外阴影的模糊半径。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="128" Increment="1" FormatString="F1" Value="{Binding Glass.ShadowRadius, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影水平偏移" Description="外阴影在 X 轴上的偏移量。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="-200" Maximum="200" Increment="1" FormatString="F1" Value="{Binding Glass.ShadowOffsetX, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影垂直偏移" Description="外阴影在 Y 轴上的偏移量。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="-200" Maximum="200" Increment="1" FormatString="F1" Value="{Binding Glass.ShadowOffsetY, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影颜色" Description="外阴影使用的颜色。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="160" PlaceholderText="#1A000000" Text="{Binding Glass.ShadowColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影不透明度" Description="外阴影的可见程度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.ShadowOpacity, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
+
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE81C;}"
+                                         Header="液态玻璃：内阴影"
+                                         Description="调整玻璃边缘内部的投影。">
+                <controls:FASettingsExpanderItem Content="启用内阴影" Description="显示玻璃内部投影。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding Glass.InnerShadowEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="内阴影半径" Description="内阴影的模糊半径。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="128" Increment="1" FormatString="F1" Value="{Binding Glass.InnerShadowRadius, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="内阴影水平偏移" Description="内阴影在 X 轴上的偏移量。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="-200" Maximum="200" Increment="1" FormatString="F1" Value="{Binding Glass.InnerShadowOffsetX, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="内阴影垂直偏移" Description="内阴影在 Y 轴上的偏移量。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="-200" Maximum="200" Increment="1" FormatString="F1" Value="{Binding Glass.InnerShadowOffsetY, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="内阴影颜色" Description="内阴影使用的颜色。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TextBox Width="160" PlaceholderText="#26000000" Text="{Binding Glass.InnerShadowColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="内阴影不透明度" Description="内阴影的可见程度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150" Minimum="0" Maximum="1" Increment="0.01" FormatString="F2" Value="{Binding Glass.InnerShadowOpacity, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
+
+            <controls:FASettingsExpander Header="恢复液态玻璃默认参数"
+                                         Description="将以上参数恢复为 LiquidGlassAvaloniaUI 的默认值。"
+                                         IconSource="{ci:FluentIconSource &#xE777;}"
+                                         Click="OnResetLiquidGlassClick"
+                                         ActionIconSource="{ci:FluentIconSource &#xE777;}"
+                                         IsClickEnabled="True" />
+
             <controls:FASettingsExpander Header="调试语音唤醒 AI"
-                                         Description="启动一次语音唤醒 AI 调试对话"
+                                         Description="启动一次语音唤醒 AI 调试对话。"
                                          IconSource="{ci:FluentIconSource &#xF4C5;}"
                                          Click="OnDebugVoiceWakeAiClick"
                                          ActionIconSource="{ci:FluentIconSource &#xEC2E;}"

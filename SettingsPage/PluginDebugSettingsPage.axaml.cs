@@ -4,7 +4,9 @@ using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
 using ClassIsland.Shared;
 using FluentAvalonia.UI.Controls;
+using SystemTools.ConfigHandlers;
 using SystemTools.Services;
+using SystemTools.Shared;
 
 namespace SystemTools;
 
@@ -17,10 +19,15 @@ namespace SystemTools;
     true)]
 public partial class PluginDebugSettingsPage : SettingsPageBase
 {
+    public LiquidGlassSettings Glass => GlobalConstants.MainConfig!.Data.AiConversationLiquidGlass;
+
     public PluginDebugSettingsPage()
     {
+        DataContext = this;
         InitializeComponent();
     }
+
+    private void OnResetLiquidGlassClick(object? sender, RoutedEventArgs e) => Glass.Reset();
 
     private void OnDebugVoiceWakeAiClick(object? sender, RoutedEventArgs e)
     {

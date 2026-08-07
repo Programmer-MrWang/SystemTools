@@ -40,6 +40,7 @@ public sealed class AiVoiceConversationService(
     MainConfigHandler configHandler,
     ClassIslandSettingsService classIslandSettingsService,
     MainWindowAreaService mainWindowAreaService,
+    MainWindowBackgroundCaptureService backgroundCaptureService,
     MainWindowTextOcclusionService mainWindowTextOcclusionService,
     IHotkeyService hotkeyService,
     ILogger<AiVoiceConversationService> logger,
@@ -130,6 +131,122 @@ public sealed class AiVoiceConversationService(
             nameof(MainConfigData.AiModel))
         {
             Dispatcher.UIThread.Post(ApplyConfig);
+        }
+
+        if (e.PropertyName is nameof(MainConfigData.AiConversationFloatingWindowStyle) or
+            nameof(MainConfigData.AiConversationLiquidGlass))
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                var overlay = _overlay;
+                if (overlay is null)
+                {
+                    return;
+                }
+
+                overlay.UpdateLiquidGlassAppearance(
+                    configHandler.Data.AiConversationFloatingWindowStyle,
+                    configHandler.Data.AiConversationLiquidGlass);
+            });
+        }
+    }
+
+    private async Task RefreshOverlayLiquidGlassBackdropAsync(
+        AiVoiceConversationOverlayWindow targetOverlay,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var capture = await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (!targetOverlay.IsVisible ||
+                    configHandler.Data.AiConversationFloatingWindowStyle != 1)
+                {
+                    return (Handle: IntPtr.Zero, Area: (System.Drawing.Rectangle?)null);
+                }
+
+                var handle = targetOverlay.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+                var scaling = Math.Max(0.1, targetOverlay.RenderScaling);
+                var width = Math.Max(1, (int)Math.Ceiling(targetOverlay.ClientSize.Width * scaling));
+                var height = Math.Max(1, (int)Math.Ceiling(targetOverlay.ClientSize.Height * scaling));
+                return (
+                    Handle: handle,
+                    Area: (System.Drawing.Rectangle?)new System.Drawing.Rectangle(
+                        targetOverlay.Position.X,
+                        targetOverlay.Position.Y,
+                        width,
+                        height));
+            });
+
+            if (capture.Handle == IntPtr.Zero || capture.Area is not { } area)
+            {
+                return;
+            }
+
+            using var frame = await Task.Run(
+                () => backgroundCaptureService.CaptureAreaAsync(area, capture.Handle, cancellationToken),
+                cancellationToken);
+            if (frame is null)
+            {
+                return;
+            }
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (ReferenceEquals(_overlay, targetOverlay) &&
+                    targetOverlay.IsVisible &&
+                    configHandler.Data.AiConversationFloatingWindowStyle == 1)
+                {
+                    targetOverlay.UpdateLiquidGlassBackdrop(frame);
+                }
+            });
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch (Exception ex)
+        {
+            logger.LogDebug(ex, "Unable to refresh the voice conversation liquid glass backdrop.");
+        }
+    }
+
+    private async Task RunOverlayLiquidGlassBackdropLoopAsync(
+        AiVoiceConversationOverlayWindow targetOverlay,
+        CancellationToken cancellationToken)
+    {
+        using var continuousCaptureLease = backgroundCaptureService.BeginContinuousCapture();
+        using var windowCaptureExclusionLease = await Dispatcher.UIThread.InvokeAsync(() =>
+            backgroundCaptureService.BeginExcludedWindowCapture(
+                targetOverlay.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero));
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            await RefreshOverlayLiquidGlassBackdropAsync(targetOverlay, cancellationToken);
+            try
+            {
+                var refreshInterval = TimeSpan.FromMilliseconds(
+                    configHandler.Data.AiConversationLiquidGlass.BackdropRefreshIntervalMs);
+                await Task.Delay(refreshInterval, cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                break;
+            }
+        }
+    }
+
+    private static async Task PlayEntranceAndCompleteAsync(
+        AiVoiceConversationOverlayWindow overlay,
+        TaskCompletionSource<bool> completion)
+    {
+        try
+        {
+            await overlay.PlayEntranceAsync();
+            completion.TrySetResult(true);
+        }
+        catch (Exception ex)
+        {
+            completion.TrySetException(ex);
         }
     }
 
@@ -223,6 +340,8 @@ public sealed class AiVoiceConversationService(
         IDisposable? escapeHotkeyLease = null;
         VoskSpeechService.ConversationSession? speechConversation = null;
         AiVoiceConversationOverlayWindow? overlay = null;
+        CancellationTokenSource? liquidGlassBackdropCancellation = null;
+        Task? liquidGlassBackdropTask = null;
         AiChatSettingsViewModel? chatViewModel = null;
         Control? opacitySource = null;
         EventHandler<AvaloniaPropertyChangedEventArgs>? applicationPropertyChanged = null;
@@ -266,7 +385,10 @@ public sealed class AiVoiceConversationService(
                    windowInfo.Value.Height,
                    windowInfo.Value.IsDark,
                    windowInfo.Value.Opacity,
-                   windowInfo.Value.CornerRadius);
+                   windowInfo.Value.CornerRadius,
+                   configHandler.Data.AiConversationFloatingWindowStyle,
+                   configHandler.Data.AiConversationLiquidGlass,
+                   liquidGlassBackdrop: null);
                 overlay.SetStatus("你好，我是ci，请稍后……");
                 overlay.EscapePressed += OverlayOnEscapePressed;
                 listeningToggleHandler = (_, args) =>
@@ -283,7 +405,6 @@ public sealed class AiVoiceConversationService(
                 overlay.ListeningToggleRequested += listeningToggleHandler;
                 overlay.Show();
                 overlay.Activate();
-                _ = overlay.PlayEntranceAsync();
                 _overlay = overlay;
                 escapeHotkeyLease = TryRegisterEscapeHotkey();
                 chatViewModel = new AiChatSettingsViewModel(
@@ -345,6 +466,30 @@ public sealed class AiVoiceConversationService(
             });
 
             await SetOverlayStatusAsync("你好，我是ci，请稍后……", null, cancellation.Token);
+            var entranceCompletion = new TaskCompletionSource<bool>(
+                TaskCreationOptions.RunContinuationsAsynchronously);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (overlay is not null && overlay.IsVisible && ReferenceEquals(_overlay, overlay))
+                {
+                    _ = PlayEntranceAndCompleteAsync(overlay, entranceCompletion);
+                }
+                else
+                {
+                    entranceCompletion.TrySetResult(true);
+                }
+            });
+            await entranceCompletion.Task.WaitAsync(cancellation.Token);
+
+            if (overlay is not null)
+            {
+                liquidGlassBackdropCancellation = CancellationTokenSource.CreateLinkedTokenSource(
+                    cancellation.Token);
+                liquidGlassBackdropTask = RunOverlayLiquidGlassBackdropLoopAsync(
+                    overlay,
+                    liquidGlassBackdropCancellation.Token);
+            }
+
             string? modelLoadError = null;
             speechConversation = await speechService.TryAcquireConversationAsync(
                 message =>
@@ -583,6 +728,20 @@ public sealed class AiVoiceConversationService(
                         logger.LogDebug(ex, "释放语音对话模型失败");
                     }
                 }
+
+                liquidGlassBackdropCancellation?.Cancel();
+                if (liquidGlassBackdropTask is not null)
+                {
+                    try
+                    {
+                        await liquidGlassBackdropTask;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogDebug(ex, "Failed to stop the voice conversation liquid glass backdrop refresh task.");
+                    }
+                }
+                liquidGlassBackdropCancellation?.Dispose();
 
                 if (chatViewModel is not null)
                 {

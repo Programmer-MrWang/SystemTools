@@ -10,6 +10,11 @@ namespace SystemTools.ConfigHandlers;
 
 public class MainConfigData : INotifyPropertyChanged
 {
+    public MainConfigData()
+    {
+        _aiConversationLiquidGlass.PropertyChanged += OnLiquidGlassSettingsPropertyChanged;
+    }
+
     public event EventHandler? RestartPropertyChanged;
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -187,6 +192,38 @@ public class MainConfigData : INotifyPropertyChanged
             _enableAiService = value;
             OnPropertyChanged();
             RestartPropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    int _aiConversationFloatingWindowStyle;
+
+    [JsonPropertyName("aiConversationFloatingWindowStyle")]
+    public int AiConversationFloatingWindowStyle
+    {
+        get => _aiConversationFloatingWindowStyle;
+        set
+        {
+            var normalized = value == 1 ? 1 : 0;
+            if (normalized == _aiConversationFloatingWindowStyle) return;
+            _aiConversationFloatingWindowStyle = normalized;
+            OnPropertyChanged();
+        }
+    }
+
+    LiquidGlassSettings _aiConversationLiquidGlass = new();
+
+    [JsonPropertyName("aiConversationLiquidGlass")]
+    public LiquidGlassSettings AiConversationLiquidGlass
+    {
+        get => _aiConversationLiquidGlass;
+        set
+        {
+            value ??= new LiquidGlassSettings();
+            if (ReferenceEquals(value, _aiConversationLiquidGlass)) return;
+            _aiConversationLiquidGlass.PropertyChanged -= OnLiquidGlassSettingsPropertyChanged;
+            _aiConversationLiquidGlass = value;
+            _aiConversationLiquidGlass.PropertyChanged += OnLiquidGlassSettingsPropertyChanged;
+            OnPropertyChanged();
         }
     }
 
@@ -587,4 +624,7 @@ public class MainConfigData : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+
+    private void OnLiquidGlassSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e) =>
+        OnPropertyChanged(nameof(AiConversationLiquidGlass));
 }

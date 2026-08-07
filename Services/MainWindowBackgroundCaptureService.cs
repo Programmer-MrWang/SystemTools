@@ -18,6 +18,8 @@ public sealed class MainWindowBackgroundCaptureService(
     private const uint WdaExcludeFromCapture = 0x00000011;
     private readonly SemaphoreSlim _captureLock = new(1, 1);
     private readonly object _affinityLock = new();
+    private readonly object _windowExclusionLock = new();
+    private readonly Dictionary<IntPtr, WindowExclusionState> _windowExclusions = new();
     private int _continuousCaptureUsers;
     private int _activeCaptures;
     private IntPtr _affinityWindowHandle;
@@ -32,6 +34,43 @@ public sealed class MainWindowBackgroundCaptureService(
         }
 
         return new ContinuousCaptureLease(this);
+    }
+
+    public IDisposable? BeginExcludedWindowCapture(IntPtr windowHandle)
+    {
+        if (windowHandle == IntPtr.Zero)
+        {
+            return null;
+        }
+
+        lock (_windowExclusionLock)
+        {
+            if (_windowExclusions.TryGetValue(windowHandle, out var existing))
+            {
+                existing.LeaseCount++;
+                return new WindowExclusionLease(this, windowHandle);
+            }
+
+            if (!GetWindowDisplayAffinity(windowHandle, out var originalAffinity))
+            {
+                return null;
+            }
+
+            var changed = originalAffinity != WdaExcludeFromCapture;
+            if (changed && !SetWindowDisplayAffinity(windowHandle, WdaExcludeFromCapture))
+            {
+                logger.LogDebug(
+                    "Unable to exclude a liquid glass window from capture. Error code: {ErrorCode}.",
+                    Marshal.GetLastWin32Error());
+                return null;
+            }
+
+            _windowExclusions[windowHandle] = new WindowExclusionState(
+                originalAffinity,
+                changed,
+                LeaseCount: 1);
+            return new WindowExclusionLease(this, windowHandle);
+        }
     }
 
     public async Task<MainWindowBackgroundFrame?> CaptureAsync(CancellationToken cancellationToken)
@@ -116,6 +155,126 @@ public sealed class MainWindowBackgroundCaptureService(
         }
     }
 
+    public async Task<MainWindowBackgroundFrame?> CaptureAreaAsync(
+        Rectangle area,
+        IntPtr excludedWindowHandle,
+        CancellationToken cancellationToken)
+    {
+        await _captureLock.WaitAsync(cancellationToken);
+        try
+        {
+            var captureAreas = ClipToVirtualScreen([area]);
+            if (captureAreas.Count == 0)
+            {
+                return null;
+            }
+
+            var mainWindowHandle = AppBase.Current.MainWindow?.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
+            var mainAffinityPrepared = false;
+            var mainAffinityChanged = false;
+            var targetAffinityChanged = false;
+            uint targetOriginalAffinity = WdaNone;
+
+            try
+            {
+                if (mainWindowHandle != IntPtr.Zero &&
+                    GetWindowDisplayAffinity(mainWindowHandle, out var currentMainAffinity))
+                {
+                    lock (_affinityLock)
+                    {
+                        if (PrepareCaptureAffinity(
+                                mainWindowHandle,
+                                currentMainAffinity,
+                                out mainAffinityChanged))
+                        {
+                            _activeCaptures++;
+                            mainAffinityPrepared = true;
+                        }
+                    }
+                }
+
+                if (excludedWindowHandle != IntPtr.Zero &&
+                    excludedWindowHandle != mainWindowHandle)
+                {
+                    if (!GetWindowDisplayAffinity(excludedWindowHandle, out targetOriginalAffinity))
+                    {
+                        return null;
+                    }
+
+                    if (targetOriginalAffinity != WdaExcludeFromCapture)
+                    {
+                        if (!SetWindowDisplayAffinity(excludedWindowHandle, WdaExcludeFromCapture))
+                        {
+                            return null;
+                        }
+
+                        targetAffinityChanged = true;
+                    }
+                }
+
+                if (mainAffinityChanged || targetAffinityChanged)
+                {
+                    await Task.Delay(50, cancellationToken);
+                }
+
+                var regions = new List<MainWindowBackgroundRegion>(captureAreas.Count);
+                try
+                {
+                    foreach (var captureArea in captureAreas)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        var bitmap = new Bitmap(captureArea.Width, captureArea.Height);
+                        using var graphics = Graphics.FromImage(bitmap);
+                        graphics.CopyFromScreen(
+                            captureArea.Left,
+                            captureArea.Top,
+                            0,
+                            0,
+                            captureArea.Size);
+                        regions.Add(new MainWindowBackgroundRegion(captureArea, bitmap));
+                    }
+
+                    return new MainWindowBackgroundFrame(regions);
+                }
+                catch
+                {
+                    foreach (var region in regions)
+                    {
+                        region.Dispose();
+                    }
+
+                    throw;
+                }
+            }
+            finally
+            {
+                if (targetAffinityChanged &&
+                    !SetWindowDisplayAffinity(excludedWindowHandle, targetOriginalAffinity))
+                {
+                    logger.LogDebug(
+                        "Unable to restore the AI chat window capture affinity. Error code: {ErrorCode}.",
+                        Marshal.GetLastWin32Error());
+                }
+
+                if (mainAffinityPrepared)
+                {
+                    lock (_affinityLock)
+                    {
+                        _activeCaptures--;
+                        if (_continuousCaptureUsers == 0)
+                        {
+                            RestoreCaptureAffinity();
+                        }
+                    }
+                }
+            }
+        }
+        finally
+        {
+            _captureLock.Release();
+        }
+    }
+
     private bool PrepareCaptureAffinity(IntPtr handle, uint currentAffinity, out bool affinityChanged)
     {
         affinityChanged = false;
@@ -158,6 +317,32 @@ public sealed class MainWindowBackgroundCaptureService(
             if (_continuousCaptureUsers == 0 && _activeCaptures == 0)
             {
                 RestoreCaptureAffinity();
+            }
+        }
+    }
+
+    private void EndExcludedWindowCapture(IntPtr windowHandle)
+    {
+        lock (_windowExclusionLock)
+        {
+            if (!_windowExclusions.TryGetValue(windowHandle, out var state))
+            {
+                return;
+            }
+
+            state.LeaseCount--;
+            if (state.LeaseCount > 0)
+            {
+                return;
+            }
+
+            _windowExclusions.Remove(windowHandle);
+            if (state.Changed &&
+                !SetWindowDisplayAffinity(windowHandle, state.OriginalAffinity))
+            {
+                logger.LogDebug(
+                    "Unable to restore a liquid glass window capture affinity. Error code: {ErrorCode}.",
+                    Marshal.GetLastWin32Error());
             }
         }
     }
@@ -224,6 +409,26 @@ public sealed class MainWindowBackgroundCaptureService(
         {
             Interlocked.Exchange(ref _owner, null)?.EndContinuousCapture();
         }
+    }
+
+    private sealed class WindowExclusionLease(
+        MainWindowBackgroundCaptureService owner,
+        IntPtr windowHandle) : IDisposable
+    {
+        private MainWindowBackgroundCaptureService? _owner = owner;
+
+        public void Dispose()
+            => Interlocked.Exchange(ref _owner, null)?.EndExcludedWindowCapture(windowHandle);
+    }
+
+    private sealed class WindowExclusionState(
+        uint originalAffinity,
+        bool changed,
+        int LeaseCount)
+    {
+        public uint OriginalAffinity { get; } = originalAffinity;
+        public bool Changed { get; } = changed;
+        public int LeaseCount { get; set; } = LeaseCount;
     }
 }
 

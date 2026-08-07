@@ -10,6 +10,8 @@
       <None Include=".github\workflows\dotnet-build.yml" />
       <None Remove="VoskWorker\**" />
       <None Remove="cipx\**" />
+      <None Remove="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
+      <AvaloniaResource Include="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
     </ItemGroup>
     
     <ItemGroup>

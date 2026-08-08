@@ -193,24 +193,25 @@
                                        Description="设置悬浮窗外观"
                                        IsExpanded="False">
 
-                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE7B5;}"
-                                               Content="液态玻璃样式"
-                                               Description="选择悬浮窗使用的材质">
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xF4A3;}"
+                                               Content="悬浮窗样式"
+                                               Description="选择悬浮窗使用的外观材质">
                     <controls:FASettingsExpanderItem.Footer>
                         <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowAppearanceStyle, Mode=TwoWay}">
                             <ComboBoxItem>
-                                <ci:IconText Glyph="&#xE7B5;" Text="经典" />
+                                <ci:IconText Glyph="&#xF4AB;" Text="经典" />
                             </ComboBoxItem>
                             <ComboBoxItem>
-                                <ci:IconText Glyph="&#xE91B;" Text="液态玻璃" />
+                                <ci:IconText Glyph="&#xF4BD;" Text="液态玻璃" />
                             </ComboBoxItem>
                         </ComboBox>
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
 
-                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE71C;}"
+                <controls:FASettingsExpanderItem x:Name="LiquidGlassBlurSettingItem"
+                                               IconSource="{ci:FluentIconSource &#xF4AB;}"
                                                Content="玻璃模糊"
-                                               Description="调整桌面背景的柔化程度">
+                                               Description="调整悬浮窗背景的柔化程度">
                     <controls:FASettingsExpanderItem.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Slider Width="160"
@@ -227,7 +228,8 @@
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
 
-                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE8A7;}"
+                <controls:FASettingsExpanderItem x:Name="LiquidGlassRefractionSettingItem"
+                                               IconSource="{ci:FluentIconSource &#xF047;}"
                                                Content="玻璃折射"
                                                Description="调整玻璃边缘的折射位移">
                     <controls:FASettingsExpanderItem.Footer>
@@ -246,7 +248,8 @@
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
 
-                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE121;}"
+                <controls:FASettingsExpanderItem x:Name="LiquidGlassRefreshIntervalSettingItem"
+                                               IconSource="{ci:FluentIconSource &#xE823;}"
                                                Content="背景刷新频率"
                                                Description="设置实时背景捕获间隔">
                     <controls:FASettingsExpanderItem.Footer>
@@ -265,7 +268,8 @@
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
 
-                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE945;}"
+                <controls:FASettingsExpanderItem x:Name="LiquidGlassButtonElasticitySettingItem"
+                                               IconSource="{ci:FluentIconSource &#xE2FC;}"
                                                Content="按钮弹性"
                                                Description="调整按钮点按后的回弹幅度">
                     <controls:FASettingsExpanderItem.Footer>
@@ -389,7 +393,7 @@
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
 
-                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE7C3;}"
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE94F;}"
                                                Content="一直显示拖动把手"
                                                Description="即使未检测到触摸设备也显示拖动把手">
                     <controls:FASettingsExpanderItem.Footer>

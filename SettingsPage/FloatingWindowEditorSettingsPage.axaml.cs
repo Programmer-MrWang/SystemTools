@@ -45,6 +45,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             IAppHost.GetService<FloatingWindowService>());
         DataContext = this;
         InitializeComponent();
+        UpdateLiquidGlassSettingsAvailability();
 
         ViewModel.RefreshFloatingWindowProfiles();
         ViewModel.RefreshFloatingTriggers();
@@ -135,6 +136,11 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(MainConfigData.FloatingWindowAppearanceStyle))
+        {
+            UpdateLiquidGlassSettingsAvailability();
+        }
+
         if (e.PropertyName is nameof(MainConfigData.FloatingWindowTheme)
             or nameof(MainConfigData.FloatingWindowAppearanceStyle)
             or nameof(MainConfigData.FloatingWindowLiquidGlass)
@@ -165,6 +171,15 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             GlobalConstants.MainConfig?.Save();
             IAppHost.TryGetService<IRulesetService>()?.NotifyStatusChanged();
         }
+    }
+
+    private void UpdateLiquidGlassSettingsAvailability()
+    {
+        var isLiquidGlass = ViewModel.Settings.FloatingWindowAppearanceStyle == 1;
+        LiquidGlassBlurSettingItem.IsEnabled = isLiquidGlass;
+        LiquidGlassRefractionSettingItem.IsEnabled = isLiquidGlass;
+        LiquidGlassRefreshIntervalSettingItem.IsEnabled = isLiquidGlass;
+        LiquidGlassButtonElasticitySettingItem.IsEnabled = isLiquidGlass;
     }
 
     private void OnViewModelProfileChanged(object? sender, EventArgs e)

@@ -122,7 +122,10 @@
                                         <Border MinHeight="52"
                                                 CornerRadius="6"
                                                 Background="{DynamicResource SubtleFillColorTertiaryBrush}"
-                                                Padding="6">
+                                                Padding="6"
+                                                DragDrop.AllowDrop="True"
+                                                DragDrop.DragOver="OnFloatingTriggerRowDragOver"
+                                                DragDrop.Drop="OnFloatingTriggerRowDrop">
                                             <ItemsControl ItemsSource="{Binding Buttons}"
                                                           HorizontalAlignment="Stretch"
                                                           VerticalAlignment="Center"
@@ -380,6 +383,9 @@
                             </ComboBoxItem>
                             <ComboBoxItem>
                                 <ci:IconText Glyph="&#xF44B;" Text="黑暗" />
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <ci:IconText Glyph="&#xE520;" Text="自适应背景" />
                             </ComboBoxItem>
                         </ComboBox>
                     </controls:FASettingsExpanderItem.Footer>

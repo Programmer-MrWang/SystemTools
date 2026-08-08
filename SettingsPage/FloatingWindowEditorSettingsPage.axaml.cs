@@ -63,6 +63,8 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     private Point? _floatingDragStartPoint;
     private Border? _floatingDragSourceBorder;
     private PointerPressedEventArgs? _floatingDragPressedArgs;
+    private static readonly DataFormat<string> FloatingTriggerButtonIdFormat =
+        DataFormat.CreateStringApplicationFormat("FloatingTriggerButtonId");
 
     // ===== 规则集 Drawer 状态 =====
     private enum RulesetTargetType { Button, Row, Window }
@@ -136,7 +138,8 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainConfigData.FloatingWindowAppearanceStyle))
+        if (e.PropertyName is nameof(MainConfigData.FloatingWindowAppearanceStyle)
+            or nameof(MainConfigData.FloatingWindowTheme))
         {
             UpdateLiquidGlassSettingsAvailability();
         }
@@ -176,9 +179,10 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     private void UpdateLiquidGlassSettingsAvailability()
     {
         var isLiquidGlass = ViewModel.Settings.FloatingWindowAppearanceStyle == 1;
+        var usesAdaptiveBackgroundTheme = ViewModel.Settings.FloatingWindowTheme == 3;
         LiquidGlassBlurSettingItem.IsEnabled = isLiquidGlass;
         LiquidGlassRefractionSettingItem.IsEnabled = isLiquidGlass;
-        LiquidGlassRefreshIntervalSettingItem.IsEnabled = isLiquidGlass;
+        LiquidGlassRefreshIntervalSettingItem.IsEnabled = isLiquidGlass || usesAdaptiveBackgroundTheme;
         LiquidGlassButtonElasticitySettingItem.IsEnabled = isLiquidGlass;
     }
 
@@ -665,8 +669,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         }
 
         var data = new DataTransfer();
-        var format = DataFormat.CreateStringApplicationFormat("FloatingTriggerButtonId");
-        data.Add(DataTransferItem.Create(format, buttonId));
+        data.Add(DataTransferItem.Create(FloatingTriggerButtonIdFormat, buttonId));
 
         _floatingDragSourceBorder = null;
         _floatingDragStartPoint = null;
@@ -678,11 +681,7 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
 
     private static bool TryGetDragButtonId(DragEventArgs e, out string buttonId)
     {
-        buttonId = string.Empty;
-        var format = DataFormat.CreateStringApplicationFormat("FloatingTriggerButtonId");
-        if (!e.DataTransfer.Formats.Contains(format))
-            return false;
-        buttonId = e.DataTransfer.TryGetText() ?? string.Empty;
+        buttonId = e.DataTransfer.TryGetValue(FloatingTriggerButtonIdFormat) ?? string.Empty;
         return !string.IsNullOrWhiteSpace(buttonId);
     }
 
@@ -710,21 +709,25 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         }
 
         var pointer = e.GetPosition(sender);
-        var itemBorders = sender.GetVisualDescendants()
-            .OfType<Border>()
-            .Where(x => x.DataContext is FloatingTriggerItem)
-            .OrderBy(x => x.TranslatePoint(new Point(0, 0), sender)?.X ?? double.MaxValue)
-            .ToList();
-
-        for (var i = 0; i < itemBorders.Count; i++)
+        var itemsControl = sender as ItemsControl
+                           ?? sender.GetVisualDescendants()
+                               .OfType<ItemsControl>()
+                               .FirstOrDefault(x => ReferenceEquals(x.ItemsSource, row.Buttons));
+        if (itemsControl == null)
         {
-            var topLeft = itemBorders[i].TranslatePoint(new Point(0, 0), sender);
+            return row.Buttons.Count;
+        }
+
+        for (var i = 0; i < row.Buttons.Count; i++)
+        {
+            var container = itemsControl.ContainerFromIndex(i);
+            var topLeft = container?.TranslatePoint(new Point(0, 0), sender);
             if (topLeft == null)
             {
                 continue;
             }
 
-            var center = topLeft.Value.X + itemBorders[i].Bounds.Width / 2;
+            var center = topLeft.Value.X + container!.Bounds.Width / 2;
             if (pointer.X <= center)
             {
                 return i;

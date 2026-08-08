@@ -42,6 +42,11 @@ public class FloatingWindowService
     private const ulong MiWpSignatureMask = 0xFFFFFF00UL;
     private const ulong MiWpSignature = 0xFF515700UL;
     private const double LiquidGlassOuterGutter = 10.0;
+    private const int FollowClassIslandTheme = 0;
+    private const int LightTheme = 1;
+    private const int DarkTheme = 2;
+    private const int AdaptiveBackgroundTheme = 3;
+    private const int AdaptiveThemeRefreshStride = 8;
     private static readonly TimeSpan TouchLikeMouseGracePeriod = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan GlassButtonStateRefreshDelay = TimeSpan.FromMilliseconds(220);
 
@@ -66,6 +71,8 @@ public class FloatingWindowService
     private Task? _glassCaptureTask;
     private long _glassCaptureGeneration;
     private bool _liquidGlassCaptureRefreshPending;
+    private ThemeVariant? _adaptiveBackgroundThemeVariant;
+    private int _adaptiveThemeRefreshCount;
     private bool _windowBoundsClampQueued;
     private bool _pointerPressed;
     private bool _dragInitiated;
@@ -326,7 +333,7 @@ public class FloatingWindowService
     private void OnApplicationPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (string.Equals(e.Property?.Name, "ActualThemeVariant", StringComparison.Ordinal)
-            && _configHandler.Data.FloatingWindowTheme == 0)
+            && _configHandler.Data.FloatingWindowTheme == FollowClassIslandTheme)
         {
             Dispatcher.UIThread.Post(() =>
             {
@@ -340,8 +347,11 @@ public class FloatingWindowService
     {
         return _configHandler.Data.FloatingWindowTheme switch
         {
-            1 => ThemeVariant.Light,
-            2 => ThemeVariant.Dark,
+            LightTheme => ThemeVariant.Light,
+            DarkTheme => ThemeVariant.Dark,
+            AdaptiveBackgroundTheme => _adaptiveBackgroundThemeVariant
+                                       ?? Application.Current?.ActualThemeVariant
+                                       ?? ThemeVariant.Dark,
             _ => _window?.ActualThemeVariant ?? Application.Current?.ActualThemeVariant ?? ThemeVariant.Dark
         };
     }
@@ -354,10 +364,12 @@ public class FloatingWindowService
     /// <summary>
     /// 设置悬浮窗主题
     /// </summary>
-    /// <param name="theme">0=跟随系统, 1=浅色, 2=深色</param>
+    /// <param name="theme">0=跟随 ClassIsland, 1=浅色, 2=深色, 3=自适应背景</param>
     public void SetWindowTheme(int theme)
     {
-        var normalized = theme is 1 or 2 ? theme : 0;
+        var normalized = theme is LightTheme or DarkTheme or AdaptiveBackgroundTheme
+            ? theme
+            : FollowClassIslandTheme;
         if (_configHandler.Data.FloatingWindowTheme == normalized)
         {
             return;
@@ -373,7 +385,7 @@ public class FloatingWindowService
     /// </summary>
     public void ToggleWindowTheme()
     {
-        var next = (_configHandler.Data.FloatingWindowTheme + 1) % 3;
+        var next = (_configHandler.Data.FloatingWindowTheme + 1) % 4;
         SetWindowTheme(next);
     }
 
@@ -471,7 +483,7 @@ public class FloatingWindowService
             return;
         }
 
-        if (IsLiquidGlassRequested())
+        if (IsBackgroundCaptureRequested())
         {
             _liquidGlassCaptureRefreshPending = true;
             QueueLiquidGlassBackdropCapture();
@@ -485,7 +497,7 @@ public class FloatingWindowService
             return;
         }
 
-        if (IsLiquidGlassRequested())
+        if (IsBackgroundCaptureRequested())
         {
             _liquidGlassCaptureRefreshPending = true;
             QueueLiquidGlassBackdropCapture();
@@ -598,6 +610,12 @@ public class FloatingWindowService
 
     private void OnConfigPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(MainConfigData.FloatingWindowTheme))
+        {
+            _adaptiveBackgroundThemeVariant = null;
+            _adaptiveThemeRefreshCount = 0;
+        }
+
         if (e.PropertyName is nameof(MainConfigData.FloatingWindowAppearanceStyle)
             or nameof(MainConfigData.FloatingWindowLiquidGlass)
             or nameof(MainConfigData.FloatingWindowGlassButtonScaleDip)
@@ -623,6 +641,16 @@ public class FloatingWindowService
         return _configHandler.Data.FloatingWindowAppearanceStyle == 1;
     }
 
+    private bool IsAdaptiveBackgroundThemeRequested()
+    {
+        return _configHandler.Data.FloatingWindowTheme == AdaptiveBackgroundTheme;
+    }
+
+    private bool IsBackgroundCaptureRequested()
+    {
+        return IsLiquidGlassRequested() || IsAdaptiveBackgroundThemeRequested();
+    }
+
     private void UpdateLiquidGlassCaptureLoop()
     {
         if (_window == null)
@@ -634,12 +662,17 @@ public class FloatingWindowService
         _liquidGlassCaptureTimer.Interval = TimeSpan.FromMilliseconds(
             Math.Max(5, settings.BackdropRefreshIntervalMs));
 
-        var shouldCapture = !_isStopped && _window.IsVisible && IsLiquidGlassRequested();
+        var shouldCapture = !_isStopped && _window.IsVisible && IsBackgroundCaptureRequested();
         if (!shouldCapture)
         {
             StopLiquidGlassCapture();
             ApplyLiquidGlassAppearance();
             return;
+        }
+
+        if (!IsLiquidGlassRequested())
+        {
+            ReleaseLiquidGlassBackdropImages();
         }
 
         // The native handle and the SizeToContent client size can become available one
@@ -667,7 +700,7 @@ public class FloatingWindowService
 
     private void QueueLiquidGlassBackdropCapture()
     {
-        if (_isStopped || _window == null || !_window.IsVisible || !IsLiquidGlassRequested() ||
+        if (_isStopped || _window == null || !_window.IsVisible || !IsBackgroundCaptureRequested() ||
             _glassCaptureTask is not null)
         {
             return;
@@ -701,7 +734,7 @@ public class FloatingWindowService
             _glassCaptureTask = null;
             _glassCaptureCancellation?.Dispose();
             _glassCaptureCancellation = null;
-            var shouldContinue = _window != null && _window.IsVisible && IsLiquidGlassRequested() &&
+            var shouldContinue = _window != null && _window.IsVisible && IsBackgroundCaptureRequested() &&
                                  !_isStopped;
             if (generation != _glassCaptureGeneration || !shouldContinue)
             {
@@ -756,7 +789,7 @@ public class FloatingWindowService
                 if (!ReferenceEquals(_window, captureWindow) || !captureWindow.IsVisible ||
                     generation != _glassCaptureGeneration ||
                     cancellationToken.IsCancellationRequested ||
-                    !IsLiquidGlassRequested())
+                    !IsBackgroundCaptureRequested())
                 {
                     return;
                 }
@@ -768,9 +801,27 @@ public class FloatingWindowService
                     return;
                 }
 
+                var adaptiveThemeChanged = UpdateAdaptiveBackgroundTheme(frame);
+                if (!IsLiquidGlassRequested())
+                {
+                    if (adaptiveThemeChanged)
+                    {
+                        RefreshWindowButtons();
+                        ApplyLiquidGlassAppearance();
+                    }
+
+                    return;
+                }
+
                 var bitmap = LiquidGlassBackdropFactory.Update(frame, _liquidGlassSpareBackdrop);
                 if (bitmap is null)
                 {
+                    if (adaptiveThemeChanged)
+                    {
+                        RefreshWindowButtons();
+                        ApplyLiquidGlassAppearance();
+                    }
+
                     return;
                 }
 
@@ -786,6 +837,11 @@ public class FloatingWindowService
                     };
                 }
 
+                if (adaptiveThemeChanged)
+                {
+                    RefreshWindowButtons();
+                }
+
                 ApplyLiquidGlassAppearance();
             });
         }
@@ -799,10 +855,39 @@ public class FloatingWindowService
         }
     }
 
+    private bool UpdateAdaptiveBackgroundTheme(MainWindowBackgroundFrame frame)
+    {
+        if (!IsAdaptiveBackgroundThemeRequested())
+        {
+            _adaptiveThemeRefreshCount = 0;
+            return false;
+        }
+
+        _adaptiveThemeRefreshCount++;
+        if (_adaptiveThemeRefreshCount < AdaptiveThemeRefreshStride)
+        {
+            return false;
+        }
+
+        _adaptiveThemeRefreshCount = 0;
+        var luminance = BackgroundLuminanceCalculator.CalculateAverage(frame);
+        if (luminance == null)
+        {
+            return false;
+        }
+
+        var previousTheme = ResolveWindowThemeVariant();
+        _adaptiveBackgroundThemeVariant = luminance < BackgroundLuminanceCalculator.DarkThreshold
+            ? ThemeVariant.Dark
+            : ThemeVariant.Light;
+        return !Equals(previousTheme, _adaptiveBackgroundThemeVariant);
+    }
+
     private void StopLiquidGlassCapture()
     {
         _liquidGlassCaptureTimer.Stop();
         _liquidGlassCaptureRefreshPending = false;
+        _adaptiveThemeRefreshCount = 0;
         _glassCaptureGeneration++;
         _glassCaptureCancellation?.Cancel();
         if (_glassCaptureTask is not null)
@@ -821,6 +906,11 @@ public class FloatingWindowService
         _windowCaptureExclusionLease = null;
         _continuousCaptureLease?.Dispose();
         _continuousCaptureLease = null;
+        ReleaseLiquidGlassBackdropImages();
+    }
+
+    private void ReleaseLiquidGlassBackdropImages()
+    {
         if (_liquidGlassBackdropClip != null)
         {
             _liquidGlassBackdropClip.Background = Brushes.Transparent;

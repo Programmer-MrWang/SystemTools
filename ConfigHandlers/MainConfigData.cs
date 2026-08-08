@@ -466,7 +466,7 @@ public class MainConfigData : INotifyPropertyChanged
         get => _floatingWindowTheme;
         set
         {
-            var normalized = value is 1 or 2 ? value : 0;
+            var normalized = value is 1 or 2 or 3 ? value : 0;
             if (normalized == _floatingWindowTheme) return;
             _floatingWindowTheme = normalized;
             OnPropertyChanged();

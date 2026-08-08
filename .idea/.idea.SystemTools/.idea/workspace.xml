@@ -14,8 +14,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/SwitchFloatingWindowThemeAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/SwitchFloatingWindowThemeAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/SwitchFloatingWindowThemeSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/SwitchFloatingWindowThemeSettingsControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/AdaptiveThemeSyncService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AdaptiveThemeSyncService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/FloatingWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FloatingWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/MainWindowBackgroundCaptureService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/MainWindowBackgroundCaptureService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/SwitchFloatingWindowThemeSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/SwitchFloatingWindowThemeSettings.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +150,7 @@
       <workItem from="1786078984589" duration="547000" />
       <workItem from="1786089087859" duration="89000" />
       <workItem from="1786109393201" duration="7115000" />
-      <workItem from="1786152599547" duration="6844000" />
+      <workItem from="1786152599547" duration="10402000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -423,7 +432,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786160909678</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="fix: 修复设置页icon、文字表述 和编辑限制">
+      <option name="closed" value="true" />
+      <created>1786160978686</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1786160978686</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -444,7 +461,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增调用AI API Key 服务、“AI 对话”UI、“AI回复”通知渠道" />
     <MESSAGE value="fix: 修正“更多功能选项”右侧图标不正常显示的问题" />
     <MESSAGE value="feat: 新增“行动前确认”行动" />
     <MESSAGE value="fix: 修正提示词暴露问题" />
@@ -469,7 +485,8 @@
     <MESSAGE value="feat: 新增可选液态玻璃配置文件" />
     <MESSAGE value="feat: 初步实现液态玻璃悬浮窗" />
     <MESSAGE value="fix: 修复文字未居中的问题" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复文字未居中的问题" />
+    <MESSAGE value="fix: 修复设置页icon、文字表述 和编辑限制" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复设置页icon、文字表述 和编辑限制" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

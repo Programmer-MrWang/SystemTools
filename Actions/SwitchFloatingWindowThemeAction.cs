@@ -99,6 +99,7 @@ public class SwitchFloatingWindowThemeAction(ILogger<SwitchFloatingWindowThemeAc
             0 => "跟随系统",
             1 => "浅色",
             2 => "深色",
+            3 => "自适应背景",
             _ => "未知"
         };
     }

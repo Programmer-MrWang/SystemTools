@@ -15,7 +15,6 @@ public sealed class AdaptiveThemeSyncService(
 {
     private const int LightTheme = 1;
     private const int DarkTheme = 2;
-    private const double DarkLuminanceThreshold = 128;
 
     private readonly DispatcherTimer _timer = new() { Interval = TimeSpan.FromSeconds(2) };
     private readonly SemaphoreSlim _captureLock = new(1, 1);
@@ -78,13 +77,13 @@ public sealed class AdaptiveThemeSyncService(
                 return;
             }
 
-            var luminance = CalculateAverageLuminance(frame);
+            var luminance = BackgroundLuminanceCalculator.CalculateAverage(frame);
             if (luminance == null)
             {
                 return;
             }
 
-            var targetTheme = luminance < DarkLuminanceThreshold ? DarkTheme : LightTheme;
+            var targetTheme = luminance < BackgroundLuminanceCalculator.DarkThreshold ? DarkTheme : LightTheme;
             if (classIslandSettingsService.SetTheme(targetTheme))
             {
                 logger.LogDebug("主界面背后区域平均亮度为 {Luminance:F1}，已匹配为{Theme}主题。",
@@ -102,30 +101,6 @@ public sealed class AdaptiveThemeSyncService(
         {
             _captureLock.Release();
         }
-    }
-
-    private static double? CalculateAverageLuminance(MainWindowBackgroundFrame frame)
-    {
-        double totalLuminance = 0;
-        long sampleCount = 0;
-
-        foreach (var region in frame.Regions)
-        {
-            var bitmap = region.Bitmap;
-
-            const int sampleStep = 8;
-            for (var y = 0; y < bitmap.Height; y += sampleStep)
-            {
-                for (var x = 0; x < bitmap.Width; x += sampleStep)
-                {
-                    var color = bitmap.GetPixel(x, y);
-                    totalLuminance += 0.299 * color.R + 0.587 * color.G + 0.114 * color.B;
-                    sampleCount++;
-                }
-            }
-        }
-
-        return sampleCount == 0 ? null : totalLuminance / sampleCount;
     }
 
 }

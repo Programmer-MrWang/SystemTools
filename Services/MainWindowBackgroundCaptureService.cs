@@ -16,6 +16,13 @@ public sealed class MainWindowBackgroundCaptureService(
 {
     private const uint WdaNone = 0x00000000;
     private const uint WdaExcludeFromCapture = 0x00000011;
+    // WDA_EXCLUDEFROMCAPTURE (0x11) is only supported on Windows 10 2004 (build 19041) and later.
+    // On older builds SetWindowDisplayAffinity silently accepts the value but does nothing, so the
+    // captured frame would contain the floating window itself and the liquid-glass surface would
+    // show a feedback loop. Guard every capture entry point so callers deterministically fall back
+    // to the classic window appearance instead.
+    private static readonly bool s_isCaptureExclusionSupported =
+        OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041);
     private readonly SemaphoreSlim _captureLock = new(1, 1);
     private readonly object _affinityLock = new();
     private readonly object _windowExclusionLock = new();
@@ -39,6 +46,11 @@ public sealed class MainWindowBackgroundCaptureService(
     public IDisposable? BeginExcludedWindowCapture(IntPtr windowHandle)
     {
         if (windowHandle == IntPtr.Zero)
+        {
+            return null;
+        }
+
+        if (!s_isCaptureExclusionSupported)
         {
             return null;
         }
@@ -75,6 +87,11 @@ public sealed class MainWindowBackgroundCaptureService(
 
     public async Task<MainWindowBackgroundFrame?> CaptureAsync(CancellationToken cancellationToken)
     {
+        if (!s_isCaptureExclusionSupported)
+        {
+            return null;
+        }
+
         await _captureLock.WaitAsync(cancellationToken);
         try
         {
@@ -160,6 +177,11 @@ public sealed class MainWindowBackgroundCaptureService(
         IntPtr excludedWindowHandle,
         CancellationToken cancellationToken)
     {
+        if (!s_isCaptureExclusionSupported)
+        {
+            return null;
+        }
+
         await _captureLock.WaitAsync(cancellationToken);
         try
         {

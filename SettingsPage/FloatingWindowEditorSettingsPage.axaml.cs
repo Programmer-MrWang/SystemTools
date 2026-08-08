@@ -136,6 +136,9 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName is nameof(MainConfigData.FloatingWindowTheme)
+            or nameof(MainConfigData.FloatingWindowAppearanceStyle)
+            or nameof(MainConfigData.FloatingWindowLiquidGlass)
+            or nameof(MainConfigData.FloatingWindowGlassButtonScaleDip)
             or nameof(MainConfigData.FloatingWindowScale)
             or nameof(MainConfigData.FloatingWindowIconSize)
             or nameof(MainConfigData.FloatingWindowTextSize)

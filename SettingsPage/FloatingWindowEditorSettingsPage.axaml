@@ -193,6 +193,97 @@
                                        Description="设置悬浮窗外观"
                                        IsExpanded="False">
 
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE7B5;}"
+                                               Content="液态玻璃样式"
+                                               Description="选择悬浮窗使用的材质">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowAppearanceStyle, Mode=TwoWay}">
+                            <ComboBoxItem>
+                                <ci:IconText Glyph="&#xE7B5;" Text="经典" />
+                            </ComboBoxItem>
+                            <ComboBoxItem>
+                                <ci:IconText Glyph="&#xE91B;" Text="液态玻璃" />
+                            </ComboBoxItem>
+                        </ComboBox>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE71C;}"
+                                               Content="玻璃模糊"
+                                               Description="调整桌面背景的柔化程度">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <Slider Width="160"
+                                    Minimum="0"
+                                    Maximum="24"
+                                    TickFrequency="1"
+                                    IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.BlurRadius, StringFormat='{}{0:F0}px'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.BlurRadius, Mode=TwoWay}" />
+                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.BlurRadius, StringFormat='{}{0:F0}px'}"
+                                       Width="46"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE8A7;}"
+                                               Content="玻璃折射"
+                                               Description="调整玻璃边缘的折射位移">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <Slider Width="160"
+                                    Minimum="0"
+                                    Maximum="80"
+                                    TickFrequency="5"
+                                    IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.RefractionAmount, StringFormat='{}{0:F0}'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.RefractionAmount, Mode=TwoWay}" />
+                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.RefractionAmount, StringFormat='{}{0:F0}'}"
+                                       Width="46"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE121;}"
+                                               Content="背景刷新频率"
+                                               Description="设置实时背景捕获间隔">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <Slider Width="160"
+                                    Minimum="16"
+                                    Maximum="120"
+                                    TickFrequency="8"
+                                    IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.BackdropRefreshIntervalMs, StringFormat='{}{0:F0}ms'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.BackdropRefreshIntervalMs, Mode=TwoWay}" />
+                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowLiquidGlass.BackdropRefreshIntervalMs, StringFormat='{}{0:F0}ms'}"
+                                       Width="54"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE945;}"
+                                               Content="按钮弹性"
+                                               Description="调整按钮点按后的回弹幅度">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <Slider Width="160"
+                                    Minimum="0"
+                                    Maximum="8"
+                                    TickFrequency="0.5"
+                                    IsSnapToTickEnabled="True"
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowGlassButtonScaleDip, StringFormat='{}{0:F1}dp'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowGlassButtonScaleDip, Mode=TwoWay}" />
+                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowGlassButtonScaleDip, StringFormat='{}{0:F1}dp'}"
+                                       Width="54"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
                 <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE10B;}"
                                                Content="悬浮窗缩放"
                                                Description="调整悬浮窗缩放大小">

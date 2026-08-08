@@ -13,6 +13,7 @@ public class MainConfigData : INotifyPropertyChanged
     public MainConfigData()
     {
         _aiConversationLiquidGlass.PropertyChanged += OnLiquidGlassSettingsPropertyChanged;
+        _floatingWindowLiquidGlass.PropertyChanged += OnFloatingWindowLiquidGlassSettingsPropertyChanged;
     }
 
     public event EventHandler? RestartPropertyChanged;
@@ -625,6 +626,79 @@ public class MainConfigData : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private int _floatingWindowAppearanceStyle = 1;
+
+    [JsonPropertyName("floatingWindowAppearanceStyle")]
+    public int FloatingWindowAppearanceStyle
+    {
+        get => _floatingWindowAppearanceStyle;
+        set
+        {
+            var normalized = value == 1 ? 1 : 0;
+            if (normalized == _floatingWindowAppearanceStyle) return;
+            _floatingWindowAppearanceStyle = normalized;
+            OnPropertyChanged();
+        }
+    }
+
+    private LiquidGlassSettings _floatingWindowLiquidGlass = CreateFloatingWindowLiquidGlassDefaults();
+
+    [JsonPropertyName("floatingWindowLiquidGlass")]
+    public LiquidGlassSettings FloatingWindowLiquidGlass
+    {
+        get => _floatingWindowLiquidGlass;
+        set
+        {
+            value ??= CreateFloatingWindowLiquidGlassDefaults();
+            if (ReferenceEquals(value, _floatingWindowLiquidGlass)) return;
+            _floatingWindowLiquidGlass.PropertyChanged -= OnFloatingWindowLiquidGlassSettingsPropertyChanged;
+            _floatingWindowLiquidGlass = value;
+            _floatingWindowLiquidGlass.PropertyChanged += OnFloatingWindowLiquidGlassSettingsPropertyChanged;
+            OnPropertyChanged();
+        }
+    }
+
+    private double _floatingWindowGlassButtonScaleDip = 3.5;
+
+    [JsonPropertyName("floatingWindowGlassButtonScaleDip")]
+    public double FloatingWindowGlassButtonScaleDip
+    {
+        get => _floatingWindowGlassButtonScaleDip;
+        set
+        {
+            var clamped = Math.Clamp(value, 0, 12);
+            if (Math.Abs(clamped - _floatingWindowGlassButtonScaleDip) < 0.0001) return;
+            _floatingWindowGlassButtonScaleDip = clamped;
+            OnPropertyChanged();
+        }
+    }
+
     private void OnLiquidGlassSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e) =>
         OnPropertyChanged(nameof(AiConversationLiquidGlass));
+
+    private void OnFloatingWindowLiquidGlassSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e) =>
+        OnPropertyChanged(nameof(FloatingWindowLiquidGlass));
+
+    private static LiquidGlassSettings CreateFloatingWindowLiquidGlassDefaults()
+    {
+        return new LiquidGlassSettings
+        {
+            CornerRadius = 20,
+            BackdropRefreshIntervalMs = 50,
+            RefractionHeight = 10,
+            RefractionAmount = 20,
+            BlurRadius = 4,
+            Vibrancy = 1.25,
+            BackdropOpacity = 0.96,
+            HighlightEnabled = true,
+            HighlightWidth = 0.5,
+            HighlightBlurRadius = 0.3,
+            HighlightOpacity = 0.65,
+            ShadowEnabled = true,
+            ShadowRadius = 20,
+            ShadowOffsetY = 4,
+            ShadowColor = "#40000000",
+            ShadowOpacity = 0.85
+        };
+    }
 }

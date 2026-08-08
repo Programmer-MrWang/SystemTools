@@ -47,6 +47,7 @@ public class FloatingWindowService
     private const int DarkTheme = 2;
     private const int AdaptiveBackgroundTheme = 3;
     private const int AdaptiveThemeRefreshStride = 8;
+    private static readonly TimeSpan DragCaptureInterval = TimeSpan.FromMilliseconds(30);
     private static readonly TimeSpan TouchLikeMouseGracePeriod = TimeSpan.FromMilliseconds(250);
     private static readonly TimeSpan GlassButtonStateRefreshDelay = TimeSpan.FromMilliseconds(220);
 
@@ -70,13 +71,17 @@ public class FloatingWindowService
     private CancellationTokenSource? _glassCaptureCancellation;
     private Task? _glassCaptureTask;
     private long _glassCaptureGeneration;
+    private long _lastGlassCaptureStartedAt;
     private bool _liquidGlassCaptureRefreshPending;
     private ThemeVariant? _adaptiveBackgroundThemeVariant;
     private int _adaptiveThemeRefreshCount;
     private bool _windowBoundsClampQueued;
     private bool _pointerPressed;
     private bool _dragInitiated;
+    private bool _isDraggingWindow;
     private Point _pointerDownPoint;
+    private PixelPoint _dragStartScreenPoint;
+    private PixelPoint _dragStartWindowPosition;
     private PointerPressedEventArgs? _lastPressedArgs;
     private bool _isThemeSubscribed;
     private readonly Dictionary<string, double> _buttonWidthCache = new();
@@ -659,8 +664,9 @@ public class FloatingWindowService
         }
 
         var settings = _configHandler.Data.FloatingWindowLiquidGlass;
-        _liquidGlassCaptureTimer.Interval = TimeSpan.FromMilliseconds(
-            Math.Max(5, settings.BackdropRefreshIntervalMs));
+        _liquidGlassCaptureTimer.Interval = _isDraggingWindow
+            ? DragCaptureInterval
+            : TimeSpan.FromMilliseconds(Math.Max(5, settings.BackdropRefreshIntervalMs));
 
         var shouldCapture = !_isStopped && _window.IsVisible && IsBackgroundCaptureRequested();
         if (!shouldCapture)
@@ -706,6 +712,12 @@ public class FloatingWindowService
             return;
         }
 
+        var now = Environment.TickCount64;
+        if (_isDraggingWindow && now - _lastGlassCaptureStartedAt < DragCaptureInterval.TotalMilliseconds)
+        {
+            return;
+        }
+
         var captureWindow = _window;
         var handle = captureWindow.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero;
         if (handle == IntPtr.Zero || !TryGetLiquidGlassCaptureArea(captureWindow, out var area))
@@ -715,6 +727,7 @@ public class FloatingWindowService
 
         var cancellation = new CancellationTokenSource();
         var generation = _glassCaptureGeneration;
+        _lastGlassCaptureStartedAt = now;
         _liquidGlassCaptureRefreshPending = false;
         _glassCaptureCancellation = cancellation;
         _glassCaptureTask = CaptureLiquidGlassBackdropAsync(
@@ -794,13 +807,6 @@ public class FloatingWindowService
                     return;
                 }
 
-                if (!TryGetLiquidGlassCaptureArea(captureWindow, out var currentArea) ||
-                    !currentArea.Equals(area))
-                {
-                    _liquidGlassCaptureRefreshPending = true;
-                    return;
-                }
-
                 var adaptiveThemeChanged = UpdateAdaptiveBackgroundTheme(frame);
                 if (!IsLiquidGlassRequested())
                 {
@@ -835,6 +841,13 @@ public class FloatingWindowService
                         Source = bitmap,
                         Stretch = Stretch.Fill
                     };
+                }
+
+                if (_isDraggingWindow && _liquidGlassSurface != null)
+                {
+                    // The shader keeps its own visual-tree snapshot, so swapping the desktop
+                    // bitmap must explicitly publish a new snapshot during continuous dragging.
+                    LiquidGlassBackdropProvider.RequestSnapshotRefresh(_liquidGlassSurface);
                 }
 
                 if (adaptiveThemeChanged)
@@ -885,6 +898,7 @@ public class FloatingWindowService
 
     private void StopLiquidGlassCapture()
     {
+        _isDraggingWindow = false;
         _liquidGlassCaptureTimer.Stop();
         _liquidGlassCaptureRefreshPending = false;
         _adaptiveThemeRefreshCount = 0;
@@ -1236,6 +1250,7 @@ public class FloatingWindowService
         _windowBoundsClampQueued = false;
         _pointerPressed = false;
         _dragInitiated = false;
+        _isDraggingWindow = false;
         _lastPressedArgs = null;
         _touchDragAllowed = false;
     }
@@ -1608,6 +1623,8 @@ public class FloatingWindowService
             _touchDragAllowed = true;
             _touchDragStartScreenPoint = _window.PointToScreen(e.GetPosition(_window));
             _touchDragStartWindowPosition = _window.Position;
+            BeginWindowDragCapture();
+            e.Pointer.Capture(_window);
             e.Handled = true;
             return;
         }
@@ -1627,6 +1644,8 @@ public class FloatingWindowService
         _pointerPressed = true;
         _dragInitiated = false;
         _pointerDownPoint = e.GetPosition(_window);
+        _dragStartScreenPoint = _window.PointToScreen(_pointerDownPoint);
+        _dragStartWindowPosition = _window.Position;
         _lastPressedArgs = e;
     }
 
@@ -1656,24 +1675,45 @@ public class FloatingWindowService
             return;
         }
 
-        if (!_pointerPressed || _dragInitiated)
+        if (!_pointerPressed)
         {
             return;
         }
 
-        var point = e.GetPosition(_window);
-        var dx = point.X - _pointerDownPoint.X;
-        var dy = point.Y - _pointerDownPoint.Y;
-
-        if (Math.Abs(dx) + Math.Abs(dy) < 4)
+        if (!_dragInitiated)
         {
-            return;
+            var point = e.GetPosition(_window);
+            var dx = point.X - _pointerDownPoint.X;
+            var dy = point.Y - _pointerDownPoint.Y;
+
+            if (Math.Abs(dx) + Math.Abs(dy) < 4)
+            {
+                return;
+            }
+
+            _dragInitiated = true;
+            if (!IsBackgroundCaptureRequested())
+            {
+                if (_lastPressedArgs != null)
+                {
+                    _window.BeginMoveDrag(_lastPressedArgs);
+                }
+
+                return;
+            }
+
+            e.Pointer.Capture(_window);
+            BeginWindowDragCapture();
         }
 
-        _dragInitiated = true;
-        if (_lastPressedArgs != null)
+        if (_isDraggingWindow)
         {
-            _window.BeginMoveDrag(_lastPressedArgs);
+            var screenPoint = _window.PointToScreen(e.GetPosition(_window));
+            var target = new PixelPoint(
+                _dragStartWindowPosition.X + screenPoint.X - _dragStartScreenPoint.X,
+                _dragStartWindowPosition.Y + screenPoint.Y - _dragStartScreenPoint.Y);
+            _window.Position = ClampToVisibleScreen(target);
+            e.Handled = true;
         }
     }
 
@@ -1708,6 +1748,8 @@ public class FloatingWindowService
                 return;
             }
 
+            EndWindowDragCapture();
+            e.Pointer.Capture(null);
             var touchClamped = ClampToVisibleScreen(_window.Position);
             _window.Position = touchClamped;
             SavePosition(touchClamped);
@@ -1716,12 +1758,41 @@ public class FloatingWindowService
         }
 
         _pointerPressed = false;
+        var wasWindowDragging = _isDraggingWindow;
         _dragInitiated = false;
         _lastPressedArgs = null;
+        e.Pointer.Capture(null);
+
+        if (wasWindowDragging)
+        {
+            EndWindowDragCapture();
+        }
 
         var clamped = ClampToVisibleScreen(_window.Position);
         _window.Position = clamped;
         SavePosition(clamped);
+    }
+
+    private void BeginWindowDragCapture()
+    {
+        if (_isDraggingWindow)
+        {
+            return;
+        }
+
+        _isDraggingWindow = true;
+        UpdateLiquidGlassCaptureLoop();
+    }
+
+    private void EndWindowDragCapture()
+    {
+        if (!_isDraggingWindow)
+        {
+            return;
+        }
+
+        _isDraggingWindow = false;
+        UpdateLiquidGlassCaptureLoop();
     }
 
     private Border CreateTouchDragHandle(double scale, IBrush foreground)
@@ -1851,6 +1922,7 @@ public class FloatingWindowService
         }
 
         _isTouchDeviceDetected = isTouch;
+        EndWindowDragCapture();
         _pointerPressed = false;
         _dragInitiated = false;
         _lastPressedArgs = null;

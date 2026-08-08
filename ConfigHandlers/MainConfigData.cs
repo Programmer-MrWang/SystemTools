@@ -13,6 +13,7 @@ public class MainConfigData : INotifyPropertyChanged
     public MainConfigData()
     {
         _aiConversationLiquidGlass.PropertyChanged += OnLiquidGlassSettingsPropertyChanged;
+        _aiConversationApprovalButtonGlass.PropertyChanged += OnApprovalButtonGlassSettingsPropertyChanged;
         _floatingWindowLiquidGlass.PropertyChanged += OnFloatingWindowLiquidGlassSettingsPropertyChanged;
     }
 
@@ -224,6 +225,23 @@ public class MainConfigData : INotifyPropertyChanged
             _aiConversationLiquidGlass.PropertyChanged -= OnLiquidGlassSettingsPropertyChanged;
             _aiConversationLiquidGlass = value;
             _aiConversationLiquidGlass.PropertyChanged += OnLiquidGlassSettingsPropertyChanged;
+            OnPropertyChanged();
+        }
+    }
+
+    private LiquidGlassButtonSettings _aiConversationApprovalButtonGlass = new();
+
+    [JsonPropertyName("aiConversationApprovalButtonGlass")]
+    public LiquidGlassButtonSettings AiConversationApprovalButtonGlass
+    {
+        get => _aiConversationApprovalButtonGlass;
+        set
+        {
+            value ??= new LiquidGlassButtonSettings();
+            if (ReferenceEquals(value, _aiConversationApprovalButtonGlass)) return;
+            _aiConversationApprovalButtonGlass.PropertyChanged -= OnApprovalButtonGlassSettingsPropertyChanged;
+            _aiConversationApprovalButtonGlass = value;
+            _aiConversationApprovalButtonGlass.PropertyChanged += OnApprovalButtonGlassSettingsPropertyChanged;
             OnPropertyChanged();
         }
     }
@@ -675,6 +693,9 @@ public class MainConfigData : INotifyPropertyChanged
 
     private void OnLiquidGlassSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e) =>
         OnPropertyChanged(nameof(AiConversationLiquidGlass));
+
+    private void OnApprovalButtonGlassSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e) =>
+        OnPropertyChanged(nameof(AiConversationApprovalButtonGlass));
 
     private void OnFloatingWindowLiquidGlassSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e) =>
         OnPropertyChanged(nameof(FloatingWindowLiquidGlass));

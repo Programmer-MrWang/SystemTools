@@ -283,6 +283,79 @@
                                          Click="OnResetLiquidGlassClick"
                                          ActionIconSource="{ci:FluentIconSource &#xE777;}"
                                          IsClickEnabled="True" />
+
+            <ci:IconText Glyph="&#xE8FB;" Text="审批按钮液态玻璃设置" Margin="0 12 0 4" />
+            <controls:FASettingsExpander Header="审批按钮"
+                                         Description="统一调整语音对话审批按钮的交互与阴影；按钮颜色固定。"
+                                         IconSource="{ci:FluentIconSource &#xE8FB;}">
+                <controls:FASettingsExpanderItem Content="点按回弹幅度"
+                                                 Description="按下、拖移和释放时使用与悬浮窗触发器相同的弹性形变。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150"
+                                       Minimum="0"
+                                       Maximum="12"
+                                       Increment="0.5"
+                                       FormatString="F1"
+                                       Value="{Binding ApprovalButtonGlass.ScaleDip, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="交互高光"
+                                                 Description="在指针按下位置显示玻璃交互高光。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding ApprovalButtonGlass.InteractiveHighlightEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="启用阴影"
+                                                 Description="显示两个审批按钮的玻璃外阴影。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <ToggleSwitch IsChecked="{Binding ApprovalButtonGlass.ShadowEnabled, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影半径"
+                                                 Description="调整两个审批按钮外阴影的柔化范围。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150"
+                                       Minimum="0"
+                                       Maximum="64"
+                                       Increment="1"
+                                       FormatString="F1"
+                                       Value="{Binding ApprovalButtonGlass.ShadowRadius, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影水平偏移"
+                                                 Description="调整两个审批按钮阴影的水平位置。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150"
+                                       Minimum="-32"
+                                       Maximum="32"
+                                       Increment="1"
+                                       FormatString="F1"
+                                       Value="{Binding ApprovalButtonGlass.ShadowOffsetX, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影垂直偏移"
+                                                 Description="调整两个审批按钮阴影的垂直位置。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150"
+                                       Minimum="-32"
+                                       Maximum="32"
+                                       Increment="1"
+                                       FormatString="F1"
+                                       Value="{Binding ApprovalButtonGlass.ShadowOffsetY, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+                <controls:FASettingsExpanderItem Content="阴影不透明度"
+                                                 Description="调整两个审批按钮阴影的可见程度。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <NumericUpDown Width="150"
+                                       Minimum="0"
+                                       Maximum="1"
+                                       Increment="0.05"
+                                       FormatString="F2"
+                                       Value="{Binding ApprovalButtonGlass.ShadowOpacity, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
             
             <ci:IconText Glyph="&#xEDBF;" Text="立即唤醒语音 AI" Margin="0 0 0 4" />
             <controls:FASettingsExpander Header="调试语音唤醒 AI"

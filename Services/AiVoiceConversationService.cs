@@ -134,7 +134,8 @@ public sealed class AiVoiceConversationService(
         }
 
         if (e.PropertyName is nameof(MainConfigData.AiConversationFloatingWindowStyle) or
-            nameof(MainConfigData.AiConversationLiquidGlass))
+            nameof(MainConfigData.AiConversationLiquidGlass) or
+            nameof(MainConfigData.AiConversationApprovalButtonGlass))
         {
             Dispatcher.UIThread.Post(() =>
             {
@@ -146,7 +147,8 @@ public sealed class AiVoiceConversationService(
 
                 overlay.UpdateLiquidGlassAppearance(
                     configHandler.Data.AiConversationFloatingWindowStyle,
-                    configHandler.Data.AiConversationLiquidGlass);
+                    configHandler.Data.AiConversationLiquidGlass,
+                    configHandler.Data.AiConversationApprovalButtonGlass);
             });
         }
     }
@@ -388,6 +390,7 @@ public sealed class AiVoiceConversationService(
                    windowInfo.Value.CornerRadius,
                    configHandler.Data.AiConversationFloatingWindowStyle,
                    configHandler.Data.AiConversationLiquidGlass,
+                   configHandler.Data.AiConversationApprovalButtonGlass,
                    liquidGlassBackdrop: null);
                 overlay.SetStatus("你好，我是ci，请稍后……");
                 overlay.EscapePressed += OverlayOnEscapePressed;

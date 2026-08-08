@@ -1,6 +1,7 @@
 <Window x:Class="SystemTools.Views.AiVoiceConversationOverlayWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ci="http://classisland.tech/schemas/xaml/core"
         xmlns:local="clr-namespace:SystemTools.Views"
         xmlns:lg="clr-namespace:LiquidGlassAvaloniaUI"
         Title="AI voice conversation"
@@ -130,7 +131,8 @@
                            Opacity="0.76"
                            TextWrapping="Wrap" />
 
-                <Grid Grid.Row="4"
+                <Grid x:Name="ClassicApprovalButtons"
+                      Grid.Row="4"
                       Margin="0,4,0,0"
                       VerticalAlignment="Bottom"
                       ColumnDefinitions="*,*"
@@ -148,6 +150,66 @@
                             Classes="accent"
                             Content="批准请求"
                             Click="ApproveApprovalButton_OnClick" />
+                </Grid>
+
+                <Grid x:Name="LiquidGlassApprovalButtons"
+                      Grid.Row="4"
+                      Margin="0,4,0,0"
+                      VerticalAlignment="Bottom"
+                      ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      IsVisible="False">
+                    <lg:LiquidGlassInteractiveSurface x:Name="DenyApprovalButtonGlass"
+                                                      Grid.Column="0"
+                                                      MinHeight="48"
+                                                      HorizontalAlignment="Stretch"
+                                                      VerticalAlignment="Center"
+                                                      CornerRadius="999">
+                        <Button x:Name="DenyApprovalGlassButton"
+                                MinHeight="48"
+                                Padding="14,4"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="DenyApprovalButton_OnClick">
+                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                <ci:FluentIcon Glyph="&#xE711;"
+                                               FontSize="16"
+                                               VerticalAlignment="Center" />
+                                <TextBlock Text="拒绝请求"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </lg:LiquidGlassInteractiveSurface>
+
+                    <lg:LiquidGlassInteractiveSurface x:Name="ApproveApprovalButtonGlass"
+                                                      Grid.Column="1"
+                                                      MinHeight="48"
+                                                      HorizontalAlignment="Stretch"
+                                                      VerticalAlignment="Center"
+                                                      CornerRadius="999">
+                        <Button x:Name="ApproveApprovalGlassButton"
+                                MinHeight="48"
+                                Padding="14,4"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Click="ApproveApprovalButton_OnClick">
+                            <StackPanel Orientation="Horizontal" Spacing="7">
+                                <ci:FluentIcon Glyph="&#xE73E;"
+                                               FontSize="16"
+                                               VerticalAlignment="Center" />
+                                <TextBlock Text="批准请求"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </lg:LiquidGlassInteractiveSurface>
                 </Grid>
             </Grid>
             </Grid>

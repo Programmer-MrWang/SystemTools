@@ -33,6 +33,9 @@ public partial class PluginDebugSettingsPage : SettingsPageBase
 
     public LiquidGlassSettings Glass => GlobalConstants.MainConfig!.Data.AiConversationLiquidGlass;
 
+    public LiquidGlassButtonSettings ApprovalButtonGlass =>
+        GlobalConstants.MainConfig!.Data.AiConversationApprovalButtonGlass;
+
     public IReadOnlyList<string> AppearancePresetNames => AppearancePresetOptions;
 
     public int SelectedAppearancePreset

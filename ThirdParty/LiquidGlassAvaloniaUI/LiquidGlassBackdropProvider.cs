@@ -111,6 +111,20 @@ namespace LiquidGlassAvaloniaUI
             state.SubscriberOnlyDirtyTicksUtc = nowTicks;
         }
 
+        public static void RequestSnapshotRefresh(Control control)
+        {
+            TopLevel? topLevel = TopLevel.GetTopLevel(control);
+            if (topLevel is null)
+                return;
+
+            BackdropState state = s_states.GetOrCreateValue(topLevel);
+            TrackSubscriber(state, control);
+            CleanupSubscribers(state);
+            EnsureRendererSubscription(topLevel, state);
+            state.ForcePublishNextCapture = true;
+            QueueCapture(topLevel, state);
+        }
+
         private static void CleanupSubscribers(BackdropState state)
         {
             for (int i = state.Subscribers.Count - 1; i >= 0; i--)

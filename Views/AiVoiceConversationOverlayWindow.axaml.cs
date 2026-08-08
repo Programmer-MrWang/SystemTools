@@ -11,6 +11,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using LiquidGlassAvaloniaUI;
 using SystemTools.ConfigHandlers;
 using SystemTools.Services;
 
@@ -58,6 +59,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
             cornerRadius: 8.0,
             appearanceStyle: 0,
             new LiquidGlassSettings(),
+            new LiquidGlassButtonSettings(),
             liquidGlassBackdrop: null)
     {
     }
@@ -71,6 +73,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
         double cornerRadius,
         int appearanceStyle,
         LiquidGlassSettings liquidGlassSettings,
+        LiquidGlassButtonSettings approvalButtonSettings,
         WriteableBitmap? liquidGlassBackdrop)
     {
         InitializeComponent();
@@ -92,6 +95,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
             DispatcherPriority.Render,
             OnHeightAnimationTick);
         ApplyLiquidGlassSettings(liquidGlassSettings);
+        ApplyApprovalButtonSettings(approvalButtonSettings);
         ApplyTheme(isDark, opacity);
         Waveform.SetDarkTheme(isDark);
         Waveform.SetListening(false);
@@ -330,7 +334,10 @@ public partial class AiVoiceConversationOverlayWindow : Window
 
     public void UpdateAppearance(bool isDark, double opacity) => ApplyTheme(isDark, opacity);
 
-    public void UpdateLiquidGlassAppearance(int appearanceStyle, LiquidGlassSettings settings)
+    public void UpdateLiquidGlassAppearance(
+        int appearanceStyle,
+        LiquidGlassSettings settings,
+        LiquidGlassButtonSettings approvalButtonSettings)
     {
         _appearanceStyle = appearanceStyle == 1 ? 1 : 0;
         if (_appearanceStyle != 1)
@@ -339,6 +346,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
         }
 
         ApplyLiquidGlassSettings(settings);
+        ApplyApprovalButtonSettings(approvalButtonSettings);
         ApplyTheme(_isDark, _opacity);
     }
 
@@ -675,6 +683,10 @@ public partial class AiVoiceConversationOverlayWindow : Window
         ApprovalSummaryText.Foreground = new SolidColorBrush(foreground);
         ApprovalDetailsText.Foreground = new SolidColorBrush(foreground);
         ApprovalWarningText.Foreground = new SolidColorBrush(foreground);
+        DenyApprovalGlassButton.Foreground = new SolidColorBrush(foreground);
+        ApproveApprovalGlassButton.Foreground = new SolidColorBrush(foreground);
+        ClassicApprovalButtons.IsVisible = !useLiquidGlass;
+        LiquidGlassApprovalButtons.IsVisible = useLiquidGlass;
         Waveform.SetDarkTheme(isDark);
     }
 
@@ -728,6 +740,72 @@ public partial class AiVoiceConversationOverlayWindow : Window
             settings.InnerShadowColor,
             Color.FromArgb(38, 0, 0, 0));
         LiquidGlassSurface.InnerShadowOpacity = settings.InnerShadowOpacity;
+    }
+
+    private void ApplyApprovalButtonSettings(LiquidGlassButtonSettings settings)
+    {
+        ApplyApprovalButtonSettings(DenyApprovalButtonGlass, settings, "#00000000");
+        ApplyApprovalButtonSettings(ApproveApprovalButtonGlass, settings, "#260078D4");
+    }
+
+    private void ApplyApprovalButtonSettings(
+        LiquidGlassInteractiveSurface surface,
+        LiquidGlassButtonSettings buttonSettings,
+        string surfaceColor)
+    {
+        var windowSurface = this.LiquidGlassSurface;
+        ApplyLiquidGlassSettingsToSurface(surface, windowSurface);
+        surface.CornerRadius = new CornerRadius(999);
+        surface.IsInteractive = true;
+        surface.InteractiveHighlightEnabled = buttonSettings.InteractiveHighlightEnabled;
+        surface.InteractiveMaxScaleDip = SystemMotionPreferences.ShouldReduceMotion()
+            ? 0
+            : buttonSettings.ScaleDip;
+        surface.SurfaceColor = ParseColor(surfaceColor, Colors.Transparent);
+        surface.ShadowEnabled = buttonSettings.ShadowEnabled;
+        surface.ShadowRadius = buttonSettings.ShadowRadius;
+        surface.ShadowOffset = new Vector(buttonSettings.ShadowOffsetX, buttonSettings.ShadowOffsetY);
+        surface.ShadowOpacity = buttonSettings.ShadowOpacity;
+    }
+
+    private static void ApplyLiquidGlassSettingsToSurface(
+        LiquidGlassSurface surface,
+        LiquidGlassSurface source)
+    {
+        surface.BackdropZoom = source.BackdropZoom;
+        surface.BackdropOffset = source.BackdropOffset;
+        surface.RefractionHeight = source.RefractionHeight;
+        surface.RefractionAmount = source.RefractionAmount;
+        surface.DepthEffect = source.DepthEffect;
+        surface.ChromaticAberration = source.ChromaticAberration;
+        surface.BlurRadius = source.BlurRadius;
+        surface.Vibrancy = source.Vibrancy;
+        surface.Brightness = source.Brightness;
+        surface.Contrast = source.Contrast;
+        surface.ExposureEv = source.ExposureEv;
+        surface.GammaPower = source.GammaPower;
+        surface.BackdropOpacity = source.BackdropOpacity;
+        surface.TintColor = source.TintColor;
+        surface.ProgressiveBlurEnabled = source.ProgressiveBlurEnabled;
+        surface.ProgressiveBlurStart = source.ProgressiveBlurStart;
+        surface.ProgressiveBlurEnd = source.ProgressiveBlurEnd;
+        surface.ProgressiveTintColor = source.ProgressiveTintColor;
+        surface.ProgressiveTintIntensity = source.ProgressiveTintIntensity;
+        surface.AdaptiveLuminanceEnabled = source.AdaptiveLuminanceEnabled;
+        surface.AdaptiveLuminanceUpdateIntervalMs = source.AdaptiveLuminanceUpdateIntervalMs;
+        surface.AdaptiveLuminanceSmoothing = source.AdaptiveLuminanceSmoothing;
+        surface.HighlightEnabled = source.HighlightEnabled;
+        surface.HighlightWidth = source.HighlightWidth;
+        surface.HighlightBlurRadius = source.HighlightBlurRadius;
+        surface.HighlightOpacity = source.HighlightOpacity;
+        surface.HighlightAngle = source.HighlightAngle;
+        surface.HighlightFalloff = source.HighlightFalloff;
+        surface.ShadowColor = source.ShadowColor;
+        surface.InnerShadowEnabled = source.InnerShadowEnabled;
+        surface.InnerShadowRadius = source.InnerShadowRadius;
+        surface.InnerShadowOffset = source.InnerShadowOffset;
+        surface.InnerShadowColor = source.InnerShadowColor;
+        surface.InnerShadowOpacity = source.InnerShadowOpacity;
     }
 
     private static Color ParseColor(string value, Color fallback) =>

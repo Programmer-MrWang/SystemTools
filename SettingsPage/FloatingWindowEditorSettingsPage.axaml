@@ -200,14 +200,17 @@
                                                Content="悬浮窗样式"
                                                Description="选择悬浮窗使用的外观材质">
                     <controls:FASettingsExpanderItem.Footer>
-                        <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowAppearanceStyle, Mode=TwoWay}">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <controls1:ExperimentalBadge />
+                            <ComboBox SelectedIndex="{Binding ViewModel.Settings.FloatingWindowAppearanceStyle, Mode=TwoWay}">
                             <ComboBoxItem>
                                 <ci:IconText Glyph="&#xF4AB;" Text="经典" />
                             </ComboBoxItem>
                             <ComboBoxItem>
-                                <ci:IconText Glyph="&#xF4BD;" Text="液态玻璃" />
+                                <ci:IconText Glyph="&#xF4BD;" Text="液态玻璃(实验性)" />
                             </ComboBoxItem>
-                        </ComboBox>
+                            </ComboBox>
+                        </StackPanel>
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
 
@@ -254,7 +257,7 @@
                 <controls:FASettingsExpanderItem x:Name="LiquidGlassRefreshIntervalSettingItem"
                                                IconSource="{ci:FluentIconSource &#xE823;}"
                                                Content="背景刷新频率"
-                                               Description="设置实时背景捕获间隔">
+                                               Description="设置实时背景捕获间隔 间隔越短CPU资源占用越高；越低则动画越卡顿">
                     <controls:FASettingsExpanderItem.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Slider Width="160"

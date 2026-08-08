@@ -246,8 +246,11 @@
                                                      IconSource="{ci:FluentIconSource &#xED53;}"
                                                      IsEnabled="{Binding Config.EnableAiService}">
                         <controls:FASettingsExpanderItem.Footer>
-                            <ToggleSwitch IsChecked="{Binding Config.EnableVoiceWakeAi, Mode=OneWay}"
-                                          Click="VoiceWakeAiToggle_OnClick" />
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <controls1:ExperimentalBadge />
+                                <ToggleSwitch IsChecked="{Binding Config.EnableVoiceWakeAi, Mode=OneWay}"
+                                              Click="VoiceWakeAiToggle_OnClick" />
+                            </StackPanel>
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
 
@@ -281,11 +284,14 @@
                                                      Description="选择 语音对话窗口 和“行动”显示AI对话框 使用的背景材质。"
                                                      IconSource="{ci:FluentIconSource &#xED53;}">
                         <controls:FASettingsExpanderItem.Footer>
-                            <ComboBox Width="180"
-                                      SelectedIndex="{Binding Config.AiConversationFloatingWindowStyle, Mode=TwoWay}">
-                                <ComboBoxItem Content="磨砂效果" />
-                                <ComboBoxItem Content="液态玻璃" />
-                            </ComboBox>
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <controls1:ExperimentalBadge />
+                                <ComboBox Width="180"
+                                          SelectedIndex="{Binding Config.AiConversationFloatingWindowStyle, Mode=TwoWay}">
+                                    <ComboBoxItem Content="磨砂效果" />
+                                    <ComboBoxItem Content="液态玻璃" />
+                                </ComboBox>
+                            </StackPanel>
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
                 </controls:FASettingsExpander>
@@ -343,8 +349,8 @@
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
 
-                    <controls:FASettingsExpanderItem Content="下载语音识别服务与模型"
-                                                     Description="下载包含受 SystemTools 认证的模型文件。注意：仅能选择下载一个">
+                    <controls:FASettingsExpanderItem Content="下载语音识别模型"
+                                                     Description="下载受 SystemTools 认证的模型文件。注意：仅能选择下载一个">
                         <controls:FASettingsExpanderItem.Footer>
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <ComboBox Width="280"

@@ -20,10 +20,10 @@
                 <Label VerticalAlignment="Center" FontSize="28">插件调试</Label>
             </StackPanel>
             
-            <ci:IconText Glyph="&#xE7D7;" Text="液态玻璃外观设置 细调" Margin="0 0 0 4" />
-            <controls:FASettingsExpanderItem Content="选择默认配置"
-                                             Description="选择一组液态玻璃外观参数，然后点击应用。">
-                <controls:FASettingsExpanderItem.Footer>
+            <ci:IconText Glyph="&#xE7D7;" Text="液态玻璃外观设置 细调" Margin="0 4 0 4" />
+            <controls:FASettingsExpander Header="选择预设配置"
+                                         Description="选择一组液态玻璃外观预设参数，然后点击应用。">
+                <controls:FASettingsExpander.Footer>
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <ComboBox Width="160"
                                   ItemsSource="{Binding AppearancePresetNames}"
@@ -32,8 +32,9 @@
                                 Content="应用"
                                 Click="OnApplyAppearancePresetClick" />
                     </StackPanel>
-                </controls:FASettingsExpanderItem.Footer>
-            </controls:FASettingsExpanderItem>
+                </controls:FASettingsExpander.Footer>
+            </controls:FASettingsExpander>
+            
             <controls:FASettingsExpander Header="液态玻璃：折射与背景"
                                          Description="调整玻璃轮廓、背景采样、折射与基础模糊。">
                 <controls:FASettingsExpanderItem Content="圆角半径" Description="玻璃表面的圆角大小。">
@@ -278,16 +279,10 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
-            <controls:FASettingsExpander Header="恢复液态玻璃默认参数"
-                                         Description="将以上参数恢复为 LiquidGlassAvaloniaUI 的默认值。"
-                                         Click="OnResetLiquidGlassClick"
-                                         ActionIconSource="{ci:FluentIconSource &#xE777;}"
-                                         IsClickEnabled="True" />
+            
 
-            <ci:IconText Glyph="&#xE8FB;" Text="审批按钮液态玻璃设置" Margin="0 12 0 4" />
             <controls:FASettingsExpander Header="审批按钮"
-                                         Description="统一调整语音对话审批按钮的交互与阴影；按钮颜色固定。"
-                                         IconSource="{ci:FluentIconSource &#xE8FB;}">
+                                         Description="统一调整语音对话审批按钮的交互与阴影；按钮颜色固定。">
                 <controls:FASettingsExpanderItem Content="点按回弹幅度"
                                                  Description="按下、拖移和释放时使用与悬浮窗触发器相同的弹性形变。">
                     <controls:FASettingsExpanderItem.Footer>
@@ -357,7 +352,13 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
             
-            <ci:IconText Glyph="&#xEDBF;" Text="立即唤醒语音 AI" Margin="0 0 0 4" />
+            <controls:FASettingsExpander Header="恢复液态玻璃默认参数"
+                                         Description="将以上参数恢复为 LiquidGlassAvaloniaUI 的默认值。"
+                                         Click="OnResetLiquidGlassClick"
+                                         ActionIconSource="{ci:FluentIconSource &#xE777;}"
+                                         IsClickEnabled="True" />
+            
+            <ci:IconText Glyph="&#xEDBF;" Text="外观测试" Margin="0 8 0 4" />
             <controls:FASettingsExpander Header="调试语音唤醒 AI"
                                          Description="启动一次语音唤醒 AI 调试对话，并发送一个课程修改请求"
                                          IconSource="{ci:FluentIconSource &#xF4C5;}"

@@ -3,10 +3,12 @@
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:ci="http://classisland.tech/schemas/xaml/core"
                      xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+                     xmlns:controls1="clr-namespace:SystemTools.Controls"
                      x:CompileBindings="False">
     <ScrollViewer>
         <StackPanel Classes="settings-container animated-intro">
 
+            <ci:IconText Glyph="&#xE51E;" Text="ClassIsland 外观" Margin="0 2 0 4" />
             <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE5CB;}"
                                        Header="自动切换 ClassIsland 主题"
                                        Description="每两秒检测主界面所覆盖位置背后的画面；颜色偏暗时切换为黑暗主题，偏亮时切换为明亮主题。">
@@ -25,15 +27,7 @@
                 </controls:FASettingsExpander.Footer>
             </controls:FASettingsExpander>
 
-            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEE81;}"
-                                       Header="自动播放"
-                                       Description="当插入U盘设备时时自动打开">
-                <controls:FASettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding Config.AutoOpenUsbDriveOnInsert, Mode=TwoWay}"
-                                  IsCheckedChanged="AutoOpenUsbToggle_OnChanged" />
-                </controls:FASettingsExpander.Footer>
-            </controls:FASettingsExpander>
-
+            <ci:IconText Glyph="&#xEE21;" Text="性能" Margin="0 8 0 4" />
             <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE97B;}"
                                        Header="自动清理 ClassIsland 内存"
                                        Description="当软件内存占用超过 500MB 时自动执行垃圾回收与工作集修剪。">
@@ -47,8 +41,11 @@
                                        Header="自动清理内存（管理员）"
                                        Description="清理低优先级待机列表、注册表缓存、工作集和系统文件缓存；可能造成短暂卡顿。">
                 <controls:FASettingsExpander.Footer>
-                    <ToggleSwitch IsChecked="{Binding Config.AutoCleanupSystemMemory, Mode=TwoWay}"
-                                  Click="AutoCleanupSystemMemoryToggle_OnClick" />
+                    <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <controls1:ExperimentalBadge />
+                        <ToggleSwitch IsChecked="{Binding Config.AutoCleanupSystemMemory, Mode=TwoWay}"
+                                      Click="AutoCleanupSystemMemoryToggle_OnClick" />
+                    </StackPanel>
                 </controls:FASettingsExpander.Footer>
 
                 <controls:FASettingsExpanderItem Content="自动清理阈值"
@@ -74,6 +71,16 @@
                                 Click="CleanSystemMemoryNow_OnClick" />
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
+            
+            <ci:IconText Glyph="&#xF4C5;" Text="其他工具" Margin="0 8 0 4" />
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEE81;}"
+                                         Header="自动播放"
+                                         Description="当插入U盘设备时时自动打开">
+                <controls:FASettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.AutoOpenUsbDriveOnInsert, Mode=TwoWay}"
+                                  IsCheckedChanged="AutoOpenUsbToggle_OnChanged" />
+                </controls:FASettingsExpander.Footer>
             </controls:FASettingsExpander>
 
         </StackPanel>

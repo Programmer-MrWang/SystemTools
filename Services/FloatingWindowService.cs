@@ -1217,6 +1217,7 @@ public class FloatingWindowService
                     FontSize = textSize,
                     FontWeight = useLiquidGlass ? FontWeight.SemiBold : FontWeight.Normal,
                     HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
                     TextAlignment = TextAlignment.Center,
                     TextWrapping = useLiquidGlass ? TextWrapping.NoWrap : TextWrapping.Wrap,
                     TextTrimming = useLiquidGlass ? TextTrimming.CharacterEllipsis : TextTrimming.None,

@@ -23,7 +23,7 @@ public class ShowToastSettingsControl : ActionSettingsControlBase<ShowToastSetti
 
         _titleBox = new TextBox
         {
-            Watermark = "输入通知标题",
+            PlaceholderText = "输入通知标题",
             Text = "SystemTools"
         };
         panel.Children.Add(_titleBox);
@@ -37,7 +37,7 @@ public class ShowToastSettingsControl : ActionSettingsControlBase<ShowToastSetti
 
         _contentBox = new TextBox
         {
-            Watermark = "输入通知内容",
+            PlaceholderText = "输入通知内容",
             AcceptsReturn = true,
             Height = 80
         };

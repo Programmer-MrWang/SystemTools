@@ -27,7 +27,7 @@ public class SetVolumeSettingsControl : ActionSettingsControlBase<SetVolumeSetti
             Maximum = 100,
             Increment = 1,
             FormatString = "0",
-            Watermark = "输入 0-100 的整数"
+            PlaceholderText = "输入 0-100 的整数"
         };
         panel.Children.Add(_volumeInput);
 

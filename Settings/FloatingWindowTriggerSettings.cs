@@ -37,7 +37,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             TextWrapping = TextWrapping.Wrap
         });
 
-        _iconTextBox = new TextBox { Watermark = "/uEA73", HorizontalAlignment = HorizontalAlignment.Stretch };
+        _iconTextBox = new TextBox { PlaceholderText = "/uEA73", HorizontalAlignment = HorizontalAlignment.Stretch };
         _iconTextBox.TextChanged += (_, _) => { Settings.Icon = _iconTextBox.Text ?? string.Empty; };
 
         var iconRow = new Grid
@@ -63,7 +63,7 @@ public class FloatingWindowTriggerSettings : TriggerSettingsControlBase<Floating
             TextWrapping = TextWrapping.Wrap
         });
 
-        _nameTextBox = new TextBox { Watermark = "例如：按钮1" };
+        _nameTextBox = new TextBox { PlaceholderText = "例如：按钮1" };
         _nameTextBox.TextChanged += (_, _) => { Settings.ButtonName = _nameTextBox.Text ?? string.Empty; };
         panel.Children.Add(_nameTextBox);
 

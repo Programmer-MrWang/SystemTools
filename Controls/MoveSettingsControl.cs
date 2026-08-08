@@ -56,7 +56,7 @@ public class MoveSettingsControl : ActionSettingsControlBase<MoveSettings>
         });
         _sourcePathBox = new Avalonia.Controls.TextBox
         {
-            Watermark = "源文件/文件夹路径"
+            PlaceholderText = "源文件/文件夹路径"
         };
         _sourcePathBox.TextChanged += (s, e) => Settings.SourcePath = _sourcePathBox.Text ?? "";
         panel.Children.Add(_sourcePathBox);
@@ -77,7 +77,7 @@ public class MoveSettingsControl : ActionSettingsControlBase<MoveSettings>
         });
         _destinationPathBox = new Avalonia.Controls.TextBox
         {
-            Watermark = "目标文件夹路径"
+            PlaceholderText = "目标文件夹路径"
         };
         _destinationPathBox.TextChanged += (s, e) => Settings.DestinationPath = _destinationPathBox.Text ?? "";
         panel.Children.Add(_destinationPathBox);

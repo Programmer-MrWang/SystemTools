@@ -22,7 +22,7 @@ public class DisableDeviceSettingsControl : ActionSettingsControlBase<DisableDev
 
         _deviceIdBox = new TextBox
         {
-            Watermark = "输入设备实例路径"
+            PlaceholderText = "输入设备实例路径"
         };
         panel.Children.Add(_deviceIdBox);
 

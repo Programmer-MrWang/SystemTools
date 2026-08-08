@@ -27,7 +27,7 @@ public class KeywordTriggerSettings : TriggerSettingsControlBase<KeywordTriggerC
         };
         _keywordBox = new TextBox
         {
-            Watermark = "输入要检测的关键词…",
+            PlaceholderText = "输入要检测的关键词…",
             FontSize = 14,
             Padding = new Thickness(10, 8),
             CornerRadius = new CornerRadius(6)

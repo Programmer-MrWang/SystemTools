@@ -36,7 +36,7 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
 
         _processNameBox = new TextBox
         {
-            Watermark = "输入进程名（如: notepad）"
+            PlaceholderText = "输入进程名（如: notepad）"
         };
         panel.Children.Add(_processNameBox);
 

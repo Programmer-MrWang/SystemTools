@@ -25,7 +25,7 @@ public class ActionInProgressTriggerSettings : TriggerSettingsControlBase<Action
 
         _textBox = new Avalonia.Controls.TextBox
         {
-            Watermark = "输入行动”触发指定触发器“中指定的字符",
+            PlaceholderText = "输入行动”触发指定触发器“中指定的字符",
             Width = 200,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
         };

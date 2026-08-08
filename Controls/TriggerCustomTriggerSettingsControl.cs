@@ -28,7 +28,7 @@ public class TriggerCustomTriggerSettingsControl : ActionSettingsControlBase<Tri
 
         _triggerIdTextBox = new Avalonia.Controls.TextBox
         {
-            Watermark = "输入与”行动进行时“触发器相同的字符",
+            PlaceholderText = "输入与”行动进行时“触发器相同的字符",
             Height = 35
         };
         panel.Children.Add(_triggerIdTextBox);

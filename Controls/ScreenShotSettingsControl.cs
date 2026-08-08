@@ -33,7 +33,7 @@ public class ScreenShotSettingsControl : ActionSettingsControlBase<ScreenShotSet
 
         _folderPathBox = new TextBox
         {
-            Watermark = "点击\"浏览...\"以选择保存文件夹",
+            PlaceholderText = "点击\"浏览...\"以选择保存文件夹",
             Width = 300,
             IsReadOnly = true
         };

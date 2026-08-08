@@ -55,7 +55,7 @@ public class DeleteSettingsControl : ActionSettingsControlBase<DeleteSettings>
         });
         _targetPathBox = new Avalonia.Controls.TextBox
         {
-            Watermark = "要删除的文件/文件夹路径"
+            PlaceholderText = "要删除的文件/文件夹路径"
         };
         _targetPathBox.TextChanged += (s, e) => Settings.TargetPath = _targetPathBox.Text ?? "";
         panel.Children.Add(_targetPathBox);

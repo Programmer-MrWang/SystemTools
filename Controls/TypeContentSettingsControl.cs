@@ -22,7 +22,7 @@ public class TypeContentSettingsControl : ActionSettingsControlBase<TypeContentS
 
         _textBox = new TextBox
         {
-            Watermark = "输入要粘贴的文本内容",
+            PlaceholderText = "输入要粘贴的文本内容",
             AcceptsReturn = true,
             Height = 100
         };

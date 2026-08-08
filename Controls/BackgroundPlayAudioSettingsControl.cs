@@ -11,7 +11,7 @@ namespace SystemTools.Controls;
 
 public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<BackgroundPlayAudioSettings>
 {
-    private CheckBox _notifyCheckBox;
+    private readonly CheckBox _notifyCheckBox;
     private readonly TextBox _audioPathBox;
     private readonly CheckBox _waitForCompletedCheckBox;
     private readonly TextBlock _validationHintTextBlock;
@@ -35,7 +35,7 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
 
         _audioPathBox = new TextBox
         {
-            Watermark = "点击“浏览...”选择音频文件",
+            PlaceholderText = "点击“浏览...”选择音频文件",
             Width = 320,
             IsReadOnly = true
         };
@@ -59,6 +59,8 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
         };
         panel.Children.Add(_validationHintTextBlock);
 
+        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
+
         _waitForCompletedCheckBox = new CheckBox
         {
             Content = "播放后等待播放完成",
@@ -73,7 +75,6 @@ public class BackgroundPlayAudioSettingsControl : ActionSettingsControlBase<Back
         };
         panel.Children.Add(_waitForCompletedCheckBox);
 
-        _notifyCheckBox = new CheckBox { Content = "当执行时发出提醒" };
         _notifyCheckBox.IsCheckedChanged += (s, e) => { Settings.NotifyOnExecute = _notifyCheckBox.IsChecked ?? false; };
         panel.Children.Add(_notifyCheckBox);
 

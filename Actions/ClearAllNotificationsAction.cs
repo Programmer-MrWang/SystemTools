@@ -8,7 +8,6 @@ using SystemTools.Settings;
 using ClassIsland.Shared;
 using System.Reflection;
 using System.Threading.Tasks;
-using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
 

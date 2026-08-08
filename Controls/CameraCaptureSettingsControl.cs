@@ -26,7 +26,7 @@ public class CameraCaptureSettingsControl : ActionSettingsControlBase<CameraCapt
 
         _deviceNameBox = new TextBox
         {
-            Watermark = "输入摄像头名（在系统 设备管理器 中查询）"
+            PlaceholderText = "输入摄像头名（在系统 设备管理器 中查询）"
         };
         panel.Children.Add(_deviceNameBox);
 
@@ -38,7 +38,7 @@ public class CameraCaptureSettingsControl : ActionSettingsControlBase<CameraCapt
 
         _folderPathBox = new TextBox
         {
-            Watermark = "点击\"浏览...\"以选择保存文件夹",
+            PlaceholderText = "点击\"浏览...\"以选择保存文件夹",
             IsReadOnly = true
         };
         panel.Children.Add(_folderPathBox);

@@ -55,7 +55,7 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
 
         _pathBox = new Avalonia.Controls.TextBox
         {
-            Watermark = "请选择壁纸图片文件"
+            PlaceholderText = "请选择壁纸图片文件"
         };
         _pathBox.TextChanged += (s, e) => { Settings.ImagePath = _pathBox.Text ?? ""; };
         panel.Children.Add(_pathBox);
@@ -101,7 +101,7 @@ public class ChangeWallpaperSettingsControl : ActionSettingsControlBase<ChangeWa
 
         _solidColorBox = new Avalonia.Controls.TextBox
         {
-            Watermark = "#000000 或 0,0,0",
+            PlaceholderText = "#000000 或 0,0,0",
             Width = 200,
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left
         };

@@ -48,9 +48,9 @@ public class SimulateKeyboardSettingsControl : ActionSettingsControlBase<Keyboar
 
         var editor = new StackPanel { Spacing = 6 };
         _typeBox = new ComboBox { ItemsSource = Enum.GetValues<KeyboardAction.ActionType>(), SelectedIndex = 0, MinWidth = 120 };
-        _keyCodeBox = new TextBox { Watermark = "虚拟键码", Width = 90 };
-        _keyNameBox = new TextBox { Watermark = "按键名称", Width = 120 };
-        _intervalBox = new TextBox { Watermark = "延迟(ms)", Width = 90 };
+        _keyCodeBox = new TextBox { PlaceholderText = "虚拟键码", Width = 90 };
+        _keyNameBox = new TextBox { PlaceholderText = "按键名称", Width = 120 };
+        _intervalBox = new TextBox { PlaceholderText = "延迟(ms)", Width = 90 };
         var row = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8 };
         row.Children.Add(new TextBlock { Text = "操作", VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
         row.Children.Add(_typeBox);

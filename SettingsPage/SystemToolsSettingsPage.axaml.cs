@@ -715,10 +715,55 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
         }
         else
         {
+            var selectedModel = ViewModel.SelectedSpeechRecognitionModel;
+            if (selectedModel is not null && !await ConfirmSpeechRecognitionModelDownloadAsync(selectedModel))
+            {
+                return;
+            }
+
             await ViewModel.DownloadSpeechRecognitionModelAsync(ShowErrorDialogAsync, ShowMd5ErrorDialogAsync);
         }
 
         UpdateDownloadButtonStates();
+    }
+
+    private async Task<bool> ConfirmSpeechRecognitionModelDownloadAsync(SpeechRecognitionDownloadOption model)
+    {
+        var warning = model.ModelName switch
+        {
+            "vosk-model-en-us" or "vosk-model-cn" =>
+                "使用此模型会占用大量内存与性能。推荐使用 SenseVoiceSmall ONNX (INT8 Quantized) 模型，高准确率同时实现低占用。",
+            "vosk-model-small-en-us" =>
+                "此模型仅支持英文识别且准确率有限。推荐使用 SenseVoiceSmall ONNX (INT8 Quantized) 兼顾准确率、性能与中英识别。",
+            "vosk-model-small-cn" =>
+                "此模型准确率十分受限。建议选择 SenseVoiceSmall ONNX (INT8 Quantized) 在极高准确率同时实现低内存占用。",
+            _ => null
+        };
+
+        if (warning is null)
+        {
+            return true;
+        }
+
+        var dialog = new FAContentDialog
+        {
+            Title = "语音识别模型提示",
+            Content = new TextBlock
+            {
+                Text = warning,
+                TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                MaxWidth = 560
+            },
+            PrimaryButtonText = "继续下载",
+            CloseButtonText = "取消",
+            DefaultButton = FAContentDialogButton.Close
+        };
+
+        var owner = TopLevel.GetTopLevel(this);
+        var result = owner is null
+            ? await dialog.ShowAsync()
+            : await dialog.ShowAsync(owner);
+        return result == FAContentDialogResult.Primary;
     }
 
     private async void OnDownloadVoskWorkerClick(object? sender, RoutedEventArgs e)

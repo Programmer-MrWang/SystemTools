@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using ClassIsland.Core;
@@ -237,6 +238,46 @@ public sealed class AiVoiceConversationService(
         }
     }
 
+    private async Task<WriteableBitmap?> CaptureInitialOverlayLiquidGlassBackdropAsync(
+        WindowInfo windowInfo,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (configHandler.Data.AiConversationFloatingWindowStyle != 1)
+            {
+                return null;
+            }
+
+            var scaling = Math.Max(0.1, windowInfo.RenderScaling);
+            var area = new Rectangle(
+                windowInfo.Position.X,
+                windowInfo.Position.Y,
+                Math.Max(1, (int)Math.Ceiling(windowInfo.Width * scaling)),
+                Math.Max(1, (int)Math.Ceiling(windowInfo.Height * scaling)));
+            using var frame = await backgroundCaptureService.CaptureAreaAsync(
+                area,
+                IntPtr.Zero,
+                cancellationToken);
+            if (frame is null)
+            {
+                return null;
+            }
+
+            return await Dispatcher.UIThread.InvokeAsync(() =>
+                LiquidGlassBackdropFactory.Update(frame, reusableBitmap: null));
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogDebug(ex, "Unable to prepare the initial voice conversation liquid glass backdrop.");
+            return null;
+        }
+    }
+
     private static async Task PlayEntranceAndCompleteAsync(
         AiVoiceConversationOverlayWindow overlay,
         TaskCompletionSource<bool> completion)
@@ -349,6 +390,7 @@ public sealed class AiVoiceConversationService(
         EventHandler<AvaloniaPropertyChangedEventArgs>? applicationPropertyChanged = null;
         EventHandler<AvaloniaPropertyChangedEventArgs>? opacityPropertyChanged = null;
         EventHandler<VoiceListeningToggleRequestedEventArgs>? listeningToggleHandler = null;
+        WriteableBitmap? initialLiquidGlassBackdrop = null;
         var listeningGate = new ListeningGate();
         var toolApprovalWasRequested = 0;
 
@@ -376,6 +418,10 @@ public sealed class AiVoiceConversationService(
                 throw new InvalidOperationException("无法读取 ClassIsland 主界面的布局信息。");
             }
 
+            initialLiquidGlassBackdrop = await CaptureInitialOverlayLiquidGlassBackdropAsync(
+                windowInfo.Value,
+                cancellation.Token);
+
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 occlusionSuspension = mainWindowTextOcclusionService.Suspend();
@@ -391,7 +437,8 @@ public sealed class AiVoiceConversationService(
                    configHandler.Data.AiConversationFloatingWindowStyle,
                    configHandler.Data.AiConversationLiquidGlass,
                    configHandler.Data.AiConversationApprovalButtonGlass,
-                   liquidGlassBackdrop: null);
+                   initialLiquidGlassBackdrop);
+                initialLiquidGlassBackdrop = null;
                 overlay.SetStatus("你好，我是ci，请稍后……");
                 overlay.EscapePressed += OverlayOnEscapePressed;
                 listeningToggleHandler = (_, args) =>
@@ -469,6 +516,15 @@ public sealed class AiVoiceConversationService(
             });
 
             await SetOverlayStatusAsync("你好，我是ci，请稍后……", null, cancellation.Token);
+            if (overlay is not null)
+            {
+                liquidGlassBackdropCancellation = CancellationTokenSource.CreateLinkedTokenSource(
+                    cancellation.Token);
+                liquidGlassBackdropTask = RunOverlayLiquidGlassBackdropLoopAsync(
+                    overlay,
+                    liquidGlassBackdropCancellation.Token);
+            }
+
             var entranceCompletion = new TaskCompletionSource<bool>(
                 TaskCreationOptions.RunContinuationsAsynchronously);
             await Dispatcher.UIThread.InvokeAsync(() =>
@@ -483,15 +539,6 @@ public sealed class AiVoiceConversationService(
                 }
             });
             await entranceCompletion.Task.WaitAsync(cancellation.Token);
-
-            if (overlay is not null)
-            {
-                liquidGlassBackdropCancellation = CancellationTokenSource.CreateLinkedTokenSource(
-                    cancellation.Token);
-                liquidGlassBackdropTask = RunOverlayLiquidGlassBackdropLoopAsync(
-                    overlay,
-                    liquidGlassBackdropCancellation.Token);
-            }
 
             string? modelLoadError = null;
             speechConversation = await speechService.TryAcquireConversationAsync(
@@ -745,6 +792,7 @@ public sealed class AiVoiceConversationService(
                     }
                 }
                 liquidGlassBackdropCancellation?.Dispose();
+                initialLiquidGlassBackdrop?.Dispose();
 
                 if (chatViewModel is not null)
                 {
@@ -1208,6 +1256,7 @@ public sealed class AiVoiceConversationService(
                position,
                Math.Max(1, bounds.Width),
                Math.Max(1, bounds.Height),
+               Math.Max(0.1, mainWindow.RenderScaling),
                mainWindow.ActualThemeVariant == ThemeVariant.Dark,
                GetMainWindowOpacity(mainWindow),
                GetMainWindowCornerRadius(mainWindow));
@@ -1219,6 +1268,7 @@ public sealed class AiVoiceConversationService(
            new PixelPoint(union.Left, union.Top),
            union.Width / scaling,
            union.Height / scaling,
+           scaling,
            mainWindow.ActualThemeVariant == ThemeVariant.Dark,
            GetMainWindowOpacity(mainWindow),
            GetMainWindowCornerRadius(mainWindow));
@@ -1347,6 +1397,7 @@ public sealed class AiVoiceConversationService(
        PixelPoint Position,
        double Width,
        double Height,
+       double RenderScaling,
        bool IsDark,
        double Opacity,
        double CornerRadius);

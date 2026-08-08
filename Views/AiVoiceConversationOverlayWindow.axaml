@@ -174,7 +174,7 @@
                                 BorderThickness="0"
                                 Click="DenyApprovalButton_OnClick">
                             <StackPanel Orientation="Horizontal" Spacing="7">
-                                <ci:FluentIcon Glyph="&#xE711;"
+                                <ci:FluentIcon Glyph="&#xEDF7;"
                                                FontSize="16"
                                                VerticalAlignment="Center" />
                                 <TextBlock Text="拒绝请求"
@@ -200,7 +200,7 @@
                                 BorderThickness="0"
                                 Click="ApproveApprovalButton_OnClick">
                             <StackPanel Orientation="Horizontal" Spacing="7">
-                                <ci:FluentIcon Glyph="&#xE73E;"
+                                <ci:FluentIcon Glyph="&#xEDBF;"
                                                FontSize="16"
                                                VerticalAlignment="Center" />
                                 <TextBlock Text="批准请求"

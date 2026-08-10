@@ -298,6 +298,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         if (Settings.EnableAiService)
         {
             actions.Add(("SystemTools.EnableVoiceWakeAi", "启用语音唤醒 AI", "AI 功能…"));
+            actions.Add(("SystemTools.WakeUpVoiceConversationAi", "唤醒语音对话 AI", "AI 功能…"));
             actions.Add(("SystemTools.ShowAiChatDialog", "显示AI对话框", "AI 功能…"));
         }
 

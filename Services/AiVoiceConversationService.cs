@@ -324,6 +324,38 @@ public sealed class AiVoiceConversationService(
             return false;
         }
     }
+    /// <summary>
+    /// 以与唤醒词唤醒完全相同的对话样式立即拉起语音对话，无需等待唤醒词。
+    /// </summary>
+    public bool TryStartVoiceConversation()
+    {
+        if (_disposed || string.IsNullOrWhiteSpace(configHandler.Data.AiModel))
+        {
+            LastError = string.IsNullOrWhiteSpace(configHandler.Data.AiModel) ? "请先选择 AI 模型。" : null;
+            return false;
+        }
+
+        var dependencyCheck = DependencyPaths.CheckSpeechRecognitionDependencies();
+        if (!dependencyCheck.IsAvailable)
+        {
+            LastError = dependencyCheck.Message;
+            return false;
+        }
+
+        try
+        {
+            return TryStartConversation(
+                keywordSpeechService.SuspendListening(),
+                allowWhenDisabled: true);
+        }
+        catch (Exception ex)
+        {
+            LastError = ex.Message;
+            logger.LogWarning(ex, "无法启动语音对话 AI");
+            return false;
+        }
+    }
+
 
     private bool TryStartConversation(
         IDisposable keywordSuspension,

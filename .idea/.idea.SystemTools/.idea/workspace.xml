@@ -14,23 +14,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/Actions/AutoHideMainWindowWhenOccludedAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Actions/AutoOpenUsbDriveOnInsertAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Actions/AutoSwitchClassIslandThemeAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controls/AiChatGlassSurface.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controls/AutoHideMainWindowWhenOccludedActionSettingsControl.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controls/AutoOpenUsbDriveOnInsertActionSettingsControl.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controls/AutoSwitchClassIslandThemeActionSettingsControl.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Settings/AutoHideMainWindowWhenOccludedActionSettings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Settings/AutoOpenUsbDriveOnInsertActionSettings.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Settings/AutoSwitchClassIslandThemeActionSettings.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Actions/WakeUpVoiceConversationAiAction.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Actions/ToggleWorkflowAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ToggleWorkflowAction.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/AiVoiceConversationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiVoiceConversationService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -159,7 +147,7 @@
       <workItem from="1786152599547" duration="14866000" />
       <workItem from="1786197834806" duration="4495000" />
       <workItem from="1786293353782" duration="171000" />
-      <workItem from="1786350940634" duration="2356000" />
+      <workItem from="1786350940634" duration="3572000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -497,7 +485,31 @@
       <option name="project" value="LOCAL" />
       <updated>1786204123195</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="feat: 优化悬浮窗AI文本对话UI">
+      <option name="closed" value="true" />
+      <created>1786353369964</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1786353369964</updated>
+    </task>
+    <task id="LOCAL-00044" summary="feat: 新增近期新增功能的自动化行动开关">
+      <option name="closed" value="true" />
+      <created>1786353561378</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1786353561378</updated>
+    </task>
+    <task id="LOCAL-00045" summary="feat: 优化行动列表排布顺序">
+      <option name="closed" value="true" />
+      <created>1786353591666</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1786353591666</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -518,9 +530,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增文档与图片上传功能" />
-    <MESSAGE value="fix: 修正对于某些非标准api的不兼容问题" />
-    <MESSAGE value="feat: 新增允许语音调用修改档案和课表，并添加了调试规则。" />
     <MESSAGE value="feat: 调整页面布局和添加调试页面" />
     <MESSAGE value="feat: 添加停止聆听动画" />
     <MESSAGE value="更新项目" />
@@ -543,7 +552,10 @@
     <MESSAGE value="fix: 修改设置页面的提示与布局" />
     <MESSAGE value="feat: 补充模型下载提示" />
     <MESSAGE value="fix: 批量整改警告问题" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 批量整改警告问题" />
+    <MESSAGE value="feat: 优化悬浮窗AI文本对话UI" />
+    <MESSAGE value="feat: 新增近期新增功能的自动化行动开关" />
+    <MESSAGE value="feat: 优化行动列表排布顺序" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 优化行动列表排布顺序" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

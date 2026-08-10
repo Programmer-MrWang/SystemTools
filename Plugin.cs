@@ -362,6 +362,8 @@ public partial class Plugin : PluginBase
         {
             RegisterActionIfEnabled<EnableVoiceWakeAiAction, EnableVoiceWakeAiActionSettingsControl>(services, config,
                 "SystemTools.EnableVoiceWakeAi");
+            RegisterActionIfEnabled<WakeUpVoiceConversationAiAction>(services, config,
+                "SystemTools.WakeUpVoiceConversationAi");
             RegisterActionIfEnabled<ShowAiChatDialogAction>(services, config, "SystemTools.ShowAiChatDialog");
         }
     }
@@ -610,7 +612,7 @@ public partial class Plugin : PluginBase
 
         // AI 功能
         if (config.EnableAiService && HasAnyActionEnabled(config, "SystemTools.EnableVoiceWakeAi",
-                "SystemTools.ShowAiChatDialog"))
+                "SystemTools.WakeUpVoiceConversationAi", "SystemTools.ShowAiChatDialog"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("AI 功能…", "\uEFFF"));
             BuildAiMenu(config);
@@ -867,6 +869,8 @@ public partial class Plugin : PluginBase
 
         if (config.EnableAiService && config.IsActionEnabled("SystemTools.EnableVoiceWakeAi"))
             items.Add(new ActionMenuTreeItem("SystemTools.EnableVoiceWakeAi", "启用语音唤醒 AI", "\uED53"));
+        if (config.EnableAiService && config.IsActionEnabled("SystemTools.WakeUpVoiceConversationAi"))
+            items.Add(new ActionMenuTreeItem("SystemTools.WakeUpVoiceConversationAi", "唤醒语音对话 AI", "\uEFF9"));
         if (config.EnableAiService && config.IsActionEnabled("SystemTools.ShowAiChatDialog"))
             items.Add(new ActionMenuTreeItem("SystemTools.ShowAiChatDialog", "显示AI对话框", "\uE8C3"));
 

@@ -5,6 +5,7 @@
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:ci="http://classisland.tech/schemas/xaml/core"
                      xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+                     xmlns:ciControls="clr-namespace:ClassIsland.Core.Controls;assembly=ClassIsland.Core"
                      xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
                      xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
                      x:CompileBindings="False"
@@ -12,22 +13,39 @@
                      d:DesignHeight="450"
                      d:DesignWidth="800">
 
-    <ScrollViewer>
+    <ciControls:StickyScrollViewer CollapsedHeight="58">
+        <ciControls:StickyScrollViewer.HeaderContent>
+            <Grid>
+                <Panel MaxHeight="300"
+                       Background="Transparent"
+                       Opacity="{Binding $self.(ci:StickyScrollViewer.HeaderFadingOpacity)}">
+                    <Panel.OpacityMask>
+                        <LinearGradientBrush StartPoint="0%, 0%" EndPoint="0%, 100%">
+                            <GradientStop Color="#FFFFFFFF" Offset="0" />
+                            <GradientStop Color="#FFFFFFFF" Offset="0.75" />
+                            <GradientStop Color="#00FFFFFF" Offset="0.92" />
+                        </LinearGradientBrush>
+                    </Panel.OpacityMask>
+                    <Border Background="#020A10" />
+                    <Image Source="/title.png"
+                           Stretch="Uniform"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Top"
+                           MaxWidth="{StaticResource SettingsContainerWidth}" />
+                </Panel>
+
+                <Border Margin="12,16,18,0"
+                        MaxWidth="{StaticResource SettingsContainerWidth}">
+                    <TextBlock Text="关于 SystemTools"
+                               FontWeight="Normal"
+                               VerticalAlignment="Bottom"
+                               Theme="{StaticResource TitleTextBlockStyle}"
+                               Margin="0,8" />
+                </Border>
+            </Grid>
+        </ciControls:StickyScrollViewer.HeaderContent>
+
         <StackPanel Classes="settings-container animated-intro">
-            <Label FontSize="20"
-                   VerticalAlignment="Center"
-                   Foreground="{DynamicResource TextFillColorTertiaryBrush}">
-                SystemTools
-            </Label>
-
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                <ci:FluentIcon FontSize="56"
-                               Glyph="&#xE9E3;"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                               VerticalAlignment="Center" />
-                <Label VerticalAlignment="Center" FontSize="28">本插件 · 关于</Label>
-            </StackPanel>
-
             <!-- 信息卡片 -->
             <Border ClipToBounds="True"
                     CornerRadius="4"
@@ -51,8 +69,9 @@
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock>
-                                <Run Text="SystemTools  " FontSize="24" />
+                                <Run Text="SystemTools " FontSize="24" />
                                 <Run Text="{Binding PluginVersion}" />
+                                <Run Text=" - Hoshimi Miyabi" />
                             </TextBlock>
                             <TextBlock Text="Copyright © 2026 Programmer_Wang"
                                        FontSize="12"
@@ -171,5 +190,5 @@
                 </Grid>
             </Border>
         </StackPanel>
-    </ScrollViewer>
+    </ciControls:StickyScrollViewer>
 </ci:SettingsPageBase>

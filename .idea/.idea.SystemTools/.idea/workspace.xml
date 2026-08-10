@@ -15,7 +15,8 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/AboutSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AboutSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/manifest.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -146,6 +147,7 @@
       <workItem from="1786197834806" duration="4495000" />
       <workItem from="1786293353782" duration="171000" />
       <workItem from="1786350940634" duration="4422000" />
+      <workItem from="1786364246595" duration="2731000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />

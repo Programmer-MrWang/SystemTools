@@ -4,8 +4,8 @@
 # 插件清单格式：https://docs.classisland.tech/zh-cn/latest/dev/plugins/create-project/#%E6%8F%92%E4%BB%B6%E6%B8%85%E5%8D%95%E6%96%87%E4%BB%B6
 
 id: SystemTools
-name: SystemTools（Hoshimi Miyabi）
-description: 提供多彩而丰富的更多 组件/行动/触发器/实用工具
+name: SystemTools - Hoshimi Miyabi
+description: 提供多彩而丰富的更多 组件/行动/规则集/触发器/实用工具/AI功能
 entranceAssembly: "SystemTools.dll"
 url: https://github.com/Programmer-MrWang/SystemTools
 version: 3.0.0.0

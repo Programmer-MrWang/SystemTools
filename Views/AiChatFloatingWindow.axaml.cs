@@ -29,6 +29,7 @@ namespace SystemTools.Views;
 public partial class AiChatFloatingWindow : Window
 {
     private const double BottomTolerance = 12;
+    private const int AdaptiveThemeRefreshStride = 8;
 
     private bool _isDisposed;
     private bool _isAtConversationBottom = true;
@@ -44,6 +45,42 @@ public partial class AiChatFloatingWindow : Window
     private CancellationTokenSource? _glassCaptureCancellation;
     private Task? _glassCaptureTask;
     private bool _glassCaptureErrorReported;
+    private int _adaptiveThemeRefreshCount;
+    private ThemeVariant? _adaptiveThemeVariant;
+
+    public static readonly DirectProperty<AiChatFloatingWindow, bool> IsLiquidGlassContentVisibleProperty =
+        AvaloniaProperty.RegisterDirect<AiChatFloatingWindow, bool>(
+            nameof(IsLiquidGlassContentVisible),
+            window => window._isLiquidGlassContentVisible);
+
+    public static readonly DirectProperty<AiChatFloatingWindow, bool> IsClassicConversationSurfaceVisibleProperty =
+        AvaloniaProperty.RegisterDirect<AiChatFloatingWindow, bool>(
+            nameof(IsClassicConversationSurfaceVisible),
+            window => window._isClassicConversationSurfaceVisible);
+
+    private bool _isLiquidGlassContentVisible;
+    private bool _isClassicConversationSurfaceVisible = true;
+
+    /// <summary>
+    /// True only after a liquid-glass backdrop is available for the current window.
+    /// The message templates use this to switch between the material and classic layers.
+    /// </summary>
+    public bool IsLiquidGlassContentVisible
+    {
+        get => _isLiquidGlassContentVisible;
+        private set => SetAndRaise(IsLiquidGlassContentVisibleProperty, ref _isLiquidGlassContentVisible, value);
+    }
+
+    public bool IsClassicConversationSurfaceVisible
+    {
+        get => _isClassicConversationSurfaceVisible;
+        private set => SetAndRaise(
+            IsClassicConversationSurfaceVisibleProperty,
+            ref _isClassicConversationSurfaceVisible,
+            value);
+    }
+
+    public LiquidGlassSettings ConversationGlassSettings => _configHandler.Data.AiConversationLiquidGlass;
 
     public AiChatFloatingWindow()
         : this(
@@ -88,6 +125,7 @@ public partial class AiChatFloatingWindow : Window
             ConfirmActionExecutionAsync);
         DataContext = ViewModel;
         InitializeComponent();
+        RequestedThemeVariant = Application.Current?.ActualThemeVariant ?? ThemeVariant.Light;
         _liquidGlassCaptureTimer = new DispatcherTimer(
             TimeSpan.FromMilliseconds(_configHandler.Data.AiConversationLiquidGlass.BackdropRefreshIntervalMs),
             DispatcherPriority.Background,
@@ -142,6 +180,7 @@ public partial class AiChatFloatingWindow : Window
 
         Dispatcher.UIThread.Post(() =>
         {
+            _adaptiveThemeRefreshCount = 0;
             ApplyLiquidGlassAppearance();
             UpdateLiquidGlassCaptureLoop();
         });
@@ -152,8 +191,7 @@ public partial class AiChatFloatingWindow : Window
         _liquidGlassCaptureTimer.Interval = TimeSpan.FromMilliseconds(
             _configHandler.Data.AiConversationLiquidGlass.BackdropRefreshIntervalMs);
         var shouldCapture = !_isDisposed &&
-                            IsVisible &&
-                            _configHandler.Data.AiConversationFloatingWindowStyle == 1;
+                            IsVisible;
         if (shouldCapture)
         {
             _continuousCaptureLease ??= _backgroundCaptureService.BeginContinuousCapture();
@@ -183,7 +221,7 @@ public partial class AiChatFloatingWindow : Window
     private void QueueLiquidGlassBackdropCapture()
     {
         if (_isDisposed || !IsVisible ||
-            _configHandler.Data.AiConversationFloatingWindowStyle != 1)
+            !OperatingSystem.IsWindows())
         {
             return;
         }
@@ -213,8 +251,7 @@ public partial class AiChatFloatingWindow : Window
                 _glassCaptureTask = null;
                 _glassCaptureCancellation?.Dispose();
                 _glassCaptureCancellation = null;
-                if (_isDisposed || !IsVisible ||
-                    _configHandler.Data.AiConversationFloatingWindowStyle != 1)
+                if (_isDisposed || !IsVisible)
                 {
                     ReleaseLiquidGlassBackdrops();
                 }
@@ -242,9 +279,18 @@ public partial class AiChatFloatingWindow : Window
 
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                if (_isDisposed || cancellationToken.IsCancellationRequested ||
-                    _configHandler.Data.AiConversationFloatingWindowStyle != 1)
+                if (_isDisposed || cancellationToken.IsCancellationRequested)
                 {
+                    return;
+                }
+
+                _glassCaptureErrorReported = false;
+                UpdateAdaptiveTheme(frame);
+
+                if (_configHandler.Data.AiConversationFloatingWindowStyle != 1)
+                {
+                    ReleaseLiquidGlassBackdropImages();
+                    ApplyLiquidGlassAppearance();
                     return;
                 }
 
@@ -258,7 +304,6 @@ public partial class AiChatFloatingWindow : Window
                 _liquidGlassBackdrop = bitmap;
                 _liquidGlassSpareBackdrop = previous;
                 LiquidGlassBackdropImage.Source = bitmap;
-                _glassCaptureErrorReported = false;
                 ApplyLiquidGlassAppearance();
             });
         }
@@ -270,7 +315,7 @@ public partial class AiChatFloatingWindow : Window
             if (!_glassCaptureErrorReported)
             {
                 _glassCaptureErrorReported = true;
-                ViewModel.ReportError($"液态玻璃背景捕获失败：{ex.Message}");
+                ViewModel.ReportError($"背景捕获失败：{ex.Message}");
             }
         }
     }
@@ -288,11 +333,22 @@ public partial class AiChatFloatingWindow : Window
         _liquidGlassSpareBackdrop = null;
     }
 
+    private void ReleaseLiquidGlassBackdropImages()
+    {
+        LiquidGlassBackdropImage.Source = null;
+        _liquidGlassBackdrop?.Dispose();
+        _liquidGlassBackdrop = null;
+        _liquidGlassSpareBackdrop?.Dispose();
+        _liquidGlassSpareBackdrop = null;
+    }
+
     private void ApplyLiquidGlassAppearance()
     {
         var settings = _configHandler.Data.AiConversationLiquidGlass;
         var useLiquidGlass = _configHandler.Data.AiConversationFloatingWindowStyle == 1 &&
                              _liquidGlassBackdrop is not null;
+        IsLiquidGlassContentVisible = useLiquidGlass;
+        IsClassicConversationSurfaceVisible = !useLiquidGlass;
         var cornerRadius = new CornerRadius(settings.CornerRadius);
         LiquidGlassBackdropClip.CornerRadius = cornerRadius;
         LiquidGlassSurface.CornerRadius = cornerRadius;
@@ -340,6 +396,34 @@ public partial class AiChatFloatingWindow : Window
         LiquidGlassSurface.InnerShadowOffset = new Vector(settings.InnerShadowOffsetX, settings.InnerShadowOffsetY);
         LiquidGlassSurface.InnerShadowColor = ParseColor(settings.InnerShadowColor, Color.FromArgb(38, 0, 0, 0));
         LiquidGlassSurface.InnerShadowOpacity = settings.InnerShadowOpacity;
+    }
+
+    private void UpdateAdaptiveTheme(MainWindowBackgroundFrame frame)
+    {
+        _adaptiveThemeRefreshCount++;
+        if (_adaptiveThemeRefreshCount < AdaptiveThemeRefreshStride)
+        {
+            return;
+        }
+
+        _adaptiveThemeRefreshCount = 0;
+        var luminance = BackgroundLuminanceCalculator.CalculateAverage(frame);
+        if (luminance is null)
+        {
+            return;
+        }
+
+        var nextTheme = luminance < BackgroundLuminanceCalculator.DarkThreshold
+            ? ThemeVariant.Dark
+            : ThemeVariant.Light;
+        if (Equals(_adaptiveThemeVariant, nextTheme))
+        {
+            return;
+        }
+
+        _adaptiveThemeVariant = nextTheme;
+        RequestedThemeVariant = nextTheme;
+        ApplyLiquidGlassAppearance();
     }
 
     private static Color ParseColor(string value, Color fallback) =>

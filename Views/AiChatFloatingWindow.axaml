@@ -29,16 +29,19 @@
                     <SolidColorBrush x:Key="AiChatWindowBackgroundBrush" Color="#80FFFFFF" />
                     <SolidColorBrush x:Key="AiChatSurfaceBrush" Color="#C2C9D1" />
                     <SolidColorBrush x:Key="AiChatSurfaceForegroundBrush" Color="#000000" />
+                    <Color x:Key="AiChatGlassSurfaceColor">#55FFFFFF</Color>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="AiChatWindowBackgroundBrush" Color="#80000000" />
                     <SolidColorBrush x:Key="AiChatSurfaceBrush" Color="#4D5155" />
                     <SolidColorBrush x:Key="AiChatSurfaceForegroundBrush" Color="#FFFFFF" />
+                    <Color x:Key="AiChatGlassSurfaceColor">#553A3A3A</Color>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Default">
                     <SolidColorBrush x:Key="AiChatWindowBackgroundBrush" Color="#80FFFFFF" />
                     <SolidColorBrush x:Key="AiChatSurfaceBrush" Color="#C2C9D1" />
                     <SolidColorBrush x:Key="AiChatSurfaceForegroundBrush" Color="#000000" />
+                    <Color x:Key="AiChatGlassSurfaceColor">#55FFFFFF</Color>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
@@ -136,9 +139,18 @@
                                                     HorizontalAlignment="Right"
                                                     MaxWidth="650"
                                                     Spacing="2">
-                                            <Border Padding="12,9"
-                                                    CornerRadius="6"
-                                                    Background="{DynamicResource AccentFillColorSecondaryBrush}">
+                                            <Grid>
+                                                <Border CornerRadius="6"
+                                                        Background="{DynamicResource AccentFillColorSecondaryBrush}"
+                                                        IsVisible="{Binding IsClassicConversationSurfaceVisible, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                <controls:AiChatGlassSurface CornerRadius="6"
+                                                                               IsHitTestVisible="False"
+                                                                               IsVisible="{Binding IsLiquidGlassContentVisible, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                               Settings="{Binding ConversationGlassSettings, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                               SurfaceColor="{DynamicResource AiChatGlassSurfaceColor}" />
+                                                <Border Padding="12,9"
+                                                        CornerRadius="6"
+                                                        Background="Transparent">
                                                 <StackPanel Spacing="5">
                                                     <ItemsControl ItemsSource="{Binding Attachments}"
                                                                   IsVisible="{Binding HasAttachments}">
@@ -153,7 +165,7 @@
                                                                         Padding="6"
                                                                         CornerRadius="4"
                                                                         BorderThickness="1"
-                                                                        BorderBrush="{DynamicResource TextOnAccentFillColorSecondaryBrush}">
+                                                                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
                                                                     <Grid Width="180" ColumnDefinitions="Auto,*">
                                                                         <Border Width="52"
                                                                                 Height="52"
@@ -169,7 +181,7 @@
                                                                                        FontSize="24"
                                                                                        HorizontalAlignment="Center"
                                                                                        VerticalAlignment="Center"
-                                                                                       Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}"
+                                                                                       Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
                                                                                        IsVisible="{Binding IsFile}" />
                                                                         <StackPanel Grid.Column="1"
                                                                                     Margin="8,0,0,0"
@@ -178,10 +190,10 @@
                                                                                        MaxLines="2"
                                                                                        TextWrapping="Wrap"
                                                                                        TextTrimming="CharacterEllipsis"
-                                                                                       Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                                                                       Foreground="{DynamicResource AiChatSurfaceForegroundBrush}" />
                                                                             <TextBlock Text="{Binding DetailText}"
                                                                                        FontSize="11"
-                                                                                       Foreground="{DynamicResource TextOnAccentFillColorSecondaryBrush}" />
+                                                                                       Foreground="{DynamicResource AiChatSurfaceForegroundBrush}" />
                                                                         </StackPanel>
                                                                     </Grid>
                                                                 </Border>
@@ -191,18 +203,22 @@
                                                     <TextBlock Text="{Binding Content}"
                                                                IsVisible="{Binding IsNotEditing}"
                                                                TextWrapping="Wrap"
-                                                               Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}" />
+                                                               Foreground="{DynamicResource AiChatSurfaceForegroundBrush}" />
                                                     <TextBox MinWidth="260"
                                                              MaxWidth="620"
                                                              MinHeight="52"
                                                              MaxHeight="180"
                                                              AcceptsReturn="True"
                                                              TextWrapping="Wrap"
+                                                             Background="Transparent"
+                                                             BorderThickness="0"
+                                                             Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
                                                              IsVisible="{Binding IsEditing}"
                                                              Text="{Binding DraftContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                              KeyDown="EditedMessageInput_OnKeyDown" />
                                                 </StackPanel>
-                                            </Border>
+                                                </Border>
+                                            </Grid>
                                             <StackPanel Orientation="Horizontal"
                                                         HorizontalAlignment="Right"
                                                         Spacing="2">
@@ -245,20 +261,28 @@
                                             </StackPanel>
                                         </StackPanel>
 
-                                        <Border IsVisible="{Binding IsAssistant}"
-                                                HorizontalAlignment="Stretch"
-                                                Padding="14,10"
-                                                CornerRadius="6"
-                                                Background="{DynamicResource AiChatSurfaceBrush}">
-                                            <Border.Styles>
-                                                <Style Selector="TextBlock">
-                                                    <Setter Property="Foreground" Value="{DynamicResource AiChatSurfaceForegroundBrush}" />
-                                                </Style>
-                                                <Style Selector="SelectableTextBlock">
-                                                    <Setter Property="Foreground" Value="{DynamicResource AiChatSurfaceForegroundBrush}" />
-                                                </Style>
-                                            </Border.Styles>
-                                            <StackPanel Spacing="4">
+                                        <Grid IsVisible="{Binding IsAssistant}"
+                                              HorizontalAlignment="Stretch">
+                                            <Border CornerRadius="6"
+                                                    Background="{DynamicResource AiChatSurfaceBrush}"
+                                                    IsVisible="{Binding IsClassicConversationSurfaceVisible, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                            <controls:AiChatGlassSurface CornerRadius="6"
+                                                                           IsHitTestVisible="False"
+                                                                           IsVisible="{Binding IsLiquidGlassContentVisible, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                           Settings="{Binding ConversationGlassSettings, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                           SurfaceColor="{DynamicResource AiChatGlassSurfaceColor}" />
+                                            <Border Padding="14,10"
+                                                    CornerRadius="6"
+                                                    Background="Transparent">
+                                                <Border.Styles>
+                                                    <Style Selector="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource AiChatSurfaceForegroundBrush}" />
+                                                    </Style>
+                                                    <Style Selector="SelectableTextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource AiChatSurfaceForegroundBrush}" />
+                                                    </Style>
+                                                </Border.Styles>
+                                                <StackPanel Spacing="4">
                                                 <TextBlock Text="AI"
                                                            FontSize="12"
                                                            FontWeight="SemiBold"
@@ -297,8 +321,9 @@
                                                             Theme="{StaticResource TransparentButton}"
                                                             Click="RetryMessageButton_OnClick" />
                                                 </StackPanel>
-                                            </StackPanel>
-                                        </Border>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -327,14 +352,22 @@
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource SystemFillColorCriticalBrush}" />
 
-                <Border Grid.Row="2"
-                        Margin="8,0,8,8"
-                        Padding="10,8"
-                        CornerRadius="6"
-                        BorderThickness="1"
-                        BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
-                        Background="{DynamicResource AiChatSurfaceBrush}">
-                    <Grid RowDefinitions="Auto,*,Auto">
+                <Grid Grid.Row="2"
+                      Margin="8,0,8,8">
+                    <Border CornerRadius="6"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                            Background="{DynamicResource AiChatSurfaceBrush}"
+                            IsVisible="{Binding IsClassicConversationSurfaceVisible, RelativeSource={RelativeSource AncestorType=Window}}" />
+                    <controls:AiChatGlassSurface CornerRadius="6"
+                                                   IsHitTestVisible="False"
+                                                   IsVisible="{Binding IsLiquidGlassContentVisible, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                   Settings="{Binding ConversationGlassSettings, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                   SurfaceColor="{DynamicResource AiChatGlassSurfaceColor}" />
+                    <Border Padding="10,8"
+                            CornerRadius="6"
+                            Background="Transparent">
+                        <Grid RowDefinitions="Auto,*,Auto">
                         <ScrollViewer MaxHeight="116"
                                       Margin="0,0,0,6"
                                       HorizontalScrollBarVisibility="Disabled"
@@ -443,6 +476,7 @@
                             <Button Grid.Column="3"
                                     Width="36"
                                     Height="36"
+                                    Margin="4,0,0,0"
                                     Padding="0"
                                     ToolTip.Tip="{Binding VoiceInputToolTip}"
                                     IsEnabled="{Binding CanToggleVoiceInput}"
@@ -463,6 +497,7 @@
                             <Button Grid.Column="4"
                                     Width="36"
                                     Height="36"
+                                    Margin="4,0,0,0"
                                     Padding="0"
                                     ToolTip.Tip="发送"
                                     Foreground="{DynamicResource AiChatSurfaceForegroundBrush}"
@@ -474,6 +509,7 @@
                             <Button Grid.Column="5"
                                     Width="36"
                                     Height="36"
+                                    Margin="4,0,0,0"
                                     Padding="0"
                                     Content="{ci:FluentIcon &#xEE67;}"
                                     ToolTip.Tip="停止生成"
@@ -482,8 +518,9 @@
                                     IsEnabled="{Binding IsGenerating}"
                                     Click="StopButton_OnClick" />
                         </Grid>
-                    </Grid>
-                </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
 
                 <TextBlock Grid.Row="3"
                            Margin="8,0,8,0"

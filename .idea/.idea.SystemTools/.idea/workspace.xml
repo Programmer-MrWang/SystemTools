@@ -14,35 +14,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/Actions/AutoHideMainWindowWhenOccludedAction.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Actions/AutoOpenUsbDriveOnInsertAction.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Actions/AutoSwitchClassIslandThemeAction.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/AiChatGlassSurface.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/AutoHideMainWindowWhenOccludedActionSettingsControl.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/AutoOpenUsbDriveOnInsertActionSettingsControl.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/AutoSwitchClassIslandThemeActionSettingsControl.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Settings/AutoHideMainWindowWhenOccludedActionSettings.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Settings/AutoOpenUsbDriveOnInsertActionSettings.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Settings/AutoSwitchClassIslandThemeActionSettings.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Actions/BackgroundPlayAudioAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/BackgroundPlayAudioAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Actions/ClearAllNotificationsAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ClearAllNotificationsAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Actions/ShowFloatingWindowAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ShowFloatingWindowAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Actions/SwitchFloatingWindowThemeAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/SwitchFloatingWindowThemeAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Actions/ToggleFloatingWindowLayerAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ToggleFloatingWindowLayerAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Actions/ToggleFloatingWindowProfileAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ToggleFloatingWindowProfileAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/AdjustScreenBrightnessSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/AdjustScreenBrightnessSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/BackgroundPlayAudioSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/BackgroundPlayAudioSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/CameraCaptureSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/CameraCaptureSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/CopySettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/CopySettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/DeleteSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/DeleteSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/DisableDeviceSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/DisableDeviceSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/EnableDeviceSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/EnableDeviceSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/KillProcessSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/KillProcessSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/MoveSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/MoveSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/ProcessRunningRuleSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/ProcessRunningRuleSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/ScreenShotSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/ScreenShotSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/SetVolumeSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/SetVolumeSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/ShowToastSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/ShowToastSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/SimulateKeyboardSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/SimulateKeyboardSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/SimulateMouseSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/SimulateMouseSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/TriggerCustomTriggerSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/TriggerCustomTriggerSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/TypeContentSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/TypeContentSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/WallpaperSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/WallpaperSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Settings/ActionInProgressTriggerSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/ActionInProgressTriggerSettings.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Settings/FloatingWindowTriggerSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/FloatingWindowTriggerSettings.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Triggers/KeywordTriggerSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Triggers/KeywordTriggerSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Actions/ToggleWorkflowAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ToggleWorkflowAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiChatFloatingWindow.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +57,7 @@
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="SWEA" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -169,7 +157,9 @@
       <workItem from="1786089087859" duration="89000" />
       <workItem from="1786109393201" duration="7115000" />
       <workItem from="1786152599547" duration="14866000" />
-      <workItem from="1786197834806" duration="4159000" />
+      <workItem from="1786197834806" duration="4495000" />
+      <workItem from="1786293353782" duration="171000" />
+      <workItem from="1786350940634" duration="2356000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -499,7 +489,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786201666983</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="fix: 批量整改警告问题">
+      <option name="closed" value="true" />
+      <created>1786204123195</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1786204123195</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -520,7 +518,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix: 修正未正常释放资源的问题。" />
     <MESSAGE value="feat: 新增文档与图片上传功能" />
     <MESSAGE value="fix: 修正对于某些非标准api的不兼容问题" />
     <MESSAGE value="feat: 新增允许语音调用修改档案和课表，并添加了调试规则。" />
@@ -545,7 +542,8 @@
     <MESSAGE value="feat: 实现液态玻璃模式下AI语音对话框中审批按钮的玻璃效果" />
     <MESSAGE value="fix: 修改设置页面的提示与布局" />
     <MESSAGE value="feat: 补充模型下载提示" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 补充模型下载提示" />
+    <MESSAGE value="fix: 批量整改警告问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 批量整改警告问题" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

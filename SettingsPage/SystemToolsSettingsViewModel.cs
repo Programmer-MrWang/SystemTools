@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using Avalonia.Threading;
@@ -273,6 +273,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.SwitchTheme", "切换主题色", "系统个性化"),
             //("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "系统个性化"),
             ("SystemTools.FullscreenClock", "沉浸式时钟", "其他工具"),
+            ("SystemTools.AutoSwitchClassIslandTheme", "自动切换 ClassIsland 主题", "更多功能选项…"),
+            ("SystemTools.AutoHideMainWindowWhenOccluded", "遮挡文字时隐藏主界面", "更多功能选项…"),
+            ("SystemTools.AutoOpenUsbDriveOnInsert", "自动播放", "更多功能选项…"),
             ("SystemTools.KillProcess", "退出进程", "实用工具"),
             ("SystemTools.ScreenShot", "屏幕截图", "实用工具"),
             ("SystemTools.ShowToast", "拉起自定义Windows通知", "实用工具"),
@@ -281,20 +284,21 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.SetVolume", "设置系统音量", "媒体工具"),
             ("SystemTools.BackgroundPlayAudio", "后台播放音频", "媒体工具"),
             ("SystemTools.CameraCapture", "摄像头抓拍", "媒体工具"),
-            ("SystemTools.TriggerCustomTrigger", "触发指定触发器", null),
-            ("SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", null),
+            ("SystemTools.TriggerCustomTrigger", "触发指定触发器", "高级自动化工具…"),
+            ("SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", "高级自动化工具…"),
             ("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "ClassIsland"),
             ("SystemTools.ClearAllNotifications", "清除全部提醒", "ClassIsland"),
             ("SystemTools.LoadTemporaryClassPlan", "加载临时课表", "ClassIsland"),
             ("SystemTools.OpenAppSettings", "打开应用设置", "ClassIsland"),
             ("SystemTools.OpenProfileEditor", "打开档案编辑", "ClassIsland"),
             ("SystemTools.OpenClassSwapWindow", "打开换课窗口", "ClassIsland"),
-            ("SystemTools.ToggleWorkflow", "开关自动化", "ClassIsland"),
+            ("SystemTools.ToggleWorkflow", "开关自动化", "高级自动化工具…"),
         };
 
         if (Settings.EnableAiService)
         {
-            actions.Add(("SystemTools.ShowAiChatDialog", "显示AI对话框", null));
+            actions.Add(("SystemTools.EnableVoiceWakeAi", "启用语音唤醒 AI", "AI 功能…"));
+            actions.Add(("SystemTools.ShowAiChatDialog", "显示AI对话框", "AI 功能…"));
         }
 
         if (Settings.EnableFloatingWindowFeature)
@@ -302,6 +306,13 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             actions.Add(("SystemTools.ShowFloatingWindow", "显示悬浮窗", "悬浮窗设置"));
             actions.Add(("SystemTools.ToggleFloatingWindowLayer", "切换悬浮窗层级", "悬浮窗设置"));
             actions.Add(("SystemTools.ToggleFloatingWindowProfile", "切换悬浮窗配置方案", "悬浮窗设置"));
+            actions.Add(("SystemTools.SwitchFloatingWindowTheme", "切换悬浮窗主题", "悬浮窗设置"));
+        }
+
+        if (Settings.EnableExperimentalFeatures)
+        {
+            actions.Add(("SystemTools.DisableMouse", "禁用鼠标", "实验性功能…"));
+            actions.Add(("SystemTools.EnableMouse", "启用鼠标", "实验性功能…"));
         }
 
         foreach (var (id, name, group) in actions)

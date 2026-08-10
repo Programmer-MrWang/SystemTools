@@ -12,7 +12,7 @@ using Workflow = ClassIsland.Core.Models.Automation.Workflow;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.ToggleWorkflow", "开关自动化", "\uE8B8", false)]
+[ActionInfo("SystemTools.ToggleWorkflow", "开关自动化", "\uE051", false)]
 public class ToggleWorkflowAction(ILogger<ToggleWorkflowAction> logger) : ActionBase<ToggleWorkflowSettings>
 {
     private readonly ILogger<ToggleWorkflowAction> _logger = logger;

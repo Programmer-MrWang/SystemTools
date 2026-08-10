@@ -6,7 +6,7 @@ using SystemTools.Services;
 
 namespace SystemTools.Actions;
 
-[ActionInfo("SystemTools.ShowAiChatDialog", "显示AI对话框", "\uEFFF", false)]
+[ActionInfo("SystemTools.ShowAiChatDialog", "显示AI对话框", "\uE8C3", false)]
 public class ShowAiChatDialogAction(
     ILogger<ShowAiChatDialogAction> logger,
     AiChatWindowService aiChatWindowService) : ActionBase

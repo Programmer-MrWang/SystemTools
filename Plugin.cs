@@ -338,6 +338,14 @@ public partial class Plugin : PluginBase
         RegisterActionIfEnabled<FullscreenClockAction, FullscreenClockSettingsControl>(services, config,
             "SystemTools.FullscreenClock");
 
+        // 更多功能选项
+        RegisterActionIfEnabled<AutoSwitchClassIslandThemeAction, AutoSwitchClassIslandThemeActionSettingsControl>(services, config,
+            "SystemTools.AutoSwitchClassIslandTheme");
+        RegisterActionIfEnabled<AutoHideMainWindowWhenOccludedAction, AutoHideMainWindowWhenOccludedActionSettingsControl>(services, config,
+            "SystemTools.AutoHideMainWindowWhenOccluded");
+        RegisterActionIfEnabled<AutoOpenUsbDriveOnInsertAction, AutoOpenUsbDriveOnInsertActionSettingsControl>(services, config,
+            "SystemTools.AutoOpenUsbDriveOnInsert");
+
         // 独立行动
         RegisterActionIfEnabled<TriggerCustomTriggerAction, TriggerCustomTriggerSettingsControl>(services, config,
             "SystemTools.TriggerCustomTrigger");
@@ -352,6 +360,8 @@ public partial class Plugin : PluginBase
             services, config, "SystemTools.ActionFlowExecutionConfirmation");
         if (config.EnableAiService)
         {
+            RegisterActionIfEnabled<EnableVoiceWakeAiAction, EnableVoiceWakeAiActionSettingsControl>(services, config,
+                "SystemTools.EnableVoiceWakeAi");
             RegisterActionIfEnabled<ShowAiChatDialogAction>(services, config, "SystemTools.ShowAiChatDialog");
         }
     }
@@ -557,7 +567,7 @@ public partial class Plugin : PluginBase
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("系统个性化…", "\uF42F"));
             BuildPersonalizationMenu(config);
         }
-
+        
         // 实用工具
         if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.ScreenShot", "SystemTools.KillProcess",
                 "SystemTools.EnableDevice", "SystemTools.DisableDevice", "SystemTools.ShowToast"))
@@ -565,21 +575,7 @@ public partial class Plugin : PluginBase
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("实用工具…", "\uE352"));
             BuildUtilityMenu(config);
         }
-
-        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.BackgroundPlayAudio", "SystemTools.SetVolume", "SystemTools.ShowDesktop"))
-        {
-            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("媒体工具…", "\uE342"));
-            BuildMediaToolsMenu(config);
-        }
-
-        if (HasAnyActionEnabled(config, "SystemTools.ClearAllNotifications", "SystemTools.RestartAsAdmin",
-                "SystemTools.LoadTemporaryClassPlan", "SystemTools.OpenAppSettings",
-                "SystemTools.OpenProfileEditor", "SystemTools.OpenClassSwapWindow","SystemTools.ToggleWorkflow"))
-        {
-            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("ClassIsland…", "\uE5CB"));
-            BuildClassIslandMenu(config);
-        }
-
+        
         // 悬浮窗设置
         if (config.EnableFloatingWindowFeature && HasAnyActionEnabled(config, "SystemTools.ShowFloatingWindow",
                 "SystemTools.ToggleFloatingWindowLayer", "SystemTools.ToggleFloatingWindowProfile",
@@ -587,6 +583,37 @@ public partial class Plugin : PluginBase
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("悬浮窗设置…", "\uEA37"));
             BuildFloatingWindowMenu(config);
+        }
+        
+        // 媒体工具
+        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.BackgroundPlayAudio", "SystemTools.SetVolume", "SystemTools.ShowDesktop"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("媒体工具…", "\uE342"));
+            BuildMediaToolsMenu(config);
+        }
+        
+        // 更多功能选项
+        if (HasAnyActionEnabled(config, "SystemTools.AutoSwitchClassIslandTheme",
+                "SystemTools.AutoHideMainWindowWhenOccluded", "SystemTools.AutoOpenUsbDriveOnInsert"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("更多功能选项…", "\uE28E"));
+            BuildMoreFeaturesMenu(config);
+        }
+        
+        // 高级自动化工具
+        if (HasAnyActionEnabled(config, "SystemTools.ActionFlowExecutionConfirmation",
+                "SystemTools.TriggerCustomTrigger", "SystemTools.ToggleWorkflow"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("高级自动化工具…", "\uE01F"));
+            BuildAdvancedAutomationMenu(config);
+        }
+
+        // AI 功能
+        if (config.EnableAiService && HasAnyActionEnabled(config, "SystemTools.EnableVoiceWakeAi",
+                "SystemTools.ShowAiChatDialog"))
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("AI 功能…", "\uEFFF"));
+            BuildAiMenu(config);
         }
 
         // 其他工具
@@ -596,21 +623,15 @@ public partial class Plugin : PluginBase
             BuildOtherMenu(config);
         }
 
-        // 独立行动项
-        var standaloneActions = new List<ActionMenuTreeItem>();
-        if (config.IsActionEnabled("SystemTools.TriggerCustomTrigger"))
-            standaloneActions.Add(new ActionMenuTreeItem("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7"));
-        if (config.IsActionEnabled("SystemTools.ActionFlowExecutionConfirmation"))
-            standaloneActions.Add(new ActionMenuTreeItem(
-                "SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", "\uE01D"));
-        if (config.EnableAiService && config.IsActionEnabled("SystemTools.ShowAiChatDialog"))
-            standaloneActions.Add(new ActionMenuTreeItem(
-                "SystemTools.ShowAiChatDialog", "显示AI对话框", "\uEFFF"));
-
-        if (standaloneActions.Count > 0)
+        // ClassIsland
+        if (HasAnyActionEnabled(config, "SystemTools.ClearAllNotifications", "SystemTools.RestartAsAdmin",
+                "SystemTools.LoadTemporaryClassPlan", "SystemTools.OpenAppSettings",
+                "SystemTools.OpenProfileEditor", "SystemTools.OpenClassSwapWindow"))
         {
-            IActionService.ActionMenuTree["SystemTools 行动"].AddRange(standaloneActions);
+            IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("ClassIsland…", "\uE5CB"));
+            BuildClassIslandMenu(config);
         }
+
     }
 
     private bool HasAnyActionEnabled(MainConfigData config, params string[] actionIds)
@@ -806,6 +827,55 @@ public partial class Plugin : PluginBase
         }
     }
 
+    private void BuildMoreFeaturesMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.IsActionEnabled("SystemTools.AutoSwitchClassIslandTheme"))
+            items.Add(new ActionMenuTreeItem("SystemTools.AutoSwitchClassIslandTheme", "自动切换 ClassIsland 主题", "\uE5CB"));
+        if (config.IsActionEnabled("SystemTools.AutoHideMainWindowWhenOccluded"))
+            items.Add(new ActionMenuTreeItem("SystemTools.AutoHideMainWindowWhenOccluded", "遮挡文字时隐藏主界面", "\uEEE3"));
+        if (config.IsActionEnabled("SystemTools.AutoOpenUsbDriveOnInsert"))
+            items.Add(new ActionMenuTreeItem("SystemTools.AutoOpenUsbDriveOnInsert", "自动播放", "\uEE81"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["更多功能选项…"].AddRange(items);
+        }
+    }
+
+    private void BuildAdvancedAutomationMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.IsActionEnabled("SystemTools.ActionFlowExecutionConfirmation"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", "\uE01D"));
+        if (config.IsActionEnabled("SystemTools.TriggerCustomTrigger"))
+            items.Add(new ActionMenuTreeItem("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7"));
+        if (config.IsActionEnabled("SystemTools.ToggleWorkflow"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ToggleWorkflow", "开关自动化", "\uE051"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["高级自动化工具…"].AddRange(items);
+        }
+    }
+
+    private void BuildAiMenu(MainConfigData config)
+    {
+        var items = new List<ActionMenuTreeItem>();
+
+        if (config.EnableAiService && config.IsActionEnabled("SystemTools.EnableVoiceWakeAi"))
+            items.Add(new ActionMenuTreeItem("SystemTools.EnableVoiceWakeAi", "启用语音唤醒 AI", "\uED53"));
+        if (config.EnableAiService && config.IsActionEnabled("SystemTools.ShowAiChatDialog"))
+            items.Add(new ActionMenuTreeItem("SystemTools.ShowAiChatDialog", "显示AI对话框", "\uE8C3"));
+
+        if (items.Count > 0)
+        {
+            IActionService.ActionMenuTree["SystemTools 行动"]["AI 功能…"].AddRange(items);
+        }
+    }
+
     private void BuildClassIslandMenu(MainConfigData config)
     {
         var items = new List<ActionMenuTreeItem>();
@@ -822,8 +892,7 @@ public partial class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.OpenProfileEditor", "打开档案编辑", "\uE699"));
         if (config.IsActionEnabled("SystemTools.OpenClassSwapWindow"))
             items.Add(new ActionMenuTreeItem("SystemTools.OpenClassSwapWindow", "打开换课窗口", "\uE13B"));
-        if (config.IsActionEnabled("SystemTools.ToggleWorkflow"))
-            items.Add(new ActionMenuTreeItem("SystemTools.ToggleWorkflow", "开关自动化", "\uE8B8"));    
+
 
         if (items.Count > 0)
         {

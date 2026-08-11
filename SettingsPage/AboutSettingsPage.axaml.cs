@@ -14,6 +14,7 @@ using System.IO;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Shared;
+using SystemTools.Services;
 using SystemTools.Shared;
 
 namespace SystemTools;
@@ -25,6 +26,7 @@ public partial class AboutSettingsPage : SettingsPageBase
     private const int PluginDebugClickThreshold = 5;
 
     private int _pluginCardClickCount;
+    private readonly AboutTitleImageCacheService? _titleImageCacheService;
 
     public AboutSettingsViewModel ViewModel { get; }
 
@@ -33,9 +35,58 @@ public partial class AboutSettingsPage : SettingsPageBase
         ViewModel = new AboutSettingsViewModel();
         DataContext = ViewModel;
         InitializeComponent();
+        _titleImageCacheService = IAppHost.TryGetService<AboutTitleImageCacheService>();
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
         LoadPluginIcon();
 
         CheckAutoSwitchTab();
+    }
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (_titleImageCacheService == null)
+        {
+            LoadTitleImage(Path.Combine(GlobalConstants.Information.PluginFolder, "title.png"));
+            return;
+        }
+
+        _titleImageCacheService.ImagePathChanged -= OnTitleImagePathChanged;
+        _titleImageCacheService.ImagePathChanged += OnTitleImagePathChanged;
+        LoadTitleImage(_titleImageCacheService.CurrentImagePath);
+    }
+
+    private void OnUnloaded(object? sender, RoutedEventArgs e)
+    {
+        if (_titleImageCacheService != null)
+        {
+            _titleImageCacheService.ImagePathChanged -= OnTitleImagePathChanged;
+        }
+    }
+
+    private void OnTitleImagePathChanged(object? sender, string imagePath)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => LoadTitleImage(imagePath));
+    }
+
+    private void LoadTitleImage(string imagePath)
+    {
+        try
+        {
+            if (!File.Exists(imagePath))
+            {
+                return;
+            }
+
+            var bitmap = new Bitmap(imagePath);
+            var previousBitmap = TitleImage.Source as Bitmap;
+            TitleImage.Source = bitmap;
+            previousBitmap?.Dispose();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"加载关于页顶部图像失败: {ex.Message}");
+        }
     }
     
     private void UriNavigationCommands_OnClick(object sender, RoutedEventArgs e)

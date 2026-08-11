@@ -11,7 +11,6 @@
       <None Remove="VoskWorker\**" />
       <None Remove="cipx\**" />
       <None Remove="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
-      <AvaloniaResource Include="title.png" />
       <AvaloniaResource Include="Themes\CardTypeComponent\Theme.axaml.txt" />
       <AvaloniaResource Include="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
     </ItemGroup>
@@ -65,6 +64,9 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="icon.png">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="title.png">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
         <None Update="black.html">

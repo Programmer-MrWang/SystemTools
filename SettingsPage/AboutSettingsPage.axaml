@@ -27,7 +27,7 @@
                         </LinearGradientBrush>
                     </Panel.OpacityMask>
                     <Border Background="#020A10" />
-                    <Image Source="/title.png"
+                    <Image x:Name="TitleImage"
                            Stretch="Uniform"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Top"

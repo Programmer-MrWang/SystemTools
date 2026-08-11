@@ -15,6 +15,10 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/AboutSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AboutSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/AboutSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AboutSettingsPage.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/title.png" beforeDir="false" afterPath="$PROJECT_DIR$/title.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -146,15 +150,7 @@
       <workItem from="1786293353782" duration="171000" />
       <workItem from="1786350940634" duration="4422000" />
       <workItem from="1786364246595" duration="7418000" />
-      <workItem from="1786418947043" duration="7396000" />
-    </task>
-    <task id="LOCAL-00002" summary="feat: 新增可选执行行动时发送通知功能">
-      <option name="closed" value="true" />
-      <created>1785073831879</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1785073831879</updated>
+      <workItem from="1786418947043" duration="9736000" />
     </task>
     <task id="LOCAL-00003" summary="feat: 新增“单击主界面时”触发器 及其对应的服务模块">
       <option name="closed" value="true" />
@@ -540,7 +536,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786434616202</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="fix: 修正图片比例">
+      <option name="closed" value="true" />
+      <created>1786460019954</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1786460019954</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -561,7 +565,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 实现下载模型UI和麦克风限制" />
     <MESSAGE value="feat: 优化UI提示" />
     <MESSAGE value="feat: 优化调试页面" />
     <MESSAGE value="feat: 优化了语言表述" />
@@ -586,7 +589,8 @@
     <MESSAGE value="feat: 新增一个主题" />
     <MESSAGE value="feat: 新增网络下载主题banner" />
     <MESSAGE value="fix: 改个提示文字" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 改个提示文字" />
+    <MESSAGE value="fix: 修正图片比例" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正图片比例" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

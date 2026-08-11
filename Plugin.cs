@@ -81,6 +81,7 @@ public partial class Plugin : PluginBase
             });
         services.AddSingleton(GlobalConstants.MainConfig);
         services.AddSingleton<ThemeBannerCacheService>();
+        services.AddSingleton<AboutTitleImageCacheService>();
         services.AddSingleton<FloatingWindowProfileManager>();
         services.AddSingleton<FloatingWindowService>();
         services.AddSingleton<MainWindowAreaService>();
@@ -161,6 +162,7 @@ public partial class Plugin : PluginBase
         {
             // 迁移旧版悬浮窗配置到文件存储
             IAppHost.GetService<ThemeBannerCacheService>().Start();
+            IAppHost.GetService<AboutTitleImageCacheService>().Start();
             IAppHost.GetService<FloatingWindowProfileManager>().MigrateFromLegacyConfig(GlobalConstants.MainConfig!.Data);
 
             if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)

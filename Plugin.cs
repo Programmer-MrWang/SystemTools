@@ -76,10 +76,11 @@ public partial class Plugin : PluginBase
                 Description = "A theme that provides a main interface with higher components",
                 Version = "1.0.0.0",
                 Author = "Programmer-MrWang",
-                Banner = "avares://SystemTools/Themes/CardTypeComponent/banner.png",
+                Banner = ThemeBannerCacheService.BannerPath,
                 VerticalSafeAreaPx = 20
             });
         services.AddSingleton(GlobalConstants.MainConfig);
+        services.AddSingleton<ThemeBannerCacheService>();
         services.AddSingleton<FloatingWindowProfileManager>();
         services.AddSingleton<FloatingWindowService>();
         services.AddSingleton<MainWindowAreaService>();
@@ -159,6 +160,7 @@ public partial class Plugin : PluginBase
         AppBase.Current.AppStarted += (o, args) =>
         {
             // 迁移旧版悬浮窗配置到文件存储
+            IAppHost.GetService<ThemeBannerCacheService>().Start();
             IAppHost.GetService<FloatingWindowProfileManager>().MigrateFromLegacyConfig(GlobalConstants.MainConfig!.Data);
 
             if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)

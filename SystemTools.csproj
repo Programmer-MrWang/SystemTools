@@ -12,7 +12,6 @@
       <None Remove="cipx\**" />
       <None Remove="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
       <AvaloniaResource Include="title.png" />
-      <AvaloniaResource Include="Themes\CardTypeComponent\banner.png" />
       <AvaloniaResource Include="Themes\CardTypeComponent\Theme.axaml.txt" />
       <AvaloniaResource Include="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
     </ItemGroup>

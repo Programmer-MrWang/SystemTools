@@ -10,6 +10,7 @@ using ClassIsland.Core.Controls;
 using ClassIsland.Core.Extensions.Registry;
 using ClassIsland.Core.Helpers;
 using ClassIsland.Core.Models.Automation;
+using ClassIsland.Core.Models.XamlTheme;
 using ClassIsland.Core.Services.Registry;
 using ClassIsland.Shared;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,6 +67,18 @@ public partial class Plugin : PluginBase
         DependencyPaths.InitializeResolvers();
 
         services.AddLogging();
+        services.AddXamlTheme(
+            new Uri("avares://SystemTools/Themes/CardTypeComponent/Styles.axaml"),
+            new ThemeManifest
+            {
+                Id = "Card-type-component",
+                Name = "Card-type Component",
+                Description = "A theme that provides a main interface with higher components",
+                Version = "1.0.0.0",
+                Author = "Programmer-MrWang",
+                Banner = "avares://SystemTools/Themes/CardTypeComponent/banner.png",
+                VerticalSafeAreaPx = 20
+            });
         services.AddSingleton(GlobalConstants.MainConfig);
         services.AddSingleton<FloatingWindowProfileManager>();
         services.AddSingleton<FloatingWindowService>();

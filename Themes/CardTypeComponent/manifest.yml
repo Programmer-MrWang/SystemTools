@@ -1,0 +1,11 @@
+id: Card-type-component
+name: Card-type Component
+description: A theme that provides a main interface with higher components
+version: 1.0.0.0
+author: Programmer-MrWang
+verticalSafeAreaPx: 20
+repoOwner: Programmer-MrWang
+repoName: Higher Components Theme for ClassIsland
+assetsRoot: main/Highercomponents
+artifactName: Card-type-component.zip
+banner: banner.png

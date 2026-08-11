@@ -114,7 +114,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
 
     public string InputPlaceholder => string.IsNullOrWhiteSpace(_configHandler.Data.AiModel)
         ? "请先在“更多功能选项”中获取并选择模型"
-        : "输入消息，Alt+Enter 发送";
+        : "随心输入……";
 
     public bool CanSend => !IsGenerating &&
                            !IsUpdatingAttachments &&

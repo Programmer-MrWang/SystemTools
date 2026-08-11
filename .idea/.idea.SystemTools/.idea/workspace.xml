@@ -15,10 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/CardTypeComponent/banner.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/CardTypeComponent/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/CardTypeComponent/manifest.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -149,7 +146,7 @@
       <workItem from="1786293353782" duration="171000" />
       <workItem from="1786350940634" duration="4422000" />
       <workItem from="1786364246595" duration="7418000" />
-      <workItem from="1786418947043" duration="3258000" />
+      <workItem from="1786418947043" duration="5453000" />
     </task>
     <task id="LOCAL-00001" summary="feat: 同步主分支新增“关键词触发”和UI逻辑修改">
       <option name="closed" value="true" />
@@ -535,7 +532,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786419975028</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="feat: 新增网络下载主题banner">
+      <option name="closed" value="true" />
+      <created>1786424579662</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1786424579662</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -556,7 +561,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="排除无关文件" />
     <MESSAGE value="feat: 更新了液态玻璃效果" />
     <MESSAGE value="feat: 实现下载模型UI和麦克风限制" />
     <MESSAGE value="feat: 优化UI提示" />
@@ -581,7 +585,8 @@
     <MESSAGE value="feat: 新增AI行动功能" />
     <MESSAGE value="feat: 新增关于页图片抬头功能" />
     <MESSAGE value="feat: 新增一个主题" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增一个主题" />
+    <MESSAGE value="feat: 新增网络下载主题banner" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增网络下载主题banner" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

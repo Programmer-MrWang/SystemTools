@@ -4,7 +4,7 @@
 
 # SystemTools
 
-<img src="https://livefile.xesimg.com/programme/python_assets/ef14f9e238d9fd955f0054e1679ba589.png" alt="title">
+![title](https://livefile.xesimg.com/programme/python_assets/ef14f9e238d9fd955f0054e1679ba589.png")
 
 [![GitHub](https://img.shields.io/badge/GitHub-%23121011.svg?logo=github&logoColor=white)](https://github.com/Programmer-MrWang/SystemTools)
 [![Gitee](https://img.shields.io/badge/Gitee-FC6D26?logo=gitee&logoColor=fff)](https://gitee.com/Programmer_Wang/SystemTools)
@@ -15,7 +15,7 @@
 
 **为 ClassIsland 提供多彩而丰富的更多 组件/行动/规则集/触发器/实用工具！**
 
-![另类](https://repobeats.axiom.co/api/embed/d7ed2cf283c8ab3457f5a01ec214c458d0e34190.svg)
+![另类](https://repobeats.axiom.co/api/embed/d7ed2cf283c8ab3457f5a01ec214c458d0e34190.svg
 
 ![GitHub License](https://img.shields.io/github/license/Programmer-MrWang/SystemTools)
 ![GitHub top language](https://img.shields.io/github/languages/top/Programmer-MrWang/SystemTools)

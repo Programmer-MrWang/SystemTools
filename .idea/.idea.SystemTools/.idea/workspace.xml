@@ -13,7 +13,9 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="" />
+    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -144,14 +146,7 @@
       <workItem from="1786350940634" duration="4422000" />
       <workItem from="1786364246595" duration="7418000" />
       <workItem from="1786418947043" duration="9872000" />
-    </task>
-    <task id="LOCAL-00004" summary="feat: 新增“点击主界面时”触发器">
-      <option name="closed" value="true" />
-      <created>1785123547837</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1785123547837</updated>
+      <workItem from="1786514699604" duration="320000" />
     </task>
     <task id="LOCAL-00005" summary="feat: 关于获取主界面位置的共享服务">
       <option name="closed" value="true" />
@@ -537,7 +532,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786466177775</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="feat: 更新了title图片">
+      <option name="closed" value="true" />
+      <created>1786514941907</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1786514941907</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -558,7 +561,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 优化调试页面" />
     <MESSAGE value="feat: 优化了语言表述" />
     <MESSAGE value="fix: 修复了对话记录绑定错误的问题" />
     <MESSAGE value="fix: 取消按下F11的设定，改为直接打开" />
@@ -583,7 +585,8 @@
     <MESSAGE value="fix: 改个提示文字" />
     <MESSAGE value="fix: 修正图片比例" />
     <MESSAGE value="feat: 实现后台下载高清图片" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 实现后台下载高清图片" />
+    <MESSAGE value="feat: 更新了title图片" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新了title图片" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -12,7 +12,7 @@ namespace SystemTools.Services;
 public sealed class AboutTitleImageCacheService(ILogger<AboutTitleImageCacheService> logger)
 {
     private const string DownloadUrl =
-        "https://livefile.xesimg.com/programme/python_assets/3824ae6ccaf2372fdd10a98c0f05480b.png";
+        "https://livefile.xesimg.com/programme/python_assets/ef14f9e238d9fd955f0054e1679ba589.png";
 
     private static readonly byte[] PngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
     private static readonly HttpClient HttpClient = new()

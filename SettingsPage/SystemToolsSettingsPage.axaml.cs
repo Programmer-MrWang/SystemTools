@@ -392,6 +392,8 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
         }
         else
         {
+            // 关闭功能时同时移除已保存的人脸认证，避免插件重启后留下不可用的认证方式。
+            FaceRecognitionCredentialCleanup.RemoveFaceRecognitionProviderFromManagementCredentials();
             RequestRestart();
         }
     }
@@ -404,6 +406,84 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
         {
             // 下载成功后，根据文件存在状态更新按钮
             UpdateDownloadButtonStates();
+        }
+    }
+
+    private async void OnWindowsHelloToggleClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not ToggleSwitch toggle)
+        {
+            return;
+        }
+
+        try
+        {
+            if (toggle.IsChecked != true)
+            {
+                SetWindowsHelloEnabledWithoutRestart(false);
+                FaceRecognitionCredentialCleanup.RemoveWindowsHelloProviderFromManagementCredentials();
+                RequestRestart();
+                return;
+            }
+
+            toggle.IsEnabled = false;
+            var support = await WindowsHelloService.CheckSupportAsync(requireFaceEnrollment: true);
+            if (!support.IsAvailable)
+            {
+                SetWindowsHelloEnabledWithoutRestart(false);
+                toggle.IsChecked = false;
+
+                var dialog = new FAContentDialog
+                {
+                    Title = "无法启用 Windows Hello 验证器",
+                    Content = new TextBlock
+                    {
+                        Text = support.Message,
+                        TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                        MaxWidth = 520
+                    },
+                    PrimaryButtonText = support.Status is WindowsHelloSupportStatus.FaceNotEnrolled or
+                        WindowsHelloSupportStatus.HelloNotConfigured
+                        ? "打开系统设置"
+                        : "确定",
+                    CloseButtonText = support.Status is WindowsHelloSupportStatus.FaceNotEnrolled or
+                        WindowsHelloSupportStatus.HelloNotConfigured
+                        ? "取消"
+                        : null,
+                    DefaultButton = FAContentDialogButton.Primary
+                };
+
+                var result = await dialog.ShowAsync(TopLevel.GetTopLevel(this));
+                if (result == FAContentDialogResult.Primary &&
+                    support.Status is WindowsHelloSupportStatus.FaceNotEnrolled or
+                        WindowsHelloSupportStatus.HelloNotConfigured)
+                {
+                    WindowsHelloService.OpenWindowsHelloSettings();
+                }
+                return;
+            }
+
+            SetWindowsHelloEnabledWithoutRestart(true);
+            RequestRestart();
+        }
+        finally
+        {
+            toggle.IsEnabled = true;
+        }
+    }
+
+    private void SetWindowsHelloEnabledWithoutRestart(bool enabled)
+    {
+        // Only suppress this property's synchronous notification. Never keep the shared
+        // restart listener detached while awaiting Windows or a dialog.
+        ViewModel.Settings.RestartPropertyChanged -= OnRestartPropertyChanged;
+        try
+        {
+            ViewModel.Settings.EnableWindowsHello = enabled;
+        }
+        finally
+        {
+            ViewModel.Settings.RestartPropertyChanged += OnRestartPropertyChanged;
         }
     }
 

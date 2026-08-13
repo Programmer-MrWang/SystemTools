@@ -95,6 +95,21 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    bool _enableWindowsHello;
+
+    [JsonPropertyName("enableWindowsHello")]
+    public bool EnableWindowsHello
+    {
+        get => _enableWindowsHello;
+        set
+        {
+            if (value == _enableWindowsHello) return;
+            _enableWindowsHello = value;
+            OnPropertyChanged();
+            RestartPropertyChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
     bool _autoSwitchClassIslandTheme;
 
     [JsonPropertyName("autoSwitchClassIslandTheme")]

@@ -14,7 +14,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/WindowsHelloAuthorizer.axaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controls/WindowsHelloAuthorizer.axaml.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Services/WindowsHelloService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Settings/WindowsHelloSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/FaceRecognitionAuthorizer.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/FaceRecognitionAuthorizer.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controls/FaceRecognitionAuthorizer.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/FaceRecognitionAuthorizer.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/CameraCaptureService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/CameraCaptureService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/FaceRecognitionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FaceRecognitionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Settings/FaceRecognitionSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/FaceRecognitionSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shared/DependencyPaths.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/DependencyPaths.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shared/FaceRecognitionCredentialCleanup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/FaceRecognitionCredentialCleanup.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +86,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.Xaml&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -147,6 +162,11 @@
       <workItem from="1786364246595" duration="7418000" />
       <workItem from="1786418947043" duration="9872000" />
       <workItem from="1786514699604" duration="320000" />
+      <workItem from="1786521882322" duration="703000" />
+      <workItem from="1786526246097" duration="386000" />
+      <workItem from="1786554959189" duration="815000" />
+      <workItem from="1786560037012" duration="1230000" />
+      <workItem from="1786604733137" duration="420000" />
     </task>
     <task id="LOCAL-00005" summary="feat: 关于获取主界面位置的共享服务">
       <option name="closed" value="true" />

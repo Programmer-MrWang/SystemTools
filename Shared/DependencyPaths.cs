@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Runtime.InteropServices;
 
 namespace SystemTools.Shared;
 
@@ -351,11 +352,28 @@ public static class DependencyPaths
     {
         try
         {
-            return GetFaceRecognitionRequiredPaths().All(path =>
-                path.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ||
-                path.EndsWith(".dat", StringComparison.OrdinalIgnoreCase)
-                    ? File.Exists(path)
-                    : Directory.Exists(path));
+            var requiredPaths = GetFaceRecognitionRequiredPaths();
+            if (!Directory.Exists(requiredPaths[0]) ||
+                !File.Exists(requiredPaths[1]) ||
+                !File.Exists(requiredPaths[2]) ||
+                !Directory.Exists(requiredPaths[3]) ||
+                !File.Exists(requiredPaths[4]) ||
+                !File.Exists(requiredPaths[5]) ||
+                !File.Exists(requiredPaths[6]))
+            {
+                return false;
+            }
+
+            var nativeDirectories = GetFaceRecognitionNativeDirectories(GetDependencyRoot());
+            var requiredNativeFiles = new[]
+            {
+                "OpenCvSharpExtern.dll",
+                "DlibDotNetNative.dll",
+                "DlibDotNetNativeDnn.dll"
+            };
+
+            return requiredNativeFiles.All(fileName => nativeDirectories.Any(directory =>
+                File.Exists(Path.Combine(directory, fileName))));
         }
         catch
         {
@@ -375,6 +393,24 @@ public static class DependencyPaths
             GetDependencyFile("OpenCvSharp.Extensions.dll"),
             GetDependencyFile("OpenCvSharp.dll"),
             GetDependencyFile("DlibDotNet.dll")
+        ];
+    }
+
+    private static string[] GetFaceRecognitionNativeDirectories(string dependencyRoot)
+    {
+        var runtimeIdentifier = RuntimeInformation.ProcessArchitecture switch
+        {
+            Architecture.X86 => "win-x86",
+            Architecture.Arm64 => "win-arm64",
+            _ => "win-x64"
+        };
+
+        return
+        [
+            dependencyRoot,
+            Path.Combine(dependencyRoot, "runtimes", runtimeIdentifier, "native"),
+            Path.Combine(dependencyRoot, "runtimes", "win", "native"),
+            Path.Combine(dependencyRoot, "runtimes")
         ];
     }
 

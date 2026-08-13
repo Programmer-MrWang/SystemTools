@@ -338,6 +338,15 @@
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
 
+                    <controls:FASettingsExpanderItem Content="启用 Windows Hello 人脸识别验证器"
+                                                     Description="使用 Windows 安全界面验证；需先为当前用户录入 Windows Hello 人脸。系统可能回退到指纹或 PIN。"
+                                                     IconSource="{ci:FluentIconSource &#xEED5;}">
+                        <controls:FASettingsExpanderItem.Footer>
+                            <ToggleSwitch IsChecked="{Binding ViewModel.Settings.EnableWindowsHello, Mode=OneWay}"
+                                          Click="OnWindowsHelloToggleClick" />
+                        </controls:FASettingsExpanderItem.Footer>
+                    </controls:FASettingsExpanderItem>
+
                     <controls:FASettingsExpanderItem Content="下载语音识别服务"
                                                      Description="下载并安装语音识别所需的 VoskWorker 依赖。"
                                                      IconSource="{ci:FluentIconSource &#xED53;}">

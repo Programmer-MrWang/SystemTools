@@ -48,8 +48,10 @@ public partial class Plugin : PluginBase
     private ILogger<Plugin>? _logger;
     private NativeMenuItem? _toggleFloatingWindowMenuItem;
     private bool _faceRecognitionRegistered = false;
+    private bool _windowsHelloRegistered;
     private bool _ffmpegDisabledDueToMissingDependency;
     private bool _faceRecognitionDisabledDueToMissingDependency;
+    private bool _windowsHelloDisabledDueToUnsupportedSystem;
 
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
@@ -130,6 +132,13 @@ public partial class Plugin : PluginBase
                     _faceRecognitionRegistered = false;
                 }
             }
+
+            if (GlobalConstants.MainConfig?.Data.EnableWindowsHello == true &&
+                OperatingSystem.IsWindowsVersionAtLeast(10, 0, WindowsHelloService.MinimumWindowsBuild))
+            {
+                services.AddAuthorizeProvider<WindowsHelloAuthorizer>();
+                _windowsHelloRegistered = true;
+            }
         }
 
         // ========== 注册设置页面 ==========
@@ -199,6 +208,23 @@ public partial class Plugin : PluginBase
             {
                 _logger?.LogWarning("[SystemTools]人脸识别功能已自动关闭：缺少 runtimes、Models 或 OpenCvSharp/Dlib 依赖，并已清理对应验证器配置。");
             }
+
+            if (GlobalConstants.MainConfig?.Data.EnableWindowsHello == true)
+            {
+                if (_windowsHelloRegistered)
+                {
+                    _logger?.LogInformation("[SystemTools]Windows Hello 验证器已注册");
+                }
+                else
+                {
+                    _logger?.LogWarning("[SystemTools]Windows Hello 验证器已启用，但当前系统版本不受支持，已跳过注册。");
+                }
+            }
+            else if (_windowsHelloDisabledDueToUnsupportedSystem)
+            {
+                _logger?.LogWarning("[SystemTools]Windows Hello 验证器已自动关闭：当前系统低于 Windows build {MinimumBuild}，并已清理对应验证器配置。",
+                    WindowsHelloService.MinimumWindowsBuild);
+            }
             _logger?.LogInformation("[SystemTools]SystemTools 启动完成");
             RegisterOrUpdateFloatingWindowTrayMenu();
         };
@@ -254,6 +280,15 @@ public partial class Plugin : PluginBase
             config.EnableFaceRecognition = false;
             FaceRecognitionCredentialCleanup.RemoveFaceRecognitionProviderFromManagementCredentials();
             _faceRecognitionDisabledDueToMissingDependency = true;
+            changed = true;
+        }
+
+        if (config.EnableWindowsHello &&
+            !OperatingSystem.IsWindowsVersionAtLeast(10, 0, WindowsHelloService.MinimumWindowsBuild))
+        {
+            config.EnableWindowsHello = false;
+            FaceRecognitionCredentialCleanup.RemoveWindowsHelloProviderFromManagementCredentials();
+            _windowsHelloDisabledDueToUnsupportedSystem = true;
             changed = true;
         }
 

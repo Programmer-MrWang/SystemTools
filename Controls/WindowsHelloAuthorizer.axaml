@@ -1,0 +1,90 @@
+<ci:AuthorizeProviderControlBase x:TypeArguments="settings:WindowsHelloSettings"
+                                 x:Class="SystemTools.Controls.WindowsHelloAuthorizer"
+                                 xmlns="https://github.com/avaloniaui"
+                                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                 xmlns:ci="http://classisland.tech/schemas/xaml/core"
+                                 xmlns:settings="clr-namespace:SystemTools.Settings"
+                                 xmlns:local="clr-namespace:SystemTools.Controls">
+    <Border Width="344"
+            Padding="20"
+            CornerRadius="14"
+            BorderThickness="1"
+            BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+            Background="#0D000000"
+            DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:WindowsHelloAuthorizer}}">
+        <StackPanel Spacing="14">
+            <Border Width="64"
+                    Height="64"
+                    CornerRadius="32"
+                    HorizontalAlignment="Center"
+                    Background="#1600AEEF">
+                <ci:FluentIcon Glyph="&#xED2B;"
+                               FontSize="30"
+                               Foreground="{DynamicResource PrimaryHueMidBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+            </Border>
+
+            <TextBlock Text="Windows Hello"
+                       FontSize="19"
+                       FontWeight="SemiBold"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center" />
+
+            <TextBlock Text="{Binding Settings.StatusMessage}"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding !Settings.HasError}" />
+            <TextBlock Text="{Binding Settings.StatusMessage}"
+                       Foreground="OrangeRed"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding Settings.HasError}" />
+
+            <ProgressBar Height="3"
+                         IsIndeterminate="True"
+                         IsVisible="{Binding Settings.Operating}" />
+
+            <StackPanel IsVisible="{Binding IsEditingMode}" Spacing="10">
+                <TextBlock Text="人脸模板由 Windows 安全保管，SystemTools 不会读取或保存人脸数据。"
+                           FontSize="12"
+                           Opacity="0.7"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center" />
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Spacing="8">
+                    <Button Click="OnCheckConfigurationClick"
+                            IsEnabled="{Binding !Settings.Operating}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="验证并保存配置" />
+                        </StackPanel>
+                    </Button>
+                    <Button Click="OnOpenWindowsHelloSettingsClick"
+                            Theme="{StaticResource MaterialDesignFlatButton}">
+                        <TextBlock Text="打开系统设置" />
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding !IsEditingMode}" Spacing="10">
+                <Button Click="OnVerifyClick"
+                        HorizontalAlignment="Center"
+                        IsEnabled="{Binding !Settings.Operating}">
+                    <StackPanel Orientation="Horizontal" Spacing="7">
+                        <ci:FluentIcon Glyph="&#xF13E;" />
+                        <TextBlock Text="再次调用 Windows Hello" />
+                    </StackPanel>
+                </Button>
+                <TextBlock Text="系统可能根据 Windows Hello 配置回退到指纹或 PIN。"
+                           FontSize="12"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</ci:AuthorizeProviderControlBase>

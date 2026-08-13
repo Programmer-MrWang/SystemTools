@@ -8,6 +8,7 @@ namespace SystemTools.Services;
 
 public class FaceRecognitionService : IDisposable
 {
+    private readonly object _nativeLock = new();
     private readonly string _modelDir;
     private FrontalFaceDetector? _faceDetector; 
     private ShapePredictor? _shapePredictor;
@@ -22,6 +23,14 @@ public class FaceRecognitionService : IDisposable
     }
 
     public bool Initialize()
+    {
+        lock (_nativeLock)
+        {
+            return InitializeCore();
+        }
+    }
+
+    private bool InitializeCore()
     {
         if (_isInitialized) return true;
         
@@ -44,7 +53,7 @@ public class FaceRecognitionService : IDisposable
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Dlib 初始化失败: {ex.Message}");
-            Dispose();
+            DisposeNativeObjects();
             return false;
         }
     }
@@ -53,6 +62,14 @@ public class FaceRecognitionService : IDisposable
         File.Exists(Path.Combine(_modelDir, "shape_predictor_68_face_landmarks.dat"));
 
     public float[]? ExtractFaceEncoding(byte[] rgbData, int width, int height)
+    {
+        lock (_nativeLock)
+        {
+            return ExtractFaceEncodingCore(rgbData, width, height);
+        }
+    }
+
+    private float[]? ExtractFaceEncodingCore(byte[] rgbData, int width, int height)
     {
         if (!_isInitialized || _faceDetector == null || _shapePredictor == null || _faceRecognizer == null) 
             return null;
@@ -126,9 +143,20 @@ public class FaceRecognitionService : IDisposable
 
     public void Dispose()
     {
+        lock (_nativeLock)
+        {
+            DisposeNativeObjects();
+        }
+    }
+
+    private void DisposeNativeObjects()
+    {
         _faceDetector?.Dispose();
         _shapePredictor?.Dispose();
         _faceRecognizer?.Dispose();
+        _faceDetector = null;
+        _shapePredictor = null;
+        _faceRecognizer = null;
         _isInitialized = false;
     }
 }

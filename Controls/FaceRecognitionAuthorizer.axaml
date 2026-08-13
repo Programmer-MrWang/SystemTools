@@ -6,62 +6,157 @@
                                  xmlns:settings="clr-namespace:SystemTools.Settings"
                                  xmlns:local="clr-namespace:SystemTools.Controls">
 
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="10"
+    <StackPanel Width="344"
+                HorizontalAlignment="Center"
+                Spacing="12"
                 DataContext="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:FaceRecognitionAuthorizer}}">
-        
-        <!-- 预览 -->
-        <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" 
-                BorderThickness="2" CornerRadius="8" ClipToBounds="True" Width="320" Height="240">
-            <Image x:Name="CameraPreview" Stretch="UniformToFill" />
+
+        <!-- 摄像头取景框 -->
+        <Border Width="328"
+                Height="246"
+                HorizontalAlignment="Center"
+                BorderBrush="{DynamicResource PrimaryHueMidBrush}"
+                BorderThickness="1"
+                CornerRadius="12"
+                ClipToBounds="True">
+            <Grid Background="#14000000">
+                <Image x:Name="CameraPreview" Stretch="Uniform" />
+
+                <Border HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Margin="10"
+                        Padding="8,4"
+                        CornerRadius="10"
+                        Background="#99000000"
+                        IsVisible="{Binding Settings.CameraReady}">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <Ellipse Width="7" Height="7"
+                                 Fill="{DynamicResource PrimaryHueMidBrush}"
+                                 VerticalAlignment="Center" />
+                        <TextBlock Text="摄像头已连接"
+                                   Foreground="White"
+                                   FontSize="12" />
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#99000000"
+                        IsVisible="{Binding !Settings.CameraReady}">
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="8">
+                        <ci:FluentIcon Glyph="&#xE722;"
+                                       FontSize="28"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center" />
+                        <TextBlock Text="{Binding Settings.CameraPlaceholderText}"
+                                   Foreground="White"
+                                   FontSize="13" />
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Border>
 
         <!-- 录入人脸模式 -->
-        <StackPanel IsVisible="{Binding IsEditingMode}" Spacing="8">
-            <Border Background="#3f00eff1" CornerRadius="4" Padding="8">
-                <StackPanel Orientation="Horizontal">
-                    <ci:FluentIcon Glyph="&#xECF7;" Margin="0,0,5,0"/>
-                    <TextBlock Text="在面部对准摄像头后按下捕获按钮" VerticalAlignment="Center" />
+        <StackPanel IsVisible="{Binding IsEditingMode}" Spacing="10">
+            <Border Padding="12,10"
+                    CornerRadius="8"
+                    Background="#1400AEEF">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ci:FluentIcon Glyph="&#xECF7;"
+                                   Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                   VerticalAlignment="Center" />
+                    <TextBlock Text="保持正脸、光线均匀，并让面部完整出现在取景框中。"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center" />
                 </StackPanel>
             </Border>
 
-            <TextBlock Text="未检测到人脸，请重试" 
-                       Foreground="OrangeRed" 
+            <TextBlock Text="{Binding Settings.StatusMessage}"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
                        HorizontalAlignment="Center"
-                       IsVisible="{Binding Settings.OperationFinished}"/>
+                       IsVisible="{Binding !Settings.HasError}" />
+            <TextBlock Text="{Binding Settings.StatusMessage}"
+                       Foreground="OrangeRed"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding Settings.HasError}" />
 
-            <Button Click="OnCaptureClick" IsEnabled="{Binding !Settings.Operating}" HorizontalAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel Orientation="Horizontal" IsVisible="{Binding Settings.Operating}">
-                        <ProgressBar IsIndeterminate="True" Width="16" Height="16" Margin="0,0,5,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="正在处理..." />
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" IsVisible="{Binding !Settings.Operating}">
-                        <ci:FluentIcon Glyph="&#xECED;" Margin="0,0,5,0"/>
-                        <!-- 无配置时显示 -->
-                        <TextBlock Text="捕获并保存人脸" IsVisible="{Binding Settings.FaceTemplate, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
-                        <!-- 已有配置时显示 -->
-                        <TextBlock Text="重新捕获并注册人脸信息" IsVisible="{Binding Settings.FaceTemplate, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-                    </StackPanel>
+            <Button Click="OnCaptureClick"
+                    MinWidth="210"
+                    MinHeight="38"
+                    IsEnabled="{Binding !Settings.Operating}"
+                    HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ProgressBar IsIndeterminate="True"
+                                 Width="18"
+                                 Height="18"
+                                 VerticalAlignment="Center"
+                                 IsVisible="{Binding Settings.Operating}" />
+                    <ci:FluentIcon Glyph="&#xECED;"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding !Settings.Operating}" />
+                    <TextBlock Text="正在处理人脸…"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding Settings.Operating}" />
+                    <TextBlock Text="{Binding Settings.CaptureButtonText}"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding !Settings.Operating}" />
                 </StackPanel>
             </Button>
         </StackPanel>
 
         <!-- 验证模式 -->
-        <StackPanel IsVisible="{Binding !IsEditingMode}" Spacing="8">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <ci:FluentIcon Glyph="&#xED2B;" Margin="0,0,5,0"/>
-                <TextBlock Text="人脸识别验证中..." FontSize="16" VerticalAlignment="Center"/>
+        <StackPanel IsVisible="{Binding !IsEditingMode}" Spacing="10">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="7">
+                <ci:FluentIcon Glyph="&#xED2B;"
+                               FontSize="19"
+                               Foreground="{DynamicResource PrimaryHueMidBrush}"
+                               VerticalAlignment="Center" />
+                <TextBlock Text="自动人脸验证"
+                           FontSize="17"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center" />
             </StackPanel>
 
-            <ProgressBar IsIndeterminate="True" Height="2" IsVisible="{Binding !Settings.OperationFinished}"/>
+            <ProgressBar IsIndeterminate="True"
+                         Height="3"
+                         IsVisible="{Binding Settings.CameraReady}" />
 
-            <Label IsVisible="{Binding Settings.OperationFinished}" HorizontalAlignment="Center">
-                 <TextBlock Text="识别失败，请调整位置或重试" Foreground="OrangeRed" />
-            </Label>
-            
-            <Button Click="OnManualVerifyClick" Content="手动重新扫描" 
-                    HorizontalAlignment="Center" Theme="{StaticResource MaterialDesignFlatButton}"/>
+            <TextBlock Text="{Binding Settings.StatusMessage}"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding !Settings.HasError}" />
+            <TextBlock Text="{Binding Settings.StatusMessage}"
+                       Foreground="OrangeRed"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding Settings.HasError}" />
+
+            <TextBlock Text="无需点击按钮；检测到匹配人脸后将自动放行。"
+                       FontSize="12"
+                       Opacity="0.65"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding Settings.CameraReady}" />
+
+            <Button Click="OnManualVerifyClick"
+                    HorizontalAlignment="Center"
+                    Theme="{StaticResource MaterialDesignFlatButton}"
+                    IsEnabled="{Binding !Settings.Operating}"
+                    IsVisible="{Binding Settings.CanRetry}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <ci:FluentIcon Glyph="&#xE72C;" />
+                    <TextBlock Text="重新启动摄像头" />
+                </StackPanel>
+            </Button>
         </StackPanel>
     </StackPanel>
 </ci:AuthorizeProviderControlBase>

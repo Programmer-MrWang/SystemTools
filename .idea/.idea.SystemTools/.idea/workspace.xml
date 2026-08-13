@@ -15,6 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,14 +153,8 @@
       <workItem from="1786554959189" duration="815000" />
       <workItem from="1786560037012" duration="1230000" />
       <workItem from="1786604733137" duration="1268000" />
-    </task>
-    <task id="LOCAL-00006" summary="feat: 新增 遮挡文字时隐藏 功能">
-      <option name="closed" value="true" />
-      <created>1785123615228</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1785123615228</updated>
+      <workItem from="1786620172208" duration="101000" />
+      <workItem from="1786634566903" duration="3380000" />
     </task>
     <task id="LOCAL-00007" summary="feat: 新增获取主界面后侧样式服务">
       <option name="closed" value="true" />
@@ -545,7 +540,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786605329045</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="feat: 更新reademe v1">
+      <option name="closed" value="true" />
+      <created>1786620210291</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1786620210292</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -566,7 +569,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix: 修复了对话记录绑定错误的问题" />
     <MESSAGE value="fix: 取消按下F11的设定，改为直接打开" />
     <MESSAGE value="fix: 修正部分表述" />
     <MESSAGE value="feat: 新增可选液态玻璃配置文件" />
@@ -591,7 +593,8 @@
     <MESSAGE value="feat: 实现后台下载高清图片" />
     <MESSAGE value="feat: 更新了title图片" />
     <MESSAGE value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
+    <MESSAGE value="feat: 更新reademe v1" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新reademe v1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

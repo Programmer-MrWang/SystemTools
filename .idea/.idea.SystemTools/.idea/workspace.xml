@@ -14,22 +14,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/Controls/WindowsHelloAuthorizer.axaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Controls/WindowsHelloAuthorizer.axaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Services/WindowsHelloService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Settings/WindowsHelloSettings.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/FaceRecognitionAuthorizer.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/FaceRecognitionAuthorizer.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/FaceRecognitionAuthorizer.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/FaceRecognitionAuthorizer.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/CameraCaptureService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/CameraCaptureService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/FaceRecognitionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/FaceRecognitionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Settings/FaceRecognitionSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/FaceRecognitionSettings.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shared/DependencyPaths.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/DependencyPaths.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shared/FaceRecognitionCredentialCleanup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Shared/FaceRecognitionCredentialCleanup.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -166,15 +151,7 @@
       <workItem from="1786526246097" duration="386000" />
       <workItem from="1786554959189" duration="815000" />
       <workItem from="1786560037012" duration="1230000" />
-      <workItem from="1786604733137" duration="420000" />
-    </task>
-    <task id="LOCAL-00005" summary="feat: 关于获取主界面位置的共享服务">
-      <option name="closed" value="true" />
-      <created>1785123578350</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1785123578350</updated>
+      <workItem from="1786604733137" duration="1268000" />
     </task>
     <task id="LOCAL-00006" summary="feat: 新增 遮挡文字时隐藏 功能">
       <option name="closed" value="true" />
@@ -560,7 +537,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786514941907</updated>
     </task>
-    <option name="localTasksCounter" value="54" />
+    <task id="LOCAL-00054" summary="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器">
+      <option name="closed" value="true" />
+      <created>1786605329045</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1786605329045</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -581,7 +566,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 优化了语言表述" />
     <MESSAGE value="fix: 修复了对话记录绑定错误的问题" />
     <MESSAGE value="fix: 取消按下F11的设定，改为直接打开" />
     <MESSAGE value="fix: 修正部分表述" />
@@ -606,7 +590,8 @@
     <MESSAGE value="fix: 修正图片比例" />
     <MESSAGE value="feat: 实现后台下载高清图片" />
     <MESSAGE value="feat: 更新了title图片" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新了title图片" />
+    <MESSAGE value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

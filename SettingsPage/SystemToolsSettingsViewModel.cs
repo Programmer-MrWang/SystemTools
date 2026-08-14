@@ -242,6 +242,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
 
         var actions = new List<(string Id, string Name, string? Group)>
         {
+            ("SystemTools.SimulateKeyCombination", "模拟组合键", "模拟操作"),
             ("SystemTools.SimulateKeyboard", "模拟键盘", "模拟操作"),
             ("SystemTools.SimulateMouse", "模拟鼠标", "模拟操作"),
             ("SystemTools.TypeContent", "键入内容", "模拟操作"),

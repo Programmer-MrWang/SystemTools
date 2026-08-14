@@ -308,6 +308,8 @@ public partial class Plugin : PluginBase
         var config = GlobalConstants.MainConfig!.Data;
 
         // 模拟操作
+        RegisterActionIfEnabled<SimulateKeyCombinationAction, SimulateKeyCombinationSettingsControl>(services, config,
+            "SystemTools.SimulateKeyCombination");
         RegisterActionIfEnabled<SimulateKeyboardAction, SimulateKeyboardSettingsControl>(services, config,
             "SystemTools.SimulateKeyboard");
         RegisterActionIfEnabled<SimulateMouseAction, SimulateMouseSettingsControl>(services, config,
@@ -585,7 +587,7 @@ public partial class Plugin : PluginBase
         IActionService.ActionMenuTree.Add(new ActionMenuTreeGroup("SystemTools 行动", "\uE079"));
 
         // 模拟操作
-        if (HasAnyActionEnabled(config, "SystemTools.SimulateKeyboard", "SystemTools.SimulateMouse",
+        if (HasAnyActionEnabled(config, "SystemTools.SimulateKeyCombination", "SystemTools.SimulateKeyboard", "SystemTools.SimulateMouse",
                 "SystemTools.TypeContent", "SystemTools.WindowOperation", "SystemTools.EnterKey",
                 "SystemTools.EscKey", "SystemTools.AltF4", "SystemTools.AltTab", "SystemTools.CtrlZ", "SystemTools.F11Key"))
         {
@@ -696,9 +698,11 @@ public partial class Plugin : PluginBase
     private void BuildSimulationMenu(MainConfigData config)
     {
         var items = new List<ActionMenuTreeItem>();
-
+        
         if (config.IsActionEnabled("SystemTools.SimulateKeyboard"))
             items.Add(new ActionMenuTreeItem("SystemTools.SimulateKeyboard", "模拟键盘", "\uEA0F"));
+        if (config.IsActionEnabled("SystemTools.SimulateKeyCombination"))
+            items.Add(new ActionMenuTreeItem("SystemTools.SimulateKeyCombination", "模拟组合键", "\uEA15"));
         if (config.IsActionEnabled("SystemTools.SimulateMouse"))
             items.Add(new ActionMenuTreeItem("SystemTools.SimulateMouse", "模拟鼠标", "\uE5C1"));
         if (config.IsActionEnabled("SystemTools.TypeContent"))

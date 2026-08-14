@@ -15,7 +15,10 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README-1.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-1.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,15 +157,8 @@
       <workItem from="1786560037012" duration="1230000" />
       <workItem from="1786604733137" duration="1268000" />
       <workItem from="1786620172208" duration="101000" />
-      <workItem from="1786634566903" duration="3380000" />
-    </task>
-    <task id="LOCAL-00007" summary="feat: 新增获取主界面后侧样式服务">
-      <option name="closed" value="true" />
-      <created>1785123646546</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1785123646546</updated>
+      <workItem from="1786634566903" duration="4096000" />
+      <workItem from="1786685656857" duration="772000" />
     </task>
     <task id="LOCAL-00008" summary="feat: 新增自动识别和更改主题功能">
       <option name="closed" value="true" />
@@ -548,7 +544,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786620210292</updated>
     </task>
-    <option name="localTasksCounter" value="56" />
+    <task id="LOCAL-00056" summary="更新reademe">
+      <option name="closed" value="true" />
+      <created>1786638153346</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1786638153346</updated>
+    </task>
+    <option name="localTasksCounter" value="57" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -569,7 +573,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix: 取消按下F11的设定，改为直接打开" />
     <MESSAGE value="fix: 修正部分表述" />
     <MESSAGE value="feat: 新增可选液态玻璃配置文件" />
     <MESSAGE value="feat: 初步实现液态玻璃悬浮窗" />
@@ -594,7 +597,8 @@
     <MESSAGE value="feat: 更新了title图片" />
     <MESSAGE value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
     <MESSAGE value="feat: 更新reademe v1" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新reademe v1" />
+    <MESSAGE value="更新reademe" />
+    <option name="LAST_COMMIT_MESSAGE" value="更新reademe" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

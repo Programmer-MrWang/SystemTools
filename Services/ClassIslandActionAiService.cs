@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -33,6 +35,17 @@ public sealed class ActionExecutionPreview
 
     public required IReadOnlyList<ActionExecutionItemPreview> Items { get; init; }
 }
+
+public sealed record LocalActionRoute(
+    string ActionId,
+    string ActionName,
+    string MatchedKeyword,
+    JsonElement? PresetSettings,
+    bool CanExecuteDirectly,
+    JsonElement? Settings,
+    string ContextMessage,
+    IReadOnlyList<string> AppSettingNames,
+    bool RequiresAppSettingsLookup);
 
 public sealed class ClassIslandActionAiService
 {
@@ -147,8 +160,68 @@ public sealed class ClassIslandActionAiService
             """))
     ];
 
+    private static readonly IReadOnlyList<AiToolDefinition> RoutedActionTools = ActionTools
+        .Where(tool => tool.Name == ExecuteActionsToolName)
+        .ToArray();
+
+    private static readonly IReadOnlyList<AiToolDefinition> RoutedAppSettingsTools = ActionTools
+        .Where(tool => tool.Name is ListAppSettingsToolName or ExecuteActionsToolName)
+        .ToArray();
+
+    private static readonly PropertyInfo? ActionInfoSettingsTypeProperty = typeof(ActionInfo).GetProperty(
+        "SettingsType",
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+    private static readonly Lazy<Func<long>?> ActionRegistryVersionAccessor = new(
+        CreateActionRegistryVersionAccessor,
+        LazyThreadSafetyMode.ExecutionAndPublication);
+
+    private static readonly ConcurrentDictionary<Type, JsonNode> TypeSchemaCache = new();
+
+    private static readonly string[] LocalRoutePrefixes =
+    [
+        "麻烦帮我",
+        "请帮我",
+        "麻烦",
+        "帮我",
+        "请",
+        "给我",
+        "执行",
+        "运行",
+        "操作",
+        "打开",
+        "关闭",
+        "启用",
+        "禁用",
+        "切换",
+        "显示",
+        "隐藏"
+    ];
+
+    private static readonly string[] LocalRouteSuffixes =
+    [
+        "一下",
+        "谢谢",
+        "吧"
+    ];
+
+    private static readonly string[] MultipleActionConnectors =
+    [
+        "然后",
+        "并且",
+        "以及",
+        "同时",
+        "接着",
+        "之后再",
+        "再帮我"
+    ];
+
     private readonly IActionService _actionService;
     private readonly ILogger<ClassIslandActionAiService> _logger;
+    private readonly object _cacheGate = new();
+    private ActionCatalogSnapshot? _actionCatalogSnapshot;
+    private AppSettingsSnapshot? _appSettingsSnapshot;
+    private Task? _warmupTask;
 
     public ClassIslandActionAiService(
         IActionService actionService,
@@ -159,6 +232,63 @@ public sealed class ClassIslandActionAiService
     }
 
     public IReadOnlyList<AiToolDefinition> Tools => ActionTools;
+
+    public IReadOnlyList<AiToolDefinition> GetToolsForRoute(LocalActionRoute? route)
+    {
+        if (route is null)
+        {
+            return ActionTools;
+        }
+
+        return route.RequiresAppSettingsLookup
+            ? RoutedAppSettingsTools
+            : RoutedActionTools;
+    }
+
+    public void StartWarmup()
+    {
+        lock (_cacheGate)
+        {
+            if (_warmupTask is { IsCompleted: false })
+            {
+                return;
+            }
+
+            _warmupTask = Task.Run(() =>
+            {
+                try
+                {
+                    var catalog = GetActionCatalogSnapshot();
+                    _ = GetAppSettingsSnapshot();
+                    foreach (var action in catalog.Actions)
+                    {
+                        _ = action.Description.Value;
+                        if (action.SettingsType is not null)
+                        {
+                            _ = BuildTypeSchema(action.SettingsType, null, 0);
+                        }
+                    }
+
+                    _logger.LogDebug(
+                        "AI 行动缓存预热完成：{ActionCount} 个行动。",
+                        catalog.Actions.Count);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "AI 行动缓存后台预热失败，将在首次使用时重试。");
+                }
+            });
+        }
+    }
+
+    public void InvalidateCaches()
+    {
+        lock (_cacheGate)
+        {
+            _actionCatalogSnapshot = null;
+            _appSettingsSnapshot = null;
+        }
+    }
 
     public static bool OwnsTool(string toolName)
     {
@@ -209,22 +339,21 @@ public sealed class ClassIslandActionAiService
         }
     }
 
-    private static string ListActions(string arguments)
+    private string ListActions(string arguments)
     {
         var request = DeserializeArguments<ListActionsRequest>(arguments);
         var query = request.Query?.Trim();
-        var aliases = GetMenuAliases();
-        var allActions = IActionService.ActionInfos
-            .OrderBy(pair => pair.Value.Name, StringComparer.CurrentCultureIgnoreCase)
-            .ThenBy(pair => pair.Key, StringComparer.Ordinal)
-            .Select(pair => new
+        var catalog = GetActionCatalogSnapshot();
+        var allActions = catalog.Actions
+            .Select(action => new
             {
-                id = pair.Key,
-                name = pair.Value.Name,
-                aliases = aliases.TryGetValue(pair.Key, out var paths)
-                    ? paths.Select(path => path.Path).Distinct(StringComparer.Ordinal).ToArray()
-                    : [],
-                isRevertable = pair.Value.IsRevertable
+                id = action.Id,
+                name = action.Name,
+                aliases = action.MenuVariants
+                    .Select(variant => variant.Path)
+                    .Distinct(StringComparer.Ordinal)
+                    .ToArray(),
+                isRevertable = action.IsRevertable
             })
             .ToArray();
         var actions = string.IsNullOrWhiteSpace(query)
@@ -271,11 +400,13 @@ public sealed class ClassIslandActionAiService
                 $"读取契约前必须先从行动目录取得这些 ID：{string.Join(", ", unlistedIds)}");
         }
 
-        var aliases = GetMenuAliases();
+        var catalog = GetActionCatalogSnapshot();
         var contracts = request.ActionIds
             .Select(id => id.Trim())
             .Distinct(StringComparer.Ordinal)
-            .Select(id => DescribeAction(id, aliases))
+            .Select(id => catalog.ById.TryGetValue(id, out var action)
+                ? action.Description.Value
+                : throw new InvalidOperationException($"行动未注册或已不可用：{id}"))
             .ToArray();
 
         return JsonSerializer.Serialize(new
@@ -286,7 +417,7 @@ public sealed class ClassIslandActionAiService
         }, ToolJsonOptions);
     }
 
-    private static string ListAppSettings(
+    private string ListAppSettings(
         string arguments,
         IReadOnlySet<string> describedActionIds)
     {
@@ -298,10 +429,15 @@ public sealed class ClassIslandActionAiService
 
         var request = DeserializeArguments<ListAppSettingsRequest>(arguments);
         var query = request.Query?.Trim();
-        var allSettings = GetAppSettingContracts();
+        var snapshot = GetAppSettingsSnapshot();
+        var suggestedComponentConfigs = GetSuggestedComponentConfigs();
+        var allSettings = snapshot.Contracts;
         var settings = string.IsNullOrWhiteSpace(query)
             ? allSettings.Where(setting => setting.IsNormallyVisible).ToArray()
-            : allSettings.Where(setting => MatchesAppSettingQuery(setting, query)).ToArray();
+            : allSettings.Where(setting => MatchesAppSettingQuery(
+                setting,
+                query,
+                GetSuggestedValues(setting, suggestedComponentConfigs))).ToArray();
 
         return JsonSerializer.Serialize(new
         {
@@ -313,9 +449,12 @@ public sealed class ClassIslandActionAiService
                 displayName = setting.DisplayName,
                 propertyName = setting.Property.Name,
                 valueType = setting.Property.PropertyType.FullName,
-                valueSchema = BuildAppSettingValueSchema(setting),
+                valueSchema = GetAppSettingValueSchema(
+                    snapshot,
+                    setting,
+                    GetSuggestedValues(setting, suggestedComponentConfigs)),
                 valueOptions = setting.ValueOptions,
-                suggestedValues = setting.SuggestedValues
+                suggestedValues = GetSuggestedValues(setting, suggestedComponentConfigs)
             }),
             instruction = settings.Length == 0
                 ? "没有找到匹配项。请改用更短的中文关键词、内部属性名或省略 query 后重试，不能猜测 propertyName。"
@@ -428,16 +567,190 @@ public sealed class ClassIslandActionAiService
         }, ToolJsonOptions);
     }
 
-    private object DescribeAction(
-        string id,
-        IReadOnlyDictionary<string, IReadOnlyList<ActionAlias>> aliases)
+    public LocalActionRoute? ResolveLocalRoute(string userInput)
     {
-        if (!IActionService.ActionInfos.TryGetValue(id, out var info))
+        if (string.IsNullOrWhiteSpace(userInput))
         {
-            throw new InvalidOperationException($"行动未注册或已不可用：{id}");
+            return null;
         }
 
-        var settingsType = ResolveSettingsType(id, aliases);
+        var catalog = GetActionCatalogSnapshot();
+        var normalizedInput = NormalizeRouteText(userInput);
+        var normalizedCommand = NormalizeCommandText(userInput);
+        if (normalizedInput.Length == 0 || normalizedCommand.Length == 0)
+        {
+            return null;
+        }
+
+        var exactMatches = catalog.Actions
+            .SelectMany(action => action.RouteKeywords
+                .Where(keyword => keyword.Normalized == normalizedCommand ||
+                                  keyword.Normalized == normalizedInput)
+                .Select(keyword => new RouteMatch(action, keyword, true)))
+            .ToArray();
+        if (exactMatches.Length == 0 && MultipleActionConnectors.Any(userInput.Contains))
+        {
+            return null;
+        }
+
+        var matches = exactMatches.Length > 0
+            ? exactMatches
+            : catalog.Actions
+                .SelectMany(action => action.RouteKeywords
+                    .Where(keyword => keyword.Normalized.Length >= 2 &&
+                                      normalizedInput.Contains(
+                                          keyword.Normalized,
+                                          StringComparison.Ordinal))
+                    .Select(keyword => new RouteMatch(action, keyword, false)))
+                .ToArray();
+        var matchedActions = matches
+            .GroupBy(match => match.Action.Id, StringComparer.Ordinal)
+            .ToArray();
+        if (matchedActions.Length != 1)
+        {
+            return null;
+        }
+
+        var bestMatch = matchedActions[0]
+            .OrderByDescending(match => match.Keyword.Normalized.Length)
+            .First();
+        var appSettingNames = GetPreloadedAppSettingNames(
+            bestMatch.Action,
+            bestMatch.Keyword);
+        var requiresAppSettingsLookup = bestMatch.Action.Id == AppSettingsActionId &&
+                                        appSettingNames.Count == 0;
+        var canExecuteDirectly = bestMatch.IsExact && bestMatch.Action.SettingsType is null;
+
+        string contextMessage;
+        try
+        {
+            contextMessage = canExecuteDirectly
+                ? string.Empty
+                : BuildLocalRouteContext(bestMatch.Action, bestMatch.Keyword, appSettingNames);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "本地行动路由上下文构建失败，回退到常规 AI 路径。");
+            return null;
+        }
+
+        return new LocalActionRoute(
+            bestMatch.Action.Id,
+            bestMatch.Action.Name,
+            bestMatch.Keyword.DisplayText,
+            bestMatch.Keyword.PresetSettings,
+            canExecuteDirectly,
+            null,
+            contextMessage,
+            appSettingNames,
+            requiresAppSettingsLookup);
+    }
+
+    public Task<string> ExecuteLocalRouteAsync(
+        LocalActionRoute route,
+        Func<ActionExecutionPreview, Task<bool>> confirmExecutionAsync,
+        CancellationToken cancellationToken)
+    {
+        if (!route.CanExecuteDirectly)
+        {
+            throw new InvalidOperationException("该本地路由仍需要 AI 补全参数，不能直接执行。");
+        }
+
+        var arguments = JsonSerializer.Serialize(new
+        {
+            summary = $"执行 {route.ActionName}",
+            actions = new[]
+            {
+                new
+                {
+                    id = route.ActionId,
+                    settings = route.Settings
+                }
+            }
+        }, ToolJsonOptions);
+        return ExecuteActionsAsync(
+            arguments,
+            confirmExecutionAsync,
+            new HashSet<string>([route.ActionId], StringComparer.Ordinal),
+            new HashSet<string>(route.AppSettingNames, StringComparer.Ordinal),
+            cancellationToken);
+    }
+
+    private ActionCatalogSnapshot GetActionCatalogSnapshot()
+    {
+        var registryStamp = GetActionRegistryStamp();
+        var snapshot = Volatile.Read(ref _actionCatalogSnapshot);
+        if (snapshot is not null && snapshot.RegistryStamp == registryStamp)
+        {
+            return snapshot;
+        }
+
+        lock (_cacheGate)
+        {
+            registryStamp = GetActionRegistryStamp();
+            snapshot = _actionCatalogSnapshot;
+            if (snapshot is not null && snapshot.RegistryStamp == registryStamp)
+            {
+                return snapshot;
+            }
+
+            snapshot = BuildActionCatalogSnapshot(registryStamp);
+            Volatile.Write(ref _actionCatalogSnapshot, snapshot);
+            Volatile.Write(ref _appSettingsSnapshot, null);
+            return snapshot;
+        }
+    }
+
+    private ActionCatalogSnapshot BuildActionCatalogSnapshot(ActionRegistryStamp registryStamp)
+    {
+        var aliases = BuildMenuAliases();
+        var actions = IActionService.ActionInfos
+            .OrderBy(pair => pair.Value.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ThenBy(pair => pair.Key, StringComparer.Ordinal)
+            .Select(pair =>
+            {
+                var variants = aliases.TryGetValue(pair.Key, out var registeredVariants)
+                    ? registeredVariants
+                    : [];
+                var settingsType = ResolveSettingsType(pair.Key, pair.Value, variants);
+                var menuVariants = variants
+                    .Select(variant => CreateCachedMenuVariant(variant, settingsType))
+                    .ToArray();
+                var routeKeywords = CreateRouteKeywords(
+                    pair.Key,
+                    pair.Value.Name,
+                    menuVariants);
+                var description = new Lazy<JsonElement>(
+                    () => BuildActionDescription(
+                        pair.Key,
+                        pair.Value,
+                        settingsType,
+                        menuVariants),
+                    LazyThreadSafetyMode.ExecutionAndPublication);
+                return new CachedAction(
+                    pair.Key,
+                    pair.Value.Name,
+                    pair.Value.IsRevertable,
+                    settingsType,
+                    menuVariants,
+                    routeKeywords,
+                    description);
+            })
+            .ToArray();
+
+        return new ActionCatalogSnapshot(
+            registryStamp,
+            actions,
+            actions.ToDictionary(action => action.Id, StringComparer.Ordinal),
+            aliases);
+    }
+
+    private static JsonElement BuildActionDescription(
+        string id,
+        ActionInfo info,
+        Type? settingsType,
+        IReadOnlyList<CachedMenuVariant> menuVariants)
+    {
         var defaultSettings = CreateDefaultSettings(settingsType);
         var settingsSchema = BuildSettingsSchema(settingsType, defaultSettings);
         if (id == AppSettingsActionId)
@@ -445,7 +758,7 @@ public sealed class ClassIslandActionAiService
             SpecializeAppSettingsActionSchema(settingsSchema);
         }
 
-        return new
+        return JsonSerializer.SerializeToElement(new
         {
             id,
             name = info.Name,
@@ -453,17 +766,15 @@ public sealed class ClassIslandActionAiService
             settingsType = settingsType?.FullName,
             settingsSchema,
             defaultSettings,
-            menuVariants = aliases.TryGetValue(id, out var variants)
-                ? variants.Select(variant => new
-                {
-                    name = variant.Path,
-                    presetSettings = CreateMenuPreset(variant, settingsType)
-                }).ToArray()
-                : [],
+            menuVariants = menuVariants.Select(variant => new
+            {
+                name = variant.Path,
+                presetSettings = variant.PresetSettings
+            }),
             appSettingsDirectoryTool = id == AppSettingsActionId
                 ? ListAppSettingsToolName
                 : null
-        };
+        }, ToolJsonOptions);
     }
 
     private PreparedAction PrepareAction(
@@ -472,13 +783,13 @@ public sealed class ClassIslandActionAiService
         IReadOnlySet<string> listedAppSettingNames)
     {
         var id = request.Id.Trim();
-        if (!IActionService.ActionInfos.TryGetValue(id, out var info))
+        var catalog = GetActionCatalogSnapshot();
+        if (!catalog.ById.TryGetValue(id, out var action))
         {
             throw new InvalidOperationException($"第 {index + 1} 项行动未注册或已不可用：{id}");
         }
 
-        var aliases = GetMenuAliases();
-        var settingsType = ResolveSettingsType(id, aliases);
+        var settingsType = action.SettingsType;
         if (settingsType is null)
         {
             if (request.Settings is { ValueKind: not JsonValueKind.Null and not JsonValueKind.Undefined } settings &&
@@ -487,7 +798,7 @@ public sealed class ClassIslandActionAiService
                 throw new InvalidOperationException($"行动 {id} 不接受 settings。");
             }
 
-            return new PreparedAction(index, id, info.Name, null);
+            return new PreparedAction(index, id, action.Name, null);
         }
 
         object typedSettings;
@@ -502,7 +813,7 @@ public sealed class ClassIslandActionAiService
                             ?? throw new InvalidOperationException($"行动 {id} 的 settings 不能为 null。");
         }
 
-        var actionName = info.Name;
+        var actionName = action.Name;
         if (id == AppSettingsActionId)
         {
             actionName = ValidateAppSettingsAction(
@@ -518,16 +829,16 @@ public sealed class ClassIslandActionAiService
             JsonSerializer.SerializeToElement(typedSettings, settingsType));
     }
 
-    private static string ValidateAppSettingsAction(
+    private string ValidateAppSettingsAction(
         object typedSettings,
         int index,
         IReadOnlySet<string> listedAppSettingNames)
     {
-        var settingsType = typedSettings.GetType();
-        var nameProperty = settingsType.GetProperty("Name", BindingFlags.Public | BindingFlags.Instance)
+        var snapshot = GetAppSettingsSnapshot();
+        var nameProperty = snapshot.NameProperty
                            ?? throw new InvalidOperationException(
                                $"第 {index + 1} 项应用设置行动缺少 Name 字段。");
-        var valueProperty = settingsType.GetProperty("Value", BindingFlags.Public | BindingFlags.Instance)
+        var valueProperty = snapshot.ValueProperty
                             ?? throw new InvalidOperationException(
                                 $"第 {index + 1} 项应用设置行动缺少 Value 字段。");
         var propertyName = nameProperty.GetValue(typedSettings) as string;
@@ -543,10 +854,11 @@ public sealed class ClassIslandActionAiService
                 $"执行应用设置 {propertyName} 前，必须先通过 {ListAppSettingsToolName} 在本轮查询到该 propertyName。");
         }
 
-        var contract = GetAppSettingContracts()
-            .FirstOrDefault(setting => setting.Property.Name == propertyName)
-            ?? throw new InvalidOperationException(
+        if (!snapshot.ByPropertyName.TryGetValue(propertyName, out var contract))
+        {
+            throw new InvalidOperationException(
                 $"ClassIsland ‘选择应用设置…’中不存在属性 {propertyName}。");
+        }
         var rawValue = valueProperty.GetValue(typedSettings);
         if (rawValue is null)
         {
@@ -558,8 +870,11 @@ public sealed class ClassIslandActionAiService
             ? jsonElement
             : JsonSerializer.SerializeToElement(rawValue, rawValue.GetType());
         valueElement = NormalizeAppSettingOptionValue(contract, valueElement);
-        ValidateSuggestedAppSettingValue(contract, valueElement);
-        ValidateAppSettingValueWithClassIsland(contract, valueElement);
+        ValidateSuggestedAppSettingValue(
+            contract,
+            valueElement,
+            GetSuggestedValues(contract, GetSuggestedComponentConfigs()));
+        ValidateAppSettingValueWithClassIsland(snapshot, contract, valueElement);
         valueProperty.SetValue(typedSettings, valueElement);
 
         var valueSummary = GetAppSettingValueSummary(contract, valueElement);
@@ -629,10 +944,11 @@ public sealed class ClassIslandActionAiService
 
     private static void ValidateSuggestedAppSettingValue(
         AppSettingContract contract,
-        JsonElement value)
+        JsonElement value,
+        IReadOnlyList<string> suggestedValues)
     {
         if (contract.Property.Name != "CurrentComponentConfig" ||
-            contract.SuggestedValues.Count == 0)
+            suggestedValues.Count == 0)
         {
             return;
         }
@@ -640,28 +956,25 @@ public sealed class ClassIslandActionAiService
         var selectedConfig = value.ValueKind == JsonValueKind.String
             ? value.GetString()
             : null;
-        if (selectedConfig is null || !contract.SuggestedValues.Contains(
+        if (selectedConfig is null || !suggestedValues.Contains(
                 selectedConfig,
                 StringComparer.Ordinal))
         {
             throw new InvalidOperationException(
-                $"组件配置方案必须是当前存在的配置之一：{string.Join("、", contract.SuggestedValues)}");
+                $"组件配置方案必须是当前存在的配置之一：{string.Join("、", suggestedValues)}");
         }
     }
 
     private static void ValidateAppSettingValueWithClassIsland(
+        AppSettingsSnapshot snapshot,
         AppSettingContract contract,
         JsonElement value)
     {
-        var provider = GetAppSettingsActionProvider();
-        var converter = provider.GetType().GetMethod(
-            "ConvertToAssignableToSettingsType",
-            BindingFlags.Public | BindingFlags.Static)
-                        ?? throw new InvalidOperationException(
-                            "当前 ClassIsland 版本没有公开应用设置值转换方法，无法安全校验 Value。");
         try
         {
-            var converted = converter.Invoke(null, [value, contract.Property.PropertyType]);
+            var converted = snapshot.ValueConverter.Invoke(
+                null,
+                [value, contract.Property.PropertyType]);
             if (converted is null)
             {
                 throw new InvalidOperationException("转换结果为 null。");
@@ -676,9 +989,34 @@ public sealed class ClassIslandActionAiService
         }
     }
 
-    private static IReadOnlyList<AppSettingContract> GetAppSettingContracts()
+    private AppSettingsSnapshot GetAppSettingsSnapshot()
+    {
+        var catalog = GetActionCatalogSnapshot();
+        var snapshot = Volatile.Read(ref _appSettingsSnapshot);
+        if (snapshot is not null && snapshot.RegistryStamp == catalog.RegistryStamp)
+        {
+            return snapshot;
+        }
+
+        lock (_cacheGate)
+        {
+            catalog = GetActionCatalogSnapshot();
+            snapshot = _appSettingsSnapshot;
+            if (snapshot is not null && snapshot.RegistryStamp == catalog.RegistryStamp)
+            {
+                return snapshot;
+            }
+
+            snapshot = BuildAppSettingsSnapshot(catalog.RegistryStamp);
+            Volatile.Write(ref _appSettingsSnapshot, snapshot);
+            return snapshot;
+        }
+    }
+
+    private static AppSettingsSnapshot BuildAppSettingsSnapshot(ActionRegistryStamp registryStamp)
     {
         var provider = GetAppSettingsActionProvider();
+        var providerType = provider.GetType();
         var settingsServiceProperty = provider.GetType().GetProperty(
             "SettingsService",
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -692,21 +1030,43 @@ public sealed class ClassIslandActionAiService
                            BindingFlags.Public | BindingFlags.Instance)?.GetValue(settingsService)
                        ?? throw new InvalidOperationException(
                            "无法取得 ClassIsland 当前 Settings 对象。");
-        var suggestedComponentConfigs = GetSuggestedComponentConfigs();
-
-        return settings.GetType()
+        var valueConverter = providerType.GetMethod(
+            "ConvertToAssignableToSettingsType",
+            BindingFlags.Public | BindingFlags.Static)
+                             ?? throw new InvalidOperationException(
+                                 "当前 ClassIsland 版本没有公开应用设置值转换方法，无法安全校验 Value。");
+        var actionSettingsType = FindActionSettingsType(providerType);
+        var nameProperty = actionSettingsType?.GetProperty(
+            "Name",
+            BindingFlags.Public | BindingFlags.Instance);
+        var valueProperty = actionSettingsType?.GetProperty(
+            "Value",
+            BindingFlags.Public | BindingFlags.Instance);
+        var contracts = settings.GetType()
             .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
             .Where(property => property.SetMethod is not null)
             .Where(property => property.GetCustomAttribute<ObsoleteAttribute>() is null)
-            .Select(property => CreateAppSettingContract(
-                property,
-                property.Name == "CurrentComponentConfig"
-                    ? suggestedComponentConfigs
-                    : []))
+            .Select(CreateAppSettingContract)
             .OrderBy(setting => setting.Order)
             .ThenByDescending(setting => setting.IsAttributed)
             .ThenBy(setting => setting.DisplayName, StringComparer.CurrentCultureIgnoreCase)
             .ToArray();
+        var byPropertyName = contracts.ToDictionary(
+            contract => contract.Property.Name,
+            StringComparer.Ordinal);
+        var valueSchemas = contracts.ToDictionary(
+            contract => contract.Property.Name,
+            BuildAppSettingValueSchema,
+            StringComparer.Ordinal);
+
+        return new AppSettingsSnapshot(
+            registryStamp,
+            contracts,
+            byPropertyName,
+            valueSchemas,
+            valueConverter,
+            nameProperty,
+            valueProperty);
     }
 
     private static ActionBase GetAppSettingsActionProvider()
@@ -731,9 +1091,7 @@ public sealed class ClassIslandActionAiService
         }
     }
 
-    private static AppSettingContract CreateAppSettingContract(
-        PropertyInfo property,
-        IReadOnlyList<string> suggestedValues)
+    private static AppSettingContract CreateAppSettingContract(PropertyInfo property)
     {
         var info = property.GetCustomAttribute<SettingsInfo>();
         var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
@@ -748,8 +1106,7 @@ public sealed class ClassIslandActionAiService
             info?.Order ?? 10,
             info is not null,
             isNormallyVisible,
-            valueOptions,
-            suggestedValues);
+            valueOptions);
     }
 
     private static IReadOnlyList<AppSettingValueOption> CreateAppSettingValueOptions(
@@ -782,7 +1139,32 @@ public sealed class ClassIslandActionAiService
             .ToArray();
     }
 
-    private static bool MatchesAppSettingQuery(AppSettingContract setting, string query)
+    private static IReadOnlyList<string> GetSuggestedValues(
+        AppSettingContract setting,
+        IReadOnlyList<string> suggestedComponentConfigs)
+    {
+        return setting.Property.Name == "CurrentComponentConfig"
+            ? suggestedComponentConfigs
+            : [];
+    }
+
+    private static Type? FindActionSettingsType(Type providerType)
+    {
+        for (var type = providerType; type is not null; type = type.BaseType)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ActionBase<>))
+            {
+                return type.GetGenericArguments()[0];
+            }
+        }
+
+        return null;
+    }
+
+    private static bool MatchesAppSettingQuery(
+        AppSettingContract setting,
+        string query,
+        IReadOnlyList<string> suggestedValues)
     {
         return setting.DisplayName.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
                setting.Property.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
@@ -791,7 +1173,7 @@ public sealed class ClassIslandActionAiService
                    StringComparison.OrdinalIgnoreCase) ?? false) ||
                setting.ValueOptions.Any(option =>
                    option.Label.Contains(query, StringComparison.CurrentCultureIgnoreCase)) ||
-               setting.SuggestedValues.Any(value =>
+               suggestedValues.Any(value =>
                    value.Contains(query, StringComparison.CurrentCultureIgnoreCase));
     }
 
@@ -841,9 +1223,19 @@ public sealed class ClassIslandActionAiService
             schema["description"] = $"必须符合此结构并能反序列化为 {type.FullName}";
         }
 
-        if (setting.SuggestedValues.Count > 0)
+        return schema;
+    }
+
+    private static JsonObject GetAppSettingValueSchema(
+        AppSettingsSnapshot snapshot,
+        AppSettingContract setting,
+        IReadOnlyList<string> suggestedValues)
+    {
+        var schema = snapshot.ValueSchemas[setting.Property.Name].DeepClone() as JsonObject
+                     ?? new JsonObject();
+        if (suggestedValues.Count > 0)
         {
-            schema["enum"] = new JsonArray(setting.SuggestedValues
+            schema["enum"] = new JsonArray(suggestedValues
                 .Select(value => (JsonNode?)JsonValue.Create(value))
                 .ToArray());
         }
@@ -872,22 +1264,37 @@ public sealed class ClassIslandActionAiService
         schema["required"] = new JsonArray("Name", "Value");
     }
 
-    private static Type? ResolveSettingsType(
+    private Type? ResolveSettingsType(
         string id,
-        IReadOnlyDictionary<string, IReadOnlyList<ActionAlias>> aliases)
+        ActionInfo info,
+        IReadOnlyList<ActionAlias> aliases)
     {
+        if (ActionInfoSettingsTypeProperty?.GetValue(info) is Type registeredSettingsType)
+        {
+            return registeredSettingsType;
+        }
+
+        var aliasSettingsType = aliases
+            .Select(alias => alias.SettingsType)
+            .FirstOrDefault(type => type is not null);
+        if (aliasSettingsType is not null)
+        {
+            return aliasSettingsType;
+        }
+
         var provider = IAppHost.Host?.Services.GetKeyedService<ActionBase>(id);
         for (var type = provider?.GetType(); type is not null; type = type.BaseType)
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ActionBase<>))
             {
+                _logger.LogDebug(
+                    "行动 {ActionId} 缺少注册期 SettingsType 元数据，已使用一次性兼容回退。",
+                    id);
                 return type.GetGenericArguments()[0];
             }
         }
 
-        return aliases.TryGetValue(id, out var variants)
-            ? variants.Select(variant => variant.SettingsType).FirstOrDefault(type => type is not null)
-            : null;
+        return null;
     }
 
     private static object? CreateDefaultSettings(Type? settingsType)
@@ -917,6 +1324,18 @@ public sealed class ClassIslandActionAiService
     }
 
     private static JsonNode BuildTypeSchema(Type type, JsonElement? defaultValue, int depth)
+    {
+        if (defaultValue is null && depth == 0)
+        {
+            return TypeSchemaCache.GetOrAdd(
+                type,
+                static schemaType => BuildTypeSchemaCore(schemaType, null, 0)).DeepClone();
+        }
+
+        return BuildTypeSchemaCore(type, defaultValue, depth);
+    }
+
+    private static JsonNode BuildTypeSchemaCore(Type type, JsonElement? defaultValue, int depth)
     {
         var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
         var schema = new JsonObject();
@@ -959,14 +1378,14 @@ public sealed class ClassIslandActionAiService
             schema["type"] = "object";
             schema["additionalProperties"] = depth >= 5
                 ? true
-                : BuildTypeSchema(dictionaryValueType, null, depth + 1);
+                : BuildTypeSchemaCore(dictionaryValueType, null, depth + 1);
         }
         else if (TryGetEnumerableElementType(underlyingType, out var elementType))
         {
             schema["type"] = "array";
             schema["items"] = depth >= 5
                 ? new JsonObject()
-                : BuildTypeSchema(elementType, null, depth + 1);
+                : BuildTypeSchemaCore(elementType, null, depth + 1);
         }
         else if (depth < 5)
         {
@@ -993,7 +1412,7 @@ public sealed class ClassIslandActionAiService
                     propertyDefault = value;
                 }
 
-                properties[property.Name] = BuildTypeSchema(
+                properties[property.Name] = BuildTypeSchemaCore(
                     property.PropertyType,
                     propertyDefault,
                     depth + 1);
@@ -1067,7 +1486,212 @@ public sealed class ClassIslandActionAiService
         return settings;
     }
 
-    private static IReadOnlyDictionary<string, IReadOnlyList<ActionAlias>> GetMenuAliases()
+    private CachedMenuVariant CreateCachedMenuVariant(ActionAlias alias, Type? settingsType)
+    {
+        try
+        {
+            var preset = CreateMenuPreset(alias, settingsType);
+            return new CachedMenuVariant(
+                alias.Path,
+                preset is null || settingsType is null
+                    ? null
+                    : JsonSerializer.SerializeToElement(preset, settingsType));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "缓存行动菜单预设 {MenuPath} 失败。", alias.Path);
+            return new CachedMenuVariant(alias.Path, null);
+        }
+    }
+
+    private static IReadOnlyList<RouteKeyword> CreateRouteKeywords(
+        string actionId,
+        string actionName,
+        IReadOnlyList<CachedMenuVariant> menuVariants)
+    {
+        var keywords = new List<RouteKeyword>();
+        AddKeyword(actionId, null);
+        AddKeyword(actionName, null);
+        foreach (var variant in menuVariants)
+        {
+            AddKeyword(variant.Path, variant.PresetSettings);
+            var leaf = variant.Path
+                .Split(" > ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .LastOrDefault();
+            if (!string.IsNullOrWhiteSpace(leaf))
+            {
+                AddKeyword(leaf, variant.PresetSettings);
+            }
+        }
+
+        return keywords
+            .GroupBy(keyword => keyword.Normalized, StringComparer.Ordinal)
+            .Select(group => group
+                .OrderByDescending(keyword => keyword.PresetSettings is not null)
+                .First())
+            .ToArray();
+
+        void AddKeyword(string displayText, JsonElement? presetSettings)
+        {
+            var normalized = NormalizeRouteText(displayText);
+            if (normalized.Length > 0)
+            {
+                keywords.Add(new RouteKeyword(displayText, normalized, presetSettings));
+            }
+        }
+    }
+
+    private IReadOnlyList<string> GetPreloadedAppSettingNames(
+        CachedAction action,
+        RouteKeyword keyword)
+    {
+        if (action.Id != AppSettingsActionId ||
+            keyword.PresetSettings is not { ValueKind: JsonValueKind.Object } preset ||
+            !preset.TryGetProperty("Name", out var nameElement) ||
+            nameElement.GetString() is not { Length: > 0 } propertyName)
+        {
+            return [];
+        }
+
+        return GetAppSettingsSnapshot().ByPropertyName.ContainsKey(propertyName)
+            ? [propertyName]
+            : [];
+    }
+
+    private string BuildLocalRouteContext(
+        CachedAction action,
+        RouteKeyword keyword,
+        IReadOnlyList<string> appSettingNames)
+    {
+        var appSettingsSnapshot = appSettingNames.Count > 0
+            ? GetAppSettingsSnapshot()
+            : null;
+        var suggestedComponentConfigs = appSettingsSnapshot is null
+            ? []
+            : GetSuggestedComponentConfigs();
+        var appSettings = appSettingsSnapshot is null
+            ? []
+            : appSettingNames
+                .Where(appSettingsSnapshot.ByPropertyName.ContainsKey)
+                .Select(propertyName => CreateAppSettingPayload(
+                    appSettingsSnapshot,
+                    appSettingsSnapshot.ByPropertyName[propertyName],
+                    suggestedComponentConfigs))
+                .ToArray();
+
+        return JsonSerializer.Serialize(new
+        {
+            marker = "LOCAL_ACTION_ROUTE",
+            trustedLocalMetadata = true,
+            instruction = action.Id == AppSettingsActionId && appSettingNames.Count == 0
+                ? $"本地路由器已唯一匹配并读取该行动契约。不要再调用 {ListActionsToolName} 或 {DescribeActionsToolName}；请调用 {ListAppSettingsToolName} 查找属性后执行。"
+                : $"本地路由器已唯一匹配并读取行动契约。不要再调用 {ListActionsToolName}、{DescribeActionsToolName} 或重复查询已给出的应用设置属性；可直接构造 {ExecuteActionsToolName}。",
+            action = action.Description.Value,
+            matchedMenuVariant = new
+            {
+                name = keyword.DisplayText,
+                presetSettings = keyword.PresetSettings
+            },
+            appSettings
+        }, ToolJsonOptions);
+    }
+
+    private static object CreateAppSettingPayload(
+        AppSettingsSnapshot snapshot,
+        AppSettingContract setting,
+        IReadOnlyList<string> suggestedComponentConfigs)
+    {
+        var suggestedValues = GetSuggestedValues(setting, suggestedComponentConfigs);
+        return new
+        {
+            displayName = setting.DisplayName,
+            propertyName = setting.Property.Name,
+            valueType = setting.Property.PropertyType.FullName,
+            valueSchema = GetAppSettingValueSchema(snapshot, setting, suggestedValues),
+            valueOptions = setting.ValueOptions,
+            suggestedValues
+        };
+    }
+
+    private static string NormalizeCommandText(string value)
+    {
+        var normalized = NormalizeRouteText(value);
+        var changed = true;
+        while (changed && normalized.Length > 0)
+        {
+            changed = false;
+            foreach (var prefix in LocalRoutePrefixes)
+            {
+                if (normalized.StartsWith(prefix, StringComparison.Ordinal) &&
+                    normalized.Length > prefix.Length)
+                {
+                    normalized = normalized[prefix.Length..];
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
+        changed = true;
+        while (changed && normalized.Length > 0)
+        {
+            changed = false;
+            foreach (var suffix in LocalRouteSuffixes)
+            {
+                if (normalized.EndsWith(suffix, StringComparison.Ordinal) &&
+                    normalized.Length > suffix.Length)
+                {
+                    normalized = normalized[..^suffix.Length];
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
+        return normalized;
+    }
+
+    private static string NormalizeRouteText(string value)
+    {
+        var builder = new StringBuilder(value.Length);
+        foreach (var character in value)
+        {
+            if (char.IsLetterOrDigit(character))
+            {
+                builder.Append(char.ToLowerInvariant(character));
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    private static ActionRegistryStamp GetActionRegistryStamp()
+    {
+        long registryVersion;
+        try
+        {
+            registryVersion = ActionRegistryVersionAccessor.Value?.Invoke() ?? -1;
+        }
+        catch
+        {
+            registryVersion = -1;
+        }
+
+        return new ActionRegistryStamp(registryVersion, IActionService.ActionInfos.Count);
+    }
+
+    private static Func<long>? CreateActionRegistryVersionAccessor()
+    {
+        var registryStateType = typeof(IActionService).Assembly.GetType(
+            "ClassIsland.Core.Abstractions.Services.ActionRegistryState",
+            throwOnError: false);
+        var getter = registryStateType?.GetProperty(
+            "Version",
+            BindingFlags.Public | BindingFlags.Static)?.GetMethod;
+        return getter?.CreateDelegate<Func<long>>();
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<ActionAlias>> BuildMenuAliases()
     {
         var aliases = new Dictionary<string, List<ActionAlias>>(StringComparer.Ordinal);
         AddAliases(IActionService.IListActionMenuTree, [], aliases);
@@ -1181,14 +1805,51 @@ public sealed class ClassIslandActionAiService
 
     private sealed record ActionAlias(string Path, Type? SettingsType, Delegate? SettingsSetter);
 
+    private readonly record struct ActionRegistryStamp(long Version, int ActionCount);
+
+    private sealed record CachedMenuVariant(string Path, JsonElement? PresetSettings);
+
+    private sealed record RouteKeyword(
+        string DisplayText,
+        string Normalized,
+        JsonElement? PresetSettings);
+
+    private sealed record RouteMatch(
+        CachedAction Action,
+        RouteKeyword Keyword,
+        bool IsExact);
+
+    private sealed record CachedAction(
+        string Id,
+        string Name,
+        bool IsRevertable,
+        Type? SettingsType,
+        IReadOnlyList<CachedMenuVariant> MenuVariants,
+        IReadOnlyList<RouteKeyword> RouteKeywords,
+        Lazy<JsonElement> Description);
+
+    private sealed record ActionCatalogSnapshot(
+        ActionRegistryStamp RegistryStamp,
+        IReadOnlyList<CachedAction> Actions,
+        IReadOnlyDictionary<string, CachedAction> ById,
+        IReadOnlyDictionary<string, IReadOnlyList<ActionAlias>> MenuAliases);
+
+    private sealed record AppSettingsSnapshot(
+        ActionRegistryStamp RegistryStamp,
+        IReadOnlyList<AppSettingContract> Contracts,
+        IReadOnlyDictionary<string, AppSettingContract> ByPropertyName,
+        IReadOnlyDictionary<string, JsonObject> ValueSchemas,
+        MethodInfo ValueConverter,
+        PropertyInfo? NameProperty,
+        PropertyInfo? ValueProperty);
+
     private sealed record AppSettingContract(
         PropertyInfo Property,
         string DisplayName,
         double Order,
         bool IsAttributed,
         bool IsNormallyVisible,
-        IReadOnlyList<AppSettingValueOption> ValueOptions,
-        IReadOnlyList<string> SuggestedValues);
+        IReadOnlyList<AppSettingValueOption> ValueOptions);
 
     private sealed record AppSettingValueOption(string Label, object Value);
 

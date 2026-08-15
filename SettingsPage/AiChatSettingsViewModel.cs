@@ -120,8 +120,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
                            !IsUpdatingAttachments &&
                            !_operationGate.IsBusy &&
                            SelectedConversation is not null &&
-                           (!string.IsNullOrWhiteSpace(InputText) || PendingAttachments.Count > 0) &&
-                           !string.IsNullOrWhiteSpace(_configHandler.Data.AiModel);
+                           (!string.IsNullOrWhiteSpace(InputText) || PendingAttachments.Count > 0);
 
     public bool IsAnyGenerationActive => _operationGate.IsGenerationActive;
 
@@ -331,7 +330,28 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         {
             var conversation = SelectedConversation;
             var userText = InputText.Trim();
-            if (!TryLoadSystemPrompt(out var systemPrompt))
+            var attachments = PendingAttachments.ToList();
+            LocalActionRoute? localRoute = null;
+            if (attachments.Count == 0)
+            {
+                try
+                {
+                    localRoute = _actionAiService.ResolveLocalRoute(userText);
+                }
+                catch
+                {
+                    localRoute = null;
+                }
+            }
+
+            var executeLocally = localRoute?.CanExecuteDirectly == true;
+            var systemPrompt = string.Empty;
+            if (!executeLocally && string.IsNullOrWhiteSpace(_configHandler.Data.AiModel))
+            {
+                StatusText = "请先在“更多功能选项”中获取并选择模型。";
+                return;
+            }
+            if (!executeLocally && !TryLoadSystemPrompt(out systemPrompt))
             {
                 return;
             }
@@ -340,7 +360,6 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             StatusText = string.Empty;
 
             var isFirstUserMessage = conversation.Messages.All(x => !x.IsUser);
-            var attachments = PendingAttachments.ToList();
             PendingAttachments.Clear();
             var userMessage = new AiConversationMessage
             {
@@ -360,7 +379,14 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             _store.Touch(conversation);
             TrySaveStore();
 
-            await GenerateResponseForConversationAsync(conversation, systemPrompt);
+            if (executeLocally)
+            {
+                await ExecuteLocalRouteForConversationAsync(conversation, localRoute!);
+            }
+            else
+            {
+                await GenerateResponseForConversationAsync(conversation, systemPrompt, localRoute);
+            }
         }
     }
 
@@ -520,12 +546,122 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         attachment.Dispose();
     }
 
-    private async Task GenerateResponseForConversationAsync(AiConversation conversation, string systemPrompt)
+    private async Task ExecuteLocalRouteForConversationAsync(
+        AiConversation conversation,
+        LocalActionRoute route)
+    {
+        var assistantMessage = new AiConversationMessage
+        {
+            Role = "assistant",
+            IsStreaming = true,
+            ActivityText = "正在准备行动..."
+        };
+        conversation.Messages.Add(assistantMessage);
+
+        _generationCancellation?.Dispose();
+        _generationCancellation = new CancellationTokenSource();
+        _generatingConversation = conversation;
+        IsGenerating = true;
+        _generationTask = ExecuteLocalRouteAsync(
+            conversation,
+            assistantMessage,
+            route,
+            _generationCancellation.Token);
+        await _generationTask;
+    }
+
+    private async Task ExecuteLocalRouteAsync(
+        AiConversation conversation,
+        AiConversationMessage assistantMessage,
+        LocalActionRoute route,
+        CancellationToken cancellationToken)
+    {
+        var reply = string.Empty;
+        var hasCompleted = false;
+        try
+        {
+            var result = await _actionAiService.ExecuteLocalRouteAsync(
+                route,
+                _confirmActionExecutionAsync,
+                cancellationToken);
+            var status = TryGetToolStatus(result);
+            reply = status switch
+            {
+                "completed" => $"已执行：{route.ActionName}。",
+                "partially_completed" => $"已执行“{route.ActionName}”，但行动未完全完成。",
+                "denied" => $"已取消执行：{route.ActionName}。",
+                _ => $"未能执行：{route.ActionName}。"
+            };
+            hasCompleted = status is "completed" or "partially_completed";
+            await UpdateAssistantContentAsync(assistantMessage, reply);
+            if (status is "denied")
+            {
+                StatusText = "行动执行已取消。";
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            StatusText = "已停止行动执行。";
+        }
+        catch (Exception ex)
+        {
+            reply = $"行动执行失败：{ex.Message}";
+            await UpdateAssistantContentAsync(assistantMessage, reply);
+            StatusText = reply;
+        }
+        finally
+        {
+            await RunOnUiThreadAsync(() =>
+            {
+                assistantMessage.ActivityText = string.Empty;
+                assistantMessage.IsStreaming = false;
+                if (string.IsNullOrWhiteSpace(assistantMessage.Content))
+                {
+                    conversation.Messages.Remove(assistantMessage);
+                }
+            });
+
+            _store.Touch(conversation);
+            TrySaveStore();
+            _generatingConversation = null;
+            IsGenerating = false;
+            _generationCancellation?.Dispose();
+            _generationCancellation = null;
+
+            if (hasCompleted && IsClassIslandNotificationSharingEnabled &&
+                !_suppressClassIslandNotificationSharing && reply.Length > 0)
+            {
+                try
+                {
+                    await RunOnUiThreadAsync(
+                        () => _notificationProvider.ShowAiReplyNotification(reply));
+                }
+                catch (Exception ex)
+                {
+                    StatusText = $"行动已执行，但通知发送失败：{ex.Message}";
+                }
+            }
+        }
+    }
+
+    private async Task GenerateResponseForConversationAsync(
+        AiConversation conversation,
+        string systemPrompt,
+        LocalActionRoute? localRoute = null)
     {
         AiChatMessage[] requestMessages;
         try
         {
-            requestMessages = new[] { new AiChatMessage("system", systemPrompt) }
+            var systemMessages = new List<AiChatMessage>
+            {
+                new("system", systemPrompt)
+            };
+            if (localRoute is not null)
+            {
+                systemMessages.Add(new AiChatMessage("system", localRoute.ContextMessage));
+            }
+
+            requestMessages = systemMessages
                 .Concat(conversation.Messages
                     .Where(x => !string.IsNullOrWhiteSpace(x.Content) || x.Attachments.Count > 0)
                     .Select(CreateRequestMessage))
@@ -554,6 +690,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             conversation,
             assistantMessage,
             requestMessages,
+            localRoute,
             _generationCancellation.Token);
         await _generationTask;
     }
@@ -796,6 +933,7 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         AiConversation conversation,
         AiConversationMessage assistantMessage,
         AiChatMessage[] requestMessages,
+        LocalActionRoute? localRoute,
         CancellationToken cancellationToken)
     {
         var content = new StringBuilder();
@@ -811,13 +949,21 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
         var listedActionIds = new HashSet<string>(StringComparer.Ordinal);
         var describedActionIds = new HashSet<string>(StringComparer.Ordinal);
         var listedAppSettingNames = new HashSet<string>(StringComparer.Ordinal);
+        if (localRoute is not null)
+        {
+            listedActionIds.Add(localRoute.ActionId);
+            describedActionIds.Add(localRoute.ActionId);
+            listedAppSettingNames.UnionWith(localRoute.AppSettingNames);
+        }
 
         try
         {
             var agentMessages = requestMessages.ToList();
             const int maximumToolRounds = 8;
             const int maximumToolCallsPerRound = 8;
-            var tools = _profileAiService.Tools.Concat(_actionAiService.Tools).ToArray();
+            var tools = _profileAiService.Tools
+                .Concat(_actionAiService.GetToolsForRoute(localRoute))
+                .ToArray();
 
             for (var round = 0; round < maximumToolRounds; round++)
             {

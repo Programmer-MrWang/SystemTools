@@ -173,6 +173,7 @@ public partial class Plugin : PluginBase
             IAppHost.GetService<ThemeBannerCacheService>().Start();
             IAppHost.GetService<AboutTitleImageCacheService>().Start();
             IAppHost.GetService<FloatingWindowProfileManager>().MigrateFromLegacyConfig(GlobalConstants.MainConfig!.Data);
+            IAppHost.TryGetService<ClassIslandActionAiService>()?.StartWarmup();
 
             if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
             {

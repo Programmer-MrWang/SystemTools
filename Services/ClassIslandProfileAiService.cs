@@ -1670,8 +1670,8 @@ public sealed class ClassIslandProfileAiService
     }
 
     private static void SynchronizeDictionaryInPlace<TKey, TValue>(
-        ObservableDictionary<TKey, TValue> target,
-        ObservableDictionary<TKey, TValue> source,
+        ObservableOrderedDictionary<TKey, TValue> target,
+        ObservableOrderedDictionary<TKey, TValue> source,
         Action<TKey, TValue, TValue> synchronizeExisting,
         Func<TValue, TValue> cloneForAdd)
         where TKey : notnull

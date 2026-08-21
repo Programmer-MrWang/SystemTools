@@ -523,8 +523,19 @@ public partial class SystemToolsSettingsPage : SettingsPageBase
 
     private void OnManageFeaturesClick(object? sender, RoutedEventArgs e)
     {
+        ViewModel.UpdateFeatureSearchResults(null);
         ViewModel.FeatureDrawerContent = new object();
         ViewModel.IsFeatureDrawerOpen = true;
+    }
+
+    private void OnFeatureSearchTextBoxTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (sender is not TextBox textBox)
+        {
+            return;
+        }
+
+        ViewModel.UpdateFeatureSearchResults(textBox.Text);
     }
 
     private void OnOpenMoreFeaturesClick(object? sender, RoutedEventArgs e)

@@ -8,11 +8,16 @@
                      xmlns:systemTools="clr-namespace:SystemTools"
                      xmlns:behavior="clr-namespace:System.Windows.Forms.Design.Behavior;assembly=System.Windows.Forms.Design"
                      xmlns:controls1="clr-namespace:SystemTools.Controls"
+                     xmlns:loading="clr-namespace:SystemTools.Controls"
                      x:CompileBindings="False"
                      mc:Ignorable="d"
                      d:DesignHeight="450"
                      d:DesignWidth="800">
 
+    <ci:SettingsPageBase.Styles>
+        <StyleInclude Source="avares://SystemTools/Controls/SettingsPageLazy.axaml" />
+    </ci:SettingsPageBase.Styles>
+    <loading:SettingsPageLazy>
     <ci:DrawerHost x:Name="DrawerHost"
                    DrawerPlacement="Right"
                    IsDrawerOpen="{Binding ViewModel.IsFeatureDrawerOpen, Mode=TwoWay}"
@@ -24,6 +29,7 @@
                       Background="{DynamicResource LayerFillColorDefaultBrush}">
 
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -44,9 +50,14 @@
                             <ci:FluentIcon Glyph="&#xE0F6;" FontSize="19" />
                         </Button>
                     </Grid>
+                    <TextBox x:Name="FeatureSearchTextBox"
+                             Grid.Row="1"
+                             Margin="16,0,16,8"
+                             TextChanged="OnFeatureSearchTextBoxTextChanged"
+                             PlaceholderText="搜索启用功能…" />
 
-                    <Border Grid.Row="1"
-                            Margin="16,8,16,12"
+                    <Border Grid.Row="2"
+                            Margin="16,0,16,12"
                             Padding="12,0"
                             Height="40"
                             Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
@@ -66,47 +77,55 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Row="2"
+                    <Border Grid.Row="3"
                             Margin="16,0,16,0"
                             BorderThickness="0">
-                        <DataGrid AutoGenerateColumns="False"
-                                  ItemsSource="{Binding DataContext.ViewModel.FeatureItems, 
+                        <Grid>
+                            <DataGrid AutoGenerateColumns="False"
+                                      ItemsSource="{Binding DataContext.ViewModel.FeatureSearchResults,
                           RelativeSource={RelativeSource AncestorType=ci:SettingsPageBase}}"
-                                  CanUserSortColumns="True"
-                                  CanUserReorderColumns="False"
-                                  GridLinesVisibility="Horizontal"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
+                                      CanUserSortColumns="True"
+                                      CanUserReorderColumns="False"
+                                      GridLinesVisibility="Horizontal"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
 
-                            <DataGrid.Styles>
-                                <Style Selector="DataGridRow TextBlock">
-                                    <Setter Property="TextElement.FontSize" Value="13" />
-                                </Style>
-                                <Style Selector="DataGridRow">
-                                    <Setter Property="Height" Value="32" />
-                                </Style>
-                            </DataGrid.Styles>
-                            <DataGrid.Columns>
-                                <DataGridCheckBoxColumn Header="启用"
-                                                        Width="75"
-                                                        Binding="{Binding IsEnabled, Mode=TwoWay}" />
-                                <DataGridTextColumn Header="类型"
-                                                    Width="80"
-                                                    IsReadOnly="True"
-                                                    Binding="{Binding TypeDisplayName}" />
-                                <DataGridTextColumn Header="所属组别"
-                                                    Width="132"
-                                                    IsReadOnly="True"
-                                                    Binding="{Binding GroupName}" />
-                                <DataGridTextColumn Header="名称"
-                                                    Width="*"
-                                                    IsReadOnly="True"
-                                                    Binding="{Binding DisplayName}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
+                                <DataGrid.Styles>
+                                    <Style Selector="DataGridRow TextBlock">
+                                        <Setter Property="TextElement.FontSize" Value="13" />
+                                    </Style>
+                                    <Style Selector="DataGridRow">
+                                        <Setter Property="Height" Value="32" />
+                                    </Style>
+                                </DataGrid.Styles>
+                                <DataGrid.Columns>
+                                    <DataGridCheckBoxColumn Header="启用"
+                                                            Width="75"
+                                                            Binding="{Binding IsEnabled, Mode=TwoWay}" />
+                                    <DataGridTextColumn Header="类型"
+                                                        Width="80"
+                                                        IsReadOnly="True"
+                                                        Binding="{Binding TypeDisplayName}" />
+                                    <DataGridTextColumn Header="所属组别"
+                                                        Width="132"
+                                                        IsReadOnly="True"
+                                                        Binding="{Binding GroupName}" />
+                                    <DataGridTextColumn Header="名称"
+                                                        Width="*"
+                                                        IsReadOnly="True"
+                                                        Binding="{Binding DisplayName}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <StackPanel Margin="0,50"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        IsVisible="{Binding DataContext.ViewModel.IsFeatureSearchEmpty, RelativeSource={RelativeSource AncestorType=ci:SettingsPageBase}}">
+                                <ci:Empty Text="找不到启用功能。" />
+                            </StackPanel>
+                        </Grid>
                     </Border>
 
-                    <Grid Grid.Row="3"
+                    <Grid Grid.Row="4"
                           Height="68"
                           Margin="16,0,16,0">
                         <StackPanel Orientation="Horizontal"
@@ -401,4 +420,5 @@
             </StackPanel>
         </ScrollViewer>
     </ci:DrawerHost>
+    </loading:SettingsPageLazy>
 </ci:SettingsPageBase>

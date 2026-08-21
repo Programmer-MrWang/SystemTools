@@ -104,6 +104,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
     private readonly SemaphoreSlim _downloadSemaphore = new(1, 1);
 
     [ObservableProperty] private ObservableCollection<UnifiedFeatureItem> _featureItems = new();
+    [ObservableProperty] private ObservableCollection<UnifiedFeatureItem> _featureSearchResults = new();
+
+    public bool IsFeatureSearchEmpty => FeatureSearchResults.Count == 0;
 
     // Drawer 
     [ObservableProperty] private bool _isFeatureDrawerOpen = false;
@@ -328,6 +331,29 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
                 GroupName = group
             });
         }
+        UpdateFeatureSearchResults(null);
+    }
+
+    public void UpdateFeatureSearchResults(string? searchText)
+    {
+        var keyword = searchText?.Trim();
+        FeatureSearchResults.Clear();
+
+        foreach (var item in FeatureItems.Where(item => MatchesFeatureSearch(item, keyword)))
+        {
+            FeatureSearchResults.Add(item);
+        }
+
+        OnPropertyChanged(nameof(IsFeatureSearchEmpty));
+    }
+
+    private static bool MatchesFeatureSearch(UnifiedFeatureItem item, string? keyword)
+    {
+        return string.IsNullOrEmpty(keyword) ||
+               item.DisplayName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+               item.TypeDisplayName.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+               item.GroupName?.Contains(keyword, StringComparison.OrdinalIgnoreCase) == true ||
+               item.Id.Contains(keyword, StringComparison.OrdinalIgnoreCase);
     }
 
     public void SaveFeatureSettings()

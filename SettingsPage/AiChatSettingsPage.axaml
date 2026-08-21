@@ -7,14 +7,17 @@
                      xmlns:controls="clr-namespace:SystemTools.Controls"
                      xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia"
                      xmlns:helpers="clr-namespace:ClassIsland.Core.Helpers;assembly=ClassIsland.Core"
+                     xmlns:loading="clr-namespace:SystemTools.Controls"
                      x:CompileBindings="False"
                      mc:Ignorable="d"
                      d:DesignHeight="620"
                      d:DesignWidth="980">
     <ci:SettingsPageBase.Styles>
         <StyleInclude Source="avares://ClassIsland.Core/Themes/RichTextStyles.axaml" />
+        <StyleInclude Source="avares://SystemTools/Controls/SettingsPageLazy.axaml" />
     </ci:SettingsPageBase.Styles>
 
+    <loading:SettingsPageLazy>
     <Grid Margin="12"
           MinHeight="440"
           DragDrop.AllowDrop="True"
@@ -474,4 +477,5 @@
         </SplitView>
         <controls:AiAttachmentDropOverlay x:Name="AttachmentDropOverlay" />
     </Grid>
+    </loading:SettingsPageLazy>
 </ci:SettingsPageBase>

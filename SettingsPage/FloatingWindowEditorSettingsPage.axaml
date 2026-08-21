@@ -8,6 +8,7 @@
                      xmlns:controls1="clr-namespace:SystemTools.Controls"
                      xmlns:ruleset="clr-namespace:ClassIsland.Core.Controls.Ruleset;assembly=ClassIsland.Core"
                      xmlns:local="clr-namespace:SystemTools"
+                     xmlns:loading="clr-namespace:SystemTools.Controls"
                      x:CompileBindings="False"
                      mc:Ignorable="d"
                      d:DesignHeight="800"
@@ -15,7 +16,11 @@
 
     <ci:SettingsPageBase.Resources>
     </ci:SettingsPageBase.Resources>
+    <ci:SettingsPageBase.Styles>
+        <StyleInclude Source="avares://SystemTools/Controls/SettingsPageLazy.axaml" />
+    </ci:SettingsPageBase.Styles>
 
+    <loading:SettingsPageLazy>
     <ScrollViewer>
         <StackPanel Classes="settings-container animated-intro">
             <TextBlock FontSize="20"
@@ -488,4 +493,5 @@
                        Opacity="0.7" />
         </StackPanel>
     </ScrollViewer>
+    </loading:SettingsPageLazy>
 </ci:SettingsPageBase>

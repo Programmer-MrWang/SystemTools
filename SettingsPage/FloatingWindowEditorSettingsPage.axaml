@@ -37,14 +37,14 @@
                 <TextBlock VerticalAlignment="Center" FontSize="28">设置 · 悬浮窗</TextBlock>
             </StackPanel>
 
-            <!-- 方案管理 + 显示开关（紧凑顶部栏） -->
             
-                        <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
+                        <controls:SettingsExpander IconSource="{ci:FluentIconSource &#xEA37;}"
                                        Header="悬浮窗按钮布局"
                                        Description="您可在下方通过拖拽调整行内按钮顺序，或添加行以实现纵列排布等功能"
                                        IsExpanded="True">
                 <StackPanel Margin="12,8,12,12" Spacing="8">
-                                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                        <!-- 方案管理 + 显示开关（紧凑顶部栏） -->
+                                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
                                     <ci:Field Grid.Column="0" Label="配置方案">
                                         <StackPanel Orientation="Horizontal" Spacing="4">
                                             <ComboBox ItemsSource="{Binding ViewModel.FloatingWindowProfileNames}"

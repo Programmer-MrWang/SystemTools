@@ -203,7 +203,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.HotkeyTrigger", "按下F9时"),
             ("SystemTools.ActionInProgressTrigger", "行动进行时"),
            ("SystemTools.LongIdleTrigger", "长时间未操作电脑时"),
-            ("SystemTools.MainWindowClickTrigger", "点击主界面时"),
        };
         triggers.Add(("SystemTools.KeywordTrigger", "关键词触发"));
 

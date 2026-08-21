@@ -6,25 +6,13 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="CMakeProjectFlavorService">
-    <option name="flavorId" value="CMakePlainProjectFlavor" />
-  </component>
   <component name="CMakeSettings">
     <configurations />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ClassIslandProfileAiService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClassIslandProfileAiService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/AboutSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AboutSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsPage.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/PluginDebugSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/PluginDebugSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsPage.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/SystemToolsSettingsViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,25 +22,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Programmer-MrWang&quot;
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Programmer-MrWang"
   }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Programmer-MrWang/SystemTools.git&quot;,
-    &quot;accountId&quot;: &quot;aa0de770-5118-4416-9c4e-7750a23a946e&quot;
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Programmer-MrWang/SystemTools.git",
+    "accountId": "aa0de770-5118-4416-9c4e-7750a23a946e"
   }
-}</component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Services/VerticalSidebarThemeService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Themes/VerticalSidebar/Styles.axaml" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Themes/VerticalSidebar/VerticalSidebarStyles.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/VoskWorker/Program.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
-  </component>
+}]]></component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -72,14 +53,13 @@
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;new/for-classisland-2.1.1.0&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -120,451 +100,26 @@
       <workItem from="1772089355732" duration="147000" />
       <workItem from="1772531590818" duration="886000" />
       <workItem from="1774843666385" duration="32000" />
-      <workItem from="1784985241975" duration="719000" />
-      <workItem from="1784985988057" duration="1377000" />
-      <workItem from="1784988421881" duration="990000" />
-      <workItem from="1785046871621" duration="212000" />
-      <workItem from="1785047116564" duration="7791000" />
-      <workItem from="1785073772340" duration="81000" />
-      <workItem from="1785076333658" duration="1787000" />
-      <workItem from="1785079334483" duration="660000" />
-      <workItem from="1785081137386" duration="2994000" />
-      <workItem from="1785122170192" duration="3974000" />
-      <workItem from="1785135653013" duration="971000" />
-      <workItem from="1785139758617" duration="1162000" />
-      <workItem from="1785162840655" duration="2850000" />
-      <workItem from="1785169409933" duration="244000" />
-      <workItem from="1785232567476" duration="2430000" />
-      <workItem from="1785237628119" duration="2826000" />
-      <workItem from="1785324881287" duration="112000" />
-      <workItem from="1785327610513" duration="7562000" />
-      <workItem from="1785377495106" duration="4012000" />
-      <workItem from="1785383233056" duration="15636000" />
-      <workItem from="1785469563464" duration="657000" />
-      <workItem from="1785486362177" duration="6891000" />
-      <workItem from="1785550962878" duration="723000" />
-      <workItem from="1785652801119" duration="6553000" />
-      <workItem from="1785732280235" duration="605000" />
-      <workItem from="1785778342855" duration="1758000" />
-      <workItem from="1785931540305" duration="4145000" />
-      <workItem from="1785945028041" duration="696000" />
-      <workItem from="1785986828558" duration="5578000" />
-      <workItem from="1786027020425" duration="447000" />
-      <workItem from="1786064593314" duration="415000" />
-      <workItem from="1786078984589" duration="547000" />
-      <workItem from="1786089087859" duration="89000" />
-      <workItem from="1786109393201" duration="7115000" />
-      <workItem from="1786152599547" duration="14866000" />
-      <workItem from="1786197834806" duration="4495000" />
-      <workItem from="1786293353782" duration="171000" />
-      <workItem from="1786350940634" duration="4422000" />
-      <workItem from="1786364246595" duration="7418000" />
-      <workItem from="1786418947043" duration="9872000" />
-      <workItem from="1786514699604" duration="320000" />
-      <workItem from="1786521882322" duration="703000" />
-      <workItem from="1786526246097" duration="386000" />
-      <workItem from="1786554959189" duration="815000" />
-      <workItem from="1786560037012" duration="1230000" />
-      <workItem from="1786604733137" duration="1268000" />
-      <workItem from="1786620172208" duration="101000" />
-      <workItem from="1786634566903" duration="4096000" />
-      <workItem from="1786685656857" duration="2116000" />
-      <workItem from="1786791878759" duration="3664000" />
-      <workItem from="1787324173214" duration="3192000" />
+      <workItem from="1784981541411" duration="1091000" />
+      <workItem from="1784982653522" duration="934000" />
     </task>
-    <task id="LOCAL-00011" summary="feat: 新增调用AI API Key 服务、“AI 对话”UI、“AI回复”通知渠道">
+    <task id="LOCAL-00001" summary="feat: 新增“关键词触发”触发器">
       <option name="closed" value="true" />
-      <created>1785169203241</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
+      <created>1784982726027</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1785169203241</updated>
+      <updated>1784982726027</updated>
     </task>
-    <task id="LOCAL-00012" summary="fix: 修正“更多功能选项”右侧图标不正常显示的问题">
+    <task id="LOCAL-00002" summary="feat: 新增“关键词触发”触发器">
       <option name="closed" value="true" />
-      <created>1785234014539</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
+      <created>1784982764680</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1785234014539</updated>
+      <updated>1784982764680</updated>
     </task>
-    <task id="LOCAL-00013" summary="feat: 新增“行动前确认”行动">
-      <option name="closed" value="true" />
-      <created>1785333345218</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1785333345218</updated>
-    </task>
-    <task id="LOCAL-00014" summary="fix: 修正提示词暴露问题">
-      <option name="closed" value="true" />
-      <created>1785333426628</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1785333426628</updated>
-    </task>
-    <task id="LOCAL-00015" summary="feat: 实现将AI平台接入读取/写入 课程档案功能">
-      <option name="closed" value="true" />
-      <created>1785380049101</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1785380049101</updated>
-    </task>
-    <task id="LOCAL-00016" summary="feat: 新增调用AI悬浮窗 行动">
-      <option name="closed" value="true" />
-      <created>1785386376031</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1785386376031</updated>
-    </task>
-    <task id="LOCAL-00017" summary="fix: 修正未正常释放资源的问题。">
-      <option name="closed" value="true" />
-      <created>1785386406553</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1785386406553</updated>
-    </task>
-    <task id="LOCAL-00018" summary="feat: 新增文档与图片上传功能">
-      <option name="closed" value="true" />
-      <created>1785420466516</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1785420466516</updated>
-    </task>
-    <task id="LOCAL-00019" summary="fix: 修正对于某些非标准api的不兼容问题">
-      <option name="closed" value="true" />
-      <created>1785420493302</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1785420493302</updated>
-    </task>
-    <task id="LOCAL-00020" summary="feat: 新增允许语音调用修改档案和课表，并添加了调试规则。">
-      <option name="closed" value="true" />
-      <created>1785781117450</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1785781117450</updated>
-    </task>
-    <task id="LOCAL-00021" summary="feat: 调整页面布局和添加调试页面">
-      <option name="closed" value="true" />
-      <created>1785944693964</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1785944693964</updated>
-    </task>
-    <task id="LOCAL-00022" summary="feat: 添加停止聆听动画">
-      <option name="closed" value="true" />
-      <created>1785944722613</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1785944722613</updated>
-    </task>
-    <task id="LOCAL-00023" summary="更新项目">
-      <option name="closed" value="true" />
-      <created>1785944855647</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1785944855647</updated>
-    </task>
-    <task id="LOCAL-00024" summary="排除无关文件">
-      <option name="closed" value="true" />
-      <created>1785944995444</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1785944995444</updated>
-    </task>
-    <task id="LOCAL-00025" summary="feat: 更新了液态玻璃效果">
-      <option name="closed" value="true" />
-      <created>1786064739070</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1786064739070</updated>
-    </task>
-    <task id="LOCAL-00026" summary="feat: 实现下载模型UI和麦克风限制">
-      <option name="closed" value="true" />
-      <created>1786110808193</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1786110808194</updated>
-    </task>
-    <task id="LOCAL-00027" summary="feat: 优化UI提示">
-      <option name="closed" value="true" />
-      <created>1786110820748</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1786110820748</updated>
-    </task>
-    <task id="LOCAL-00028" summary="feat: 优化调试页面">
-      <option name="closed" value="true" />
-      <created>1786111669964</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1786111669964</updated>
-    </task>
-    <task id="LOCAL-00029" summary="feat: 优化了语言表述">
-      <option name="closed" value="true" />
-      <created>1786113820065</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1786113820065</updated>
-    </task>
-    <task id="LOCAL-00030" summary="fix: 修复了对话记录绑定错误的问题">
-      <option name="closed" value="true" />
-      <created>1786114051012</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1786114051012</updated>
-    </task>
-    <task id="LOCAL-00031" summary="fix: 取消按下F11的设定，改为直接打开">
-      <option name="closed" value="true" />
-      <created>1786114483774</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1786114483774</updated>
-    </task>
-    <task id="LOCAL-00032" summary="fix: 修正部分表述">
-      <option name="closed" value="true" />
-      <created>1786115104173</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1786115104173</updated>
-    </task>
-    <task id="LOCAL-00033" summary="feat: 新增可选液态玻璃配置文件">
-      <option name="closed" value="true" />
-      <created>1786117929497</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1786117929497</updated>
-    </task>
-    <task id="LOCAL-00034" summary="feat: 初步实现液态玻璃悬浮窗">
-      <option name="closed" value="true" />
-      <created>1786158874188</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1786158874188</updated>
-    </task>
-    <task id="LOCAL-00035" summary="fix: 修复文字未居中的问题">
-      <option name="closed" value="true" />
-      <created>1786160909678</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1786160909678</updated>
-    </task>
-    <task id="LOCAL-00036" summary="fix: 修复设置页icon、文字表述 和编辑限制">
-      <option name="closed" value="true" />
-      <created>1786160978686</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1786160978686</updated>
-    </task>
-    <task id="LOCAL-00037" summary="fix: 修复ava12下悬浮窗按钮拖动排布问题">
-      <option name="closed" value="true" />
-      <created>1786172685701</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
-      <option name="project" value="LOCAL" />
-      <updated>1786172685701</updated>
-    </task>
-    <task id="LOCAL-00038" summary="feat: 实现自适应切换悬浮窗主题">
-      <option name="closed" value="true" />
-      <created>1786172703375</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
-      <option name="project" value="LOCAL" />
-      <updated>1786172703375</updated>
-    </task>
-    <task id="LOCAL-00039" summary="feat: 实现液态玻璃模式下AI语音对话框中审批按钮的玻璃效果">
-      <option name="closed" value="true" />
-      <created>1786182836396</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1786182836396</updated>
-    </task>
-    <task id="LOCAL-00040" summary="fix: 修改设置页面的提示与布局">
-      <option name="closed" value="true" />
-      <created>1786201648957</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1786201648957</updated>
-    </task>
-    <task id="LOCAL-00041" summary="feat: 补充模型下载提示">
-      <option name="closed" value="true" />
-      <created>1786201666983</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1786201666983</updated>
-    </task>
-    <task id="LOCAL-00042" summary="fix: 批量整改警告问题">
-      <option name="closed" value="true" />
-      <created>1786204123195</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1786204123195</updated>
-    </task>
-    <task id="LOCAL-00043" summary="feat: 优化悬浮窗AI文本对话UI">
-      <option name="closed" value="true" />
-      <created>1786353369964</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1786353369964</updated>
-    </task>
-    <task id="LOCAL-00044" summary="feat: 新增近期新增功能的自动化行动开关">
-      <option name="closed" value="true" />
-      <created>1786353561378</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1786353561378</updated>
-    </task>
-    <task id="LOCAL-00045" summary="feat: 优化行动列表排布顺序">
-      <option name="closed" value="true" />
-      <created>1786353591666</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1786353591666</updated>
-    </task>
-    <task id="LOCAL-00046" summary="feat: 新增AI行动功能">
-      <option name="closed" value="true" />
-      <created>1786354851772</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1786354851772</updated>
-    </task>
-    <task id="LOCAL-00047" summary="feat: 新增关于页图片抬头功能">
-      <option name="closed" value="true" />
-      <created>1786370004414</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
-      <option name="project" value="LOCAL" />
-      <updated>1786370004414</updated>
-    </task>
-    <task id="LOCAL-00048" summary="feat: 新增一个主题">
-      <option name="closed" value="true" />
-      <created>1786419975028</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
-      <option name="project" value="LOCAL" />
-      <updated>1786419975028</updated>
-    </task>
-    <task id="LOCAL-00049" summary="feat: 新增网络下载主题banner">
-      <option name="closed" value="true" />
-      <created>1786424579662</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1786424579662</updated>
-    </task>
-    <task id="LOCAL-00050" summary="fix: 改个提示文字">
-      <option name="closed" value="true" />
-      <created>1786434616201</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1786434616202</updated>
-    </task>
-    <task id="LOCAL-00051" summary="fix: 修正图片比例">
-      <option name="closed" value="true" />
-      <created>1786460019954</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1786460019954</updated>
-    </task>
-    <task id="LOCAL-00052" summary="feat: 实现后台下载高清图片">
-      <option name="closed" value="true" />
-      <created>1786466177775</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
-      <option name="project" value="LOCAL" />
-      <updated>1786466177775</updated>
-    </task>
-    <task id="LOCAL-00053" summary="feat: 更新了title图片">
-      <option name="closed" value="true" />
-      <created>1786514941907</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1786514941907</updated>
-    </task>
-    <task id="LOCAL-00054" summary="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器">
-      <option name="closed" value="true" />
-      <created>1786605329045</created>
-      <option name="number" value="00054" />
-      <option name="presentableId" value="LOCAL-00054" />
-      <option name="project" value="LOCAL" />
-      <updated>1786605329045</updated>
-    </task>
-    <task id="LOCAL-00055" summary="feat: 更新reademe v1">
-      <option name="closed" value="true" />
-      <created>1786620210291</created>
-      <option name="number" value="00055" />
-      <option name="presentableId" value="LOCAL-00055" />
-      <option name="project" value="LOCAL" />
-      <updated>1786620210292</updated>
-    </task>
-    <task id="LOCAL-00056" summary="更新reademe">
-      <option name="closed" value="true" />
-      <created>1786638153346</created>
-      <option name="number" value="00056" />
-      <option name="presentableId" value="LOCAL-00056" />
-      <option name="project" value="LOCAL" />
-      <updated>1786638153346</updated>
-    </task>
-    <task id="LOCAL-00057" summary="feat: 新增“模拟组合键”行动">
-      <option name="closed" value="true" />
-      <created>1786688399165</created>
-      <option name="number" value="00057" />
-      <option name="presentableId" value="LOCAL-00057" />
-      <option name="project" value="LOCAL" />
-      <updated>1786688399165</updated>
-    </task>
-    <task id="LOCAL-00058" summary="feat: 实现AI预加载和缓存行动列表以提升相应性能">
-      <option name="closed" value="true" />
-      <created>1786795037457</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
-      <option name="project" value="LOCAL" />
-      <updated>1786795037457</updated>
-    </task>
-    <task id="LOCAL-00059" summary="feat: 添加http">
-      <option name="closed" value="true" />
-      <created>1787324377988</created>
-      <option name="number" value="00059" />
-      <option name="presentableId" value="LOCAL-00059" />
-      <option name="project" value="LOCAL" />
-      <updated>1787324377989</updated>
-    </task>
-    <option name="localTasksCounter" value="60" />
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -585,32 +140,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix: 修复文字未居中的问题" />
-    <MESSAGE value="fix: 修复设置页icon、文字表述 和编辑限制" />
-    <MESSAGE value="fix: 修复ava12下悬浮窗按钮拖动排布问题" />
-    <MESSAGE value="feat: 实现自适应切换悬浮窗主题" />
-    <MESSAGE value="feat: 实现液态玻璃模式下AI语音对话框中审批按钮的玻璃效果" />
-    <MESSAGE value="fix: 修改设置页面的提示与布局" />
-    <MESSAGE value="feat: 补充模型下载提示" />
-    <MESSAGE value="fix: 批量整改警告问题" />
-    <MESSAGE value="feat: 优化悬浮窗AI文本对话UI" />
-    <MESSAGE value="feat: 新增近期新增功能的自动化行动开关" />
-    <MESSAGE value="feat: 优化行动列表排布顺序" />
-    <MESSAGE value="feat: 新增AI行动功能" />
-    <MESSAGE value="feat: 新增关于页图片抬头功能" />
-    <MESSAGE value="feat: 新增一个主题" />
-    <MESSAGE value="feat: 新增网络下载主题banner" />
-    <MESSAGE value="fix: 改个提示文字" />
-    <MESSAGE value="fix: 修正图片比例" />
-    <MESSAGE value="feat: 实现后台下载高清图片" />
-    <MESSAGE value="feat: 更新了title图片" />
-    <MESSAGE value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
-    <MESSAGE value="feat: 更新reademe v1" />
-    <MESSAGE value="更新reademe" />
-    <MESSAGE value="feat: 新增“模拟组合键”行动" />
-    <MESSAGE value="feat: 实现AI预加载和缓存行动列表以提升相应性能" />
-    <MESSAGE value="feat: 添加http" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 添加http" />
+    <MESSAGE value="feat: 新增“关键词触发”触发器" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增“关键词触发”触发器" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

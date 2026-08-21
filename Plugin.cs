@@ -181,11 +181,9 @@ public partial class Plugin : PluginBase
             }
             IAppHost.TryGetService<AiVoiceConversationService>()?.Start();
             IAppHost.GetService<AdaptiveThemeSyncService>().Start();
-            IAppHost.GetService<MainWindowTextOcclusionService>().Start();
-            IAppHost.GetService<UsbAutoPlayService>().Start();
-            IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().ApplyConfig();
-            IAppHost.GetService<SystemMemoryCleanupService>().ApplyConfig();
-            _logger = IAppHost.GetService<ILogger<Plugin>>();
+           IAppHost.GetService<UsbAutoPlayService>().Start();
+           IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().ApplyConfig();
+           _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
             _logger?.LogInformation("[SystemTools]FFmpeg功能状态: {Status}", ffmpegEnabled);
@@ -246,7 +244,6 @@ public partial class Plugin : PluginBase
        services.AddSingleton<IHotkeyService, HotkeyService>();
 
         services.AddSingleton<KeywordSpeechService>();
-        services.AddSingleton<VoskSpeechService>();
        // ========== 版本检查 ==========
         AppBase.Current.AppStarted += (_, _) => { VersionCheckService.CheckAndNotify(); };
 
@@ -436,8 +433,6 @@ public partial class Plugin : PluginBase
            "SystemTools.LongIdleTrigger");
         RegisterTriggerIfEnabled<KeywordTrigger, KeywordTriggerSettings>(services, config,
             "SystemTools.KeywordTrigger");
-        RegisterTriggerIfEnabled<MainWindowClickTrigger, MainWindowClickTriggerSettings>(services, config,
-            "SystemTools.MainWindowClickTrigger");
        if (config.EnableFloatingWindowFeature)
         {
             RegisterTriggerIfEnabled<FloatingWindowTrigger, FloatingWindowTriggerSettings>(services, config,

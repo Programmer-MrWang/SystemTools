@@ -23,11 +23,11 @@ public class KeywordTriggerSettings : TriggerSettingsControlBase<KeywordTriggerC
             Text = "关键词",
             FontSize = 14,
             FontWeight = FontWeight.SemiBold,
-            Margin = new Thickness(0, 4, 0, 0)
+            Margin = new Thickness(0, 6, 0, 0)
         };
         _keywordBox = new TextBox
         {
-            PlaceholderText = "输入要检测的关键词…",
+            Watermark = "输入要检测的关键词…",
             FontSize = 14,
             Padding = new Thickness(10, 8),
             CornerRadius = new CornerRadius(6)
@@ -47,7 +47,7 @@ public class KeywordTriggerSettings : TriggerSettingsControlBase<KeywordTriggerC
         var thresholdRow = new Grid
         {
             ColumnDefinitions = new ColumnDefinitions("*,60"),
-            Margin = new Thickness(0, -3, 0, 0)
+            Margin = new Thickness(0, 4, 0, 0)
         };
         _thresholdSlider = new Slider
         {
@@ -81,19 +81,19 @@ public class KeywordTriggerSettings : TriggerSettingsControlBase<KeywordTriggerC
         Grid.SetColumn(_thresholdLabel, 1);
         var tipText = new TextBlock
         {
-            Text = "阈值越低越灵敏，越高越严格 建议 < 0.3",
+            Text = "阈值越低越灵敏（更容易识别但可能误触发），阈值越高越严格（只有非常确定的语音才触发）。默认 0.5。",
             FontSize = 12,
             Foreground = new SolidColorBrush(Color.Parse("#888888")),
             TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, -3, 0, 6)
+            Margin = new Thickness(0, 2, 0, 6)
         };
         var noteText = new TextBlock
         {
-            Text = "需要 Windows 中文语音识别支持\n控制面板 → 语音识别 → 安装中文语音 \n或 设置 → 隐私和安全性 → 语音 → 在线语音识别",
+            Text = "\u26A0 需要 Windows 中文语音识别支持（控制面板 → 语音识别 → 安装中文语音）。仅 Windows 平台可用。",
             FontSize = 12,
             Foreground = new SolidColorBrush(Color.Parse("#996600")),
             TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, -1, 0, 0)
+            Margin = new Thickness(0, 8, 0, 0)
         };
         panel.Children.Add(keywordHeader);
         panel.Children.Add(_keywordBox);

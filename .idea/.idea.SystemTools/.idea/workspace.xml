@@ -13,13 +13,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/AiPromptService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/AiPromptService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/ClassIslandActionAiService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/ClassIslandActionAiService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/AiChatSettingsViewModel.cs" afterDir="false" />
-    </list>
+    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -159,15 +153,7 @@
       <workItem from="1786620172208" duration="101000" />
       <workItem from="1786634566903" duration="4096000" />
       <workItem from="1786685656857" duration="2116000" />
-      <workItem from="1786791878759" duration="1724000" />
-    </task>
-    <task id="LOCAL-00009" summary="feat: 新增自动清理内存服务功能">
-      <option name="closed" value="true" />
-      <created>1785123741932</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1785123741932</updated>
+      <workItem from="1786791878759" duration="3664000" />
     </task>
     <task id="LOCAL-00010" summary="自动构建提交 - 2.5.1.106">
       <option name="closed" value="true" />
@@ -553,7 +539,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786688399165</updated>
     </task>
-    <option name="localTasksCounter" value="58" />
+    <task id="LOCAL-00058" summary="feat: 实现AI预加载和缓存行动列表以提升相应性能">
+      <option name="closed" value="true" />
+      <created>1786795037457</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1786795037457</updated>
+    </task>
+    <option name="localTasksCounter" value="59" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -574,7 +568,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增可选液态玻璃配置文件" />
     <MESSAGE value="feat: 初步实现液态玻璃悬浮窗" />
     <MESSAGE value="fix: 修复文字未居中的问题" />
     <MESSAGE value="fix: 修复设置页icon、文字表述 和编辑限制" />
@@ -599,7 +592,8 @@
     <MESSAGE value="feat: 更新reademe v1" />
     <MESSAGE value="更新reademe" />
     <MESSAGE value="feat: 新增“模拟组合键”行动" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增“模拟组合键”行动" />
+    <MESSAGE value="feat: 实现AI预加载和缓存行动列表以提升相应性能" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 实现AI预加载和缓存行动列表以提升相应性能" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

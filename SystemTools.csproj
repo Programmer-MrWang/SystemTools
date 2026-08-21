@@ -13,6 +13,7 @@
       <None Remove="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
       <AvaloniaResource Include="Themes\CardTypeComponent\Theme.axaml.txt" />
       <AvaloniaResource Include="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
+      <None Remove="Themes\VerticalSidebar\Theme.axaml.txt" />
     </ItemGroup>
     
     <ItemGroup>

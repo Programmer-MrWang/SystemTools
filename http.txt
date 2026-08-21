@@ -1,0 +1,14 @@
+SenseVoiceSmall ONNX (INT8 Quantized)
+https://livefile.xesimg.com/programme/python_assets/7bd22f71831a0023a2e2673773235878.zip
+
+vosk-model-small-en-us
+https://livefile.xesimg.com/programme/python_assets/a357a5217db6fd0cbc22bcf173253350.zip
+
+vosk-model-small-cn
+https://livefile.xesimg.com/programme/python_assets/79dae7671c95fd26f1436ef2f5ec1fa0.zip
+
+vosk-model-en-us
+https://livefile.xesimg.com/programme/python_assets/4e57edf6e390022ea30cbf408a1fafbb.zip
+
+vosk-model-cn
+https://livefile.xesimg.com/programme/python_assets/ceb27377d45f168ae08d218daf15cace.zip

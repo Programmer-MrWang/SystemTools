@@ -1,0 +1,22 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:SystemTools.Controls"
+        xmlns:classIslandControls="clr-namespace:ClassIsland.Core.Controls;assembly=ClassIsland.Core">
+    <Style Selector="controls|SettingsPageLazy">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <ContentPresenter x:Name="PART_ContentPresenter"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    <classIslandControls:ExpressiveLoadingIndicator x:Name="PART_LoadingIndicator"
+                                                                    Margin="8"
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center" />
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

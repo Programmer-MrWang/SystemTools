@@ -15,8 +15,8 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,11 +39,9 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Services/VerticalSidebarThemeService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Themes/VerticalSidebar/Styles.axaml" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Themes/VerticalSidebar/VerticalSidebarStyles.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/VoskWorker/Program.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/Themes/ClassWidgets/ClassWidgetsCard.axaml" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/Themes/ClassWidgets/ClassWidgetsCard.axaml.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
@@ -163,15 +161,7 @@
       <workItem from="1786685656857" duration="2116000" />
       <workItem from="1786791878759" duration="3664000" />
       <workItem from="1787324173214" duration="3192000" />
-      <workItem from="1787628666713" duration="9443000" />
-    </task>
-    <task id="LOCAL-00011" summary="feat: 新增调用AI API Key 服务、“AI 对话”UI、“AI回复”通知渠道">
-      <option name="closed" value="true" />
-      <created>1785169203241</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1785169203241</updated>
+      <workItem from="1787628666713" duration="12960000" />
     </task>
     <task id="LOCAL-00012" summary="fix: 修正“更多功能选项”右侧图标不正常显示的问题">
       <option name="closed" value="true" />
@@ -557,7 +547,15 @@
       <option name="project" value="LOCAL" />
       <updated>1787324377989</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="feat: 新增ClssWidgets主题">
+      <option name="closed" value="true" />
+      <created>1787662094097</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1787662094098</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -578,7 +576,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix: 修复文字未居中的问题" />
     <MESSAGE value="fix: 修复设置页icon、文字表述 和编辑限制" />
     <MESSAGE value="fix: 修复ava12下悬浮窗按钮拖动排布问题" />
     <MESSAGE value="feat: 实现自适应切换悬浮窗主题" />
@@ -603,7 +600,8 @@
     <MESSAGE value="feat: 新增“模拟组合键”行动" />
     <MESSAGE value="feat: 实现AI预加载和缓存行动列表以提升相应性能" />
     <MESSAGE value="feat: 添加http" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 添加http" />
+    <MESSAGE value="feat: 新增ClssWidgets主题" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增ClssWidgets主题" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

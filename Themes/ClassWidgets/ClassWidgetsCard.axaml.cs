@@ -45,6 +45,7 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
     private INotifyPropertyChanged? _scheduleNotifier;
     private INotifyPropertyChanged? _weatherNotifier;
     private INotifyPropertyChanged? _weatherSettingsNotifier;
+    private INotifyPropertyChanged? _hostComponentSettingsNotifier;
     private IExactTimeService? _exactTimeService;
     private CancellationTokenSource? _clockHeaderTransitionCts;
     private CancellationTokenSource? _weatherTransitionCts;
@@ -62,6 +63,8 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
     private bool _isGeneric = true;
     private bool _isWeatherRainDisplay;
     private double _weatherContentOpacity = 1;
+    private double _weatherTemperatureFontSize = 21;
+    private double _scheduleSecondaryFontSize = 14;
     private double _headerOpacity = 0.78;
     private string _headerText = "组件";
     private string _clockDisplayText = "--:--:--";
@@ -82,11 +85,6 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         get => GetValue(HostedContentProperty);
         set => SetValue(HostedContentProperty, value);
     }
-
-    // The host's MainContentPresenter already owns the component control.
-    // Specialized cards read its state, while unknown component types fall
-    // back to the original control without giving it a second visual parent.
-    public object? GenericHostedContent => IsGeneric ? HostedContent : null;
 
     public string? ComponentName
     {
@@ -137,7 +135,7 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         {
             if (SetField(ref _isGeneric, value))
             {
-                OnPropertyChanged(nameof(GenericHostedContent));
+                UpdateGenericHostedContent();
             }
         }
     }
@@ -170,6 +168,18 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
     {
         get => _weatherContentOpacity;
         private set => SetField(ref _weatherContentOpacity, value);
+    }
+
+    public double WeatherTemperatureFontSize
+    {
+        get => _weatherTemperatureFontSize;
+        private set => SetField(ref _weatherTemperatureFontSize, value);
+    }
+
+    public double ScheduleSecondaryFontSize
+    {
+        get => _scheduleSecondaryFontSize;
+        private set => SetField(ref _scheduleSecondaryFontSize, value);
     }
 
     public string ClockDisplayText
@@ -253,12 +263,12 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
     private void OnDetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
     {
         _isAttached = false;
+        ClearGenericHostedContent();
         _rotationTimer.Stop();
         CancelClockHeaderTransition();
         CancelWeatherTransition();
         DetachHostPresenter();
         DetachHostedContent();
-        ReleaseGenericHostedContent();
     }
 
     private void AttachHostPresenter()
@@ -283,6 +293,7 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         }
 
         _hostPresenter.PropertyChanged += HostPresenterOnPropertyChanged;
+        AttachHostComponentSettings();
         SyncHostedContentFromPresenter();
     }
 
@@ -291,6 +302,7 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         if (_hostPresenter != null)
         {
             _hostPresenter.PropertyChanged -= HostPresenterOnPropertyChanged;
+            DetachHostComponentSettings();
             _hostPresenter = null;
         }
     }
@@ -304,6 +316,50 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         }
     }
 
+    private void AttachHostComponentSettings()
+    {
+        DetachHostComponentSettings();
+        _hostComponentSettingsNotifier = _hostPresenter?.Settings as INotifyPropertyChanged;
+        if (_hostComponentSettingsNotifier != null)
+        {
+            _hostComponentSettingsNotifier.PropertyChanged += HostComponentSettingsOnPropertyChanged;
+        }
+
+        UpdateComponentFontSizes();
+    }
+
+    private void DetachHostComponentSettings()
+    {
+        if (_hostComponentSettingsNotifier != null)
+        {
+            _hostComponentSettingsNotifier.PropertyChanged -= HostComponentSettingsOnPropertyChanged;
+            _hostComponentSettingsNotifier = null;
+        }
+    }
+
+    private void HostComponentSettingsOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.PropertyName) ||
+            e.PropertyName is "IsResourceOverridingEnabled" or
+                "MainWindowEmphasizedFontSize" or
+                "MainWindowBodyFontSize")
+        {
+            UpdateComponentFontSizes();
+        }
+    }
+
+    private void UpdateComponentFontSizes()
+    {
+        var settings = _hostPresenter?.Settings;
+        var isResourceOverridingEnabled = ReadBool(Read(settings, "IsResourceOverridingEnabled"), false);
+        WeatherTemperatureFontSize = isResourceOverridingEnabled
+            ? ReadDouble(Read(settings, "MainWindowEmphasizedFontSize"), 21)
+            : 21;
+        ScheduleSecondaryFontSize = isResourceOverridingEnabled
+            ? ReadDouble(Read(settings, "MainWindowBodyFontSize"), 14)
+            : 14;
+    }
+
     private void SyncHostedContentFromPresenter()
     {
         if (_hostPresenter != null)
@@ -314,14 +370,15 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
 
     protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
     {
-        // Force the fallback presenter to refresh before the host reparents its
-        // component during a theme reload.
-        ReleaseGenericHostedContent();
+        // The host can restore its own ContentPresenter while styles are being
+        // invalidated. Release the original component before that handoff.
+        ClearGenericHostedContent();
         base.OnDetachedFromLogicalTree(e);
     }
 
     private void RebindHostedContent()
     {
+        ClearGenericHostedContent();
         DetachHostedContent();
 
         _clockContent = IsComponent(HostedContent, "ClockComponent") ? HostedContent : null;
@@ -332,7 +389,7 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         IsSchedule = _scheduleContent != null;
         IsWeather = _weatherContent != null;
         IsGeneric = !IsClock && !IsSchedule && !IsWeather;
-        OnPropertyChanged(nameof(GenericHostedContent));
+        UpdateGenericHostedContent();
         _rotationState = false;
 
         if (_clockContent != null)
@@ -458,9 +515,34 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         UpdateTimerState();
     }
 
-    private void ReleaseGenericHostedContent()
+    private void UpdateGenericHostedContent()
     {
-        OnPropertyChanged(nameof(GenericHostedContent));
+        if (!_isAttached || !IsGeneric || HostedContent == null)
+        {
+            ClearGenericHostedContent();
+            return;
+        }
+
+        if (HostedContent is Visual visual &&
+            visual.GetVisualParent() is { } parent &&
+            !ReferenceEquals(parent, GenericContentPresenter))
+        {
+            ClearGenericHostedContent();
+            return;
+        }
+
+        if (!ReferenceEquals(GenericContentPresenter.Content, HostedContent))
+        {
+            GenericContentPresenter.Content = HostedContent;
+        }
+    }
+
+    private void ClearGenericHostedContent()
+    {
+        if (GenericContentPresenter.Content != null)
+        {
+            GenericContentPresenter.Content = null;
+        }
     }
 
     private void HostedComponentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -822,6 +904,18 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         }
 
         return bool.TryParse(value?.ToString(), out var parsed) ? parsed : fallback;
+    }
+
+    private static double ReadDouble(object? value, double fallback)
+    {
+        if (value is double number)
+        {
+            return number;
+        }
+
+        return double.TryParse(value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var parsed)
+            ? parsed
+            : fallback;
     }
 
     private string ReadHostComponentName()

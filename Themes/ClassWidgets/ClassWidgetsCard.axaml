@@ -13,7 +13,7 @@
              Height="84"
              MinHeight="84"
              HorizontalAlignment="Stretch"
-             TextElement.FontSize="{DynamicResource MainWindowBodyFontSize}"
+             TextElement.FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
              ClipToBounds="False">
     <UserControl.Resources>
         <ci:SizeDoubleToCornerRadiusConverter x:Key="ClassWidgetsCardCornerRadiusConverter" />
@@ -105,10 +105,14 @@
             </TextBlock>
 
             <Grid IsVisible="{Binding IsClock, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
-                  Margin="0 14 0 0">
+                  Margin="0 14 0 0"
+                  RenderTransformOrigin="0.5,0.5">
+                <Grid.RenderTransform>
+                    <TranslateTransform Y="6" />
+                </Grid.RenderTransform>
                 <TextBlock Text="{Binding ClockDisplayText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
                            Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                           FontSize="{DynamicResource MainWindowLargeFontSize}"
+                           FontSize="22"
                            FontWeight="Bold"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
@@ -117,7 +121,11 @@
 
             <Grid IsVisible="{Binding IsSchedule, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
                    Margin="0 12 0 0"
-                   ClipToBounds="False">
+                   ClipToBounds="False"
+                   RenderTransformOrigin="0.5,0.5">
+                <Grid.RenderTransform>
+                    <TranslateTransform Y="6" />
+                </Grid.RenderTransform>
                 <StackPanel Orientation="Horizontal"
                              Spacing="9"
                             HorizontalAlignment="Center"
@@ -138,13 +146,13 @@
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="{Binding ScheduleDisplayText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                   FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                                   FontSize="20"
                                    FontWeight="Bold"
                                    MaxLines="1"
                                    TextTrimming="CharacterEllipsis" />
                         <TextBlock Text="{Binding ScheduleSecondaryText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                   FontSize="{DynamicResource MainWindowSecondaryFontSize}"
+                                   FontSize="{Binding ScheduleSecondaryFontSize, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
                                    Opacity="0.7"
                                    MaxLines="1"
                                    TextTrimming="CharacterEllipsis" />
@@ -249,7 +257,7 @@
                         <TextBlock Grid.Column="1"
                                    Text="{Binding WeatherTemperatureText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
                                    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                   FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                                   FontSize="{Binding WeatherTemperatureFontSize, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
                                    FontWeight="Bold"
                                    VerticalAlignment="Center" />
                     </Grid>
@@ -293,11 +301,17 @@
                 </Grid.Transitions>
             </Grid>
 
-            <ContentPresenter IsVisible="{Binding IsGeneric, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
-                              Content="{Binding GenericHostedContent, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+            <ContentPresenter x:Name="GenericContentPresenter"
+                              IsVisible="{Binding IsGeneric, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
                               HorizontalContentAlignment="Center"
                               VerticalContentAlignment="Center"
-                              Margin="0 14 0 0" />
+                              Margin="0 14 0 0"
+                              TextElement.FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                              RenderTransformOrigin="0.5,0.5">
+                <ContentPresenter.RenderTransform>
+                    <TranslateTransform Y="6" />
+                </ContentPresenter.RenderTransform>
+            </ContentPresenter>
         </Grid>
     </Grid>
 </UserControl>

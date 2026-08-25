@@ -7,6 +7,7 @@ using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Animation;
 using Avalonia.Animation.Easings;
@@ -34,12 +35,22 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
     private static DispatcherTimer? _watchdogTimer;
     private static bool _allowMainDialogClose;
     private static bool _allowFloatingWindowClose;
+    private static int _appStoppingHandled;
 
-    public static void CancelPlanOnAppStopping()
+    public static bool CancelPlanOnAppStopping(bool isSessionEnding)
     {
         StopCountdownProcess();
-        // AppStopping is also raised during OS shutdown. Do not run `shutdown /a`
-        // here: it can abort the real shutdown and starts shutdown.exe during teardown.
+        if (Interlocked.Exchange(ref _appStoppingHandled, 1) != 0)
+        {
+            return false;
+        }
+
+        if (!isSessionEnding)
+        {
+            TryAbortSystemShutdown();
+        }
+
+        return true;
     }
 
     protected override async Task OnInvoke()

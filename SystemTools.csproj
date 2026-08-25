@@ -12,6 +12,10 @@
       <None Remove="cipx\**" />
       <None Remove="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
       <AvaloniaResource Include="Themes\CardTypeComponent\Theme.axaml.txt" />
+      <AvaloniaResource Include="Themes\ClassWidgets\Theme.axaml.txt" />
+      <AvaloniaResource Include="Themes\ClassWidgets\上课.png" />
+      <AvaloniaResource Include="Themes\ClassWidgets\课间休息.png" />
+      <AvaloniaResource Include="Themes\ClassWidgets\无课程.png" />
       <AvaloniaResource Include="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
       <None Remove="Themes\VerticalSidebar\Theme.axaml.txt" />
     </ItemGroup>

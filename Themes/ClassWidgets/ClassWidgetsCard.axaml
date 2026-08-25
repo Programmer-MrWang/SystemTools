@@ -1,0 +1,303 @@
+<UserControl x:Class="SystemTools.Themes.ClassWidgets.ClassWidgetsCard"
+             x:Name="CardRoot"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:SystemTools.Themes.ClassWidgets"
+             xmlns:assists="clr-namespace:ClassIsland.Core.Assists;assembly=ClassIsland.Core"
+             xmlns:ci="http://classisland.tech/schemas/xaml/core"
+             mc:Ignorable="d"
+             d:DesignWidth="260"
+             d:DesignHeight="84"
+             Height="84"
+             MinHeight="84"
+             HorizontalAlignment="Stretch"
+             TextElement.FontSize="{DynamicResource MainWindowBodyFontSize}"
+             ClipToBounds="False">
+    <UserControl.Resources>
+        <ci:SizeDoubleToCornerRadiusConverter x:Key="ClassWidgetsCardCornerRadiusConverter" />
+    </UserControl.Resources>
+    <Grid ClipToBounds="False">
+        <Grid IsVisible="{Binding IsSchedule, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}">
+            <Grid>
+                <Image Source="avares://SystemTools/Themes/ClassWidgets/上课.png"
+                       IsVisible="{Binding IsScheduleOnClass, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Width="{Binding Height, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Height="{Binding Height, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Stretch="Uniform"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       RenderTransformOrigin="0.5,0.5">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="0.80" ScaleY="0.80" />
+                            <TranslateTransform X="9" Y="12" />
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                </Image>
+                <Image Source="avares://SystemTools/Themes/ClassWidgets/课间休息.png"
+                       IsVisible="{Binding IsScheduleBreaking, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Width="{Binding Height, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Height="{Binding Height, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Stretch="Uniform"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       RenderTransformOrigin="0.5,0.5">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="0.80" ScaleY="0.80" />
+                            <TranslateTransform X="9" Y="12" />
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                </Image>
+                <Image Source="avares://SystemTools/Themes/ClassWidgets/无课程.png"
+                       IsVisible="{Binding IsScheduleNoCourse, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Width="{Binding Height, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Height="{Binding Height, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Stretch="Uniform"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       RenderTransformOrigin="0.5,0.5">
+                    <Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="0.80" ScaleY="0.80" />
+                            <TranslateTransform X="9" Y="12" />
+                        </TransformGroup>
+                    </Image.RenderTransform>
+                </Image>
+            </Grid>
+        </Grid>
+
+        <!-- The card is only a foreground treatment. Its visible surface is supplied
+             by MainWindowLine/ComponentPresenter in the host theme. -->
+        <Border BorderThickness="1"
+                IsHitTestVisible="False"
+                CornerRadius="{Binding $self.(assists:MainWindowStylesAssist.CornerRadius),
+                                       Converter={StaticResource ClassWidgetsCardCornerRadiusConverter},
+                                       ConverterParameter=1.0,
+                                       Mode=OneWay}">
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Offset="0" Color="#78FFFFFF" />
+                    <GradientStop Offset="0.48" Color="#20FFFFFF" />
+                    <GradientStop Offset="1" Color="#58FFFFFF" />
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+        </Border>
+
+        <Grid Margin="16 11 16 10" ClipToBounds="False">
+            <TextBlock Text="{Binding HeaderText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       IsVisible="{Binding !IsWeather, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                       FontSize="{DynamicResource MainWindowSecondaryFontSize}"
+                       FontWeight="SemiBold"
+                       Opacity="{Binding HeaderOpacity, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"
+                       MaxLines="1"
+                       TextTrimming="CharacterEllipsis">
+                <TextBlock.Transitions>
+                    <Transitions>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.18" />
+                    </Transitions>
+                </TextBlock.Transitions>
+            </TextBlock>
+
+            <Grid IsVisible="{Binding IsClock, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                  Margin="0 14 0 0">
+                <TextBlock Text="{Binding ClockDisplayText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                           FontSize="{DynamicResource MainWindowLargeFontSize}"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           TextAlignment="Center" />
+            </Grid>
+
+            <Grid IsVisible="{Binding IsSchedule, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                   Margin="0 12 0 0"
+                   ClipToBounds="False">
+                <StackPanel Orientation="Horizontal"
+                             Spacing="9"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ScheduleIconGlyph, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                               Width="28"
+                               Height="28"
+                               FontFamily="{DynamicResource FluentIcons}"
+                               FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                               Opacity="0.9"
+                               TextAlignment="Center"
+                               RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.RenderTransform>
+                            <ScaleTransform ScaleX="1.25" ScaleY="1.25" />
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ScheduleDisplayText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                                   FontWeight="Bold"
+                                   MaxLines="1"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding ScheduleSecondaryText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   FontSize="{DynamicResource MainWindowSecondaryFontSize}"
+                                   Opacity="0.7"
+                                   MaxLines="1"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <Grid IsVisible="{Binding IsWeather, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                   Margin="0"
+                   Opacity="{Binding WeatherContentOpacity, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                   ClipToBounds="False">
+                <Grid RowDefinitions="Auto,*" ClipToBounds="False">
+                    <Grid Grid.Row="0"
+                          ColumnDefinitions="*,Auto"
+                          ColumnSpacing="6"
+                          ClipToBounds="False">
+                        <StackPanel Grid.Column="0"
+                                    Orientation="Horizontal"
+                                    Spacing="6"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{Binding HeaderText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       FontSize="{DynamicResource MainWindowSecondaryFontSize}"
+                                       FontWeight="SemiBold"
+                                       Opacity="0.78"
+                                       MaxLines="1"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding WeatherConditionText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                       IsVisible="{Binding !IsWeatherRainDisplay, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       FontSize="{DynamicResource MainWindowSecondaryFontSize}"
+                                       Opacity="0.72"
+                                       MaxLines="1"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="&#xE5BE;"
+                                   FontFamily="{DynamicResource FluentIcons}"
+                                   Width="17"
+                                   Height="17"
+                                   Margin="0 0 -16 0"
+                                   FontSize="{DynamicResource MainWindowSecondaryFontSize}"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"
+                                   Opacity="0.72"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   RenderTransformOrigin="0.5,0.5">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform Angle="75" />
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Grid>
+
+                    <Grid Grid.Row="1"
+                          IsVisible="{Binding IsWeatherRainDisplay, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                          Margin="0 7 0 0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          ColumnDefinitions="Auto,Auto"
+                          ColumnSpacing="10"
+                          ClipToBounds="False">
+                        <Grid Width="38" Height="38" VerticalAlignment="Center" ClipToBounds="False">
+                            <TextBlock Text="☔"
+                                       FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       TextAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center" />
+                        </Grid>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding RainDisplayText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+
+                    <Grid Grid.Row="1"
+                          IsVisible="{Binding !IsWeatherRainDisplay, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                          Margin="0 7 0 0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          ColumnDefinitions="Auto,Auto"
+                          ColumnSpacing="10"
+                          ClipToBounds="False">
+                        <Grid Width="38" Height="38" VerticalAlignment="Center" ClipToBounds="False">
+                            <Viewbox Width="34"
+                                     Height="34"
+                                     Stretch="Uniform"
+                                     StretchDirection="Both"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center">
+                                <TextBlock Text="{Binding WeatherIconGlyph, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                           FontFamily="{DynamicResource LucideIcons}"
+                                           FontSize="24"
+                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                           TextAlignment="Center" />
+                            </Viewbox>
+                        </Grid>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding WeatherTemperatureText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Grid>
+
+                <!-- Keep the rain layout in measurement so weather/rain rotation never changes card width. -->
+                <Grid IsVisible="{Binding HasWeatherRain, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                      RowDefinitions="Auto,*"
+                      Opacity="0"
+                      IsHitTestVisible="False">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                        <TextBlock Text="{Binding RainHeaderText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   FontSize="{DynamicResource MainWindowSecondaryFontSize}"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Grid.Column="1"
+                                   Text="&#xE5BE;"
+                                   FontFamily="{DynamicResource FluentIcons}"
+                                   Width="17"
+                                   Height="17"
+                                   Margin="0 0 -4 0"
+                                   FontSize="{DynamicResource MainWindowSecondaryFontSize}" />
+                    </Grid>
+                    <Grid Grid.Row="1"
+                          Margin="0 7 0 0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          ColumnDefinitions="Auto,Auto"
+                          ColumnSpacing="10">
+                        <Grid Width="38" Height="38" />
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding RainDisplayText, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                                   FontSize="{DynamicResource MainWindowEmphasizedFontSize}"
+                                   FontWeight="Bold" />
+                    </Grid>
+                </Grid>
+                <Grid.Transitions>
+                    <Transitions>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.18" />
+                    </Transitions>
+                </Grid.Transitions>
+            </Grid>
+
+            <ContentPresenter IsVisible="{Binding IsGeneric, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                              Content="{Binding GenericHostedContent, RelativeSource={RelativeSource AncestorType=local:ClassWidgetsCard}}"
+                              HorizontalContentAlignment="Center"
+                              VerticalContentAlignment="Center"
+                              Margin="0 14 0 0" />
+        </Grid>
+    </Grid>
+</UserControl>

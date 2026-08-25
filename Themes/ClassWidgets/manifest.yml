@@ -1,0 +1,10 @@
+id: classwidgets
+name: classwidgets
+description: A ClassWidgets-inspired main interface theme for ClassIsland
+version: 1.0.0.0
+author: Programmer-MrWang
+verticalSafeAreaPx: 20
+repoOwner: Programmer-MrWang
+repoName: ClassWidgets theme for ClassIsland
+assetsRoot: main/ClassWidgets
+artifactName: classwidgets.zip

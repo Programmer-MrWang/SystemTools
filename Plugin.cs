@@ -81,6 +81,18 @@ public partial class Plugin : PluginBase
                 Banner = ThemeBannerCacheService.BannerPath,
                 VerticalSafeAreaPx = 20
             });
+        services.AddXamlTheme(
+            new Uri("avares://SystemTools/Themes/ClassWidgets/Styles.axaml"),
+            new ThemeManifest
+            {
+                Id = "classwidgets",
+                Name = "classwidgets",
+                Description = "A ClassWidgets-inspired main interface theme for ClassIsland",
+                Version = "1.0.0.0",
+                Author = "Programmer-MrWang",
+                Banner = ThemeBannerCacheService.BannerPath,
+                VerticalSafeAreaPx = 20
+            });
         services.AddSingleton(GlobalConstants.MainConfig);
         services.AddSingleton<ThemeBannerCacheService>();
         services.AddSingleton<AboutTitleImageCacheService>();

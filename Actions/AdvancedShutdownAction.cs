@@ -38,7 +38,8 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
     public static void CancelPlanOnAppStopping()
     {
         StopCountdownProcess();
-        TryAbortSystemShutdown();
+        // AppStopping is also raised during OS shutdown. Do not run `shutdown /a`
+        // here: it can abort the real shutdown and starts shutdown.exe during teardown.
     }
 
     protected override async Task OnInvoke()

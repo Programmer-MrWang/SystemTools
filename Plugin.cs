@@ -106,6 +106,7 @@ public partial class Plugin : PluginBase
         services.AddSingleton<UsbAutoPlayService>();
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
         services.AddSingleton<SystemMemoryCleanupService>();
+        services.AddSingleton<SystemShutdownMonitor>();
         services.AddSingleton<MainWindowClickService>();
         services.AddSingleton<IOpenAiCompatibleService, OpenAiCompatibleService>();
         if (GlobalConstants.MainConfig?.Data.EnableAiService == true)
@@ -181,6 +182,7 @@ public partial class Plugin : PluginBase
 
         AppBase.Current.AppStarted += (o, args) =>
         {
+            IAppHost.GetService<SystemShutdownMonitor>().Start();
             // 迁移旧版悬浮窗配置到文件存储
             IAppHost.GetService<ThemeBannerCacheService>().Start();
             IAppHost.GetService<AboutTitleImageCacheService>().Start();
@@ -1009,13 +1011,24 @@ public partial class Plugin : PluginBase
 
     private void OnAppStopping(object? sender, EventArgs e)
     {
+        var systemShutdownMonitor = IAppHost.GetService<SystemShutdownMonitor>();
+        var isSessionEnding = systemShutdownMonitor.IsSessionEnding;
         IAppHost.GetService<AdaptiveThemeSyncService>().Stop();
         IAppHost.TryGetService<AiVoiceConversationService>()?.Dispose();
         IAppHost.GetService<MainWindowTextOcclusionService>().Shutdown(restoreMainWindow: true);
         IAppHost.GetService<UsbAutoPlayService>().Stop();
         IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop();
         IAppHost.GetService<SystemMemoryCleanupService>().Stop();
-        AdvancedShutdownAction.CancelPlanOnAppStopping();
+        var appStoppingHandled = AdvancedShutdownAction.CancelPlanOnAppStopping(isSessionEnding);
+        if (appStoppingHandled && isSessionEnding)
+        {
+            _logger?.LogInformation("[SystemTools]检测到系统关机或注销，跳过 shutdown /a。");
+        }
+        else if (appStoppingHandled)
+        {
+            _logger?.LogInformation("[SystemTools]检测到 ClassIsland 主动退出，尝试执行一次 shutdown /a。");
+        }
+        systemShutdownMonitor.Dispose();
         IAppHost.TryGetService<AiChatWindowService>()?.Close();
         IAppHost.TryGetService<VoskSpeechService>()?.Dispose();
         IAppHost.TryGetService<KeywordSpeechService>()?.Dispose();

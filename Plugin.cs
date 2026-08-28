@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using AvaloniaEdit.Utils;
 using ClassIsland.Core;
@@ -52,6 +53,8 @@ public partial class Plugin : PluginBase
     private bool _ffmpegDisabledDueToMissingDependency;
     private bool _faceRecognitionDisabledDueToMissingDependency;
     private bool _windowsHelloDisabledDueToUnsupportedSystem;
+    private SystemShutdownMonitor? _systemShutdownMonitor;
+    private EventHandler<ShutdownRequestedEventArgs>? _shutdownRequestedHandler;
 
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
@@ -106,7 +109,9 @@ public partial class Plugin : PluginBase
         services.AddSingleton<UsbAutoPlayService>();
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
         services.AddSingleton<SystemMemoryCleanupService>();
-        services.AddSingleton<SystemShutdownMonitor>();
+        _systemShutdownMonitor = new SystemShutdownMonitor();
+        _systemShutdownMonitor.Start();
+        services.AddSingleton(_systemShutdownMonitor);
         services.AddSingleton<MainWindowClickService>();
         services.AddSingleton<IOpenAiCompatibleService, OpenAiCompatibleService>();
         if (GlobalConstants.MainConfig?.Data.EnableAiService == true)
@@ -182,7 +187,7 @@ public partial class Plugin : PluginBase
 
         AppBase.Current.AppStarted += (o, args) =>
         {
-            IAppHost.GetService<SystemShutdownMonitor>().Start();
+            RegisterShutdownRequestedHandler();
             // 迁移旧版悬浮窗配置到文件存储
             IAppHost.GetService<ThemeBannerCacheService>().Start();
             IAppHost.GetService<AboutTitleImageCacheService>().Start();
@@ -265,6 +270,7 @@ public partial class Plugin : PluginBase
         AppBase.Current.AppStarted += (_, _) => { VersionCheckService.CheckAndNotify(); };
 
         // ========== 订阅关闭事件 ==========
+        RegisterShutdownRequestedHandler();
         AppBase.Current.AppStopping += OnAppStopping;
 
         // ========== 注册设置页面分组 ==========
@@ -1011,8 +1017,13 @@ public partial class Plugin : PluginBase
 
     private void OnAppStopping(object? sender, EventArgs e)
     {
-        var systemShutdownMonitor = IAppHost.GetService<SystemShutdownMonitor>();
+        var systemShutdownMonitor = _systemShutdownMonitor ?? IAppHost.GetService<SystemShutdownMonitor>();
         var isSessionEnding = systemShutdownMonitor.IsSessionEnding;
+        if (AppBase.Current.DesktopLifetime is { } desktopLifetime && _shutdownRequestedHandler != null)
+        {
+            desktopLifetime.ShutdownRequested -= _shutdownRequestedHandler;
+            _shutdownRequestedHandler = null;
+        }
         IAppHost.GetService<AdaptiveThemeSyncService>().Stop();
         IAppHost.TryGetService<AiVoiceConversationService>()?.Dispose();
         IAppHost.GetService<MainWindowTextOcclusionService>().Shutdown(restoreMainWindow: true);
@@ -1039,6 +1050,17 @@ public partial class Plugin : PluginBase
         _logger?.LogInformation("[SystemTools]关闭插件SystemTools，保存配置...");
         UnregisterFloatingWindowTrayMenu();
         GlobalConstants.MainConfig?.Save();
+    }
+
+    private void RegisterShutdownRequestedHandler()
+    {
+        if (_shutdownRequestedHandler != null || AppBase.Current.DesktopLifetime is not { } desktopLifetime)
+        {
+            return;
+        }
+
+        _shutdownRequestedHandler = (_, args) => _systemShutdownMonitor?.MarkIfOsShutdown(args);
+        desktopLifetime.ShutdownRequested += _shutdownRequestedHandler;
     }
 
     private void RegisterOrUpdateFloatingWindowTrayMenu()

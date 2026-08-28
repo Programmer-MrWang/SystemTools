@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -37,12 +38,35 @@ public sealed class SystemShutdownMonitor : NativeWindow, IDisposable
         }
     }
 
+    internal void MarkSessionEnding()
+    {
+        Volatile.Write(ref _isSessionEnding, 1);
+    }
+
+    internal void MarkIfOsShutdown(object eventArgs)
+    {
+        try
+        {
+            var property = eventArgs.GetType().GetProperty(
+                "IsOSShutdown",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (property?.PropertyType == typeof(bool) && property.GetValue(eventArgs) is true)
+            {
+                MarkSessionEnding();
+            }
+        }
+        catch
+        {
+            // The property is internal in some Avalonia versions; the native window remains the fallback.
+        }
+    }
+
     protected override void WndProc(ref Message m)
     {
         switch (m.Msg)
         {
             case WmQueryEndSession:
-                Volatile.Write(ref _isSessionEnding, 1);
+                MarkSessionEnding();
                 break;
             case WmEndSession:
                 Volatile.Write(ref _isSessionEnding, m.WParam != IntPtr.Zero ? 1 : 0);

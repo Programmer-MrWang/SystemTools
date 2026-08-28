@@ -15,8 +15,8 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Services/SystemShutdownMonitor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/SystemShutdownMonitor.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +40,8 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/VoskWorker/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/Services/SystemShutdownMonitor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/My Github Projects/SystemTools/Themes/ClassWidgets/ClassWidgetsCard.axaml" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/My Github Projects/SystemTools/Themes/ClassWidgets/ClassWidgetsCard.axaml.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
@@ -58,27 +60,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "cidr.known.project.marker": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="SystemTools: ClassIsland 插件" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/SystemTools.csproj" />
@@ -161,15 +163,7 @@
       <workItem from="1786685656857" duration="2116000" />
       <workItem from="1786791878759" duration="3664000" />
       <workItem from="1787324173214" duration="3192000" />
-      <workItem from="1787628666713" duration="12960000" />
-    </task>
-    <task id="LOCAL-00012" summary="fix: 修正“更多功能选项”右侧图标不正常显示的问题">
-      <option name="closed" value="true" />
-      <created>1785234014539</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1785234014539</updated>
+      <workItem from="1787628666713" duration="14523000" />
     </task>
     <task id="LOCAL-00013" summary="feat: 新增“行动前确认”行动">
       <option name="closed" value="true" />
@@ -555,7 +549,15 @@
       <option name="project" value="LOCAL" />
       <updated>1787662094098</updated>
     </task>
-    <option name="localTasksCounter" value="61" />
+    <task id="LOCAL-00061" summary="feat: 优化主题外观">
+      <option name="closed" value="true" />
+      <created>1787665961398</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1787665961398</updated>
+    </task>
+    <option name="localTasksCounter" value="62" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -576,7 +578,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix: 修复设置页icon、文字表述 和编辑限制" />
     <MESSAGE value="fix: 修复ava12下悬浮窗按钮拖动排布问题" />
     <MESSAGE value="feat: 实现自适应切换悬浮窗主题" />
     <MESSAGE value="feat: 实现液态玻璃模式下AI语音对话框中审批按钮的玻璃效果" />
@@ -601,7 +602,8 @@
     <MESSAGE value="feat: 实现AI预加载和缓存行动列表以提升相应性能" />
     <MESSAGE value="feat: 添加http" />
     <MESSAGE value="feat: 新增ClssWidgets主题" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增ClssWidgets主题" />
+    <MESSAGE value="feat: 优化主题外观" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 优化主题外观" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -15,13 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README-1.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-1.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/manifest.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,9 +38,12 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/.codex-tests/NuGet/NuGet.Config" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/VoskWorker/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/ConfigHandlers/MainConfigData.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="mock://E:/My Github Projects/SystemTools/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/Services/SystemShutdownMonitor.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/SettingsPage/SystemToolsSettingsPage.axaml" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
@@ -170,39 +167,7 @@
       <workItem from="1787901428159" duration="4209000" />
       <workItem from="1787913133666" duration="1386000" />
       <workItem from="1788095042650" duration="6098000" />
-      <workItem from="1788149599686" duration="308000" />
-    </task>
-    <task id="LOCAL-00014" summary="fix: 修正提示词暴露问题">
-      <option name="closed" value="true" />
-      <created>1785333426628</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1785333426628</updated>
-    </task>
-    <task id="LOCAL-00015" summary="feat: 实现将AI平台接入读取/写入 课程档案功能">
-      <option name="closed" value="true" />
-      <created>1785380049101</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1785380049101</updated>
-    </task>
-    <task id="LOCAL-00016" summary="feat: 新增调用AI悬浮窗 行动">
-      <option name="closed" value="true" />
-      <created>1785386376031</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1785386376031</updated>
-    </task>
-    <task id="LOCAL-00017" summary="fix: 修正未正常释放资源的问题。">
-      <option name="closed" value="true" />
-      <created>1785386406553</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1785386406553</updated>
+      <workItem from="1788149599686" duration="1164000" />
     </task>
     <task id="LOCAL-00018" summary="feat: 新增文档与图片上传功能">
       <option name="closed" value="true" />
@@ -564,7 +529,39 @@
       <option name="project" value="LOCAL" />
       <updated>1787901580865</updated>
     </task>
-    <option name="localTasksCounter" value="63" />
+    <task id="LOCAL-00063" summary="fix: 更改一个图标">
+      <option name="closed" value="true" />
+      <created>1788150161109</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1788150161110</updated>
+    </task>
+    <task id="LOCAL-00064" summary="fix: 更改主题名称">
+      <option name="closed" value="true" />
+      <created>1788150183730</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1788150183730</updated>
+    </task>
+    <task id="LOCAL-00065" summary="feat: 新增虚拟放学状态功能">
+      <option name="closed" value="true" />
+      <created>1788150231419</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1788150231419</updated>
+    </task>
+    <task id="LOCAL-00066" summary="feat: 更新readme与插件">
+      <option name="closed" value="true" />
+      <created>1788150296707</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1788150296707</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -585,10 +582,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 实现自适应切换悬浮窗主题" />
-    <MESSAGE value="feat: 实现液态玻璃模式下AI语音对话框中审批按钮的玻璃效果" />
-    <MESSAGE value="fix: 修改设置页面的提示与布局" />
-    <MESSAGE value="feat: 补充模型下载提示" />
     <MESSAGE value="fix: 批量整改警告问题" />
     <MESSAGE value="feat: 优化悬浮窗AI文本对话UI" />
     <MESSAGE value="feat: 新增近期新增功能的自动化行动开关" />
@@ -610,7 +603,11 @@
     <MESSAGE value="feat: 新增ClssWidgets主题" />
     <MESSAGE value="feat: 优化主题外观" />
     <MESSAGE value="fix: 收尾修复错误的关机截止问题" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 收尾修复错误的关机截止问题" />
+    <MESSAGE value="fix: 更改一个图标" />
+    <MESSAGE value="fix: 更改主题名称" />
+    <MESSAGE value="feat: 新增虚拟放学状态功能" />
+    <MESSAGE value="feat: 更新readme与插件" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新readme与插件" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

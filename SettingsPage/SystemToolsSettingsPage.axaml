@@ -315,7 +315,7 @@
                     </controls:FASettingsExpanderItem>
                 </controls:FASettingsExpander>
 
-                <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE071;}"
+                <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE4E2;}"
                                            Header="启用扩展功能"
                                            Description="启用需要下载依赖的更多可选功能">
 

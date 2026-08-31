@@ -109,6 +109,7 @@ public partial class Plugin : PluginBase
         services.AddSingleton<UsbAutoPlayService>();
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
         services.AddSingleton<SystemMemoryCleanupService>();
+        services.AddSingleton<VirtualAfterSchoolService>();
         _systemShutdownMonitor = new SystemShutdownMonitor();
         _systemShutdownMonitor.Start();
         services.AddSingleton(_systemShutdownMonitor);
@@ -204,6 +205,7 @@ public partial class Plugin : PluginBase
             IAppHost.GetService<UsbAutoPlayService>().Start();
             IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().ApplyConfig();
             IAppHost.GetService<SystemMemoryCleanupService>().ApplyConfig();
+            IAppHost.GetService<VirtualAfterSchoolService>().Start();
             _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
@@ -1030,6 +1032,7 @@ public partial class Plugin : PluginBase
         IAppHost.GetService<UsbAutoPlayService>().Stop();
         IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop();
         IAppHost.GetService<SystemMemoryCleanupService>().Stop();
+        IAppHost.GetService<VirtualAfterSchoolService>().Stop();
         var appStoppingHandled = AdvancedShutdownAction.CancelPlanOnAppStopping(isSessionEnding);
         if (appStoppingHandled && isSessionEnding)
         {

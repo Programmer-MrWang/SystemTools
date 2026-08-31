@@ -47,6 +47,17 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
         GlobalConstants.MainConfig?.Save();
     }
 
+    private void VirtualAfterSchoolToggle_OnChanged(object? sender, RoutedEventArgs e)
+    {
+        if (sender is ToggleSwitch toggleSwitch)
+        {
+            Config.VirtualAfterSchoolEnabled = toggleSwitch.IsChecked == true;
+        }
+
+        ClassIsland.Shared.IAppHost.GetService<VirtualAfterSchoolService>().ApplyConfig();
+        GlobalConstants.MainConfig?.Save();
+    }
+
     private void AutoHideMainWindowOnTextToggle_OnChanged(object? sender, RoutedEventArgs e)
     {
         if (sender is ToggleSwitch toggleSwitch)

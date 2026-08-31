@@ -31,6 +31,42 @@
                                   IsCheckedChanged="AutoHideMainWindowOnTextToggle_OnChanged" />
                 </controls:FASettingsExpander.Footer>
             </controls:FASettingsExpander>
+            
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xED55;}"
+                                         Header="虚拟放学触发点"
+                                         Description="每天到达指定的软件时间后发送一次放学事件，并在持续时间内覆盖 ClassIsland 的课程状态。">
+                <controls:FASettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.VirtualAfterSchoolEnabled, Mode=TwoWay}"
+                                  IsCheckedChanged="VirtualAfterSchoolToggle_OnChanged" />
+                </controls:FASettingsExpander.Footer>
+
+                <controls:FASettingsExpanderItem Content="触发时间"
+                                                 Description="使用 ClassIsland 软件时间，包括精确时间同步与软件时间偏移。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <TimePicker Width="165"
+                                    UseSeconds="True"
+                                    ClockIdentifier="24HourClock"
+                                    IsEnabled="{Binding Config.VirtualAfterSchoolEnabled}"
+                                    SelectedTime="{Binding Config.VirtualAfterSchoolTriggerTime, Mode=TwoWay}" />
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+
+                <controls:FASettingsExpanderItem Content="放学状态持续时间"
+                                                 Description="持续期间暂停正常课程识别；结束后自动恢复。可设置 1–7200 秒。">
+                    <controls:FASettingsExpanderItem.Footer>
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <NumericUpDown Width="125"
+                                           Minimum="1"
+                                           Maximum="7200"
+                                           Increment="1"
+                                           FormatString="F0"
+                                           IsEnabled="{Binding Config.VirtualAfterSchoolEnabled}"
+                                           Value="{Binding Config.VirtualAfterSchoolDurationSeconds, Mode=TwoWay}" />
+                            <TextBlock Text="秒" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </controls:FASettingsExpanderItem.Footer>
+                </controls:FASettingsExpanderItem>
+            </controls:FASettingsExpander>
 
             <ci:IconText Glyph="&#xEE21;" Text="性能" Margin="0 8 0 4" />
             <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE97B;}"
@@ -87,6 +123,8 @@
                                   IsCheckedChanged="AutoOpenUsbToggle_OnChanged" />
                 </controls:FASettingsExpander.Footer>
             </controls:FASettingsExpander>
+
+            
 
         </StackPanel>
     </ScrollViewer>

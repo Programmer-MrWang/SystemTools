@@ -138,6 +138,50 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    bool _virtualAfterSchoolEnabled;
+
+    [JsonPropertyName("virtualAfterSchoolEnabled")]
+    public bool VirtualAfterSchoolEnabled
+    {
+        get => _virtualAfterSchoolEnabled;
+        set
+        {
+            if (value == _virtualAfterSchoolEnabled) return;
+            _virtualAfterSchoolEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
+    TimeSpan _virtualAfterSchoolTriggerTime = new(12, 10, 0);
+
+    [JsonPropertyName("virtualAfterSchoolTriggerTime")]
+    public TimeSpan VirtualAfterSchoolTriggerTime
+    {
+        get => _virtualAfterSchoolTriggerTime;
+        set
+        {
+            if (value < TimeSpan.Zero || value >= TimeSpan.FromDays(1) || value == _virtualAfterSchoolTriggerTime)
+                return;
+            _virtualAfterSchoolTriggerTime = value;
+            OnPropertyChanged();
+        }
+    }
+
+    int _virtualAfterSchoolDurationSeconds = 60;
+
+    [JsonPropertyName("virtualAfterSchoolDurationSeconds")]
+    public int VirtualAfterSchoolDurationSeconds
+    {
+        get => _virtualAfterSchoolDurationSeconds;
+        set
+        {
+            var clamped = Math.Clamp(value, 1, 7200);
+            if (clamped == _virtualAfterSchoolDurationSeconds) return;
+            _virtualAfterSchoolDurationSeconds = clamped;
+            OnPropertyChanged();
+        }
+    }
+
 
 
     bool _autoCleanupClassIslandMemory;

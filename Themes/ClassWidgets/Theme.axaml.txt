@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:ClassIsland.Controls;assembly=ClassIsland"
         xmlns:coreControls="clr-namespace:ClassIsland.Core.Controls;assembly=ClassIsland.Core"
+        xmlns:components="clr-namespace:ClassIsland.Controls.Components;assembly=ClassIsland"
         xmlns:assists="clr-namespace:ClassIsland.Core.Assists;assembly=ClassIsland.Core"
         xmlns:ci="http://classisland.tech/schemas/xaml/core"
         xmlns:system="clr-namespace:System;assembly=System.Runtime">
@@ -492,5 +493,37 @@
                 <DoubleTransition Property="Opacity" Duration="0:0:0.14" />
             </Transitions>
         </Setter>
+    </Style>
+
+    <!-- A root component style can reach descendant MainContentPresenters through
+         the visual tree. Components hosted by a container must remain content-only. -->
+    <Style Selector="coreControls|ComponentPresenter:container coreControls|ComponentPresenter">
+        <Style Selector="^ ContentPresenter#MainContentPresenter">
+            <Setter Property="ContentTemplate">
+                <DataTemplate>
+                    <ContentPresenter Content="{Binding}">
+                        <ContentPresenter.DataTemplates>
+                            <DataTemplate DataType="{x:Type components:ScheduleComponent}">
+                                <Panel Height="{DynamicResource ClassWidgets.IslandContainerHeight}"
+                                       ClipToBounds="False">
+                                    <Border Classes="classwidgets-native-background"
+                                            IsHitTestVisible="False" />
+                                    <Border ClipToBounds="True"
+                                            CornerRadius="{Binding $self.(assists:MainWindowStylesAssist.CornerRadius),
+                                                                   Converter={StaticResource ClassWidgetsCornerRadiusConverter},
+                                                                   ConverterParameter=1.0}">
+                                        <ContentPresenter Content="{Binding}"
+                                                          ContentTemplate="{DynamicResource ClassWidgets.CardTemplate}"
+                                                          HorizontalContentAlignment="Stretch"
+                                                          VerticalContentAlignment="Stretch" />
+                                    </Border>
+                                </Panel>
+                            </DataTemplate>
+                        </ContentPresenter.DataTemplates>
+                    </ContentPresenter>
+                </DataTemplate>
+            </Setter>
+            <Setter Property="Margin" Value="0" />
+        </Style>
     </Style>
 </Styles>

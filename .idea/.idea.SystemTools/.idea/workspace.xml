@@ -15,7 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/Theme.axaml.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/Theme.axaml.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,15 +167,8 @@
       <workItem from="1787901428159" duration="4209000" />
       <workItem from="1787913133666" duration="1386000" />
       <workItem from="1788095042650" duration="6098000" />
-      <workItem from="1788149599686" duration="1164000" />
-    </task>
-    <task id="LOCAL-00018" summary="feat: 新增文档与图片上传功能">
-      <option name="closed" value="true" />
-      <created>1785420466516</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1785420466516</updated>
+      <workItem from="1788149599686" duration="2664000" />
+      <workItem from="1788157305498" duration="957000" />
     </task>
     <task id="LOCAL-00019" summary="fix: 修正对于某些非标准api的不兼容问题">
       <option name="closed" value="true" />
@@ -561,7 +554,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788150296707</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="feat: 更新update log">
+      <option name="closed" value="true" />
+      <created>1788150963796</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1788150963796</updated>
+    </task>
+    <option name="localTasksCounter" value="68" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -582,7 +583,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix: 批量整改警告问题" />
     <MESSAGE value="feat: 优化悬浮窗AI文本对话UI" />
     <MESSAGE value="feat: 新增近期新增功能的自动化行动开关" />
     <MESSAGE value="feat: 优化行动列表排布顺序" />
@@ -607,7 +607,8 @@
     <MESSAGE value="fix: 更改主题名称" />
     <MESSAGE value="feat: 新增虚拟放学状态功能" />
     <MESSAGE value="feat: 更新readme与插件" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新readme与插件" />
+    <MESSAGE value="feat: 更新update log" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新update log" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -61,6 +61,7 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
     private bool _isScheduleNoCourse = true;
     private bool _isWeather;
     private bool _isGeneric = true;
+    private bool _hideScheduleHeader;
     private bool _isWeatherRainDisplay;
     private double _weatherContentOpacity = 1;
     private double _weatherTemperatureFontSize = 21;
@@ -125,8 +126,28 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
     public bool IsWeather
     {
         get => _isWeather;
-        private set => SetField(ref _isWeather, value);
+        private set
+        {
+            if (SetField(ref _isWeather, value))
+            {
+                OnPropertyChanged(nameof(ShowHeader));
+            }
+        }
     }
+
+    public bool HideScheduleHeader
+    {
+        get => _hideScheduleHeader;
+        private set
+        {
+            if (SetField(ref _hideScheduleHeader, value))
+            {
+                OnPropertyChanged(nameof(ShowHeader));
+            }
+        }
+    }
+
+    public bool ShowHeader => !IsWeather && !HideScheduleHeader;
 
     public bool IsGeneric
     {
@@ -282,6 +303,7 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         if (ReferenceEquals(presenter, _hostPresenter))
         {
             SyncHostedContentFromPresenter();
+            UpdateNestedScheduleHeaderState();
             return;
         }
 
@@ -289,12 +311,14 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         _hostPresenter = presenter;
         if (_hostPresenter == null)
         {
+            UpdateNestedScheduleHeaderState();
             return;
         }
 
         _hostPresenter.PropertyChanged += HostPresenterOnPropertyChanged;
         AttachHostComponentSettings();
         SyncHostedContentFromPresenter();
+        UpdateNestedScheduleHeaderState();
     }
 
     private void DetachHostPresenter()
@@ -305,6 +329,8 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
             DetachHostComponentSettings();
             _hostPresenter = null;
         }
+
+        HideScheduleHeader = false;
     }
 
     private void HostPresenterOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -389,6 +415,7 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
         IsSchedule = _scheduleContent != null;
         IsWeather = _weatherContent != null;
         IsGeneric = !IsClock && !IsSchedule && !IsWeather;
+        UpdateNestedScheduleHeaderState();
         UpdateGenericHostedContent();
         _rotationState = false;
 
@@ -455,6 +482,20 @@ public partial class ClassWidgetsCard : UserControl, INotifyPropertyChanged
 
         UpdatePresentation();
         UpdateTimerState();
+    }
+
+    private void UpdateNestedScheduleHeaderState()
+    {
+        var presenters = _hostPresenter == null
+            ? Enumerable.Empty<ClassIsland.Core.Controls.ComponentPresenter>()
+            : _hostPresenter.GetVisualAncestors()
+                .OfType<ClassIsland.Core.Controls.ComponentPresenter>()
+                .Concat(_hostPresenter.GetLogicalAncestors()
+                    .OfType<ClassIsland.Core.Controls.ComponentPresenter>());
+
+        var isNestedInContainer = presenters.Any(p =>
+            p.Settings?.AssociatedComponentInfo.IsComponentContainer == true);
+        HideScheduleHeader = IsSchedule && isNestedInContainer;
     }
 
     private void DetachHostedContent()

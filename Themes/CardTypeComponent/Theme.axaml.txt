@@ -9,6 +9,7 @@
     <Styles.Resources>
         <converters:WidthDoubleToRectConverter x:Key="WidthDoubleToRectConverter" />
         <converters:ColorToColorPickerBrushConverter x:Key="ColorToColorPickerBrushConverter" />
+        <converters:SizeDoubleToCornerRadiusConverter x:Key="CardTypeCornerRadiusConverter" />
         <system:Double x:Key="IslandContainerHeight">60</system:Double>
 
         <!-- External themes cannot load adjacent bitmap files through Avalonia's asset loader.
@@ -59,14 +60,23 @@
         <Setter Property="ClipToBounds" Value="False" />
     </Style>
 
-    <Style Selector="Border.theme-surface-background">
-        <Setter Property="Background" Value="{DynamicResource SolidBackgroundFillColorSecondaryBrush}" />
-        <Setter Property="Opacity"
-                Value="{Binding $self.(assists:MainWindowStylesAssist.BackgroundOpacity), Mode=OneWay}" />
+    <!-- Use the same material surface as ClassIsland's Fluent theme. The control
+         consumes inherited line/component settings and avoids double-applying
+         opacity while native material is active. -->
+    <Style Selector="coreControls|MainWindowBackgroundMaterialControl.cardtype-native-background">
+        <Setter Property="Opacity" Value="{Binding $self.EffectiveBackgroundOpacity, Mode=OneWay}" />
+        <Setter Property="FallbackBrush" Value="{DynamicResource SolidBackgroundFillColorSecondaryBrush}" />
+        <Setter Property="CornerRadius"
+                Value="{Binding $self.(assists:MainWindowStylesAssist.CornerRadius),
+                                Converter={StaticResource CardTypeCornerRadiusConverter},
+                                ConverterParameter=1.0,
+                                Mode=OneWay}" />
     </Style>
-    <Style Selector="Border.theme-surface-background[(assists|MainWindowStylesAssist.IsCustomBackgroundColorEnabled)=True]">
-        <Setter Property="Background"
-                Value="{Binding $self.(assists:MainWindowStylesAssist.BackgroundColor), Converter={StaticResource ColorToColorPickerBrushConverter}}" />
+    <Style Selector="coreControls|MainWindowBackgroundMaterialControl[(assists|MainWindowStylesAssist.IsCustomBackgroundColorEnabled)=True].cardtype-native-background">
+        <Setter Property="FallbackBrush"
+                Value="{Binding $self.(assists:MainWindowStylesAssist.BackgroundColor),
+                                Converter={StaticResource ColorToColorPickerBrushConverter},
+                                Mode=OneWay}" />
     </Style>
 
     <Style Selector="controls|MainWindowLine">
@@ -141,7 +151,9 @@
                         </Grid>
 
                         <Grid x:Name="GridOverlay" ClipToBounds="True" Opacity="0">
-                            <Border Classes="theme-surface-background" />
+                            <coreControls:MainWindowBackgroundMaterialControl
+                                Classes="cardtype-native-background"
+                                IsHitTestVisible="False" />
                             <Border ClipToBounds="True" IsHitTestVisible="False">
                                 <Canvas x:Name="ProgressContainer"
                                         Height="{Binding #OverlayTimeProgressBar.Bounds.Height}"
@@ -247,9 +259,10 @@
             <Setter Property="ContentTemplate">
                 <DataTemplate>
                     <Panel Height="60" ClipToBounds="False">
-                        <Border Height="60"
-                                CornerRadius="10"
-                                Classes="theme-surface-background" />
+                        <coreControls:MainWindowBackgroundMaterialControl
+                            Classes="cardtype-native-background"
+                            Height="60"
+                            IsHitTestVisible="False" />
                         <Border Height="60"
                                 CornerRadius="10"
                                 BorderBrush="{DynamicResource AccentFillColorDefaultBrush}"

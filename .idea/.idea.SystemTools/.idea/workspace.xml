@@ -15,12 +15,8 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Properties/launchSettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/Theme.axaml.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/Theme.axaml.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/manifest.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/manifest.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/CardTypeComponent/Theme.axaml.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/CardTypeComponent/Theme.axaml.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +43,7 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/VoskWorker/Program.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///Immediate Window" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
@@ -179,22 +175,7 @@
       <workItem from="1788245378014" duration="375000" />
       <workItem from="1788245772755" duration="384000" />
       <workItem from="1788246557983" duration="834000" />
-    </task>
-    <task id="LOCAL-00020" summary="feat: 新增允许语音调用修改档案和课表，并添加了调试规则。">
-      <option name="closed" value="true" />
-      <created>1785781117450</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1785781117450</updated>
-    </task>
-    <task id="LOCAL-00021" summary="feat: 调整页面布局和添加调试页面">
-      <option name="closed" value="true" />
-      <created>1785944693964</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1785944693964</updated>
+      <workItem from="1788248823712" duration="3024000" />
     </task>
     <task id="LOCAL-00022" summary="feat: 添加停止聆听动画">
       <option name="closed" value="true" />
@@ -572,7 +553,23 @@
       <option name="project" value="LOCAL" />
       <updated>1788164821865</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="feat: cw2主题适配ci背景材质">
+      <option name="closed" value="true" />
+      <created>1788249109989</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1788249109990</updated>
+    </task>
+    <task id="LOCAL-00070" summary="fix: 修复插件环境配置">
+      <option name="closed" value="true" />
+      <created>1788249132337</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1788249132337</updated>
+    </task>
+    <option name="localTasksCounter" value="71" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -593,8 +590,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增近期新增功能的自动化行动开关" />
-    <MESSAGE value="feat: 优化行动列表排布顺序" />
     <MESSAGE value="feat: 新增AI行动功能" />
     <MESSAGE value="feat: 新增关于页图片抬头功能" />
     <MESSAGE value="feat: 新增一个主题" />
@@ -618,7 +613,9 @@
     <MESSAGE value="feat: 更新readme与插件" />
     <MESSAGE value="feat: 更新update log" />
     <MESSAGE value="fix: 修复cw2主题容器bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复cw2主题容器bug" />
+    <MESSAGE value="feat: cw2主题适配ci背景材质" />
+    <MESSAGE value="fix: 修复插件环境配置" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复插件环境配置" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

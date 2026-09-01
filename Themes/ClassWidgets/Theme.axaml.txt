@@ -19,12 +19,31 @@
         <Setter Property="ClipToBounds" Value="False" />
     </Style>
 
-    <!-- Use the same surface model as ClassIsland's Fluent theme. Opacity lives on
-         an empty background border, so it never fades component content. -->
-    <Style Selector="Border.classwidgets-native-background">
-        <Setter Property="Background" Value="{DynamicResource SolidBackgroundFillColorSecondaryBrush}" />
+    <!-- Reuse ClassIsland's native material surface so global, line, and component
+         settings all flow through the inherited MainWindowStylesAssist properties. -->
+    <Style Selector="coreControls|MainWindowBackgroundMaterialControl.classwidgets-native-background">
+        <Setter Property="Opacity" Value="{Binding $self.EffectiveBackgroundOpacity, Mode=OneWay}" />
+        <Setter Property="FallbackBrush" Value="{DynamicResource SolidBackgroundFillColorSecondaryBrush}" />
+        <Setter Property="CornerRadius"
+                Value="{Binding $self.(assists:MainWindowStylesAssist.CornerRadius),
+                                Converter={StaticResource ClassWidgetsCornerRadiusConverter},
+                                ConverterParameter=1.0,
+                                Mode=OneWay}" />
+    </Style>
+
+    <Style Selector="coreControls|MainWindowBackgroundMaterialControl[(assists|MainWindowStylesAssist.IsCustomBackgroundColorEnabled)=True].classwidgets-native-background">
+        <Setter Property="FallbackBrush"
+                Value="{Binding $self.(assists:MainWindowStylesAssist.BackgroundColor),
+                                Converter={StaticResource ClassWidgetsColorToBrushConverter},
+                                Mode=OneWay}" />
+    </Style>
+
+    <!-- Keep the decorative frame separate from the material surface. In
+         particular, the frame must not inherit EffectiveBackgroundOpacity. -->
+    <Style Selector="Border.classwidgets-native-background-frame">
         <Setter Property="Opacity"
                 Value="{Binding $self.(assists:MainWindowStylesAssist.BackgroundOpacity), Mode=OneWay}" />
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius"
@@ -33,13 +52,6 @@
                                 ConverterParameter=1.0,
                                 Mode=OneWay}" />
         <Setter Property="BoxShadow" Value="0 4 8 2 #48000000" />
-    </Style>
-
-    <Style Selector="Border.classwidgets-native-background[(assists|MainWindowStylesAssist.IsCustomBackgroundColorEnabled)=True]">
-        <Setter Property="Background"
-                Value="{Binding $self.(assists:MainWindowStylesAssist.BackgroundColor),
-                                Converter={StaticResource ClassWidgetsColorToBrushConverter},
-                                Mode=OneWay}" />
     </Style>
 
     <Style Selector="controls|MainWindowLine">
@@ -94,7 +106,10 @@
                                                           Converter={x:Static ObjectConverters.IsNotNull},
                                                           RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}"
                                       Opacity="0">
-                                <Border Classes="classwidgets-native-background"
+                                <coreControls:MainWindowBackgroundMaterialControl
+                                    Classes="classwidgets-native-background"
+                                    IsHitTestVisible="False" />
+                                <Border Classes="classwidgets-native-background-frame"
                                         IsHitTestVisible="False" />
                                 <Border ClipToBounds="True"
                                         IsHitTestVisible="False"
@@ -448,7 +463,10 @@
                 <DataTemplate>
                     <Panel Height="{DynamicResource ClassWidgets.IslandContainerHeight}"
                            ClipToBounds="False">
-                        <Border Classes="classwidgets-native-background"
+                        <coreControls:MainWindowBackgroundMaterialControl
+                            Classes="classwidgets-native-background"
+                            IsHitTestVisible="False" />
+                        <Border Classes="classwidgets-native-background-frame"
                                 IsHitTestVisible="False" />
                         <Border ClipToBounds="True"
                                 CornerRadius="{Binding $self.(assists:MainWindowStylesAssist.CornerRadius),
@@ -506,7 +524,10 @@
                             <DataTemplate DataType="{x:Type components:ScheduleComponent}">
                                 <Panel Height="{DynamicResource ClassWidgets.IslandContainerHeight}"
                                        ClipToBounds="False">
-                                    <Border Classes="classwidgets-native-background"
+                                    <coreControls:MainWindowBackgroundMaterialControl
+                                        Classes="classwidgets-native-background"
+                                        IsHitTestVisible="False" />
+                                    <Border Classes="classwidgets-native-background-frame"
                                             IsHitTestVisible="False" />
                                     <Border ClipToBounds="True"
                                             CornerRadius="{Binding $self.(assists:MainWindowStylesAssist.CornerRadius),

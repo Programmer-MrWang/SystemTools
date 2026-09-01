@@ -89,7 +89,7 @@ public partial class Plugin : PluginBase
             new ThemeManifest
             {
                 Id = "classwidgets",
-                Name = "classwidgets",
+                Name = "ClassWidgets 2 Style",
                 Description = "A ClassWidgets-inspired main interface theme for ClassIsland",
                 Version = "1.0.0.0",
                 Author = "Programmer-MrWang",

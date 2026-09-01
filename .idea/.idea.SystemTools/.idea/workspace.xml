@@ -15,12 +15,20 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/Theme.axaml.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/Theme.axaml.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/manifest.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/manifest.yml" beforeDir="false" afterPath="$PROJECT_DIR$/manifest.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DpaMonitoringSettings">
+    <option name="firstShow" value="false" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -38,12 +46,8 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/.codex-tests/NuGet/NuGet.Config" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/VoskWorker/Program.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/ConfigHandlers/MainConfigData.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://E:/My Github Projects/SystemTools/SettingsPage/SystemToolsSettingsPage.axaml" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Immediate Window" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
@@ -62,6 +66,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;.NET 启动设置配置文件.SystemTools: ClassIsland 插件.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
@@ -84,7 +89,7 @@
   <component name="RunManager">
     <configuration name="SystemTools: ClassIsland 插件" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/SystemTools.csproj" />
-      <option name="LAUNCH_PROFILE_TFM" value="net8.0-windows" />
+      <option name="LAUNCH_PROFILE_TFM" value="net10.0-windows10.0.19041.0" />
       <option name="LAUNCH_PROFILE_NAME" value="ClassIsland 插件" />
       <option name="USE_MONO" value="0" />
       <option name="RUNTIME_ARGUMENTS" value="" />
@@ -168,15 +173,12 @@
       <workItem from="1787913133666" duration="1386000" />
       <workItem from="1788095042650" duration="6098000" />
       <workItem from="1788149599686" duration="2664000" />
-      <workItem from="1788157305498" duration="957000" />
-    </task>
-    <task id="LOCAL-00019" summary="fix: 修正对于某些非标准api的不兼容问题">
-      <option name="closed" value="true" />
-      <created>1785420493302</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1785420493302</updated>
+      <workItem from="1788157305498" duration="3113000" />
+      <workItem from="1788235326383" duration="2996000" />
+      <workItem from="1788244794431" duration="555000" />
+      <workItem from="1788245378014" duration="375000" />
+      <workItem from="1788245772755" duration="384000" />
+      <workItem from="1788246557983" duration="834000" />
     </task>
     <task id="LOCAL-00020" summary="feat: 新增允许语音调用修改档案和课表，并添加了调试规则。">
       <option name="closed" value="true" />
@@ -562,7 +564,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788150963796</updated>
     </task>
-    <option name="localTasksCounter" value="68" />
+    <task id="LOCAL-00068" summary="fix: 修复cw2主题容器bug">
+      <option name="closed" value="true" />
+      <created>1788164821864</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1788164821865</updated>
+    </task>
+    <option name="localTasksCounter" value="69" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -583,7 +593,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 优化悬浮窗AI文本对话UI" />
     <MESSAGE value="feat: 新增近期新增功能的自动化行动开关" />
     <MESSAGE value="feat: 优化行动列表排布顺序" />
     <MESSAGE value="feat: 新增AI行动功能" />
@@ -608,7 +617,8 @@
     <MESSAGE value="feat: 新增虚拟放学状态功能" />
     <MESSAGE value="feat: 更新readme与插件" />
     <MESSAGE value="feat: 更新update log" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: 更新update log" />
+    <MESSAGE value="fix: 修复cw2主题容器bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复cw2主题容器bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

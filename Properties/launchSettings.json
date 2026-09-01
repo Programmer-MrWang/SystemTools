@@ -2,9 +2,9 @@
   "profiles": {
     "ClassIsland 插件": {
       "commandName": "Executable",
-      "executablePath": "$(ClassIsland_DebugBinaryFile)",
-      "commandLineArgs": "-epp $(TargetDir)",
-      "workingDirectory": "$(ClassIsland_DebugBinaryDirectory)"
+      "executablePath": "E:\\ClassIsland-git-misha\\ClassIsland.Desktop\\bin\\Debug\\net10.0-windows10.0.19041.0\\ClassIsland.Desktop.exe",
+      "commandLineArgs": "-dm -v -epp \"E:\\My Github Projects\\SystemTools\\bin\\Debug\\net10.0-windows10.0.19041.0\"",
+      "workingDirectory": "E:\\ClassIsland-git-misha\\ClassIsland.Desktop\\bin\\Debug\\net10.0-windows10.0.19041.0"
     }
   }
 }

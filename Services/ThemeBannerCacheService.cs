@@ -10,8 +10,10 @@ namespace SystemTools.Services;
 
 public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> logger)
 {
-    private const string BannerDownloadUrl =
+    private const string CardTypeComponentBannerDownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/a26b478872e7986800787a3b77d5a06e.png";
+    private const string ClassWidgetsBannerDownloadUrl =
+        "https://livefile.xesimg.com/programme/python_assets/b1ce81d6360c66b7042698a91e76f04c.png";
 
     private static readonly byte[] PngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
     private static readonly HttpClient HttpClient = new()
@@ -24,27 +26,34 @@ public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> log
     public static string BannerPath => Path.GetFullPath(
         Path.Combine(CommonDirectories.AppCacheFolderPath, "SystemTools", "banner.png"));
 
-    public void Start() => _ = EnsureBannerAsync();
+    public static string ClassWidgetsBannerPath => Path.GetFullPath(
+        Path.Combine(CommonDirectories.AppCacheFolderPath, "SystemTools", "banner-CW2.png"));
 
-    private async Task EnsureBannerAsync()
+    public void Start()
+    {
+        _ = EnsureBannerAsync(CardTypeComponentBannerDownloadUrl, BannerPath);
+        _ = EnsureBannerAsync(ClassWidgetsBannerDownloadUrl, ClassWidgetsBannerPath);
+    }
+
+    private async Task EnsureBannerAsync(string downloadUrl, string bannerPath)
     {
         await _downloadLock.WaitAsync();
-        var temporaryPath = BannerPath + ".download";
+        var temporaryPath = bannerPath + ".download";
         try
         {
-            logger.LogInformation("正在检查主题预览图缓存：{BannerPath}", BannerPath);
-            if (File.Exists(BannerPath))
+            logger.LogInformation("正在检查主题预览图缓存：{BannerPath}", bannerPath);
+            if (File.Exists(bannerPath))
             {
                 logger.LogInformation("主题预览图缓存已存在，跳过后台下载。");
                 return;
             }
 
-            var cacheDirectory = Path.GetDirectoryName(BannerPath)!;
+            var cacheDirectory = Path.GetDirectoryName(bannerPath)!;
             Directory.CreateDirectory(cacheDirectory);
-            logger.LogInformation("主题预览图缓存不存在，开始从 {DownloadUrl} 后台下载。", BannerDownloadUrl);
+            logger.LogInformation("主题预览图缓存不存在，开始从 {DownloadUrl} 后台下载。", downloadUrl);
 
             using var response = await HttpClient.GetAsync(
-                BannerDownloadUrl,
+                downloadUrl,
                 HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
 
@@ -60,8 +69,8 @@ public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> log
             }
 
             await ValidatePngAsync(temporaryPath);
-            File.Move(temporaryPath, BannerPath, overwrite: true);
-            logger.LogInformation("主题预览图后台下载完成：{BannerPath}", BannerPath);
+            File.Move(temporaryPath, bannerPath, overwrite: true);
+            logger.LogInformation("主题预览图后台下载完成：{BannerPath}", bannerPath);
         }
         catch (Exception exception)
         {

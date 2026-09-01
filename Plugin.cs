@@ -93,7 +93,7 @@ public partial class Plugin : PluginBase
                 Description = "A ClassWidgets-inspired main interface theme for ClassIsland",
                 Version = "1.0.0.0",
                 Author = "Programmer-MrWang",
-                Banner = ThemeBannerCacheService.BannerPath,
+                Banner = ThemeBannerCacheService.ClassWidgetsBannerPath,
                 VerticalSafeAreaPx = 20
             });
         services.AddSingleton(GlobalConstants.MainConfig);

@@ -13,11 +13,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/CardTypeComponent/Theme.axaml.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/CardTypeComponent/Theme.axaml.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/ClassWidgets/ClassWidgetsCard.axaml" afterDir="false" />
-    </list>
+    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -175,23 +171,7 @@
       <workItem from="1788245378014" duration="375000" />
       <workItem from="1788245772755" duration="384000" />
       <workItem from="1788246557983" duration="834000" />
-      <workItem from="1788248823712" duration="3024000" />
-    </task>
-    <task id="LOCAL-00022" summary="feat: 添加停止聆听动画">
-      <option name="closed" value="true" />
-      <created>1785944722613</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1785944722613</updated>
-    </task>
-    <task id="LOCAL-00023" summary="更新项目">
-      <option name="closed" value="true" />
-      <created>1785944855647</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1785944855647</updated>
+      <workItem from="1788248823712" duration="3453000" />
     </task>
     <task id="LOCAL-00024" summary="排除无关文件">
       <option name="closed" value="true" />
@@ -569,7 +549,23 @@
       <option name="project" value="LOCAL" />
       <updated>1788249132337</updated>
     </task>
-    <option name="localTasksCounter" value="71" />
+    <task id="LOCAL-00071" summary="feat: 实现ct主题适配背景材质">
+      <option name="closed" value="true" />
+      <created>1788254918982</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1788254918982</updated>
+    </task>
+    <task id="LOCAL-00072" summary="fix: 修复cw2主题下边框不适配的问题">
+      <option name="closed" value="true" />
+      <created>1788254944225</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1788254944225</updated>
+    </task>
+    <option name="localTasksCounter" value="73" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -590,8 +586,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增AI行动功能" />
-    <MESSAGE value="feat: 新增关于页图片抬头功能" />
     <MESSAGE value="feat: 新增一个主题" />
     <MESSAGE value="feat: 新增网络下载主题banner" />
     <MESSAGE value="fix: 改个提示文字" />
@@ -615,7 +609,9 @@
     <MESSAGE value="fix: 修复cw2主题容器bug" />
     <MESSAGE value="feat: cw2主题适配ci背景材质" />
     <MESSAGE value="fix: 修复插件环境配置" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复插件环境配置" />
+    <MESSAGE value="feat: 实现ct主题适配背景材质" />
+    <MESSAGE value="fix: 修复cw2主题下边框不适配的问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复cw2主题下边框不适配的问题" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

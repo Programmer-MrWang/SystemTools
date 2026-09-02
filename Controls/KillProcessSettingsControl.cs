@@ -180,7 +180,6 @@ public class KillProcessSettingsControl : ActionSettingsControlBase<KillProcessS
             FontSize = 12
         };
 
-        // 设置滚动条
         ScrollViewer.SetVerticalScrollBarVisibility(textBox, Avalonia.Controls.Primitives.ScrollBarVisibility.Auto);
         ScrollViewer.SetHorizontalScrollBarVisibility(textBox, Avalonia.Controls.Primitives.ScrollBarVisibility.Auto);
 

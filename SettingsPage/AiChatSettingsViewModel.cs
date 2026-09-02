@@ -1552,7 +1552,6 @@ public partial class AiChatSettingsViewModel : ObservableObject, IDisposable
             : null;
         if (selectedConversationBeforeMove is not null)
         {
-            // ListBox may write back a different SelectedItem while processing CollectionChanged.Move.
             Dispatcher.UIThread.Post(
                 () => RestoreSelectionAfterConversationMove(selectedConversationBeforeMove),
                 DispatcherPriority.Background);

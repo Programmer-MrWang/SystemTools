@@ -62,7 +62,6 @@ public class ActionFlowExecutionConfirmationAction(
 
         logger.LogInformation("用户停止了行动流“{ActionSetName}”。", ActionSet.Name);
 
-        // InterruptActionSetAsync 会等待当前行动结束，因此这里只发起中断而不等待。
         _ = actionService.InterruptActionSetAsync(ActionSet);
     }
 

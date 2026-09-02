@@ -28,12 +28,7 @@ public sealed class ClassWidgetsStyles : Styles
             throw new InvalidOperationException("The embedded ClassWidgets theme is not a Styles resource.");
         }
 
-        // Keep the plugin control out of the host-assembly runtime XAML and expose
-        // it through a template created in the plugin load context. The card binds
-        // to its owning ComponentPresenter once it enters the host tree.
         var cardTemplate = new FuncDataTemplate<object?>((_, _) => new ClassWidgetsCard());
-        // Register on both levels: the outer style is what ClassIsland adds
-        // to RootStyles, while the inner style owns the parsed theme rules.
         Resources["ClassWidgets.CardTemplate"] = cardTemplate;
         styles.Resources["ClassWidgets.CardTemplate"] = cardTemplate;
 

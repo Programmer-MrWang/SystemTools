@@ -12,9 +12,6 @@ using SystemTools.Shared;
 
 namespace SystemTools.Actions;
 
-/// <summary>
-/// 切换悬浮窗主题行动
-/// </summary>
 [ActionInfo("SystemTools.SwitchFloatingWindowTheme", "切换悬浮窗主题", "\uE790", false)]
 public class SwitchFloatingWindowThemeAction(ILogger<SwitchFloatingWindowThemeAction> logger) : ActionBase<SwitchFloatingWindowThemeSettings>
 {

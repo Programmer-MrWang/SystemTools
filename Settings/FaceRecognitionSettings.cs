@@ -14,7 +14,7 @@ public class FaceRecognitionSettings : ObservableObject
     private bool _cameraReady;
 
     /// <summary>
-    /// 已录入的人脸特征。使用可观察属性，确保录入成功后编辑界面立即刷新按钮文案。
+    /// 已录入的人脸特征
     /// </summary>
     public string? FaceTemplate
     {

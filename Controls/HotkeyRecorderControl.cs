@@ -43,7 +43,6 @@ public class HotkeyRecorderControl : Border
 
     public HotkeyRecorderControl()
     {
-        // 设置容器样式
         Background = new SolidColorBrush(Color.Parse("#E8E8E8"));
         BorderBrush = new SolidColorBrush(Color.Parse("#D0D0D0"));
         BorderThickness = new Thickness(1);
@@ -52,8 +51,6 @@ public class HotkeyRecorderControl : Border
         Focusable = true;
         Cursor = new Cursor(StandardCursorType.Hand);
 
-        // 创建文字显示
-        // 创建文字显示
         _displayText = new TextBlock
         {
             HorizontalAlignment = HorizontalAlignment.Center,
@@ -62,13 +59,10 @@ public class HotkeyRecorderControl : Border
             Foreground = new SolidColorBrush(Color.Parse("#666666"))
         };
 
-        // 绑定文字
         _displayText.Bind(TextBlock.TextProperty, this.GetObservable(HotkeyDisplayProperty));
 
-        // 设置内容
         Child = _displayText;
 
-        // 悬停效果
         this.PointerEntered += (s, e) =>
         {
             if (!_isRecording)
@@ -138,20 +132,17 @@ public class HotkeyRecorderControl : Border
 
         e.Handled = true;
 
-        // 忽略单独的修饰键
         if (IsModifierKey(e.Key))
         {
             return;
         }
 
-        // 捕获修饰键状态
         _capturedModifierKeys = 0;
         if (e.KeyModifiers.HasFlag(KeyModifiers.Control)) _capturedModifierKeys |= 0x0002;
         if (e.KeyModifiers.HasFlag(KeyModifiers.Alt)) _capturedModifierKeys |= 0x0001;
         if (e.KeyModifiers.HasFlag(KeyModifiers.Shift)) _capturedModifierKeys |= 0x0004;
         if (e.KeyModifiers.HasFlag(KeyModifiers.Meta)) _capturedModifierKeys |= 0x0008;
 
-        // 转换 Avalonia Key 到 Win32 VK
         _capturedVirtualKey = AvaloniaKeyToVirtualKey(e.Key);
 
         _isRecording = false;

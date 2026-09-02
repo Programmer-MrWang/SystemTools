@@ -108,9 +108,6 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         }
     }
 
-    /// <summary>
-    /// 重新注册 Profile 属性变更事件监听（切换方案后需要重新注册）
-    /// </summary>
     public void ReattachProfilePropertyChanged()
     {
         ViewModel.CurrentFloatingWindowProfile.PropertyChanged -= OnProfilePropertyChanged;
@@ -624,7 +621,6 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         _floatingDragSourceBorder = border;
         _floatingDragStartPoint = e.GetPosition(border);
         _floatingDragPressedArgs = e;
-        // 主动 capture，避免鼠标移出 Border 后丢失 PointerMoved/PointerReleased
         e.Pointer.Capture(border);
         e.Handled = e.Pointer.Type is PointerType.Touch or PointerType.Pen;
     }

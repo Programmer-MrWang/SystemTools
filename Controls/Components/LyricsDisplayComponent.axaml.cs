@@ -37,7 +37,6 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
     private int _originalWidth;
     private int _originalHeight;
 
-    // 计算属性
     public double ScaledWidth => _originalWidth * Settings.ImageScale;
     public double ScaledHeight => _originalHeight * Settings.ImageScale;
 

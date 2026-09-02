@@ -66,7 +66,6 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
     static LocalQuoteComponent()
     {
-        // 注册编码提供程序以支持 GBK 等本地编码
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
@@ -145,10 +144,8 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         Settings.PropertyChanged += OnSettingsPropertyChanged;
         _lessonsService.PreMainTimerTicked += LessonsServiceOnPreMainTimerTicked;
         
-        // 1. 先加载文件数据
         LoadQuotesFromFile(Settings.QuotesFilePath, showFirstQuote: false);
         
-        // 2. 恢复状态
         RestoreStateAndStartTimer();
     }
 
@@ -188,9 +185,6 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         }
     }
 
-    /// <summary>
-    /// 恢复上次播放状态并启动计时器
-    /// </summary>
     private void RestoreStateAndStartTimer()
     {
         if (_quotes.Count == 0)
@@ -202,7 +196,6 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
         if (Settings.IsPersistenceEnabled)
         {
-            // 恢复索引：检查索引有效性，防止文件被外部修改后行数变少导致越界
             if (Settings.LastIndex >= 0 && Settings.LastIndex < _quotes.Count)
             {
                 _currentIndex = Settings.LastIndex;
@@ -214,23 +207,19 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
             
             CurrentQuote = _quotes[_currentIndex];
 
-            // 计算上次切换到现在经过了多久
             var elapsed = (DateTime.Now - Settings.LastSwitchTime).TotalSeconds;
             
-            // 计算初次触发的剩余时间
             if (elapsed >= 0 && elapsed < Settings.CarouselIntervalSeconds)
             {
                 initialDelay = Settings.CarouselIntervalSeconds - elapsed;
             }
             else
             {
-                // 如果已经超时，则给一个极短的延迟准备切换下一行
                 initialDelay = 0.5; 
             }
         }
         else
         {
-            // 如果没开记忆，显示第一行并正常启动
             ShowNextQuote();
         }
 
@@ -246,7 +235,6 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
             return;
         }
 
-        // 如果当前的间隔不是标准设定的间隔（说明刚处理完“记忆剩余时间”），恢复标准间隔
         if (Math.Abs(_carouselTimer.Interval.TotalSeconds - Settings.CarouselIntervalSeconds) > 0.1)
         {
             RefreshTimerInterval();
@@ -291,7 +279,6 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
         try
         {
-            // 改进：支持多种编码。使用 StreamReader 自动检测 BOM
             using (var reader = new StreamReader(path, Encoding.UTF8, true))
             {
                 string? line;
@@ -330,9 +317,7 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         {
             return;
         }
-
-        // 进度条语义为“距离下一次切换开始的剩余时间”，
-        // 因此需要在当前轮换开始时立即重置，而不是等动画播放完成后再重置。
+        
         RestartProgressCycle(_carouselTimer.Interval.TotalSeconds);
 
         _currentIndex = Settings.PlaybackOrder == LocalQuotePlaybackOrder.Random
@@ -340,7 +325,6 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
             : (_currentIndex + 1) % _quotes.Count;
         var next = _quotes[_currentIndex];
 
-        // 更新持久化数据
         if (Settings.IsPersistenceEnabled)
         {
             Settings.LastIndex = _currentIndex;

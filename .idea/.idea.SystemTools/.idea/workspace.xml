@@ -13,9 +13,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -177,23 +175,7 @@
       <workItem from="1788246557983" duration="834000" />
       <workItem from="1788248823712" duration="3453000" />
       <workItem from="1788273374674" duration="6272000" />
-      <workItem from="1788316128503" duration="5623000" />
-    </task>
-    <task id="LOCAL-00029" summary="feat: 优化了语言表述">
-      <option name="closed" value="true" />
-      <created>1786113820065</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1786113820065</updated>
-    </task>
-    <task id="LOCAL-00030" summary="fix: 修复了对话记录绑定错误的问题">
-      <option name="closed" value="true" />
-      <created>1786114051012</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1786114051012</updated>
+      <workItem from="1788316128503" duration="6274000" />
     </task>
     <task id="LOCAL-00031" summary="fix: 取消按下F11的设定，改为直接打开">
       <option name="closed" value="true" />
@@ -571,7 +553,23 @@
       <option name="project" value="LOCAL" />
       <updated>1788326373952</updated>
     </task>
-    <option name="localTasksCounter" value="78" />
+    <task id="LOCAL-00078" summary="ci: 构建">
+      <option name="closed" value="true" />
+      <created>1788327207368</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1788327207368</updated>
+    </task>
+    <task id="LOCAL-00079" summary="ci: 修复构建！">
+      <option name="closed" value="true" />
+      <created>1788328603659</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1788328603659</updated>
+    </task>
+    <option name="localTasksCounter" value="80" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -592,8 +590,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 更新了title图片" />
-    <MESSAGE value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
     <MESSAGE value="feat: 更新reademe v1" />
     <MESSAGE value="更新reademe" />
     <MESSAGE value="feat: 新增“模拟组合键”行动" />
@@ -617,7 +613,9 @@
     <MESSAGE value="fix: 修复错误的材质匹配问题" />
     <MESSAGE value="style: 删掉一些废话" />
     <MESSAGE value="ci: 修复构建" />
-    <option name="LAST_COMMIT_MESSAGE" value="ci: 修复构建" />
+    <MESSAGE value="ci: 构建" />
+    <MESSAGE value="ci: 修复构建！" />
+    <option name="LAST_COMMIT_MESSAGE" value="ci: 修复构建！" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

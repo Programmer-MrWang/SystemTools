@@ -20,6 +20,8 @@ jobs:
           repository: ClassIsland/ClassIsland
           ref: develop/v2/misha-alpha
           path: ClassIsland
+          # ClassIsland derives AssemblyVersion from git tags via git describe.
+          fetch-depth: 0
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4

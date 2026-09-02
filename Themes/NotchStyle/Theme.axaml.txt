@@ -1,0 +1,211 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:ClassIsland.Controls;assembly=ClassIsland"
+        xmlns:coreControls="clr-namespace:ClassIsland.Core.Controls;assembly=ClassIsland.Core"
+        xmlns:assists="clr-namespace:ClassIsland.Core.Assists;assembly=ClassIsland.Core"
+        xmlns:ci="http://classisland.tech/schemas/xaml/core"
+        xmlns:theme="clr-namespace:SystemTools.Themes.NotchStyle;assembly=SystemTools"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime">
+    <Styles.Resources>
+        <system:Double x:Key="Notch.IslandHeight">36</system:Double>
+        <ci:ColorToColorPickerBrushConverter x:Key="Notch.ColorToBrushConverter" />
+    </Styles.Resources>
+
+    <StyleInclude Source="avares://ClassIsland/Controls/MainWindowLine.axaml" />
+
+    <Style Selector="theme|NotchMaterialControl.notch-background">
+        <Setter Property="Opacity" Value="{Binding $self.EffectiveBackgroundOpacity, Mode=OneWay}" />
+        <Setter Property="FallbackBrush" Value="{DynamicResource SolidBackgroundFillColorSecondaryBrush}" />
+    </Style>
+
+    <Style Selector="theme|NotchMaterialControl[(assists|MainWindowStylesAssist.IsCustomBackgroundColorEnabled)=True].notch-background">
+        <Setter Property="FallbackBrush"
+                Value="{Binding $self.(assists:MainWindowStylesAssist.BackgroundColor),
+                                Converter={StaticResource Notch.ColorToBrushConverter},
+                                Mode=OneWay}" />
+    </Style>
+
+    <Style Selector="theme|NotchFrameControl.notch-frame">
+        <Setter Property="Stroke" Value="{DynamicResource ControlElevationBorderBrush}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Opacity" Value="{Binding $self.(assists:MainWindowStylesAssist.BackgroundOpacity), Mode=OneWay}" />
+    </Style>
+
+    <Style Selector="ItemsControl#RootMainWindowLinesItemsControl">
+        <Setter Property="ClipToBounds" Value="False" />
+    </Style>
+
+    <Style Selector="controls|MainWindowLine">
+        <Style.Resources>
+            <ControlTemplate x:Key="Notch.MainWindowLineTemplate" TargetType="controls:MainWindowLine">
+                <Grid x:Name="NotchLineRoot"
+                      ClipToBounds="False"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Top">
+                    <!-- In merged mode the whole line is one continuous notch. -->
+                    <Border x:Name="NotchMergedSurface"
+                            Classes="docking"
+                            Height="{DynamicResource Notch.IslandHeight}"
+                            Width="{Binding BackgroundWidth, Mode=OneWay,
+                                            RelativeSource={RelativeSource FindAncestor,
+                                            AncestorType=controls:MainWindowLine}}"
+                            IsVisible="{Binding !$self.(assists:MainWindowStylesAssist.IsIslandSeperated)}"
+                            ClipToBounds="True">
+                        <Grid>
+                        <theme:NotchMaterialControl
+                            Classes="notch-background"
+                            IsHitTestVisible="False" />
+                        <theme:NotchFrameControl Classes="notch-frame" IsHitTestVisible="False" />
+                        </Grid>
+                    </Border>
+
+                    <Grid x:Name="ContentClipBorder" ClipToBounds="False">
+                        <Panel Classes="animated-resize" ClipToBounds="False">
+                            <Grid x:Name="PART_GridWrapper"
+                                  Classes="docking"
+                                  Height="{DynamicResource Notch.IslandHeight}"
+                                  ClipToBounds="False">
+                                <Grid x:Name="GridContentRoot"
+                                      Height="{DynamicResource Notch.IslandHeight}"
+                                      MinWidth="20"
+                                      Margin="28 0"
+                                      ClipToBounds="False">
+                                    <ContentPresenter
+                                        Content="{Binding Content,
+                                                         RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center" />
+                                </Grid>
+
+                                <!-- Notification overlay keeps the host behavior intact. -->
+                                <Grid x:Name="GridOverlay"
+                                      ClipToBounds="False"
+                                      Opacity="0"
+                                      IsVisible="{Binding OverlayContent,
+                                                          Converter={x:Static ObjectConverters.IsNotNull},
+                                                          RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}">
+                                    <theme:NotchMaterialControl
+                                        Classes="notch-background"
+                                        IsHitTestVisible="False" />
+                                    <theme:NotchFrameControl Classes="notch-frame" IsHitTestVisible="False" />
+                                    <theme:NotchClipControl IsHitTestVisible="False">
+                                        <Grid>
+                                            <ProgressBar Height="3"
+                                                         VerticalAlignment="Bottom"
+                                                         Maximum="1"
+                                                         MinWidth="0"
+                                                         Foreground="{DynamicResource AccentFillColorDefaultBrush}"
+                                                         Background="Transparent"
+                                                         BorderBrush="Transparent"
+                                                         Value="{Binding CountdownProgressValue,
+                                                                        RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}" />
+                                            <ContentPresenter
+                                                Content="{Binding OverlayContent.Content,
+                                                                 RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}"
+                                                ContentTemplate="{Binding OverlayContent.ContentTemplate,
+                                                                         RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}" />
+                                        </Grid>
+                                    </theme:NotchClipControl>
+                                </Grid>
+
+                                <theme:NotchClipControl x:Name="OverlayMaskRoot"
+                                        IsHitTestVisible="False"
+                                        ClipToBounds="True"
+                                        IsVisible="{Binding MaskContent,
+                                                            Converter={x:Static ObjectConverters.IsNotNull},
+                                                            RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}">
+                                    <theme:NotchClipControl x:Name="OverlayMask"
+                                            Classes="primaryColorZone"
+                                            Height="{DynamicResource Notch.IslandHeight}"
+                                            ClipToBounds="True">
+                                        <ContentPresenter x:Name="OverlayMaskContent"
+                                                          Opacity="0"
+                                                          Content="{Binding MaskContent.Content,
+                                                                           RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}"
+                                                          ContentTemplate="{Binding MaskContent.ContentTemplate,
+                                                                                   RelativeSource={RelativeSource AncestorType=controls:MainWindowLine}}" />
+                                    </theme:NotchClipControl>
+                                </theme:NotchClipControl>
+                            </Grid>
+                        </Panel>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Style.Resources>
+
+        <Setter Property="Template" Value="{StaticResource Notch.MainWindowLineTemplate}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+        <Setter Property="RenderTransform">
+            <TranslateTransform Y="0" />
+        </Setter>
+
+        <Style Selector="^[(coreControls|ComponentPresenter.IsMainWindowLoaded)=True]">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.1" />
+                    <DoubleTransition Property="BackgroundWidth"
+                                       Duration="0:0:0.3"
+                                       Easing="0.65, 0, 0.35, 1.0" />
+                </Transitions>
+            </Setter>
+        </Style>
+    </Style>
+
+    <!-- A merged line has one surface; root components remain transparent content. -->
+    <Style Selector="coreControls|ComponentPresenter[IsRootComponent=True][IsOnMainWindow=True]">
+        <Setter Property="ClipToBounds" Value="False" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0 -8" />
+        <Setter Property="ContentTemplate">
+            <DataTemplate>
+                <Panel Height="{DynamicResource Notch.IslandHeight}" ClipToBounds="False">
+                    <ContentPresenter Content="{Binding}"
+                                      HorizontalContentAlignment="Center"
+                                      VerticalContentAlignment="Center" />
+                </Panel>
+            </DataTemplate>
+        </Setter>
+    </Style>
+
+    <!-- In separated mode each root component becomes its own top notch. -->
+    <Style Selector="coreControls|ComponentPresenter[IsRootComponent=True][IsOnMainWindow=True][(assists|MainWindowStylesAssist.IsIslandSeperated)=True]">
+        <Setter Property="ContentTemplate">
+            <DataTemplate>
+                <Panel Height="{DynamicResource Notch.IslandHeight}"
+                       ClipToBounds="False">
+                    <theme:NotchMaterialControl
+                        Classes="notch-background"
+                        IsHitTestVisible="False" />
+                    <theme:NotchFrameControl Classes="notch-frame" IsHitTestVisible="False" />
+                    <theme:NotchClipControl ClipToBounds="True" Margin="0">
+                        <ContentPresenter Content="{Binding}"
+                                          Margin="28 0"
+                                          HorizontalContentAlignment="Center"
+                                          VerticalContentAlignment="Center" />
+                    </theme:NotchClipControl>
+                </Panel>
+            </DataTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="coreControls|ComponentPresenter[IsRootComponent=True][IsOnMainWindow=True][IsVisible=True][(coreControls|ComponentPresenter.IsMainWindowLoaded)=True]">
+        <Style.Animations>
+            <Animation Duration="0:0:0.25" IterationCount="1" FillMode="Both">
+                <Animation.Easing>
+                    <SineEaseOut />
+                </Animation.Easing>
+                <KeyFrame Cue="0%">
+                    <Setter Property="TranslateTransform.Y" Value="-12" />
+                    <Setter Property="Opacity" Value="0" />
+                </KeyFrame>
+                <KeyFrame Cue="100%">
+                    <Setter Property="TranslateTransform.Y" Value="0" />
+                    <Setter Property="Opacity" Value="1" />
+                </KeyFrame>
+            </Animation>
+        </Style.Animations>
+    </Style>
+</Styles>
+

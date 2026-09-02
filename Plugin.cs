@@ -96,6 +96,18 @@ public partial class Plugin : PluginBase
                 Banner = ThemeBannerCacheService.ClassWidgetsBannerPath,
                 VerticalSafeAreaPx = 20
             });
+        services.AddXamlTheme(
+            new Uri("avares://SystemTools/Themes/NotchStyle/Styles.axaml"),
+            new ThemeManifest
+            {
+                Id = "notch-style",
+                Name = "Notch Style",
+                Description = "An iPhone X to iPhone 12 inspired notch-style main interface theme for ClassIsland",
+                Version = "1.0.0.0",
+                Author = "Programmer-MrWang",
+                Banner = ThemeBannerCacheService.NotchStyleBannerPath,
+                VerticalSafeAreaPx = 0
+            });
         services.AddSingleton(GlobalConstants.MainConfig);
         services.AddSingleton<ThemeBannerCacheService>();
         services.AddSingleton<AboutTitleImageCacheService>();

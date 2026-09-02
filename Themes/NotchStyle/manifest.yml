@@ -1,0 +1,11 @@
+id: notch-style
+name: Notch Style
+description: An iPhone X to iPhone 12 inspired notch-style main interface theme for ClassIsland
+version: 1.0.0.0
+author: Programmer-MrWang
+verticalSafeAreaPx: 0
+repoOwner: Programmer-MrWang
+repoName: SystemTools
+assetsRoot: main/NotchStyle
+artifactName: notch-style.zip
+banner: ../../../Cache/SystemTools/banner-notch.png

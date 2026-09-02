@@ -13,7 +13,11 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="" />
+    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,7 +47,7 @@
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="Toolset" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -172,14 +176,8 @@
       <workItem from="1788245772755" duration="384000" />
       <workItem from="1788246557983" duration="834000" />
       <workItem from="1788248823712" duration="3453000" />
-    </task>
-    <task id="LOCAL-00024" summary="排除无关文件">
-      <option name="closed" value="true" />
-      <created>1785944995444</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1785944995444</updated>
+      <workItem from="1788273374674" duration="6272000" />
+      <workItem from="1788316128503" duration="1470000" />
     </task>
     <task id="LOCAL-00025" summary="feat: 更新了液态玻璃效果">
       <option name="closed" value="true" />
@@ -565,7 +563,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788254944225</updated>
     </task>
-    <option name="localTasksCounter" value="73" />
+    <task id="LOCAL-00073" summary="fix: 修正cw2主题banner">
+      <option name="closed" value="true" />
+      <created>1788273405139</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1788273405139</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -586,7 +592,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增一个主题" />
     <MESSAGE value="feat: 新增网络下载主题banner" />
     <MESSAGE value="fix: 改个提示文字" />
     <MESSAGE value="fix: 修正图片比例" />
@@ -611,7 +616,8 @@
     <MESSAGE value="fix: 修复插件环境配置" />
     <MESSAGE value="feat: 实现ct主题适配背景材质" />
     <MESSAGE value="fix: 修复cw2主题下边框不适配的问题" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复cw2主题下边框不适配的问题" />
+    <MESSAGE value="fix: 修正cw2主题banner" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正cw2主题banner" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

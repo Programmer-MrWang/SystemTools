@@ -14,6 +14,8 @@ public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> log
         "https://livefile.xesimg.com/programme/python_assets/a26b478872e7986800787a3b77d5a06e.png";
     private const string ClassWidgetsBannerDownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/b1ce81d6360c66b7042698a91e76f04c.png";
+    private const string NotchStyleBannerDownloadUrl =
+        "https://livefile.xesimg.com/programme/python_assets/575aaab4792d5ad26ecc2f47ee391e77.png";
 
     private static readonly byte[] PngSignature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
     private static readonly HttpClient HttpClient = new()
@@ -29,10 +31,14 @@ public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> log
     public static string ClassWidgetsBannerPath => Path.GetFullPath(
         Path.Combine(CommonDirectories.AppCacheFolderPath, "SystemTools", "banner-CW2.png"));
 
+    public static string NotchStyleBannerPath => Path.GetFullPath(
+        Path.Combine(CommonDirectories.AppCacheFolderPath, "SystemTools", "banner-notch.png"));
+
     public void Start()
     {
         _ = EnsureBannerAsync(CardTypeComponentBannerDownloadUrl, BannerPath);
         _ = EnsureBannerAsync(ClassWidgetsBannerDownloadUrl, ClassWidgetsBannerPath);
+        _ = EnsureBannerAsync(NotchStyleBannerDownloadUrl, NotchStyleBannerPath);
     }
 
     private async Task EnsureBannerAsync(string downloadUrl, string bannerPath)

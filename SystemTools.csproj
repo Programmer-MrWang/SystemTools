@@ -21,6 +21,7 @@
       <None Remove="ThirdParty\LiquidGlassAvaloniaUI\Assets\Shaders\*.sksl" />
       <AvaloniaResource Include="Themes\CardTypeComponent\Theme.axaml.txt" />
       <AvaloniaResource Include="Themes\ClassWidgets\Theme.axaml.txt" />
+      <AvaloniaResource Include="Themes\NotchStyle\Theme.axaml.txt" />
       <AvaloniaResource Include="Themes\ClassWidgets\上课.png" />
       <AvaloniaResource Include="Themes\ClassWidgets\课间休息.png" />
       <AvaloniaResource Include="Themes\ClassWidgets\无课程.png" />

@@ -14,9 +14,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/dotnet-build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/dotnet-build.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -179,15 +177,7 @@
       <workItem from="1788246557983" duration="834000" />
       <workItem from="1788248823712" duration="3453000" />
       <workItem from="1788273374674" duration="6272000" />
-      <workItem from="1788316128503" duration="4700000" />
-    </task>
-    <task id="LOCAL-00028" summary="feat: 优化调试页面">
-      <option name="closed" value="true" />
-      <created>1786111669964</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1786111669964</updated>
+      <workItem from="1788316128503" duration="5623000" />
     </task>
     <task id="LOCAL-00029" summary="feat: 优化了语言表述">
       <option name="closed" value="true" />
@@ -573,7 +563,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788321306392</updated>
     </task>
-    <option name="localTasksCounter" value="77" />
+    <task id="LOCAL-00077" summary="ci: 修复构建">
+      <option name="closed" value="true" />
+      <created>1788326373952</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1788326373952</updated>
+    </task>
+    <option name="localTasksCounter" value="78" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -594,7 +592,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 实现后台下载高清图片" />
     <MESSAGE value="feat: 更新了title图片" />
     <MESSAGE value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
     <MESSAGE value="feat: 更新reademe v1" />
@@ -619,7 +616,8 @@
     <MESSAGE value="feat: 新增Notch Style主题" />
     <MESSAGE value="fix: 修复错误的材质匹配问题" />
     <MESSAGE value="style: 删掉一些废话" />
-    <option name="LAST_COMMIT_MESSAGE" value="style: 删掉一些废话" />
+    <MESSAGE value="ci: 修复构建" />
+    <option name="LAST_COMMIT_MESSAGE" value="ci: 修复构建" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

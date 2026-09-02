@@ -1,17 +1,16 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
 using ClassIsland.Core.Assists;
-using ClassIsland.Core.Controls;
 
 namespace SystemTools.Themes.NotchStyle;
 
-public sealed class NotchMaterialControl : MainWindowBackgroundMaterialControl
+public sealed class NotchMaterialControl : Border
 {
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
         if (change.Property == BoundsProperty ||
+            change.Property == BackgroundProperty ||
             change.Property == MainWindowStylesAssist.CornerRadiusProperty)
         {
             UpdateClip();

@@ -15,8 +15,8 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugin.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugin.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/NotchStyle/NotchMaterialControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/NotchStyle/NotchMaterialControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Themes/NotchStyle/Theme.axaml.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/NotchStyle/Theme.axaml.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +44,8 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/VoskWorker/Program.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://E:/My Github Projects/SystemTools/Plugin.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/Services/ThemeBannerCacheService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://E:/My Github Projects/SystemTools/Themes/NotchStyle/NotchMaterialControl.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
@@ -177,15 +179,7 @@
       <workItem from="1788246557983" duration="834000" />
       <workItem from="1788248823712" duration="3453000" />
       <workItem from="1788273374674" duration="6272000" />
-      <workItem from="1788316128503" duration="1470000" />
-    </task>
-    <task id="LOCAL-00025" summary="feat: 更新了液态玻璃效果">
-      <option name="closed" value="true" />
-      <created>1786064739070</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1786064739070</updated>
+      <workItem from="1788316128503" duration="2965000" />
     </task>
     <task id="LOCAL-00026" summary="feat: 实现下载模型UI和麦克风限制">
       <option name="closed" value="true" />
@@ -571,7 +565,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788273405139</updated>
     </task>
-    <option name="localTasksCounter" value="74" />
+    <task id="LOCAL-00074" summary="feat: 新增Notch Style主题">
+      <option name="closed" value="true" />
+      <created>1788319993051</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1788319993080</updated>
+    </task>
+    <option name="localTasksCounter" value="75" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -592,7 +594,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增网络下载主题banner" />
     <MESSAGE value="fix: 改个提示文字" />
     <MESSAGE value="fix: 修正图片比例" />
     <MESSAGE value="feat: 实现后台下载高清图片" />
@@ -617,7 +618,8 @@
     <MESSAGE value="feat: 实现ct主题适配背景材质" />
     <MESSAGE value="fix: 修复cw2主题下边框不适配的问题" />
     <MESSAGE value="fix: 修正cw2主题banner" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正cw2主题banner" />
+    <MESSAGE value="feat: 新增Notch Style主题" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: 新增Notch Style主题" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -8,7 +8,8 @@
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <CreateCipx>true</CreateCipx>
         <ClassIslandSourceRoot Condition="'$(ClassIslandSourceRoot)' == ''">E:\ClassIsland-git-misha</ClassIslandSourceRoot>
-        <UseLocalClassIslandSdk Condition="'$(UseLocalClassIslandSdk)' == ''">true</UseLocalClassIslandSdk>
+        <UseLocalClassIslandSdk Condition="'$(UseLocalClassIslandSdk)' == '' And Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj')">true</UseLocalClassIslandSdk>
+        <UseLocalClassIslandSdk Condition="'$(UseLocalClassIslandSdk)' == ''">false</UseLocalClassIslandSdk>
         <ClassIslandPluginSdkVersion Condition="'$(ClassIslandPluginSdkVersion)' == ''">2.1.1.1</ClassIslandPluginSdkVersion>
         <ClassIslandPowerShellExecutable Condition="'$(ClassIslandPowerShellExecutable)' == '' And Exists('D:\PowerShell-7.7.0-preview.4-win-x64\pwsh.exe')">D:\PowerShell-7.7.0-preview.4-win-x64\pwsh.exe</ClassIslandPowerShellExecutable>
         <ClassIslandPowerShellExecutable Condition="'$(ClassIslandPowerShellExecutable)' == '' And Exists('C:\Program Files\PowerShell\7\pwsh.exe')">C:\Program Files\PowerShell\7\pwsh.exe</ClassIslandPowerShellExecutable>
@@ -151,6 +152,7 @@
         <ProjectReference Include="$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj">
             <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
             <Private>false</Private>
+            <GlobalPropertiesToRemove>CreateCipx</GlobalPropertiesToRemove>
         </ProjectReference>
     </ItemGroup>
 

@@ -14,14 +14,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/Actions/ActionFlowExecutionConfirmationAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/ActionFlowExecutionConfirmationAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Actions/SwitchFloatingWindowThemeAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Actions/SwitchFloatingWindowThemeAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/Components/LocalQuoteComponent.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/Components/LocalQuoteComponent.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/Components/LyricsDisplayComponent.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/Components/LyricsDisplayComponent.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/HotkeyRecorderControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/HotkeyRecorderControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controls/KillProcessSettingsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controls/KillProcessSettingsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Settings/ToggleFloatingWindowLayerSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Settings/ToggleFloatingWindowLayerSettings.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/dotnet-build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/dotnet-build.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SystemTools.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/SystemTools.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,15 +179,7 @@
       <workItem from="1788246557983" duration="834000" />
       <workItem from="1788248823712" duration="3453000" />
       <workItem from="1788273374674" duration="6272000" />
-      <workItem from="1788316128503" duration="3353000" />
-    </task>
-    <task id="LOCAL-00027" summary="feat: 优化UI提示">
-      <option name="closed" value="true" />
-      <created>1786110820748</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1786110820748</updated>
+      <workItem from="1788316128503" duration="4700000" />
     </task>
     <task id="LOCAL-00028" summary="feat: 优化调试页面">
       <option name="closed" value="true" />
@@ -578,7 +565,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788320760010</updated>
     </task>
-    <option name="localTasksCounter" value="76" />
+    <task id="LOCAL-00076" summary="style: 删掉一些废话">
+      <option name="closed" value="true" />
+      <created>1788321306392</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1788321306392</updated>
+    </task>
+    <option name="localTasksCounter" value="77" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -599,7 +594,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="fix: 修正图片比例" />
     <MESSAGE value="feat: 实现后台下载高清图片" />
     <MESSAGE value="feat: 更新了title图片" />
     <MESSAGE value="feat: 全面更正和优化人脸识别逻辑；新增 Windows Hello 验证器" />
@@ -624,7 +618,8 @@
     <MESSAGE value="fix: 修正cw2主题banner" />
     <MESSAGE value="feat: 新增Notch Style主题" />
     <MESSAGE value="fix: 修复错误的材质匹配问题" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修复错误的材质匹配问题" />
+    <MESSAGE value="style: 删掉一些废话" />
+    <option name="LAST_COMMIT_MESSAGE" value="style: 删掉一些废话" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

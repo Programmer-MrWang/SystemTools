@@ -86,7 +86,9 @@
     </Target>
 
     <Target Name="StripClassIslandHostDependencies" BeforeTargets="CreateCipx"
-            Condition="'$(UseLocalClassIslandSdk)' == 'true' And Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj')">
+            Condition="'$(UseLocalClassIslandSdk)' == 'true'
+                       And Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj')
+                       And Exists('$(ClassIslandSourceRoot)\ClassIsland.Desktop\bin\Debug\net10.0-windows10.0.19041.0')">
         <PropertyGroup>
             <PluginOutputDirectory>$([System.String]::Copy('$([System.IO.Path]::GetFullPath('$(OutDir)'))').TrimEnd([char]92))</PluginOutputDirectory>
         </PropertyGroup>

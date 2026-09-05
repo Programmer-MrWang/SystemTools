@@ -184,14 +184,7 @@
       <workItem from="1788536255183" duration="210000" />
       <workItem from="1788536535945" duration="502000" />
       <workItem from="1788538739676" duration="346000" />
-    </task>
-    <task id="LOCAL-00033" summary="feat: 新增可选液态玻璃配置文件">
-      <option name="closed" value="true" />
-      <created>1786117929497</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1786117929497</updated>
+      <workItem from="1788596894420" duration="1134000" />
     </task>
     <task id="LOCAL-00034" summary="feat: 初步实现液态玻璃悬浮窗">
       <option name="closed" value="true" />
@@ -577,7 +570,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788331453215</updated>
     </task>
-    <option name="localTasksCounter" value="82" />
+    <task id="LOCAL-00082" summary="proj: 剔除无用注释">
+      <option name="closed" value="true" />
+      <created>1788597136964</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1788597136965</updated>
+    </task>
+    <option name="localTasksCounter" value="83" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -598,7 +599,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增“模拟组合键”行动" />
     <MESSAGE value="feat: 实现AI预加载和缓存行动列表以提升相应性能" />
     <MESSAGE value="feat: 添加http" />
     <MESSAGE value="feat: 新增ClssWidgets主题" />
@@ -623,7 +623,8 @@
     <MESSAGE value="ci: 修复构建！" />
     <MESSAGE value="proj: 修复构建之三" />
     <MESSAGE value="proj: 构建修复之四" />
-    <option name="LAST_COMMIT_MESSAGE" value="proj: 构建修复之四" />
+    <MESSAGE value="proj: 剔除无用注释" />
+    <option name="LAST_COMMIT_MESSAGE" value="proj: 剔除无用注释" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

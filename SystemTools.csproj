@@ -17,8 +17,6 @@
     </PropertyGroup>
     <ItemGroup>
       <None Include=".github\workflows\dotnet-build.yml" />
-      <!-- The CI workflow checks out ClassIsland inside the workspace so its SDK can be built.
-           Keep that dependency tree out of SystemTools' default recursive item globs. -->
       <Compile Remove="ClassIsland\**" />
       <EmbeddedResource Remove="ClassIsland\**" />
       <None Remove="ClassIsland\**" />
@@ -169,7 +167,6 @@
     <Import Project="$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.targets"
             Condition="'$(UseLocalClassIslandSdk)' == 'true' And Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.targets')" />
 
-    <!-- The SDK target invokes PowerShell for CIPX hash generation. Keep it aligned with the executable above. -->
     <PropertyGroup Condition="'$(ClassIslandPowerShellExecutable)' != ''">
         <PowershellBinaryName>&quot;$(ClassIslandPowerShellExecutable)&quot;</PowershellBinaryName>
     </PropertyGroup>

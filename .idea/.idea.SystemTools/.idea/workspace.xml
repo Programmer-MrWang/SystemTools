@@ -13,7 +13,9 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="" />
+    <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -45,7 +47,7 @@
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="Toolset" />
+    <option name="selectedTabId" value="SWEA" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -70,6 +72,7 @@
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.jetbrains.opentelemetry.toolwindow.stripe.promo&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -175,15 +178,12 @@
       <workItem from="1788246557983" duration="834000" />
       <workItem from="1788248823712" duration="3453000" />
       <workItem from="1788273374674" duration="6272000" />
-      <workItem from="1788316128503" duration="7180000" />
-    </task>
-    <task id="LOCAL-00032" summary="fix: 修正部分表述">
-      <option name="closed" value="true" />
-      <created>1786115104173</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1786115104173</updated>
+      <workItem from="1788316128503" duration="8197000" />
+      <workItem from="1788446873012" duration="1227000" />
+      <workItem from="1788509159117" duration="3020000" />
+      <workItem from="1788536255183" duration="210000" />
+      <workItem from="1788536535945" duration="502000" />
+      <workItem from="1788538739676" duration="346000" />
     </task>
     <task id="LOCAL-00033" summary="feat: 新增可选液态玻璃配置文件">
       <option name="closed" value="true" />
@@ -569,7 +569,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788330018346</updated>
     </task>
-    <option name="localTasksCounter" value="81" />
+    <task id="LOCAL-00081" summary="proj: 构建修复之四">
+      <option name="closed" value="true" />
+      <created>1788331453215</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1788331453215</updated>
+    </task>
+    <option name="localTasksCounter" value="82" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -590,7 +598,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="更新reademe" />
     <MESSAGE value="feat: 新增“模拟组合键”行动" />
     <MESSAGE value="feat: 实现AI预加载和缓存行动列表以提升相应性能" />
     <MESSAGE value="feat: 添加http" />
@@ -615,7 +622,8 @@
     <MESSAGE value="ci: 构建" />
     <MESSAGE value="ci: 修复构建！" />
     <MESSAGE value="proj: 修复构建之三" />
-    <option name="LAST_COMMIT_MESSAGE" value="proj: 修复构建之三" />
+    <MESSAGE value="proj: 构建修复之四" />
+    <option name="LAST_COMMIT_MESSAGE" value="proj: 构建修复之四" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -5,15 +5,7 @@
         <LangVersion>latest</LangVersion>
         <UseWindowsForms>true</UseWindowsForms>
         <Platforms>x64</Platforms>
-        <EnableDynamicLoading>true</EnableDynamicLoading>
         <CreateCipx>true</CreateCipx>
-        <ClassIslandSourceRoot Condition="'$(ClassIslandSourceRoot)' == ''">E:\ClassIsland-git-misha</ClassIslandSourceRoot>
-        <UseLocalClassIslandSdk Condition="'$(UseLocalClassIslandSdk)' == '' And Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj')">true</UseLocalClassIslandSdk>
-        <UseLocalClassIslandSdk Condition="'$(UseLocalClassIslandSdk)' == ''">false</UseLocalClassIslandSdk>
-        <ClassIslandPluginSdkVersion Condition="'$(ClassIslandPluginSdkVersion)' == ''">2.1.1.1</ClassIslandPluginSdkVersion>
-        <ClassIslandPowerShellExecutable Condition="'$(ClassIslandPowerShellExecutable)' == '' And Exists('D:\PowerShell-7.7.0-preview.4-win-x64\pwsh.exe')">D:\PowerShell-7.7.0-preview.4-win-x64\pwsh.exe</ClassIslandPowerShellExecutable>
-        <ClassIslandPowerShellExecutable Condition="'$(ClassIslandPowerShellExecutable)' == '' And Exists('C:\Program Files\PowerShell\7\pwsh.exe')">C:\Program Files\PowerShell\7\pwsh.exe</ClassIslandPowerShellExecutable>
-        <ClassIslandPowerShellExecutable Condition="'$(ClassIslandPowerShellExecutable)' == '' And Exists('C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe')">C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</ClassIslandPowerShellExecutable>
     </PropertyGroup>
     <ItemGroup>
       <None Include=".github\workflows\dotnet-build.yml" />
@@ -39,10 +31,7 @@
     </ItemGroup>
     
     <ItemGroup>
-        <PackageReference Condition="'$(UseLocalClassIslandSdk)' != 'true' Or !Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj')"
-                          Include="ClassIsland.PluginSdk" Version="$(ClassIslandPluginSdkVersion)">
-            <ExcludeAssets>runtime;native</ExcludeAssets>
-        </PackageReference>
+        <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" />
         <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.298">
@@ -71,29 +60,6 @@
         <ItemGroup>
             <FileWrites Include="@(VoskWorkerFiles->'$(OutDir)VoskWorker\%(RecursiveDir)%(Filename)%(Extension)')" />
         </ItemGroup>
-    </Target>
-
-    <Target Name="VerifyClassIslandSource" BeforeTargets="PrepareForBuild"
-            Condition="'$(UseLocalClassIslandSdk)' == 'true'">
-        <Error Condition="!Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj')"
-               Text="ClassIsland source was not found at '$(ClassIslandSourceRoot)'. Set ClassIslandSourceRoot to the develop/v2/misha-alpha checkout or build with UseLocalClassIslandSdk=false." />
-    </Target>
-
-    <Target Name="VerifyClassIslandPowerShell" BeforeTargets="PrepareForBuild"
-            Condition="'$(UseLocalClassIslandSdk)' == 'true'">
-        <Error Condition="'$(ClassIslandPowerShellExecutable)' == ''"
-               Text="PowerShell executable was not found. Set ClassIslandPowerShellExecutable to the full path of pwsh.exe." />
-    </Target>
-
-    <Target Name="StripClassIslandHostDependencies" BeforeTargets="CreateCipx"
-            Condition="'$(UseLocalClassIslandSdk)' == 'true'
-                       And Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj')
-                       And Exists('$(ClassIslandSourceRoot)\ClassIsland.Desktop\bin\Debug\net10.0-windows10.0.19041.0')">
-        <PropertyGroup>
-            <PluginOutputDirectory>$([System.String]::Copy('$([System.IO.Path]::GetFullPath('$(OutDir)'))').TrimEnd([char]92))</PluginOutputDirectory>
-        </PropertyGroup>
-        <Message Importance="High" Text="Using PowerShell executable: $(ClassIslandPowerShellExecutable)" />
-        <Exec Command="&quot;$(ClassIslandPowerShellExecutable)&quot; -NoLogo -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\Strip-ClassIslandHostDependencies.ps1&quot; -OutputDirectory &quot;$(PluginOutputDirectory).&quot; -ClassIslandDebugDirectory &quot;$(ClassIslandSourceRoot)\ClassIsland.Desktop\bin\Debug\net10.0-windows10.0.19041.0&quot;" />
     </Target>
 
     <ItemGroup>
@@ -157,21 +123,5 @@
       <AvaloniaResource Remove="VoskWorker\**" />
       <AvaloniaResource Remove="cipx\**" />
     </ItemGroup>
-
-    <ItemGroup Condition="'$(UseLocalClassIslandSdk)' == 'true' And Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj')">
-        <ProjectReference Include="$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.csproj">
-            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-            <Private>false</Private>
-            <GlobalPropertiesToRemove>CreateCipx</GlobalPropertiesToRemove>
-        </ProjectReference>
-    </ItemGroup>
-
-    <Import Project="$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.targets"
-            Condition="'$(UseLocalClassIslandSdk)' == 'true' And Exists('$(ClassIslandSourceRoot)\ClassIsland.PluginSdk\ClassIsland.PluginSdk.targets')" />
-
-    <!-- The SDK target invokes PowerShell for CIPX hash generation. Keep it aligned with the executable above. -->
-    <PropertyGroup Condition="'$(ClassIslandPowerShellExecutable)' != ''">
-        <PowershellBinaryName>&quot;$(ClassIslandPowerShellExecutable)&quot;</PowershellBinaryName>
-    </PropertyGroup>
 
 </Project>

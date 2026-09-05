@@ -87,7 +87,7 @@
              by MainWindowLine/ComponentPresenter in the host theme. Keep the original
              CW2 frame for solid backgrounds; the host material frame replaces it when
              native material is enabled. -->
-        <Border BorderThickness="1"
+        <!--<Border BorderThickness="1"
                 IsHitTestVisible="False"
                 IsVisible="{Binding !$self.(assists:MainWindowStylesAssist.IsBackgroundMaterialEnabled), Mode=OneWay}"
                 CornerRadius="{Binding $self.(assists:MainWindowStylesAssist.CornerRadius),
@@ -101,7 +101,7 @@
                     <GradientStop Offset="1" Color="#58FFFFFF" />
                 </LinearGradientBrush>
             </Border.BorderBrush>
-        </Border>
+        </Border>-->
 
         <Grid x:Name="CardContentGrid"
               Margin="16 11 16 10"

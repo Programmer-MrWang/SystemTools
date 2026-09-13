@@ -15,8 +15,6 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/MoreFeaturesOptionsSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Themes/NotchStyle/Theme.axaml.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Themes/NotchStyle/Theme.axaml.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +72,7 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;com.jetbrains.opentelemetry.toolwindow.stripe.promo&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;fix/usb-storage-detection&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -190,15 +188,8 @@
       <workItem from="1788628486264" duration="733000" />
       <workItem from="1788793436384" duration="2864000" />
       <workItem from="1788841721844" duration="808000" />
-      <workItem from="1788937085315" duration="1545000" />
-    </task>
-    <task id="LOCAL-00036" summary="fix: 修复设置页icon、文字表述 和编辑限制">
-      <option name="closed" value="true" />
-      <created>1786160978686</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1786160978686</updated>
+      <workItem from="1788937085315" duration="2197000" />
+      <workItem from="1789307378380" duration="2021000" />
     </task>
     <task id="LOCAL-00037" summary="fix: 修复ava12下悬浮窗按钮拖动排布问题">
       <option name="closed" value="true" />
@@ -584,7 +575,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788797702312</updated>
     </task>
-    <option name="localTasksCounter" value="85" />
+    <task id="LOCAL-00085" summary="fix: 修正 notchStyle 主题未添加提醒样式的问题">
+      <option name="closed" value="true" />
+      <created>1788941224083</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1788941224084</updated>
+    </task>
+    <option name="localTasksCounter" value="86" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -605,7 +604,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 新增ClssWidgets主题" />
     <MESSAGE value="feat: 优化主题外观" />
     <MESSAGE value="fix: 收尾修复错误的关机截止问题" />
     <MESSAGE value="fix: 更改一个图标" />
@@ -630,7 +628,8 @@
     <MESSAGE value="proj: 剔除无用注释" />
     <MESSAGE value="feat: 更新“从悬浮窗触发”触发器的 图标选择器" />
     <MESSAGE value="doc: 更新日志" />
-    <option name="LAST_COMMIT_MESSAGE" value="doc: 更新日志" />
+    <MESSAGE value="fix: 修正 notchStyle 主题未添加提醒样式的问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正 notchStyle 主题未添加提醒样式的问题" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

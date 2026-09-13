@@ -269,7 +269,7 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             ("SystemTools.Delete", "删除", "文件操作"),
             ("SystemTools.ChangeWallpaper", "切换壁纸", "系统个性化"),
             ("SystemTools.SwitchTheme", "切换主题色", "系统个性化"),
-            //("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "系统个性化"),
+            ("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "系统个性化"),
             ("SystemTools.FullscreenClock", "沉浸式时钟", "其他工具"),
             ("SystemTools.AutoSwitchClassIslandTheme", "自动切换 ClassIsland 主题", "更多功能选项…"),
             ("SystemTools.AutoHideMainWindowWhenOccluded", "遮挡文字时隐藏主界面", "更多功能选项…"),

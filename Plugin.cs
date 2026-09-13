@@ -847,8 +847,8 @@ public partial class Plugin : PluginBase
             items.Add(new ActionMenuTreeItem("SystemTools.ChangeWallpaper", "切换壁纸", "\uE9BC"));
         if (config.IsActionEnabled("SystemTools.SwitchTheme"))
             items.Add(new ActionMenuTreeItem("SystemTools.SwitchTheme", "切换主题色", "\uF42F"));
-        //if (config.IsActionEnabled("SystemTools.SwitchSystemAccentColor"))
-        //    items.Add(new ActionMenuTreeItem("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "\uE523"));
+        if (config.IsActionEnabled("SystemTools.SwitchSystemAccentColor"))
+            items.Add(new ActionMenuTreeItem("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "\uE523"));
 
         if (items.Count > 0)
         {

@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using SystemTools.Helpers;
 using SystemTools.Shared;
 
 namespace SystemTools.Services;
@@ -70,10 +72,22 @@ public class UsbAutoPlayService(ILogger<UsbAutoPlayService> logger)
             return;
         }
 
+        _ = OpenVolumeWhenReadyAsync(driveRoot);
+    }
+
+    private async Task OpenVolumeWhenReadyAsync(string driveRoot)
+    {
         try
         {
-            var driveInfo = new DriveInfo(driveRoot);
-            if (!driveInfo.IsReady || driveInfo.DriveType != DriveType.Removable)
+            // 卷插入事件到达时卷可能尚未挂载完成，等待就绪后再打开。
+            if (!await UsbStorageUtils.WaitUntilReadyAsync(driveRoot).ConfigureAwait(false))
+            {
+                return;
+            }
+
+            // Windows 常把 U 盘识别为固定磁盘，需按物理磁盘总线类型判定，不能只看 DriveType。
+            if (!UsbStorageUtils.IsUsbStorageVolume(driveRoot) &&
+                new DriveInfo(driveRoot).DriveType != DriveType.Removable)
             {
                 return;
             }

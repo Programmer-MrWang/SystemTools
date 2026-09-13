@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.IO;
 using System.Management;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
+using SystemTools.Helpers;
 
 namespace SystemTools.Triggers;
 
@@ -16,7 +18,7 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
     private readonly DeviceNotificationWindow _notificationWindow;
     private ManagementEventWatcher? _volumeInsertWatcher;
     private readonly object _triggerSyncRoot = new();
-    private readonly Dictionary<string, DateTime> _recentDriveTriggerTime = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, DateTime> _recentTriggerTime = new(StringComparer.OrdinalIgnoreCase);
 
     public UsbDeviceTrigger()
     {
@@ -98,38 +100,63 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
         _volumeInsertWatcher = null;
     }
 
-    private void OnVolumeInserted(object sender, EventArrivedEventArgs e)
+    private async void OnVolumeInserted(object sender, EventArrivedEventArgs e)
     {
-        var driveName = e.NewEvent.Properties["DriveName"]?.Value?.ToString();
-        if (string.IsNullOrWhiteSpace(driveName))
-        {
-            return;
-        }
-
-        if (!TryNormalizeDriveRoot(driveName, out var driveRoot))
-        {
-            return;
-        }
-
         try
         {
-            var driveInfo = new DriveInfo(driveRoot);
-            if (!driveInfo.IsReady || driveInfo.DriveType != DriveType.Removable)
+            var driveName = e.NewEvent.Properties["DriveName"]?.Value?.ToString();
+            if (string.IsNullOrWhiteSpace(driveName))
             {
                 return;
             }
+
+            if (!TryNormalizeDriveRoot(driveName, out var driveRoot))
+            {
+                return;
+            }
+
+            // 判定与就绪等待涉及 WMI/IO，放到线程池执行，避免占用 WMI 回调线程。
+            var key = await Task.Run(() => ResolveUsbVolumeKeyAsync(driveRoot)).ConfigureAwait(false);
+            if (key is null)
+            {
+                return;
+            }
+
+            if (!TryMarkTriggered(key))
+            {
+                return;
+            }
+
+            Trigger();
         }
         catch
         {
-            return;
+            // 单次卷事件处理失败不应影响后续事件。
         }
+    }
 
-        if (!TryMarkTriggered($"volume:{driveRoot}"))
+    /// <summary>
+    /// 判定卷是否为 U 盘（USB 存储），并返回用于去重的键；不满足条件时返回 <c>null</c>。
+    /// </summary>
+    private static async Task<string?> ResolveUsbVolumeKeyAsync(string driveRoot)
+    {
+        // Windows 常把 U 盘识别为固定磁盘，需按物理磁盘总线类型判定，不能只看 DriveType。
+        var info = UsbStorageUtils.Classify(driveRoot);
+
+        // 卷刚插入时可能尚未挂载完成，等待就绪后再交由自动化处理。
+        if (!await UsbStorageUtils.WaitUntilReadyAsync(driveRoot).ConfigureAwait(false))
         {
-            return;
+            return null;
         }
 
-        Trigger();
+        // USB 总线上的卷，或传统可移动介质卷，都视为“U 盘”类设备。
+        if (!info.IsUsbStorage && !UsbStorageUtils.IsRemovableVolume(driveRoot))
+        {
+            return null;
+        }
+
+        // 同一物理磁盘的多个分区（如多分区启动盘）只应触发一次。
+        return info.DiskNumber is uint diskNumber ? $"usb-disk:{diskNumber}" : $"volume:{driveRoot}";
     }
 
     private void OnDeviceArrived(object? sender, EventArgs e)
@@ -153,14 +180,14 @@ public class UsbDeviceTrigger : TriggerBase<UsbDeviceTriggerConfig>
                 return false;
             }
 
-            if (_recentDriveTriggerTime.TryGetValue(key, out var last) &&
+            if (_recentTriggerTime.TryGetValue(key, out var last) &&
                 now - last < TimeSpan.FromSeconds(3))
             {
                 return false;
             }
 
             Settings.LastTriggered = now;
-            _recentDriveTriggerTime[key] = now;
+            _recentTriggerTime[key] = now;
             return true;
         }
     }

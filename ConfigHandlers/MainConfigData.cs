@@ -517,7 +517,19 @@ public class MainConfigData : INotifyPropertyChanged
             if (clamped == _floatingWindowOpacity) return;
             _floatingWindowOpacity = clamped;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(FloatingWindowTransparency));
         }
+    }
+
+    /// <summary>
+    /// 悬浮窗透明度百分比，与 <see cref="FloatingWindowOpacity"/> 互为反值：
+    /// 0 表示完全不透明，90 表示最透明。设置界面绑定此属性，渲染仍使用不透明度。
+    /// </summary>
+    [JsonIgnore]
+    public int FloatingWindowTransparency
+    {
+        get => 100 - _floatingWindowOpacity;
+        set => FloatingWindowOpacity = 100 - value;
     }
 
 

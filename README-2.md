@@ -135,6 +135,8 @@
 
 ### 🐛 Bug 修复：
 
+- **[悬浮窗]**: 修正悬浮窗编辑中 **“透明度”** 的设置方向相反的问题 https://github.com/Programmer-MrWang/SystemTools/issues/98
+
 - **[悬浮窗]**: 修正没有任何可用悬浮窗按钮时，**显示悬浮窗** 行动仍可把悬浮窗状态设置为显示的问题
 
 - **[开关自动化]**: 修正未启用“恢复原始状态”时仍进入恢复处理流程的问题 https://github.com/Programmer-MrWang/SystemTools/pull/81

@@ -181,6 +181,9 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
         LiquidGlassRefractionSettingItem.IsEnabled = isLiquidGlass;
         LiquidGlassRefreshIntervalSettingItem.IsEnabled = isLiquidGlass || usesAdaptiveBackgroundTheme;
         LiquidGlassButtonElasticitySettingItem.IsEnabled = isLiquidGlass;
+
+        // 液态玻璃外观的透明感由玻璃材质本身决定，透明度设置对其不生效，禁用该设置项。
+        FloatingWindowTransparencySettingItem.IsEnabled = !isLiquidGlass;
     }
 
     private void OnViewModelProfileChanged(object? sender, EventArgs e)

@@ -15,6 +15,10 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +76,7 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
     &quot;com.jetbrains.opentelemetry.toolwindow.stripe.promo&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;fix/usb-storage-detection&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -190,14 +194,8 @@
       <workItem from="1788841721844" duration="808000" />
       <workItem from="1788937085315" duration="2197000" />
       <workItem from="1789307378380" duration="2021000" />
-    </task>
-    <task id="LOCAL-00037" summary="fix: 修复ava12下悬浮窗按钮拖动排布问题">
-      <option name="closed" value="true" />
-      <created>1786172685701</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
-      <option name="project" value="LOCAL" />
-      <updated>1786172685701</updated>
+      <workItem from="1789309547788" duration="424000" />
+      <workItem from="1789568817654" duration="1775000" />
     </task>
     <task id="LOCAL-00038" summary="feat: 实现自适应切换悬浮窗主题">
       <option name="closed" value="true" />
@@ -583,7 +581,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788941224084</updated>
     </task>
-    <option name="localTasksCounter" value="86" />
+    <task id="LOCAL-00086" summary="doc: 更新日志">
+      <option name="closed" value="true" />
+      <created>1789309787495</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1789309787495</updated>
+    </task>
+    <option name="localTasksCounter" value="87" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -627,9 +633,9 @@
     <MESSAGE value="proj: 构建修复之四" />
     <MESSAGE value="proj: 剔除无用注释" />
     <MESSAGE value="feat: 更新“从悬浮窗触发”触发器的 图标选择器" />
-    <MESSAGE value="doc: 更新日志" />
     <MESSAGE value="fix: 修正 notchStyle 主题未添加提醒样式的问题" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正 notchStyle 主题未添加提醒样式的问题" />
+    <MESSAGE value="doc: 更新日志" />
+    <option name="LAST_COMMIT_MESSAGE" value="doc: 更新日志" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

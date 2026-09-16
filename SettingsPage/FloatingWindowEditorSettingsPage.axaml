@@ -362,19 +362,20 @@
                     </controls:FASettingsExpanderItem.Footer>
                 </controls:FASettingsExpanderItem>
 
-                <controls:FASettingsExpanderItem IconSource="{ci:FluentIconSource &#xE772;}"
+                <controls:FASettingsExpanderItem x:Name="FloatingWindowTransparencySettingItem"
+                                               IconSource="{ci:FluentIconSource &#xE772;}"
                                                Content="透明度"
-                                               Description="调整悬浮窗透明度">
+                                               Description="调整悬浮窗透明度，数值越大越透明">
                     <controls:FASettingsExpanderItem.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Slider Width="160"
-                                    Minimum="10"
-                                    Maximum="100"
+                                    Minimum="0"
+                                    Maximum="90"
                                     TickFrequency="1"
                                     IsSnapToTickEnabled="True"
-                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowOpacity, StringFormat='{}{0}%'}"
-                                    Value="{Binding ViewModel.Settings.FloatingWindowOpacity, Mode=TwoWay}" />
-                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowOpacity, StringFormat='{}{0}%'}"
+                                    ToolTip.Tip="{Binding ViewModel.Settings.FloatingWindowTransparency, StringFormat='{}{0}%'}"
+                                    Value="{Binding ViewModel.Settings.FloatingWindowTransparency, Mode=TwoWay}" />
+                            <TextBlock Text="{Binding ViewModel.Settings.FloatingWindowTransparency, StringFormat='{}{0}%'}"
                                        Width="46"
                                        VerticalAlignment="Center" />
                         </StackPanel>

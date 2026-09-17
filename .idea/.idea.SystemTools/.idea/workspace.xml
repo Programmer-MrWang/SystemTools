@@ -15,10 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/ConfigHandlers/MainConfigData.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -195,15 +192,9 @@
       <workItem from="1788937085315" duration="2197000" />
       <workItem from="1789307378380" duration="2021000" />
       <workItem from="1789309547788" duration="424000" />
-      <workItem from="1789568817654" duration="1775000" />
-    </task>
-    <task id="LOCAL-00038" summary="feat: 实现自适应切换悬浮窗主题">
-      <option name="closed" value="true" />
-      <created>1786172703375</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
-      <option name="project" value="LOCAL" />
-      <updated>1786172703375</updated>
+      <workItem from="1789568817654" duration="2022000" />
+      <workItem from="1789613795573" duration="6899000" />
+      <workItem from="1789637490440" duration="2072000" />
     </task>
     <task id="LOCAL-00039" summary="feat: 实现液态玻璃模式下AI语音对话框中审批按钮的玻璃效果">
       <option name="closed" value="true" />
@@ -589,7 +580,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789309787495</updated>
     </task>
-    <option name="localTasksCounter" value="87" />
+    <task id="LOCAL-00087" summary="fix: 修正悬浮窗编辑中“透明度”的设置方向相反的问题 https://github.com/Programmer-MrWang/SystemTools/issues/98">
+      <option name="closed" value="true" />
+      <created>1789572107462</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1789572107462</updated>
+    </task>
+    <option name="localTasksCounter" value="88" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -610,7 +609,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-    <MESSAGE value="feat: 优化主题外观" />
     <MESSAGE value="fix: 收尾修复错误的关机截止问题" />
     <MESSAGE value="fix: 更改一个图标" />
     <MESSAGE value="fix: 更改主题名称" />
@@ -635,7 +633,8 @@
     <MESSAGE value="feat: 更新“从悬浮窗触发”触发器的 图标选择器" />
     <MESSAGE value="fix: 修正 notchStyle 主题未添加提醒样式的问题" />
     <MESSAGE value="doc: 更新日志" />
-    <option name="LAST_COMMIT_MESSAGE" value="doc: 更新日志" />
+    <MESSAGE value="fix: 修正悬浮窗编辑中“透明度”的设置方向相反的问题 https://github.com/Programmer-MrWang/SystemTools/issues/98" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正悬浮窗编辑中“透明度”的设置方向相反的问题 https://github.com/Programmer-MrWang/SystemTools/issues/98" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

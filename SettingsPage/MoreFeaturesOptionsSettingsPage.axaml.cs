@@ -95,6 +95,17 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
         GlobalConstants.MainConfig?.Save();
     }
 
+    private void WallpaperAsAccentColorToggle_OnChanged(object? sender, RoutedEventArgs e)
+    {
+        if (sender is ToggleSwitch toggleSwitch)
+        {
+            Config.WallpaperAsAccentColorSource = toggleSwitch.IsChecked == true;
+        }
+
+        ClassIsland.Shared.IAppHost.GetService<WallpaperAccentColorService>().ApplyConfig();
+        GlobalConstants.MainConfig?.Save();
+    }
+
     private void AutoHideMainWindowOnTextToggle_OnChanged(object? sender, RoutedEventArgs e)
     {
         if (sender is ToggleSwitch toggleSwitch)

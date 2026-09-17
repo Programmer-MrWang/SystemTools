@@ -122,6 +122,7 @@ public partial class Plugin : PluginBase
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
         services.AddSingleton<SystemMemoryCleanupService>();
         services.AddSingleton<VirtualAfterSchoolService>();
+        services.AddSingleton<WallpaperAccentColorService>();
         services.AddSingleton<ClassIslandProfileExcelExporter>();
         _systemShutdownMonitor = new SystemShutdownMonitor();
         _systemShutdownMonitor.Start();
@@ -219,6 +220,7 @@ public partial class Plugin : PluginBase
             IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().ApplyConfig();
             IAppHost.GetService<SystemMemoryCleanupService>().ApplyConfig();
             IAppHost.GetService<VirtualAfterSchoolService>().Start();
+            IAppHost.GetService<WallpaperAccentColorService>().Start();
             _logger = IAppHost.GetService<ILogger<Plugin>>();
 
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
@@ -1046,6 +1048,7 @@ public partial class Plugin : PluginBase
         IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop();
         IAppHost.GetService<SystemMemoryCleanupService>().Stop();
         IAppHost.GetService<VirtualAfterSchoolService>().Stop();
+        IAppHost.GetService<WallpaperAccentColorService>().Stop();
         var appStoppingHandled = AdvancedShutdownAction.CancelPlanOnAppStopping(isSessionEnding);
         if (appStoppingHandled && isSessionEnding)
         {

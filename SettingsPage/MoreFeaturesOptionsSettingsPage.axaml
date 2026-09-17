@@ -32,6 +32,15 @@
                 </controls:FASettingsExpander.Footer>
             </controls:FASettingsExpander>
             
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE9BC;}"
+                                       Header="将桌面壁纸设置为主题色来源"
+                                       Description="提取当前桌面壁纸的主色调，并将其设为 ClassIsland 的主题色。更换壁纸后会自动重新提取；若在外观页手动修改主题色，本功能会自动关闭。">
+                <controls:FASettingsExpander.Footer>
+                    <ToggleSwitch IsChecked="{Binding Config.WallpaperAsAccentColorSource, Mode=TwoWay}"
+                                  IsCheckedChanged="WallpaperAsAccentColorToggle_OnChanged" />
+                </controls:FASettingsExpander.Footer>
+            </controls:FASettingsExpander>
+
             <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xED55;}"
                                          Header="虚拟放学触发点"
                                          Description="每天到达指定的软件时间后发送一次放学事件，并在持续时间内覆盖 ClassIsland 的课程状态。">

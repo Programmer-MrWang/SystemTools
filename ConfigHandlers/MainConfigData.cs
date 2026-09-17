@@ -152,6 +152,50 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    bool _wallpaperAsAccentColorSource;
+
+    [JsonPropertyName("wallpaperAsAccentColorSource")]
+    public bool WallpaperAsAccentColorSource
+    {
+        get => _wallpaperAsAccentColorSource;
+        set
+        {
+            if (value == _wallpaperAsAccentColorSource) return;
+            _wallpaperAsAccentColorSource = value;
+            OnPropertyChanged();
+        }
+    }
+
+    // 以下两项记录插件接管主题色之前的强调色设置（#AARRGGBB 与来源编号），
+    // 持久化保存，以便在之后的任意一次运行中关闭开关时仍能正确还原。null 表示当前没有记录。
+    string? _wallpaperAccentOriginalPrimaryColor;
+
+    [JsonPropertyName("wallpaperAccentOriginalPrimaryColor")]
+    public string? WallpaperAccentOriginalPrimaryColor
+    {
+        get => _wallpaperAccentOriginalPrimaryColor;
+        set
+        {
+            if (value == _wallpaperAccentOriginalPrimaryColor) return;
+            _wallpaperAccentOriginalPrimaryColor = value;
+            OnPropertyChanged();
+        }
+    }
+
+    int? _wallpaperAccentOriginalColorSource;
+
+    [JsonPropertyName("wallpaperAccentOriginalColorSource")]
+    public int? WallpaperAccentOriginalColorSource
+    {
+        get => _wallpaperAccentOriginalColorSource;
+        set
+        {
+            if (value == _wallpaperAccentOriginalColorSource) return;
+            _wallpaperAccentOriginalColorSource = value;
+            OnPropertyChanged();
+        }
+    }
+
     TimeSpan _virtualAfterSchoolTriggerTime = new(12, 10, 0);
 
     [JsonPropertyName("virtualAfterSchoolTriggerTime")]

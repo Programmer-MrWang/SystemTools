@@ -1,10 +1,12 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using FluentAvalonia.UI.Controls;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
 using ClassIsland.Core.Helpers.UI;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using SystemTools.ConfigHandlers;
 using SystemTools.Services;
@@ -31,7 +33,7 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
             return;
         }
 
-        // 避免在导出过程中重复打开对话框。
+        // 避免在导出过程中重复触发。
         var button = sender as Button;
         if (button != null)
         {
@@ -40,11 +42,10 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
 
         try
         {
-            var dialog = new Views.ProfileExcelExportDialog();
-            await dialog.ShowDialog(owner);
-            if (!string.IsNullOrWhiteSpace(dialog.ExportedFilePath))
+            var exportedPath = await RunProfileExcelExportAsync(owner);
+            if (!string.IsNullOrWhiteSpace(exportedPath))
             {
-                this.ShowSuccessToast($"已导出到 {dialog.ExportedFilePath}");
+                this.ShowSuccessToast($"已导出到 {exportedPath}");
             }
         }
         catch (Exception ex)
@@ -58,6 +59,119 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
                 button.IsEnabled = true;
             }
         }
+    }
+
+    /// <summary>
+    /// 在设置窗口内显示导出选项对话框，随后选择输出位置并写出文件。
+    /// </summary>
+    /// <returns>导出成功时保存的文件或文件夹路径，否则为 <c>null</c>。</returns>
+    private async Task<string?> RunProfileExcelExportAsync(Window owner)
+    {
+        var exporter = IAppHost.GetService<ClassIslandProfileExcelExporter>();
+
+        ProfileExportSource source;
+        try
+        {
+            source = exporter.LoadCurrentProfile();
+        }
+        catch (Exception ex)
+        {
+            await ShowMemoryCleanupMessageAsync("无法读取档案", ex.Message);
+            return null;
+        }
+
+        var optionsControl = new Controls.ProfileExcelExportOptionsControl();
+        optionsControl.Initialize(source);
+        ProfileExcelExportOptions? options = null;
+
+        var dialog = new FAContentDialog
+        {
+            Title = "导出课程档案为 Excel 表格",
+            Content = optionsControl,
+            PrimaryButtonText = "导出",
+            CloseButtonText = "取消",
+            DefaultButton = FAContentDialogButton.Primary
+        };
+
+        // 校验不通过时阻止对话框关闭，让用户继续调整选择。
+        dialog.PrimaryButtonClick += (_, args) =>
+        {
+            if (!optionsControl.TryBuildOptions(out var built))
+            {
+                args.Cancel = true;
+                return;
+            }
+
+            options = built;
+        };
+
+        if (await dialog.ShowAsync(owner) != FAContentDialogResult.Primary || options == null)
+        {
+            return null;
+        }
+
+        // 对话框关闭后再选择输出位置，避免在对话内容之上叠加系统文件选择框。
+        return await WriteExportFilesAsync(owner, exporter, source, options);
+    }
+
+    private async Task<string?> WriteExportFilesAsync(
+        Window owner,
+        ClassIslandProfileExcelExporter exporter,
+        ProfileExportSource source,
+        ProfileExcelExportOptions options)
+    {
+        var extension = options.UseXlsx ? ".xlsx" : ".xls";
+        var fileType = extension == ".xlsx"
+            ? new FilePickerFileType("Excel 工作簿") { Patterns = ["*.xlsx"] }
+            : new FilePickerFileType("Excel 97-2003 工作簿") { Patterns = ["*.xls"] };
+
+        var filePicker = ClassIsland.Platforms.Abstraction.PlatformServices.FilePickerService;
+        var useSeparateFiles = options.SeparateFiles && options.TargetCount >= 2;
+
+        if (useSeparateFiles)
+        {
+            var folders = await filePicker.OpenFoldersPickerAsync(new FolderPickerOpenOptions
+            {
+                Title = "选择保存导出文件的文件夹",
+                AllowMultiple = false
+            }, owner);
+            if (folders.Count == 0 || string.IsNullOrWhiteSpace(folders[0]) || filePicker.IsBookmark(folders[0]))
+            {
+                return null;
+            }
+
+            var folder = Path.Combine(folders[0], ClassIslandProfileExcelExporter.BuildSuggestedFileName(source));
+            var files = await Task.Run(() => exporter.BuildExportFiles(source, options));
+            Directory.CreateDirectory(folder);
+            foreach (var file in files)
+            {
+                await File.WriteAllBytesAsync(Path.Combine(folder, file.FileName), file.Content);
+            }
+
+            return folder;
+        }
+
+        var path = await filePicker.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "保存课表表格文件",
+            SuggestedFileName = ClassIslandProfileExcelExporter.BuildSuggestedFileName(source) + extension,
+            DefaultExtension = extension.TrimStart('.'),
+            FileTypeChoices = [fileType],
+            ShowOverwritePrompt = true
+        }, owner);
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return null;
+        }
+
+        if (!path.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+        {
+            path += extension;
+        }
+
+        var content = await Task.Run(() => exporter.BuildWorkbook(source, options));
+        await File.WriteAllBytesAsync(path, content);
+        return path;
     }
 
     private void AutoMatchThemeToggle_OnChanged(object? sender, RoutedEventArgs e)

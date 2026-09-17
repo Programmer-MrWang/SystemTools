@@ -122,6 +122,7 @@ public partial class Plugin : PluginBase
         services.AddSingleton<ClassIslandMemoryAutoCleanupService>();
         services.AddSingleton<SystemMemoryCleanupService>();
         services.AddSingleton<VirtualAfterSchoolService>();
+        services.AddSingleton<ClassIslandProfileExcelExporter>();
         _systemShutdownMonitor = new SystemShutdownMonitor();
         _systemShutdownMonitor.Start();
         services.AddSingleton(_systemShutdownMonitor);

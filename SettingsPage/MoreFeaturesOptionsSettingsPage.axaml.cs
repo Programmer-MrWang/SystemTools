@@ -3,6 +3,7 @@ using Avalonia.Interactivity;
 using FluentAvalonia.UI.Controls;
 using ClassIsland.Core.Abstractions.Controls;
 using ClassIsland.Core.Attributes;
+using ClassIsland.Core.Helpers.UI;
 using System;
 using System.Threading.Tasks;
 using SystemTools.ConfigHandlers;
@@ -21,6 +22,42 @@ public partial class MoreFeaturesOptionsSettingsPage : SettingsPageBase
     {
         InitializeComponent();
         DataContext = this;
+    }
+
+    private async void ExportProfileExcelButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (TopLevel.GetTopLevel(this) is not Window owner)
+        {
+            return;
+        }
+
+        // 避免在导出过程中重复打开对话框。
+        var button = sender as Button;
+        if (button != null)
+        {
+            button.IsEnabled = false;
+        }
+
+        try
+        {
+            var dialog = new Views.ProfileExcelExportDialog();
+            await dialog.ShowDialog(owner);
+            if (!string.IsNullOrWhiteSpace(dialog.ExportedFilePath))
+            {
+                this.ShowSuccessToast($"已导出到 {dialog.ExportedFilePath}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await ShowMemoryCleanupMessageAsync("导出失败", ex.Message);
+        }
+        finally
+        {
+            if (button != null)
+            {
+                button.IsEnabled = true;
+            }
+        }
     }
 
     private void AutoMatchThemeToggle_OnChanged(object? sender, RoutedEventArgs e)

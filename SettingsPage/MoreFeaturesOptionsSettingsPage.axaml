@@ -68,6 +68,17 @@
                 </controls:FASettingsExpanderItem>
             </controls:FASettingsExpander>
 
+            <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE743;}"
+                                       Header="导出课程档案为 Excel 表格"
+                                       Description="将当前档案中的课表、时间表以及科目、简称、教师、户内外信息导出为 Excel 表格。">
+                <controls:FASettingsExpander.Footer>
+                    <Button x:Name="ExportProfileExcelButtonElement"
+                            Content="导出"
+                            Width="100"
+                            Click="ExportProfileExcelButton_OnClick" />
+                </controls:FASettingsExpander.Footer>
+            </controls:FASettingsExpander>
+
             <ci:IconText Glyph="&#xEE21;" Text="性能" Margin="0 8 0 4" />
             <controls:FASettingsExpander IconSource="{ci:FluentIconSource &#xE97B;}"
                                        Header="自动清理 ClassIsland 内存"

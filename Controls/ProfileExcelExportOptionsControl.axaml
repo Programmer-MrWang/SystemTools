@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Class="SystemTools.Controls.ProfileExcelExportOptionsControl"
+             mc:Ignorable="d"
+             x:CompileBindings="False">
+
+    <StackPanel Spacing="14" Width="440">
+
+        <TextBlock x:Name="ProfileNameTextBlockElement"
+                   FontSize="13"
+                   TextWrapping="Wrap"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+        <StackPanel Spacing="8">
+            <TextBlock Text="要导出的内容（可多选）" FontWeight="SemiBold" />
+            <CheckBox x:Name="ClassPlanCheckBoxElement"
+                      Content="课表"
+                      IsCheckedChanged="ExportTargetCheckBox_OnChanged" />
+            <CheckBox x:Name="TimeLayoutCheckBoxElement"
+                      Content="时间表"
+                      IsCheckedChanged="ExportTargetCheckBox_OnChanged" />
+            <CheckBox x:Name="SubjectCheckBoxElement"
+                      Content="科目/教师"
+                      IsCheckedChanged="ExportTargetCheckBox_OnChanged" />
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+            <TextBlock Text="文件格式" FontWeight="SemiBold" />
+            <StackPanel Orientation="Horizontal" Spacing="20">
+                <RadioButton x:Name="XlsxRadioButtonElement" GroupName="ExportFormat"
+                             Content="Excel 工作簿（.xlsx）" IsChecked="True" />
+                <RadioButton x:Name="XlsRadioButtonElement" GroupName="ExportFormat"
+                             Content="Excel 97-2003 工作簿（.xls）" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel x:Name="StorageModePanelElement" Spacing="8" IsVisible="False">
+            <TextBlock Text="导出方式" FontWeight="SemiBold" />
+            <RadioButton x:Name="SingleFileModeRadioButtonElement" GroupName="StorageMode"
+                         Content="单文件多表格（一个文件包含多个工作表）" IsChecked="True" />
+            <RadioButton x:Name="MultipleFilesModeRadioButtonElement" GroupName="StorageMode"
+                         Content="多文件（每项内容各存为一个文件）" />
+        </StackPanel>
+
+        <TextBlock x:Name="MessageTextBlockElement"
+                   FontSize="13"
+                   TextWrapping="Wrap"
+                   IsVisible="False"
+                   Foreground="{DynamicResource SystemFillColorCriticalBrush}" />
+
+    </StackPanel>
+</UserControl>

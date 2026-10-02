@@ -234,6 +234,30 @@
                         </controls:FASettingsExpanderItem.Footer>
                     </controls:FASettingsExpanderItem>
 
+                    <Border IsVisible="{Binding Config.EnableAiService}"
+                            Margin="12,0,12,8"
+                            Padding="12,8"
+                            Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                            BorderBrush="{DynamicResource SystemFillColorCautionBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4">
+                        <TextBlock Text="注意：更换设备后api key将失效，需要重新输入"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    </Border>
+
+                    <Border IsVisible="{Binding Config.IsAiApiKeyUnavailable}"
+                            Margin="12,0,12,8"
+                            Padding="12,8"
+                            Background="{DynamicResource SystemFillColorCautionBackgroundBrush}"
+                            BorderBrush="{DynamicResource SystemFillColorCautionBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4">
+                        <TextBlock Text="保存的 API Key 无法在当前 Windows 用户下解密，请重新输入。需要密钥的 AI 服务暂时无法使用。"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    </Border>
+
                     <controls:FASettingsExpanderItem Content="API 请求地址"
                                                      Description="兼容 OpenAI 的 API 基址，例如 https://api.openai.com/v1。"
                                                      IsEnabled="{Binding Config.EnableAiService}">

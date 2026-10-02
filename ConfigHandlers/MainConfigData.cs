@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ClassIsland.Core.Models.Ruleset;
+using SystemTools.Shared;
 
 namespace SystemTools.ConfigHandlers;
 
@@ -365,8 +366,12 @@ public class MainConfigData : INotifyPropertyChanged
     }
 
     string _aiApiKey = string.Empty;
+    string? _storedAiApiKey = string.Empty;
 
-    [JsonPropertyName("aiApiKey")]
+    [JsonIgnore]
+    public bool IsAiApiKeyUnavailable { get; private set; }
+
+    [JsonIgnore]
     public string AiApiKey
     {
         get => _aiApiKey;
@@ -375,9 +380,45 @@ public class MainConfigData : INotifyPropertyChanged
             value ??= string.Empty;
             if (string.Equals(value, _aiApiKey, StringComparison.Ordinal)) return;
             _aiApiKey = value;
+            _storedAiApiKey = null;
+            if (IsAiApiKeyUnavailable)
+            {
+                IsAiApiKeyUnavailable = false;
+                OnPropertyChanged(nameof(IsAiApiKeyUnavailable));
+            }
             OnPropertyChanged();
         }
     }
+
+    // Preserve the JSON name for existing configurations, while keeping credentials
+    // decrypted only in memory. Cache unreadable ciphertext so other setting changes
+    // cannot erase a key belonging to another Windows account.
+    [JsonInclude]
+    [JsonPropertyName("aiApiKey")]
+    internal string StoredAiApiKey
+    {
+        get => _storedAiApiKey ??= CredentialProtection.Protect(_aiApiKey);
+        set
+        {
+            value ??= string.Empty;
+            if (CredentialProtection.IsProtected(value))
+            {
+                _storedAiApiKey = value;
+                var isDecrypted = CredentialProtection.TryUnprotect(value, out var apiKey);
+                _aiApiKey = isDecrypted ? apiKey : string.Empty;
+                IsAiApiKeyUnavailable = !isDecrypted;
+                return;
+            }
+
+            _aiApiKey = value;
+            _storedAiApiKey = value.Length == 0 ? string.Empty : null;
+            IsAiApiKeyUnavailable = false;
+            RequiresCredentialMigration = value.Length != 0;
+        }
+    }
+
+    [JsonIgnore]
+    internal bool RequiresCredentialMigration { get; private set; }
 
     string _aiApiUrl = "https://api.openai.com/v1";
 

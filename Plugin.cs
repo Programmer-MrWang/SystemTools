@@ -202,6 +202,9 @@ public partial class Plugin : PluginBase
 
         AppBase.Current.AppStarted += (o, args) =>
         {
+            _logger = IAppHost.GetService<ILogger<Plugin>>();
+            GlobalConstants.MainConfig?.LogPendingMigrationWarnings(_logger);
+
             RegisterShutdownRequestedHandler();
             // 迁移旧版悬浮窗配置到文件存储
             IAppHost.GetService<ThemeBannerCacheService>().Start();
@@ -221,8 +224,6 @@ public partial class Plugin : PluginBase
             IAppHost.GetService<SystemMemoryCleanupService>().ApplyConfig();
             IAppHost.GetService<VirtualAfterSchoolService>().Start();
             IAppHost.GetService<WallpaperAccentColorService>().Start();
-            _logger = IAppHost.GetService<ILogger<Plugin>>();
-
             _logger?.LogInformation("[SystemTools]实验性功能状态: {Status}", experimentalEnabled);
             _logger?.LogInformation("[SystemTools]FFmpeg功能状态: {Status}", ffmpegEnabled);
             if (_ffmpegDisabledDueToMissingDependency)

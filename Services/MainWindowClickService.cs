@@ -112,7 +112,14 @@ public sealed class MainWindowClickService(
 
         foreach (var handler in handlers)
         {
-            handler(this, EventArgs.Empty);
+            try
+            {
+                handler(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "主界面点击处理器执行失败");
+            }
         }
     }
 

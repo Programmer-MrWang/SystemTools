@@ -188,7 +188,7 @@ public sealed class ClassIslandProfileExcelExporter(ILogger<ClassIslandProfileEx
         IReadOnlyList<ProfileExportTarget> targets,
         bool useXlsx)
     {
-        IWorkbook workbook = useXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
+        using IWorkbook workbook = useXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
         var styles = new WorkbookStyles(workbook);
         var subjects = ToCaseInsensitiveLookup(source.Profile.Subjects);
         var timeLayouts = ToCaseInsensitiveLookup(source.Profile.TimeLayouts);

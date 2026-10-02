@@ -27,14 +27,23 @@ public class HotkeyService : IHotkeyService, IDisposable
         _hotkeyWindow = new HotkeyWindow();
         _hotkeyWindow.HotkeyPressed += (s, e) =>
         {
-            if (_registeredHotkeys.TryGetValue(e.HotkeyId, out var info))
+            HotkeyEventArgs? eventArgs = null;
+            lock (_lock)
             {
-                HotkeyPressed?.Invoke(this, new HotkeyEventArgs
+                if (_registeredHotkeys.TryGetValue(e.HotkeyId, out var info))
                 {
-                    ModifierKeys = info.ModifierKeys,
-                    VirtualKey = info.VirtualKey,
-                    HotkeyId = e.HotkeyId
-                });
+                    eventArgs = new HotkeyEventArgs
+                    {
+                        ModifierKeys = info.ModifierKeys,
+                        VirtualKey = info.VirtualKey,
+                        HotkeyId = e.HotkeyId
+                    };
+                }
+            }
+
+            if (eventArgs is not null)
+            {
+                HotkeyPressed?.Invoke(this, eventArgs);
             }
         };
     }

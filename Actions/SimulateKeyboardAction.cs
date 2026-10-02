@@ -36,6 +36,8 @@ public class SimulateKeyboardAction(ILogger<SimulateKeyboardAction> logger) : Ac
             return;
         }
 
+        var pressedKeys = new HashSet<byte>();
+        var cancellationToken = InterruptCancellationToken;
         try
         {
             _logger.LogInformation("正在模拟 {Count} 个按键操作", actions.Count);
@@ -43,22 +45,28 @@ public class SimulateKeyboardAction(ILogger<SimulateKeyboardAction> logger) : Ac
             for (int i = 0; i < actions.Count; i++)
             {
                 var action = actions[i];
-                await Task.Delay((int)action.Interval);
+                await Task.Delay(checked((int)action.Interval), cancellationToken);
 
                 switch (action.Type)
                 {
                     case KeyboardAction.ActionType.KeyDown:
+                        // Track before the native call so a failure during
+                        // key-down still receives a best-effort key-up.
+                        pressedKeys.Add(action.KeyCode);
                         PInvoke.keybd_event(action.KeyCode, 0, 0, UIntPtr.Zero);
                         break;
                     case KeyboardAction.ActionType.KeyUp:
                         PInvoke.keybd_event(action.KeyCode, 0,
                             Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                        pressedKeys.Remove(action.KeyCode);
                         break;
                     default:
+                        pressedKeys.Add(action.KeyCode);
                         PInvoke.keybd_event(action.KeyCode, 0, 0, UIntPtr.Zero);
-                        await Task.Delay(KEY_PRESS_DELAY);
+                        await Task.Delay(KEY_PRESS_DELAY, cancellationToken);
                         PInvoke.keybd_event(action.KeyCode, 0,
                             Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                        pressedKeys.Remove(action.KeyCode);
                         break;
                 }
             }
@@ -69,6 +77,24 @@ public class SimulateKeyboardAction(ILogger<SimulateKeyboardAction> logger) : Ac
         {
             _logger.LogError(ex, "模拟键盘失败");
             throw;
+        }
+        finally
+        {
+            foreach (var keyCode in pressedKeys)
+            {
+                try
+                {
+                    PInvoke.keybd_event(keyCode, 0,
+                        Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
+                        UIntPtr.Zero);
+                }
+                catch (Exception releaseException)
+                {
+                    _logger.LogWarning(releaseException, "释放模拟按键失败，键码: {KeyCode}", keyCode);
+                }
+            }
+
+            pressedKeys.Clear();
         }
         if (Settings.NotifyOnExecute)
             IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest

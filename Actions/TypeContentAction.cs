@@ -28,22 +28,29 @@ public class TypeContentAction(ILogger<TypeContentAction> logger) : ActionBase<T
             return;
         }
 
+        var cancellationToken = InterruptCancellationToken;
+        var controlKeyDown = false;
+        var vKeyDown = false;
         try
         {
             _logger.LogInformation("正在键入内容");
 
             SetClipboardText(Settings.Content);
-            await Task.Delay(100);
+            await Task.Delay(100, cancellationToken);
 
+            controlKeyDown = true;
             PInvoke.keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero);
-            await Task.Delay(20);
+            await Task.Delay(20, cancellationToken);
+            vKeyDown = true;
             PInvoke.keybd_event(VK_V, 0, 0, UIntPtr.Zero);
-            await Task.Delay(20);
+            await Task.Delay(20, cancellationToken);
             PInvoke.keybd_event(VK_V, 0, Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP,
                 UIntPtr.Zero);
-            await Task.Delay(20);
+            vKeyDown = false;
+            await Task.Delay(20, cancellationToken);
             PInvoke.keybd_event(VK_CONTROL, 0,
                 Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+            controlKeyDown = false;
 
             _logger.LogInformation("内容已键入成功");
         }
@@ -51,6 +58,34 @@ public class TypeContentAction(ILogger<TypeContentAction> logger) : ActionBase<T
         {
             _logger.LogError(ex, "键入内容失败");
             throw;
+        }
+        finally
+        {
+            if (vKeyDown)
+            {
+                try
+                {
+                    PInvoke.keybd_event(VK_V, 0,
+                        Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                }
+                catch (Exception releaseException)
+                {
+                    _logger.LogWarning(releaseException, "释放 Ctrl+V 的 V 键失败");
+                }
+            }
+
+            if (controlKeyDown)
+            {
+                try
+                {
+                    PInvoke.keybd_event(VK_CONTROL, 0,
+                        Windows.Win32.UI.Input.KeyboardAndMouse.KEYBD_EVENT_FLAGS.KEYEVENTF_KEYUP, UIntPtr.Zero);
+                }
+                catch (Exception releaseException)
+                {
+                    _logger.LogWarning(releaseException, "释放 Ctrl+V 的 Ctrl 键失败");
+                }
+            }
         }
         if (Settings.NotifyOnExecute)
             IAppHost.GetService<SystemToolsNotificationProvider>()?.ShowNotification(new NotificationRequest

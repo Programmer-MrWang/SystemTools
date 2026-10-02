@@ -39,15 +39,19 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
 
     public static bool CancelPlanOnAppStopping(bool isSessionEnding)
     {
-        StopCountdownProcess();
-        if (Interlocked.Exchange(ref _appStoppingHandled, 1) != 0)
+        lock (StateLock)
         {
-            return false;
-        }
+            if (_appStoppingHandled != 0)
+            {
+                return false;
+            }
 
-        if (!isSessionEnding)
-        {
-            TryAbortSystemShutdown();
+            _appStoppingHandled = 1;
+            StopCountdownProcessUnsafe();
+            if (!isSessionEnding)
+            {
+                TryAbortSystemShutdown();
+            }
         }
 
         return true;
@@ -64,10 +68,10 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
             return;
         }
 
-        if (!IsPlanActive())
+        var configuredMinutes = Math.Max(1, Settings?.Minutes ?? 2);
+        if (!ScheduleShutdown(configuredMinutes))
         {
-            var configuredMinutes = Math.Max(1, Settings?.Minutes ?? 2);
-            ScheduleShutdown(configuredMinutes);
+            return;
         }
 
         await ShowDialogAsync();
@@ -94,58 +98,89 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         }
     }
 
-    private void ScheduleShutdown(int minutes)
+    private bool ScheduleShutdown(int minutes)
     {
         var safeMinutes = Math.Max(1, minutes);
-        var seconds = safeMinutes * 60;
+        var seconds = checked(safeMinutes * 60);
 
         lock (StateLock)
         {
-            _shutdownAt = DateTimeOffset.Now.AddMinutes(safeMinutes);
-            _totalScheduledSeconds = seconds;
+            if (_appStoppingHandled != 0)
+            {
+                return false;
+            }
+
+            if (IsPlanActive())
+            {
+                return true;
+            }
+
+            // The process and the UI deadline form one plan. Cancellation
+            // must not run between publishing its deadline and its process.
+            StartOrReplaceCountdownProcessUnsafe(seconds);
         }
 
-        StartOrReplaceCountdownProcess(seconds);
         EnsureWatchdogRunning();
+        return true;
     }
 
-    void AssignProgressAnimator(ProgressBar bar,TimeSpan targetTime, TimeSpan totalTime) {
-        new Animation {
-            Children = {
-                new KeyFrame {
-                    Cue = new Cue(0),
-                    Setters = {
-                        new Setter(RangeBase.ValueProperty, 3000.0 * targetTime.TotalMilliseconds/totalTime.TotalMilliseconds)
+    private async Task AssignProgressAnimatorAsync(ProgressBar bar, TimeSpan targetTime, TimeSpan totalTime)
+    {
+        try
+        {
+            var safeTotalMilliseconds = Math.Max(1, totalTime.TotalMilliseconds);
+            var animation = new Animation
+            {
+                Children =
+                {
+                    new KeyFrame
+                    {
+                        Cue = new Cue(0),
+                        Setters =
+                        {
+                            new Setter(RangeBase.ValueProperty,
+                                3000.0 * targetTime.TotalMilliseconds / safeTotalMilliseconds)
+                        }
+                    },
+                    new KeyFrame
+                    {
+                        Cue = new Cue(1),
+                        Setters =
+                        {
+                            new Setter(RangeBase.ValueProperty, 0.0),
+                        }
                     }
                 },
-                new KeyFrame {
-                    Cue = new Cue(1),
-                    Setters = {
-                        new Setter(RangeBase.ValueProperty, 0.0),
-                    }
-                }
-            },
-            Duration = targetTime,
-            FillMode = FillMode.Forward
-        }.RunAsync(bar);
+                Duration = targetTime,
+                FillMode = FillMode.Forward
+            };
+
+            await animation.RunAsync(bar);
+        }
+        catch (Exception ex)
+        {
+            // The dialog can close while the animation is running. Observe
+            // and log that cancellation/lifecycle failure instead of creating
+            // an unobserved task exception.
+            _logger.LogDebug(ex, "关机倒计时进度动画已停止");
+        }
     }
     
     private void ExtendShutdown(int extendMinutes)
     {
         var safeExtendMinutes = Math.Max(1, extendMinutes);
-        DateTimeOffset targetTime;
 
         lock (StateLock)
         {
-            var baseline = _shutdownAt > DateTimeOffset.Now ? _shutdownAt : DateTimeOffset.Now;
-            _shutdownAt = baseline.AddMinutes(safeExtendMinutes);
-            targetTime = _shutdownAt;
-            _totalScheduledSeconds = (int)Math.Ceiling((targetTime - DateTimeOffset.Now).TotalSeconds);
-        }
+            if (_appStoppingHandled != 0 || !IsPlanActive())
+            {
+                return;
+            }
 
-        var totalSeconds = (int)Math.Ceiling((targetTime - DateTimeOffset.Now).TotalSeconds);
-        totalSeconds = Math.Max(60, totalSeconds);
-        StartOrReplaceCountdownProcess(totalSeconds);
+            var totalSeconds = checked((int)Math.Ceiling((_shutdownAt - DateTimeOffset.Now).TotalSeconds)
+                                       + checked(safeExtendMinutes * 60));
+            StartOrReplaceCountdownProcessUnsafe(totalSeconds);
+        }
     }
 
     private void CancelShutdownPlan()
@@ -153,23 +188,26 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         StopAllStates();
     }
 
-    private void StartOrReplaceCountdownProcess(int seconds)
+    private void StartOrReplaceCountdownProcessUnsafe(int seconds)
     {
-        StopCountdownProcess();
         var safeSeconds = Math.Max(60, seconds);
+        StopCountdownProcessUnsafe();
 
         try
         {
             var psi = new ProcessStartInfo
             {
-                FileName = "cmd.exe",
-                Arguments = $"/c timeout /t {safeSeconds} /nobreak >nul & shutdown /s /t 0",
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -NonInteractive -Command \"Start-Sleep -Seconds {safeSeconds}; shutdown.exe /s /t 0\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Hidden
             };
 
-            _countdownProcess = Process.Start(psi);
+            _countdownProcess = Process.Start(psi)
+                ?? throw new InvalidOperationException("无法启动计时关机进程。");
+            _shutdownAt = DateTimeOffset.Now.AddSeconds(safeSeconds);
+            _totalScheduledSeconds = safeSeconds;
             _logger.LogInformation("已启动 Windows 计时关机进程，{Seconds} 秒后执行关机。", safeSeconds);
         }
         catch (Exception ex)
@@ -179,7 +217,7 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         }
     }
 
-    private static void StopCountdownProcess()
+    private static void StopCountdownProcessUnsafe()
     {
         try
         {
@@ -195,6 +233,8 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         {
             _countdownProcess?.Dispose();
             _countdownProcess = null;
+            _shutdownAt = DateTimeOffset.MinValue;
+            _totalScheduledSeconds = 0;
         }
     }
 
@@ -222,8 +262,7 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
     {
         lock (StateLock)
         {
-            var remainingSeconds = (int)Math.Ceiling((_shutdownAt - DateTimeOffset.Now).TotalSeconds);
-            return Math.Max(0, remainingSeconds);
+            return (int)Math.Clamp(Math.Ceiling((_shutdownAt - DateTimeOffset.Now).TotalSeconds), 0, int.MaxValue);
         }
     }
 
@@ -233,7 +272,7 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
         int total;
         lock (StateLock)
         {
-            remaining = Math.Max(0, (int)Math.Ceiling((_shutdownAt - DateTimeOffset.Now).TotalSeconds));
+            remaining = GetRemainingSeconds();
             total = _totalScheduledSeconds;
         }
 
@@ -257,7 +296,7 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
     {
         Dispatcher.UIThread.Post(() =>
         {
-            if (_watchdogTimer != null)
+            if (_watchdogTimer != null || !IsPlanActive())
             {
                 return;
             }
@@ -274,39 +313,41 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
 
                 if (!IsPlanActive())
                 {
-                    StopAllStates();
+                    StopAllStates(onlyIfInactive: true);
                 }
             };
             _watchdogTimer.Start();
         });
     }
 
-    private void StopWatchdog()
+    private void StopAllStates(bool onlyIfInactive = false)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            _watchdogTimer?.Stop();
-            _watchdogTimer = null;
-        });
-    }
-
-    private void StopAllStates()
-    {
-        StopCountdownProcess();
-        TryAbortSystemShutdown();
-
         lock (StateLock)
         {
-            _shutdownAt = DateTimeOffset.MinValue;
-            _totalScheduledSeconds = 0;
-        }
+            if (onlyIfInactive && IsPlanActive())
+            {
+                return;
+            }
 
-        StopWatchdog();
+            StopCountdownProcessUnsafe();
+            TryAbortSystemShutdown();
+        }
 
         Dispatcher.UIThread.Post(() =>
         {
-            CloseMainDialogProgrammatically();
-            CloseFloatingWindowProgrammatically();
+            lock (StateLock)
+            {
+                // A new plan may have started while this callback was queued.
+                if (IsPlanActive())
+                {
+                    return;
+                }
+
+                _watchdogTimer?.Stop();
+                _watchdogTimer = null;
+                CloseMainDialogProgrammatically();
+                CloseFloatingWindowProgrammatically();
+            }
         });
     }
 
@@ -314,6 +355,11 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
     {
         await Dispatcher.UIThread.InvokeAsync(async () =>
         {
+            if (!IsPlanActive())
+            {
+                return;
+            }
+
             CloseFloatingWindowProgrammatically();
             await ShowStyledDialogAsync();
         });
@@ -362,7 +408,11 @@ public class AdvancedShutdownAction(ILogger<AdvancedShutdownAction> logger) : Ac
                 CloseMainDialogProgrammatically();
             }
         };
-        AssignProgressAnimator(progressBar,_shutdownAt - DateTimeOffset.Now, TimeSpan.FromSeconds(_totalScheduledSeconds));
+        lock (StateLock)
+        {
+            _ = AssignProgressAnimatorAsync(progressBar, TimeSpan.FromSeconds(GetRemainingSeconds()),
+                TimeSpan.FromSeconds(_totalScheduledSeconds));
+        }
         countdownTimer.Start();
 
         dialog.Closed += (_, _) =>

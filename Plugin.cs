@@ -636,7 +636,8 @@ public partial class Plugin : PluginBase
 
         // 显示设置
         if (HasAnyActionEnabled(config, "SystemTools.CloneDisplay", "SystemTools.ExtendDisplay",
-                "SystemTools.InternalDisplay", "SystemTools.ExternalDisplay", "SystemTools.BlackScreenHtml"))
+                "SystemTools.InternalDisplay", "SystemTools.ExternalDisplay", "SystemTools.BlackScreenHtml",
+                "SystemTools.ShowDesktop", "SystemTools.AdjustScreenBrightness"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("显示设置…", "\uF397"));
             BuildDisplayMenu(config);
@@ -681,7 +682,7 @@ public partial class Plugin : PluginBase
         }
         
         // 媒体工具
-        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.BackgroundPlayAudio", "SystemTools.SetVolume", "SystemTools.ShowDesktop"))
+        if (config.EnableFfmpegFeatures || HasAnyActionEnabled(config, "SystemTools.BackgroundPlayAudio", "SystemTools.SetVolume"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("媒体工具…", "\uE342"));
             BuildMediaToolsMenu(config);

@@ -30,15 +30,16 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 {
     private const double SwapMotionOffset = 20;
 
-    private readonly DispatcherTimer? _carouselTimer;
+    private readonly DispatcherTimer _carouselTimer;
     private readonly ILessonsService? _lessonsService;
     private readonly List<string> _quotes = [];
-    private readonly Animation? _swapOutAnimation;
-    private readonly Animation? _swapInAnimation;
+    private readonly Animation _swapOutAnimation;
+    private readonly Animation _swapInAnimation;
     private readonly Random _random = new();
     private int _currentIndex = -1;
     private string _loadedPath = string.Empty;
     private bool _isAnimating;
+    private bool _isLoaded;
     private string _currentQuote = "（请先在组件设置中选择 txt 文件）";
     private DateTime _displayStartedAt = DateTime.UtcNow;
     private double _currentCycleDurationSeconds = 6;
@@ -71,12 +72,6 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
     public LocalQuoteComponent()
     {
-        InitializeComponent();
-    }
-
-    public LocalQuoteComponent(ILessonsService lessonsService)
-    {
-        _lessonsService = lessonsService;
         InitializeComponent();
 
         _carouselTimer = new DispatcherTimer();
@@ -139,8 +134,19 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
         };
     }
 
+    public LocalQuoteComponent(ILessonsService lessonsService) : this()
+    {
+        _lessonsService = lessonsService;
+    }
+
     private void LocalQuoteComponent_OnLoaded(object? sender, RoutedEventArgs e)
     {
+        if (_isLoaded || _lessonsService is null)
+        {
+            return;
+        }
+
+        _isLoaded = true;
         Settings.PropertyChanged += OnSettingsPropertyChanged;
         _lessonsService.PreMainTimerTicked += LessonsServiceOnPreMainTimerTicked;
         
@@ -151,8 +157,18 @@ public partial class LocalQuoteComponent : ComponentBase<LocalQuoteSettings>, IN
 
     private void LocalQuoteComponent_OnUnloaded(object? sender, RoutedEventArgs e)
     {
+        if (!_isLoaded)
+        {
+            return;
+        }
+
+        _isLoaded = false;
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
-        _lessonsService.PreMainTimerTicked -= LessonsServiceOnPreMainTimerTicked;
+        if (_lessonsService is { } lessonsService)
+        {
+            lessonsService.PreMainTimerTicked -= LessonsServiceOnPreMainTimerTicked;
+        }
+
         _carouselTimer.Stop();
     }
 

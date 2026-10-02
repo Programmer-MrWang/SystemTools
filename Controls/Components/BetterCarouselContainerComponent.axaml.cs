@@ -339,6 +339,11 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
             return;
         }
 
+        if (_rulesetService is null || _lessonsService is null)
+        {
+            return;
+        }
+
         _isLoaded = true;
         Settings.PropertyChanged += OnSettingsPropertyChanged;
         Settings.Children.CollectionChanged += OnChildrenCollectionChanged;
@@ -362,8 +367,15 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
         Settings.Children.CollectionChanged -= OnChildrenCollectionChanged;
         Settings.ComponentDisplayDurations.CollectionChanged -= OnDurationCollectionChanged;
-        _rulesetService.StatusUpdated -= OnRulesetStatusUpdated;
-        _lessonsService.PreMainTimerTicked -= OnLessonsServicePreMainTimerTicked;
+        if (_rulesetService is { } rulesetService)
+        {
+            rulesetService.StatusUpdated -= OnRulesetStatusUpdated;
+        }
+
+        if (_lessonsService is { } lessonsService)
+        {
+            lessonsService.PreMainTimerTicked -= OnLessonsServicePreMainTimerTicked;
+        }
         UnsubscribeChildren(Settings.Children);
     }
 
@@ -579,9 +591,10 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
 
     private int[] GetDisplayableIndexes()
     {
+        var rulesetService = _rulesetService;
         return Settings.Children
             .Select((child, index) => new { child, index })
-            .Where(x => !x.child.HideOnRule || !_rulesetService.IsRulesetSatisfied(x.child.HidingRules))
+            .Where(x => !x.child.HideOnRule || rulesetService is null || !rulesetService.IsRulesetSatisfied(x.child.HidingRules))
             .Select(x => x.index)
             .ToArray();
     }
@@ -594,7 +607,7 @@ public partial class BetterCarouselContainerComponent : ComponentBase<BetterCaro
         }
 
         var child = Settings.Children[index];
-        return !child.HideOnRule || !_rulesetService.IsRulesetSatisfied(child.HidingRules);
+        return !child.HideOnRule || _rulesetService is null || !_rulesetService.IsRulesetSatisfied(child.HidingRules);
     }
 
     private void RestartProgress()

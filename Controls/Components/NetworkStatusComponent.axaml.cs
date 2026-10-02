@@ -23,7 +23,8 @@ namespace SystemTools.Controls.Components;
 public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSettings>, INotifyPropertyChanged
 {
     private readonly DispatcherTimer _timer;
-    private readonly HttpClient _httpClient;
+    private HttpClient? _httpClient;
+    private CancellationTokenSource? _loadCancellation;
     private readonly SemaphoreSlim _checkSemaphore = new(1, 1);
 
     private string _statusText = "--";
@@ -67,15 +68,21 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
         };
         _timer.Tick += OnTimerTicked;
 
+    }
+
+    private void NetworkStatusComponent_OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (_httpClient is not null)
+        {
+            return;
+        }
+
         _httpClient = new HttpClient
         {
             Timeout = TimeSpan.FromSeconds(5)
         };
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "SystemTools/1.0");
-    }
-
-    private void NetworkStatusComponent_OnLoaded(object? sender, RoutedEventArgs e)
-    {
+        _loadCancellation = new CancellationTokenSource();
         Settings.PropertyChanged += OnSettingsPropertyChanged;
         _timer.Start();
         _ = CheckNetworkStatusAsync();
@@ -85,7 +92,14 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
     {
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
         _timer.Stop();
-        try { _httpClient.Dispose(); } catch { }
+
+        var cancellation = _loadCancellation;
+        var httpClient = _httpClient;
+        _loadCancellation = null;
+        _httpClient = null;
+        cancellation?.Cancel();
+        httpClient?.Dispose();
+        cancellation?.Dispose();
     }
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -109,11 +123,14 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
 
     private async Task CheckNetworkStatusAsync()
     {
-        if (!await _checkSemaphore.WaitAsync(0))
+        var httpClient = _httpClient;
+        var cancellation = _loadCancellation;
+        if (httpClient is null || cancellation is null || !_checkSemaphore.Wait(0))
         {
             return;
         }
 
+        var cancellationToken = cancellation.Token;
         try
         {
             var url = string.IsNullOrWhiteSpace(Settings.PingUrl)
@@ -125,7 +142,8 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
             {
                 case NetworkDetectMode.Icmp:
                 {
-                    var icmpResult = await TryIcmpPingAsync(url);
+                    var icmpResult = await TryIcmpPingAsync(url, cancellationToken);
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (!icmpResult.Success)
                     {
                         SetErrorStatus(icmpResult.ErrorText);
@@ -136,13 +154,14 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
                     break;
                 }
                 case NetworkDetectMode.Http:
-                    delay = await TryHttpPingAsync(url);
+                    delay = await TryHttpPingAsync(httpClient, url, cancellationToken);
                     break;
                 case NetworkDetectMode.Auto:
                 default:
                     if (!_autoModeForceHttpUntilRestart)
                     {
-                        var autoIcmpResult = await TryIcmpPingAsync(url);
+                        var autoIcmpResult = await TryIcmpPingAsync(url, cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
                         if (autoIcmpResult.Success)
                         {
                             delay = autoIcmpResult.Delay;
@@ -152,23 +171,34 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
                         _autoModeForceHttpUntilRestart = true;
                     }
 
-                    delay = await TryHttpPingAsync(url);
+                    delay = await TryHttpPingAsync(httpClient, url, cancellationToken);
                     break;
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             UpdateStatus(delay);
         }
-        catch (TaskCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            // An unloaded instance must not publish results into a later load.
+        }
+        catch (OperationCanceledException)
         {
             SetErrorStatus("超时");
         }
         catch (HttpRequestException)
         {
-            SetErrorStatus("超时");
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                SetErrorStatus("超时");
+            }
         }
         catch
         {
-            SetErrorStatus("错误");
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                SetErrorStatus("错误");
+            }
         }
         finally
         {
@@ -176,7 +206,7 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
         }
     }
 
-    private async Task<IcmpProbeResult> TryIcmpPingAsync(string url)
+    private async Task<IcmpProbeResult> TryIcmpPingAsync(string url, CancellationToken cancellationToken)
     {
         try
         {
@@ -186,7 +216,7 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
                 : new Uri($"https://{url}");
 
             using var ping = new Ping();
-            var reply = await ping.SendPingAsync(uri.Host, 2000);
+            var reply = await ping.SendPingAsync(uri.Host, TimeSpan.FromSeconds(2), cancellationToken: cancellationToken);
 
             if (reply.Status == IPStatus.Success)
             {
@@ -202,6 +232,10 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
                 ? IcmpProbeResult.Fail("超时")
                 : IcmpProbeResult.Fail("超时");
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (PingException)
         {
             return IcmpProbeResult.Fail("超时");
@@ -212,7 +246,7 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
         }
     }
 
-    private async Task<long> TryHttpPingAsync(string url)
+    private static async Task<long> TryHttpPingAsync(HttpClient httpClient, string url, CancellationToken cancellationToken)
     {
         var httpUrl = url;
         if (!httpUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
@@ -225,9 +259,11 @@ public partial class NetworkStatusComponent : ComponentBase<NetworkStatusSetting
 
         try
         {
-            using var response = await _httpClient.SendAsync(
-                new HttpRequestMessage(HttpMethod.Head, httpUrl),
-                HttpCompletionOption.ResponseHeadersRead);
+            using var request = new HttpRequestMessage(HttpMethod.Head, httpUrl);
+            using var response = await httpClient.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
 
             stopwatch.Stop();
             response.EnsureSuccessStatusCode();

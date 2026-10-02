@@ -29,6 +29,7 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
     private string _teacherName = string.Empty;
     private string _timeRangeText = string.Empty;
     private bool _hasNextClass;
+    private bool _isLoaded;
 
     public string PrefixText => Settings.PrefixText;
 
@@ -109,6 +110,18 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     private void NextClassDisplayComponent_OnLoaded(object? sender, RoutedEventArgs e)
     {
+        if (_isLoaded)
+        {
+            return;
+        }
+
+        if (_lessonsService is null || _profileService is null || _exactTimeService is null)
+        {
+            ApplyNoMoreClasses();
+            return;
+        }
+
+        _isLoaded = true;
         Settings.PropertyChanged += OnSettingsPropertyChanged;
         _lessonsService.PostMainTimerTicked += OnLessonsServicePostMainTimerTicked;
         _lessonsService.PropertyChanged += OnLessonsServicePropertyChanged;
@@ -117,9 +130,18 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     private void NextClassDisplayComponent_OnUnloaded(object? sender, RoutedEventArgs e)
     {
+        if (!_isLoaded)
+        {
+            return;
+        }
+
+        _isLoaded = false;
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
-        _lessonsService.PostMainTimerTicked -= OnLessonsServicePostMainTimerTicked;
-        _lessonsService.PropertyChanged -= OnLessonsServicePropertyChanged;
+        if (_lessonsService is { } lessonsService)
+        {
+            lessonsService.PostMainTimerTicked -= OnLessonsServicePostMainTimerTicked;
+            lessonsService.PropertyChanged -= OnLessonsServicePropertyChanged;
+        }
     }
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -145,14 +167,23 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
 
     private void UpdateDisplay()
     {
-        var classPlan = _lessonsService.CurrentClassPlan;
+        var lessonsService = _lessonsService;
+        var profileService = _profileService;
+        var exactTimeService = _exactTimeService;
+        if (lessonsService is null || profileService is null || exactTimeService is null)
+        {
+            ApplyNoMoreClasses();
+            return;
+        }
+
+        var classPlan = lessonsService.CurrentClassPlan;
         if (classPlan?.TimeLayout == null)
         {
             ApplyNoMoreClasses();
             return;
         }
 
-        var now = _exactTimeService.GetCurrentLocalDateTime().TimeOfDay;
+        var now = exactTimeService.GetCurrentLocalDateTime().TimeOfDay;
         var validLessonSlots = classPlan.TimeLayout.Layouts
             .Where(x => x.TimeType == 0)
             .ToList();
@@ -175,7 +206,7 @@ public partial class NextClassDisplayComponent : ComponentBase<NextClassDisplayS
                 continue;
             }
 
-            if (!_profileService.Profile.Subjects.TryGetValue(candidateClassInfo.SubjectId, out var subject))
+            if (!profileService.Profile.Subjects.TryGetValue(candidateClassInfo.SubjectId, out var subject))
             {
                 continue;
             }

@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -37,8 +37,10 @@ public class MoveAction(ILogger<MoveAction> logger) : ActionBase<MoveSettings>
 
         try
         {
-            var sourcePath = Settings.SourcePath.TrimEnd('\\');
-            var destPath = Settings.DestinationPath.TrimEnd('\\');
+            // Keep a volume root such as C:\ intact. Trimming it to C: turns
+            // it into a drive-relative path and can target the wrong folder.
+            var sourcePath = Path.TrimEndingDirectorySeparator(Settings.SourcePath);
+            var destPath = Path.TrimEndingDirectorySeparator(Settings.DestinationPath);
 
             if (Settings.OperationType == "文件")
             {
@@ -80,13 +82,28 @@ public class MoveAction(ILogger<MoveAction> logger) : ActionBase<MoveSettings>
                     throw new DirectoryNotFoundException($"源文件夹不存在: {sourcePath}");
                 }
 
+                var sourceDirectory = new DirectoryInfo(sourcePath);
+                if (sourceDirectory.Parent == null)
+                {
+                    throw new InvalidOperationException("请选择具体的源文件夹，不能将磁盘或共享根目录作为源文件夹。");
+                }
+
+                var finalDestPath = Path.TrimEndingDirectorySeparator(
+                    Path.GetFullPath(Path.Combine(destPath, sourceDirectory.Name)));
+                var sourceFullPath = Path.TrimEndingDirectorySeparator(sourceDirectory.FullName);
+                if (string.Equals(finalDestPath, sourceFullPath, StringComparison.OrdinalIgnoreCase)
+                    || finalDestPath.StartsWith(sourceFullPath + Path.DirectorySeparatorChar,
+                        StringComparison.OrdinalIgnoreCase)
+                    || sourceFullPath.StartsWith(finalDestPath + Path.DirectorySeparatorChar,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException("目标文件夹不能与源文件夹相同，也不能相互包含。");
+                }
+
                 if (!Directory.Exists(destPath))
                 {
                     Directory.CreateDirectory(destPath);
                 }
-
-                var sourceDirName = new DirectoryInfo(sourcePath).Name;
-                var finalDestPath = Path.Combine(destPath, sourceDirName);
 
                 if (Directory.Exists(finalDestPath))
                 {
@@ -94,7 +111,18 @@ public class MoveAction(ILogger<MoveAction> logger) : ActionBase<MoveSettings>
                 }
 
                 psi.FileName = "robocopy.exe";
-                psi.Arguments = $"\"{sourcePath}\" \"{finalDestPath}\" /e /move /copyall /r:3 /w:3 /mt:4 /nfl /ndl /np";
+                psi.ArgumentList.Add(sourcePath);
+                psi.ArgumentList.Add(finalDestPath);
+                psi.ArgumentList.Add("/e");
+                psi.ArgumentList.Add("/move");
+                psi.ArgumentList.Add("/copyall");
+                psi.ArgumentList.Add("/r:3");
+                psi.ArgumentList.Add("/w:3");
+                psi.ArgumentList.Add("/mt:4");
+                psi.ArgumentList.Add("/nfl");
+                psi.ArgumentList.Add("/ndl");
+                psi.ArgumentList.Add("/np");
+
                 _logger.LogInformation("执行命令: robocopy \"{Source}\" \"{Destination}\" /move", sourcePath,
                     finalDestPath);
 

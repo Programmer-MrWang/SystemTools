@@ -1,4 +1,4 @@
-﻿using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -36,7 +36,9 @@ public class DeleteAction(ILogger<DeleteAction> logger) : ActionBase<DeleteSetti
 
         try
         {
-            var targetPath = Settings.TargetPath.TrimEnd('\\');
+            // Keep a volume root such as C:\ intact. Trimming it to C: turns
+            // it into a drive-relative path and can target the wrong folder.
+            var targetPath = Path.TrimEndingDirectorySeparator(Settings.TargetPath);
 
             if (Settings.OperationType == "文件")
             {
@@ -64,6 +66,11 @@ public class DeleteAction(ILogger<DeleteAction> logger) : ActionBase<DeleteSetti
                 {
                     _logger.LogError("文件夹不存在: {Path}", targetPath);
                     throw new DirectoryNotFoundException($"文件夹不存在: {targetPath}");
+                }
+
+                if (new DirectoryInfo(targetPath).Parent == null)
+                {
+                    throw new InvalidOperationException("请选择具体的文件夹，不能删除磁盘或共享根目录。");
                 }
 
                 psi.Arguments = $"/c rmdir /s /q \"{targetPath}\"";

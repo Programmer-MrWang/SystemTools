@@ -262,6 +262,17 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             return;
         }
 
+        if (!FloatingWindowProfileManager.IsValidProfileName(createProfileName))
+        {
+            await new FAContentDialog
+            {
+                Title = "无法创建配置方案",
+                Content = "请使用有效的文件名，避免路径分隔符、末尾的点或空格以及 Windows 保留名称。",
+                CloseButtonText = "确定"
+            }.ShowAsync();
+            return;
+        }
+
         var path = Path.Combine(ViewModel.FloatingWindowProfilesDirectory,
             createProfileName + ".json");
         if (File.Exists(path))
@@ -269,7 +280,20 @@ public partial class FloatingWindowEditorSettingsPage : SettingsPageBase
             return;
         }
 
-        ViewModel.AddFloatingWindowProfile(createProfileName);
+        try
+        {
+            ViewModel.AddFloatingWindowProfile(createProfileName);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            Debug.WriteLine($"[SystemTools] 创建悬浮窗配置失败: {ex}");
+            await new FAContentDialog
+            {
+                Title = "无法创建配置方案",
+                Content = "配置方案未能保存。请检查名称、文件夹写入权限和磁盘空间，然后重试。",
+                CloseButtonText = "确定"
+            }.ShowAsync();
+        }
     }
 
     private void OnOpenFloatingWindowProfileFolderClick(object? sender, RoutedEventArgs e)

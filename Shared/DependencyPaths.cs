@@ -352,7 +352,19 @@ public static class DependencyPaths
     {
         try
         {
-            var requiredPaths = GetFaceRecognitionRequiredPaths();
+            return HasFaceRecognitionDependencies(GetDependencyRoot());
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static bool HasFaceRecognitionDependencies(string dependencyRoot)
+    {
+        try
+        {
+            var requiredPaths = GetFaceRecognitionRequiredPaths(dependencyRoot);
             if (!Directory.Exists(requiredPaths[0]) ||
                 !File.Exists(requiredPaths[1]) ||
                 !File.Exists(requiredPaths[2]) ||
@@ -364,7 +376,7 @@ public static class DependencyPaths
                 return false;
             }
 
-            var nativeDirectories = GetFaceRecognitionNativeDirectories(GetDependencyRoot());
+            var nativeDirectories = GetFaceRecognitionNativeDirectories(dependencyRoot);
             var requiredNativeFiles = new[]
             {
                 "OpenCvSharpExtern.dll",
@@ -381,18 +393,19 @@ public static class DependencyPaths
         }
     }
 
-    public static string[] GetFaceRecognitionRequiredPaths()
+    public static string[] GetFaceRecognitionRequiredPaths() => GetFaceRecognitionRequiredPaths(GetDependencyRoot());
+
+    private static string[] GetFaceRecognitionRequiredPaths(string dependencyRoot)
     {
-        var dependencyRoot = GetDependencyRoot();
         return
         [
-            GetFaceModelsDirectory(),
-            Path.Combine(GetFaceModelsDirectory(), "shape_predictor_68_face_landmarks.dat"),
-            Path.Combine(GetFaceModelsDirectory(), "dlib_face_recognition_resnet_model_v1.dat"),
+            Path.Combine(dependencyRoot, "Models"),
+            Path.Combine(dependencyRoot, "Models", "shape_predictor_68_face_landmarks.dat"),
+            Path.Combine(dependencyRoot, "Models", "dlib_face_recognition_resnet_model_v1.dat"),
             Path.Combine(dependencyRoot, "runtimes"),
-            GetDependencyFile("OpenCvSharp.Extensions.dll"),
-            GetDependencyFile("OpenCvSharp.dll"),
-            GetDependencyFile("DlibDotNet.dll")
+            Path.Combine(dependencyRoot, "OpenCvSharp.Extensions.dll"),
+            Path.Combine(dependencyRoot, "OpenCvSharp.dll"),
+            Path.Combine(dependencyRoot, "DlibDotNet.dll")
         ];
     }
 

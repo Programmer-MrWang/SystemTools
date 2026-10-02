@@ -65,7 +65,7 @@ public class FloatingWindowProfileManager
     /// </summary>
     public bool ProfileFileExists(string profileName)
     {
-        if (string.IsNullOrWhiteSpace(profileName))
+        if (!IsValidProfileName(profileName))
         {
             return false;
         }
@@ -115,7 +115,7 @@ public class FloatingWindowProfileManager
     /// </summary>
     public void LoadProfile(string profileName)
     {
-        if (string.IsNullOrWhiteSpace(profileName))
+        if (!IsValidProfileName(profileName))
         {
             profileName = "Default";
         }
@@ -179,7 +179,7 @@ public class FloatingWindowProfileManager
     /// </summary>
     public bool RemoveProfile(string profileName)
     {
-        if (string.Equals(profileName, "Default", StringComparison.OrdinalIgnoreCase))
+        if (!IsValidProfileName(profileName) || string.Equals(profileName, "Default", StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
@@ -206,7 +206,8 @@ public class FloatingWindowProfileManager
     /// </summary>
     public bool RenameProfile(string oldName, string newName)
     {
-        if (string.IsNullOrWhiteSpace(newName) || string.Equals(oldName, newName, StringComparison.OrdinalIgnoreCase))
+        if (!IsValidProfileName(oldName) || !IsValidProfileName(newName) ||
+            string.Equals(oldName, newName, StringComparison.OrdinalIgnoreCase))
         {
             return false;
         }
@@ -235,8 +236,37 @@ public class FloatingWindowProfileManager
         }
     }
 
+    public static bool IsValidProfileName(string? profileName)
+    {
+        if (string.IsNullOrWhiteSpace(profileName) || profileName.Length > 250 ||
+            profileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 ||
+            profileName.EndsWith('.') || profileName.EndsWith(' '))
+        {
+            return false;
+        }
+
+        // Windows device names remain reserved even with a .json extension.
+        var stem = profileName.Split('.')[0].TrimEnd(' ').ToUpperInvariant();
+        return stem is not ("CON" or "PRN" or "AUX" or "NUL" or "CONIN$" or "CONOUT$") &&
+               !(stem.Length == 4 && (stem.StartsWith("COM") || stem.StartsWith("LPT")) &&
+                 "123456789¹²³".Contains(stem[3]));
+    }
+
     private string GetProfilePath(string profileName)
     {
-        return Path.Combine(_profilesDirectory, $"{profileName}.json");
+        if (!IsValidProfileName(profileName))
+        {
+            throw new ArgumentException("配置方案名称只能包含合法文件名字符。", nameof(profileName));
+        }
+
+        var root = Path.GetFullPath(_profilesDirectory)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var path = Path.GetFullPath(Path.Combine(root, profileName + ".json"));
+        if (!path.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException("配置方案路径必须位于配置目录内。", nameof(profileName));
+        }
+
+        return path;
     }
 }

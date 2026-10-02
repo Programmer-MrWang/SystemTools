@@ -1461,36 +1461,8 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
                 return false;
             }
 
-            await UpdateStatusAsync("正在解压模型文件…");
-            await Task.Run(() =>
-            {
-                if (Directory.Exists(Path.Combine(dependencyRoot, "temp_extract")))
-                    Directory.Delete(Path.Combine(dependencyRoot, "temp_extract"), true);
-
-                ZipFile.ExtractToDirectory(archivePath, dependencyRoot, true);
-            });
-
-            await UpdateStatusAsync("正在整理文件结构…");
-            await Task.Run(() =>
-            {
-                string sourceDir = Path.Combine(dependencyRoot, "新建文件夹");
-                if (Directory.Exists(sourceDir))
-                {
-                    foreach (var dir in Directory.GetDirectories(sourceDir))
-                    {
-                        var dest = Path.Combine(dependencyRoot, Path.GetFileName(dir));
-                        if (Directory.Exists(dest)) Directory.Delete(dest, true);
-                        Directory.Move(dir, dest);
-                    }
-                    foreach (var file in Directory.GetFiles(sourceDir))
-                    {
-                        var dest = Path.Combine(dependencyRoot, Path.GetFileName(file));
-                        if (File.Exists(dest)) File.Delete(dest);
-                        File.Move(file, dest);
-                    }
-                    Directory.Delete(sourceDir, true);
-                }
-            });
+            await UpdateStatusAsync("正在解压并安装模型文件…");
+            await Task.Run(() => FaceDependencyInstaller.InstallArchive(archivePath, dependencyRoot));
 
             if (File.Exists(archivePath)) File.Delete(archivePath);
 

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Management;
 using System.Threading.Tasks;
 using SystemTools.ConfigHandlers;
+using SystemTools.Services.Automations;
 
 namespace SystemTools.Services;
 
@@ -93,6 +94,7 @@ public static class SuperAutoIslandIntegration
             AddAction(register, "SystemTools.Sleep", "睡眠");
 
             register.AddLabel("文件操作");
+            register.AddBlock<ReadFileDataBlock>();
             AddAction(register, "SystemTools.Copy", "复制", Fields(
                 ("operationType", BasicFields.Dropdown("类型", [("文件", "文件"), ("文件夹", "文件夹")])),
                 ("sourcePath", BasicFields.Text("源路径")),
@@ -184,8 +186,6 @@ public static class SuperAutoIslandIntegration
                 // 该 ID 是 ActionInProgressTrigger 中由用户自定义的匹配字符串，
                 // 不是 ClassIsland 已注册的触发器提供方 ID，因此保留文本输入。
                 ("triggerId", BasicFields.Text("触发器 ID"))));
-            AddAction(register, "SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", Fields(
-                ("promptName", BasicFields.Text("提示名称", "未命名自动化"))));
             AddAction(register, "SystemTools.RestartAsAdmin", "重启应用为管理员身份");
             AddAction(register, "SystemTools.ClearAllNotifications", "清除全部提醒", NotifyFields());
             AddAction(register, "SystemTools.OpenAppSettings", "打开应用设置", NotifyFields());

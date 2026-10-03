@@ -263,6 +263,10 @@ public partial class Plugin : PluginBase
                 _logger?.LogWarning("[SystemTools]Windows Hello 验证器已自动关闭：当前系统低于 Windows build {MinimumBuild}，并已清理对应验证器配置。",
                     WindowsHelloService.MinimumWindowsBuild);
             }
+
+            // SAI 是可选插件。由 SystemTools 自己注册 Blockly 积木，保持 SAI 源码不变。
+            SuperAutoIslandIntegration.Register();
+
             _logger?.LogInformation("[SystemTools]SystemTools 启动完成");
             RegisterOrUpdateFloatingWindowTrayMenu();
         };

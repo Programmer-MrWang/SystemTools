@@ -29,6 +29,9 @@
     </ItemGroup>
     
     <ItemGroup>
+        <!-- SuperAutoIsland 接口仅用于可选 Blockly 接入；SAI 未安装时仍可独立运行。 -->
+        <!-- 使用 NuGet 固定版本，避免构建依赖开发机上的 SAI 源码目录。 -->
+        <PackageReference Include="SuperAutoIsland.Interface" Version="0.3.9.2-dev.3" GeneratePathProperty="true" />
         <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" />
         <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
@@ -61,6 +64,57 @@
         <ItemGroup>
             <FileWrites Include="@(VoskWorkerFiles->'$(OutDir)VoskWorker\%(RecursiveDir)%(Filename)%(Extension)')" />
         </ItemGroup>
+    </Target>
+
+    <!--
+      SuperAutoIsland.Interface 是可选插件的接口程序集。它不能依赖 SAI 是否已安装，
+      因此随 SystemTools 主程序集复制到插件输出根目录；SAI 安装时仍由同一程序集提供接口类型。
+    -->
+    <Target Name="CopySuperAutoIslandInterfaceToPluginOutput" AfterTargets="Build" BeforeTargets="CreateCipx">
+        <PropertyGroup>
+            <SuperAutoIslandInterfacePath Condition="Exists('$(SuperAutoIslandDebugOutputDirectory)\SuperAutoIsland.Interface.dll')">$(SuperAutoIslandDebugOutputDirectory)\SuperAutoIsland.Interface.dll</SuperAutoIslandInterfacePath>
+            <SuperAutoIslandInterfacePath Condition="'$(SuperAutoIslandInterfacePath)' == ''">$(PkgSuperAutoIsland_Interface)\lib\net10.0\SuperAutoIsland.Interface.dll</SuperAutoIslandInterfacePath>
+        </PropertyGroup>
+        <Error Condition="!Exists('$(SuperAutoIslandInterfacePath)')"
+               Text="未能找到 SuperAutoIsland.Interface 包程序集：$(SuperAutoIslandInterfacePath)" />
+        <Copy SourceFiles="$(SuperAutoIslandInterfacePath)"
+              DestinationFolder="$(OutDir)"
+              SkipUnchangedFiles="true" />
+        <ItemGroup>
+            <FileWrites Include="$(OutDir)SuperAutoIsland.Interface.dll" />
+        </ItemGroup>
+    </Target>
+
+    <!--
+      本地 ClassIsland 调试使用 -epp 加载 SystemTools，而 SAI 放在宿主的 Plugins 目录中。
+      每次 Debug 构建 SystemTools 时刷新 SAI 目录，这样启动调试配置即可同时加载两个插件。
+      这只复制 SAI 的现有构建产物，不修改 SAI 源码或其项目文件。
+    -->
+    <PropertyGroup>
+        <ClassIslandDebugHostDirectory Condition="'$(ClassIslandDebugHostDirectory)' == ''">E:\ClassIsland-git-misha\ClassIsland.Desktop\bin\Debug\net10.0-windows10.0.19041.0</ClassIslandDebugHostDirectory>
+        <SuperAutoIslandDebugOutputDirectory Condition="'$(SuperAutoIslandDebugOutputDirectory)' == ''">E:\My Github Projects\临时\SuperAutoIsland-master\SuperAutoIsland-master\SuperAutoIsland\bin\Debug\net10.0</SuperAutoIslandDebugOutputDirectory>
+        <SuperAutoIslandDebugPluginId>lrs2187.sai</SuperAutoIslandDebugPluginId>
+    </PropertyGroup>
+
+    <Target Name="PrepareClassIslandDebugSuperAutoIsland"
+            AfterTargets="Build"
+            BeforeTargets="CreateCipx"
+            Condition="'$(Configuration)' == 'Debug' and Exists('$(ClassIslandDebugHostDirectory)')">
+        <PropertyGroup>
+            <ClassIslandDebugSaiPluginDirectory>$(ClassIslandDebugHostDirectory)\Plugins\$(SuperAutoIslandDebugPluginId)</ClassIslandDebugSaiPluginDirectory>
+        </PropertyGroup>
+        <Error Condition="!Exists('$(SuperAutoIslandDebugOutputDirectory)\manifest.yml') or !Exists('$(SuperAutoIslandDebugOutputDirectory)\SuperAutoIsland.dll')"
+               Text="未找到 SAI Debug 构建产物。请先构建 SuperAutoIsland\SuperAutoIsland.csproj，或通过 /p:SuperAutoIslandDebugOutputDirectory=... 指定输出目录。" />
+        <RemoveDir Directories="$(ClassIslandDebugSaiPluginDirectory)" />
+        <MakeDir Directories="$(ClassIslandDebugSaiPluginDirectory)" />
+        <ItemGroup>
+            <SuperAutoIslandDebugFiles Include="$(SuperAutoIslandDebugOutputDirectory)\**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(SuperAutoIslandDebugFiles)"
+              DestinationFiles="@(SuperAutoIslandDebugFiles->'$(ClassIslandDebugSaiPluginDirectory)\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+        <Message Importance="high"
+                 Text="已将 SAI Debug 插件同步到 $(ClassIslandDebugSaiPluginDirectory)" />
     </Target>
 
     <!--

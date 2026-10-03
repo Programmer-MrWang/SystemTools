@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using SystemTools.Converters;
 
 namespace SystemTools.Settings;
 
@@ -23,6 +24,7 @@ public class ToggleWorkflowSettings
     /// 操作模式：true=启用, false=禁用, null=切换
     /// </summary>
     [JsonPropertyName("enableMode")]
+    [JsonConverter(typeof(NullableBooleanStringConverter))]
     public bool? EnableMode { get; set; } = null;
 
     /// <summary>

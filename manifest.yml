@@ -18,3 +18,6 @@ repoName: SystemTools
 assetsRoot: main
 supportedOSPlatforms:
 - Windows
+dependencies:
+- id: lrs2187.sai
+  isRequired: false

@@ -20,6 +20,7 @@ namespace SystemTools.Views;
 public partial class AiVoiceConversationOverlayWindow : Window
 {
     private const double HeightSpringAngularFrequency = 18;
+    private const double MainWindowCornerRadiusOffset = 20;
 
     private bool _allowClose;
     private bool _exitAnimationStarted;
@@ -86,7 +87,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
         _defaultExpandedHeight = Height;
         _targetHeight = Height;
         Topmost = true;
-        _cornerRadius = Math.Max(0, cornerRadius);
+        _cornerRadius = Math.Max(0, cornerRadius) + MainWindowCornerRadiusOffset;
         _appearanceStyle = appearanceStyle == 1 ? 1 : 0;
         _liquidGlassBackdrop = liquidGlassBackdrop;
         LiquidGlassBackdropImage.Source = liquidGlassBackdrop;
@@ -664,9 +665,7 @@ public partial class AiVoiceConversationOverlayWindow : Window
         var useLiquidGlass = _appearanceStyle == 1 && _liquidGlassBackdrop is not null;
         LiquidGlassBackdropClip.IsVisible = useLiquidGlass;
         LiquidGlassSurface.IsVisible = useLiquidGlass;
-        RootBorder.CornerRadius = useLiquidGlass
-            ? LiquidGlassSurface.CornerRadius
-            : new CornerRadius(_cornerRadius + 10);
+        RootBorder.CornerRadius = new CornerRadius(_cornerRadius);
         RootBorder.Background = useLiquidGlass ? Brushes.Transparent : background;
         RootBorder.BorderBrush = useLiquidGlass
             ? Brushes.Transparent
@@ -692,7 +691,9 @@ public partial class AiVoiceConversationOverlayWindow : Window
 
     private void ApplyLiquidGlassSettings(LiquidGlassSettings settings)
     {
-        var cornerRadius = new CornerRadius(settings.CornerRadius);
+        // This overlay derives its corners from the ClassIsland main window instead, so the
+        // liquid glass corner radius setting is intentionally ignored here.
+        var cornerRadius = new CornerRadius(_cornerRadius);
         LiquidGlassBackdropClip.CornerRadius = cornerRadius;
         LiquidGlassSurface.CornerRadius = cornerRadius;
         LiquidGlassSurface.BackdropZoom = settings.BackdropZoom;

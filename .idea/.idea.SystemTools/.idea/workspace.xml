@@ -15,7 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="58c1fb2c-63dc-4b0a-aa81-6cfa0bb0e251" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SystemTools/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README-2.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-2.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Views/AiVoiceConversationOverlayWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Views/AiVoiceConversationOverlayWindow.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,10 +79,13 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="PyDebuggerOptionsProvider">
+    <option name="myDebuggerBackend" value="DEBUGPY" />
+  </component>
   <component name="RunManager">
     <configuration name="SystemTools: ClassIsland 插件" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/SystemTools.csproj" />
@@ -194,15 +197,15 @@
       <workItem from="1789309547788" duration="424000" />
       <workItem from="1789568817654" duration="2022000" />
       <workItem from="1789613795573" duration="6899000" />
-      <workItem from="1789637490440" duration="2072000" />
-    </task>
-    <task id="LOCAL-00039" summary="feat: 实现液态玻璃模式下AI语音对话框中审批按钮的玻璃效果">
-      <option name="closed" value="true" />
-      <created>1786182836396</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1786182836396</updated>
+      <workItem from="1789637490440" duration="3623000" />
+      <workItem from="1789657725053" duration="583000" />
+      <workItem from="1790755817024" duration="2483000" />
+      <workItem from="1791000215829" duration="6849000" />
+      <workItem from="1791137936500" duration="251000" />
+      <workItem from="1791279825485" duration="3603000" />
+      <workItem from="1791640215278" duration="3155000" />
+      <workItem from="1792510909295" duration="784000" />
+      <workItem from="1792756599294" duration="1353000" />
     </task>
     <task id="LOCAL-00040" summary="fix: 修改设置页面的提示与布局">
       <option name="closed" value="true" />
@@ -588,7 +591,15 @@
       <option name="project" value="LOCAL" />
       <updated>1789572107462</updated>
     </task>
-    <option name="localTasksCounter" value="88" />
+    <task id="LOCAL-00088" summary="doc: 更新日志">
+      <option name="closed" value="true" />
+      <created>1789655830164</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1789655830165</updated>
+    </task>
+    <option name="localTasksCounter" value="89" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -632,9 +643,9 @@
     <MESSAGE value="proj: 剔除无用注释" />
     <MESSAGE value="feat: 更新“从悬浮窗触发”触发器的 图标选择器" />
     <MESSAGE value="fix: 修正 notchStyle 主题未添加提醒样式的问题" />
-    <MESSAGE value="doc: 更新日志" />
     <MESSAGE value="fix: 修正悬浮窗编辑中“透明度”的设置方向相反的问题 https://github.com/Programmer-MrWang/SystemTools/issues/98" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: 修正悬浮窗编辑中“透明度”的设置方向相反的问题 https://github.com/Programmer-MrWang/SystemTools/issues/98" />
+    <MESSAGE value="doc: 更新日志" />
+    <option name="LAST_COMMIT_MESSAGE" value="doc: 更新日志" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -653,5 +664,9 @@
         </breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

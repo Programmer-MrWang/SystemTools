@@ -5,7 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
-    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))=/_/SystemTools</PathMap>
+    <!-- Normalize both compiler document paths AND SourceLink JSON before embedding PDBs. -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
     <DebugType>embedded</DebugType>
     <!-- The solution intentionally contains only the entrance; preserve config for conditional references. -->
     <ShouldUnsetParentConfigurationAndPlatform>false</ShouldUnsetParentConfigurationAndPlatform>

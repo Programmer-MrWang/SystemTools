@@ -1,2 +1,6 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Keep shared source checksums stable across native build agents.
+/src/** text eol=lf
+/tests/** text eol=lf
+/eng/*.py text eol=lf
+/SystemTools.slnx text eol=lf
+/global.json text eol=lf

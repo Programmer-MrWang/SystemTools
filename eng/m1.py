@@ -31,6 +31,17 @@ def native_rid(require_session=False):
         return 'linux-x64'
     raise RuntimeError('Unsupported OS/architecture: ' + system + '/' + arch)
 
+def global_storage_path():
+    # Host source: GlobalStorageService ignores ClassIsland_PackageRoot.
+    # Observe this shared file; never rewrite/restore it behind another process.
+    if platform.system() == 'Darwin':
+        base = Path.home() / 'Library/Application Support'
+    elif platform.system() == 'Windows':
+        base = Path(os.environ['LOCALAPPDATA'])
+    else:
+        base = Path(os.environ.get('XDG_DATA_HOME', str(Path.home() / '.local/share')))
+    return base / 'ClassIsland/Global/Global.json'
+
 def identity():
     # Content identity includes uncommitted new source too. Ignore bin/obj outputs.
     paths = [ROOT / 'global.json', ROOT / 'SystemTools.slnx']
@@ -159,6 +170,8 @@ def smoke(host, package, case, timeout):
     for key in ('ClassIsland_DebugForceMonoPluginLoadBehavior', 'ClassIsland_DebugSuppressMacOSPluginLoadBehavior', 'ClassIsland_WaitDebuggers'):
         env.pop(key, None)
     logfile = run / 'host.log'
+    global_path = global_storage_path()
+    global_before = sha(global_path) if global_path.exists() else None
     failure = None
     proof = None
     with logfile.open('wb') as log:
@@ -198,7 +211,10 @@ def smoke(host, package, case, timeout):
     after = {name: sha(config / name) for name in before}
     if before != after:
         failure = 'Legacy fixture bytes changed during host startup/shutdown.'
-    evidence = dict(identity(), case=case, passed=failure is None, runtimeId=rid, machine=platform.platform(), host=str(host), hostSha256=sha(host), packageSha256=sha(package), fixtureHashesUnchanged=before == after, evidence=proof, error=failure)
+    global_after = sha(global_path) if global_path.exists() else None
+    if global_after != global_before:
+        failure = 'Host machine-wide Global.json changed; inspect host behavior before repeating. No automatic restore was performed.'
+    evidence = dict(identity(), case=case, passed=failure is None, runtimeId=rid, machine=platform.platform(), host=str(host), hostSha256=sha(host), packageSha256=sha(package), fixtureHashesUnchanged=before == after, hostGlobalStorageUnchanged=global_before == global_after, evidence=proof, error=failure)
     write_json(run / 'result.json', evidence)
     print('EVIDENCE:', run / 'result.json', flush=True)
     if failure:

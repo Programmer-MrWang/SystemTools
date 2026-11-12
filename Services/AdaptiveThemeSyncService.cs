@@ -84,7 +84,7 @@ public sealed class AdaptiveThemeSyncService(
             }
 
             var targetTheme = luminance < BackgroundLuminanceCalculator.DarkThreshold ? DarkTheme : LightTheme;
-            if (classIslandSettingsService.SetTheme(targetTheme))
+            if (classIslandSettingsService.SetMainWindowTheme(targetTheme))
             {
                 logger.LogDebug("主界面背后区域平均亮度为 {Luminance:F1}，已匹配为{Theme}主题。",
                     luminance, targetTheme == DarkTheme ? "黑暗" : "明亮");

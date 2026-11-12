@@ -14,6 +14,8 @@ public sealed class ClassIslandSettingsService
     private const string PrimaryColorPropertyName = "PrimaryColor";
     private const string ColorSourcePropertyName = "ColorSource";
     private const string ThemePropertyName = "Theme";
+    private const string MainWindowThemePropertyName = "MainWindowTheme";
+    private const string MainWindowThemeOverridePropertyName = "IsMainWindowThemeOverrideEnabled";
 
     /// <summary>主题色来源为“自定义”时的取值。</summary>
     public const int CustomColorSource = 0;
@@ -28,7 +30,23 @@ public sealed class ClassIslandSettingsService
     /// </summary>
     public event EventHandler<string>? SettingsPropertyChanged;
 
-    public bool SetTheme(int theme) => SetProperty(ThemePropertyName, theme);
+    public bool SetMainWindowTheme(int theme)
+    {
+        if (GetProperty<int>(MainWindowThemePropertyName) is null)
+        {
+            // 兼容尚未拆分应用主题与主界面主题的宿主。
+            return SetProperty(ThemePropertyName, theme);
+        }
+
+        // 先设置目标主题，再开启覆盖，避免短暂应用旧的主界面主题。
+        if (!EnsureProperty(MainWindowThemePropertyName, theme, out var themeChanged) ||
+            !EnsureProperty(MainWindowThemeOverridePropertyName, true, out var overrideChanged))
+        {
+            return false;
+        }
+
+        return themeChanged || overrideChanged;
+    }
 
     public bool SetMainWindowVisible(bool isVisible) => SetProperty("IsMainWindowVisible", isVisible);
 

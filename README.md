@@ -1,3 +1,5 @@
+> **codex/cross-platform 分支：目前为 M1 加载预览。** 默认解决方案构建一个诊断页和一个诊断行动；完整 Windows 实现保留在根目录项目，等待 M2 接入。试验 CIPX 仅用于隔离宿主，不能升级日常安装。进度、限制和 Windows/Linux 验证命令见 [M1 验证手册](docs/validation/m1.md)。
+
 <div align="center">
 
 <img src="https://github.com/user-attachments/assets/d81127fb-1b17-412f-90ac-a3b008c11a5c" alt="SystemTools Logo" height="100">

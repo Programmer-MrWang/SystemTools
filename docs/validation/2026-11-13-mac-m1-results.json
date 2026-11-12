@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-13",
+  "milestones": [
+    "M0",
+    "M1"
+  ],
+  "scope": "M0 static baseline; M1 implementation and Mac runtime evidence. Windows/Linux runtime and full Windows migration remain pending.",
+  "baselineCommit": "10a39f9db130ecaf38158e7fad8808dc3416acc3",
+  "hostSourceContractCommit": "3afce2714b6ec50d4bd2a3baac95a71d96ce3b9b",
+  "nativeEnvironment": {
+    "os": "macOS 26.6",
+    "architecture": "arm64",
+    "sdk": "10.0.403",
+    "runtime": "10.0.14",
+    "host": "Existing local Debug.app, not rebuilt this turn"
+  },
+  "checks": {
+    "macCleanBuild": "passed; zero warnings/errors",
+    "hostLoaderBoundaries": 19,
+    "packageBoundaries": 9,
+    "sameOSReproducibleOutputs": 7,
+    "currentBusinessSourcesMatchVerifiedPackage": 9
+  },
+  "macVerifiedPackage": {
+    "path": "artifacts/m1/SystemTools.M1.MacVerified.cipx",
+    "sha256": "253efbb0e7e1b4ca036228c396b47fa52211eab546baf1a1f1ac883220fa36fd"
+  },
+  "latestPackage": {
+    "path": "artifacts/m1/SystemTools.M1.cipx",
+    "sha256": "7649a725f35b713041b846503a4d8aa28786e3d0a773310fb8bb5ba78e14effd",
+    "runtimeRetest": "blocked before plugin initialization by Avalonia.Native RenderTimer -6661; active display=0, asleep=1"
+  },
+  "macHostCases": [
+    {
+      "case": "normal",
+      "passed": true,
+      "runtimeId": "osx-arm64",
+      "packageSha256": "253efbb0e7e1b4ca036228c396b47fa52211eab546baf1a1f1ac883220fa36fd",
+      "fixtureHashesUnchanged": true,
+      "hostSha256": "ac0db4aee41fcef99ede78866f01fa22b1d13c2c1f797906b9028b00be4c3259",
+      "evidencePath": "artifacts/m1/runs/20261113-024059-normal/result.json"
+    },
+    {
+      "case": "foreign-corrupt",
+      "passed": true,
+      "runtimeId": "osx-arm64",
+      "packageSha256": "253efbb0e7e1b4ca036228c396b47fa52211eab546baf1a1f1ac883220fa36fd",
+      "fixtureHashesUnchanged": true,
+      "hostSha256": "ac0db4aee41fcef99ede78866f01fa22b1d13c2c1f797906b9028b00be4c3259",
+      "evidencePath": "artifacts/m1/runs/20261113-024136-foreign-corrupt/result.json"
+    },
+    {
+      "case": "missing-backend",
+      "passed": true,
+      "runtimeId": "osx-arm64",
+      "packageSha256": "253efbb0e7e1b4ca036228c396b47fa52211eab546baf1a1f1ac883220fa36fd",
+      "fixtureHashesUnchanged": true,
+      "hostSha256": "ac0db4aee41fcef99ede78866f01fa22b1d13c2c1f797906b9028b00be4c3259",
+      "evidencePath": "artifacts/m1/runs/20261113-024138-missing-backend/result.json"
+    }
+  ],
+  "limitations": [
+    "Latest package install retest and complete settings-window visual check require an active Mac display. Earlier three-case evidence retained separately.",
+    "Windows/Linux native builds, desktop loads and cross-OS aggregation not executed.",
+    "CI configured but not run on GitHub.",
+    "No real native bridge, full original Windows migration, configuration migration or production release in M1.",
+    "Successful early host runs predate Global.json hash observation; the updated runner checks machine-wide storage but this extra observation is not yet exercised in an active GUI session."
+  ]
+}

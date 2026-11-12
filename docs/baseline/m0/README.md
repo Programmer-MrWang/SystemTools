@@ -16,6 +16,22 @@
 
 行为以冻结源码为准；提取器不能求值所有计算属性、条件分支及生成器默认值，因此保留源文件和行号。Windows 实机验收要逐条填写结果、机器、依赖版本和失败日志。源码扫描不能替代运行。
 
+台账 dependencies 是直接语法证据，空列表不表示没有间接依赖；完整项目包版本以冻结的 SystemTools.csproj 为准。重点验收矩阵如下：
+
+其中 `SystemTools.ClickSimulation` 仅发现行动特性声明，原版 Plugin.cs 没有对应注册调用；它是源码保留项，不计作已向用户开放的功能。M2 不应因为存在类就自行启用该入口。
+
+| 依赖/集成 | 基线版本或资产 | 权限/失败与恢复验收 |
+| --- | --- | --- |
+| ClassIsland/Avalonia/WinRT | PluginSdk 2.1.1.1、宿主源码基线 | 宿主类型身份；禁止重复运行时；页面与资源 URI |
+| WinForms/Win32/管理接口 | UseWindowsForms、CsWin32 0.3.298、System.Management 8.0.0 | 宿主是否提供 Desktop 共享框架；设备/管理员/拒绝权限；M1 不接入 |
+| Windows SAPI/Vosk | System.Speech 8.0.0、原 win-x64 Worker/模型 | 麦克风授权、模型缺失、中断、设备切换、退出释放 |
+| FFmpeg | 可选 ffmpeg.exe | 未安装/安装/损坏；仅相关功能受影响 |
+| 人脸识别 | DlibDotNet 19.21.0.20220724、OpenCvSharp4 4.9.0.20240103、Extensions 4.5.3.20211225 | 相机拒绝/断开、模型、凭据保留、比对成功与失败 |
+| Windows Hello | 原服务系统版本检查 | 可用/不可用/取消/认证失败；不可用不能删除原认证项 |
+| SAI | SuperAutoIsland.Interface 0.3.9.2-dev.3 | SAI 装/未装；接口类型一致；可选性 |
+| Excel | NPOI 2.7.2、SharpZipLib 1.4.2、RecyclableMemoryStream 3.0.1 | 输出打开、排版、文件权限、依赖缺失 |
+| AI/悬浮窗/托盘/主题 | 原服务与配置台账 | 密钥/会话保留、审批、中断、窗口恢复与旧布局 |
+
 跨平台总体目标均待 M2 之后逐功能实现。M1 唯一业务入口是诊断；不得把台账中的 Windows 功能默认显示为 Mac/Linux 可用。原版沉浸式时钟登记为基线项目，但按用户决定不迁移。普通 Windows 退出无条件 `shutdown /a` 保留，M1 诊断壳没有接入原版退出流程。
 
 ## 支持与受测环境

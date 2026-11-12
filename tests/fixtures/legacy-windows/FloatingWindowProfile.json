@@ -1,0 +1,14 @@
+{
+  "name": "Fixture",
+  "floatingWindowHorizontal": false,
+  "floatingWindowButtonOrder": [
+    "SystemTools.Copy"
+  ],
+  "floatingWindowButtonRows": [
+    [
+      "SystemTools.Copy"
+    ]
+  ],
+  "floatingWindowButtonRulesets": {},
+  "floatingWindowRowRulesets": []
+}

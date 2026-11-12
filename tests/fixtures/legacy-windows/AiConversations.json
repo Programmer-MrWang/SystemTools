@@ -1,0 +1,15 @@
+[
+  {
+    "Id": "22222222-2222-4222-8222-222222222222",
+    "Title": "Synthetic conversation",
+    "CreatedAt": "2026-01-01T00:00:00Z",
+    "UpdatedAt": "2026-01-01T00:00:00Z",
+    "Messages": [
+      {
+        "Role": "user",
+        "Content": "Synthetic text only",
+        "Attachments": []
+      }
+    ]
+  }
+]

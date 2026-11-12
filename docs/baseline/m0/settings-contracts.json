@@ -1,0 +1,2387 @@
+{
+  "sourceCommit": "10a39f9db130ecaf38158e7fad8808dc3416acc3",
+  "contracts": [
+    {
+      "source": "ConfigHandlers/ButtonRulesetConfig.cs",
+      "properties": [],
+      "explicitJsonNames": [
+        "isVisible",
+        "hideOnRule",
+        "hidingRules"
+      ],
+      "defaultExpressions": [
+        "private bool _isVisible = true;",
+        "private Ruleset _hidingRules = new();"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "ConfigHandlers/FloatingWindowProfile.cs",
+      "properties": [
+        {
+          "type": "List<string>",
+          "name": "FloatingWindowButtonOrder"
+        },
+        {
+          "type": "List<List<string>>",
+          "name": "FloatingWindowButtonRows"
+        },
+        {
+          "type": "Dictionary<string, ButtonRulesetConfig>",
+          "name": "FloatingWindowButtonRulesets"
+        },
+        {
+          "type": "List<RowRulesetConfig>",
+          "name": "FloatingWindowRowRulesets"
+        }
+      ],
+      "explicitJsonNames": [
+        "name",
+        "floatingWindowHorizontal",
+        "floatingWindowButtonOrder",
+        "floatingWindowButtonRows",
+        "floatingWindowButtonRulesets",
+        "floatingWindowRowRulesets"
+      ],
+      "defaultExpressions": [
+        "private string _name = \"Default\";",
+        "public List<string> FloatingWindowButtonOrder { get; set; } = new();",
+        "public List<List<string>> FloatingWindowButtonRows { get; set; } = new();",
+        "public Dictionary<string, ButtonRulesetConfig> FloatingWindowButtonRulesets { get; set; } = new();",
+        "public List<RowRulesetConfig> FloatingWindowRowRulesets { get; set; } = new();"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "ConfigHandlers/FloatingWindowProfileManager.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "FloatingWindowProfileManager"
+        },
+        {
+          "type": "FloatingWindowProfile",
+          "name": "DefaultProfile"
+        },
+        {
+          "type": "string",
+          "name": "ProfilesDirectory"
+        },
+        {
+          "type": "FloatingWindowProfile",
+          "name": "CurrentProfile"
+        },
+        {
+          "type": "string",
+          "name": "CurrentProfileName"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private FloatingWindowProfile _currentProfile = new();",
+        "private string _currentProfileName = \"Default\";",
+        "_profilesDirectory = Path.Combine(DependencyPaths.GetDependencyRoot(), \"FloatingWindowProfiles\");",
+        "if (_currentProfileName == value) return;",
+        "_currentProfileName = value;",
+        "_currentProfile = ConfigureFileHelper.CopyObject(DefaultProfile);",
+        "_currentProfile = ConfigureFileHelper.LoadConfig<FloatingWindowProfile>(path);",
+        "_currentProfileName = profileName;",
+        "_currentProfileName = newName;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "ConfigHandlers/LiquidGlassButtonSettings.cs",
+      "properties": [
+        {
+          "type": "double",
+          "name": "ScaleDip"
+        },
+        {
+          "type": "bool",
+          "name": "InteractiveHighlightEnabled"
+        },
+        {
+          "type": "bool",
+          "name": "ShadowEnabled"
+        },
+        {
+          "type": "double",
+          "name": "ShadowRadius"
+        },
+        {
+          "type": "double",
+          "name": "ShadowOffsetX"
+        },
+        {
+          "type": "double",
+          "name": "ShadowOffsetY"
+        },
+        {
+          "type": "double",
+          "name": "ShadowOpacity"
+        }
+      ],
+      "explicitJsonNames": [
+        "scaleDip",
+        "interactiveHighlightEnabled",
+        "shadowEnabled",
+        "shadowRadius",
+        "shadowOffsetX",
+        "shadowOffsetY",
+        "shadowOpacity"
+      ],
+      "defaultExpressions": [
+        "private double _scaleDip = 3.5;",
+        "private bool _interactiveHighlightEnabled = true;",
+        "private bool _shadowEnabled = true;",
+        "private double _shadowRadius = 14;",
+        "private double _shadowOffsetY = 2;",
+        "private double _shadowOpacity = 0.55;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "ConfigHandlers/LiquidGlassSettings.cs",
+      "properties": [
+        {
+          "type": "double",
+          "name": "CornerRadius"
+        },
+        {
+          "type": "double",
+          "name": "BackdropRefreshIntervalMs"
+        },
+        {
+          "type": "double",
+          "name": "BackdropZoom"
+        },
+        {
+          "type": "double",
+          "name": "BackdropOffsetX"
+        },
+        {
+          "type": "double",
+          "name": "BackdropOffsetY"
+        },
+        {
+          "type": "double",
+          "name": "RefractionHeight"
+        },
+        {
+          "type": "double",
+          "name": "RefractionAmount"
+        },
+        {
+          "type": "bool",
+          "name": "DepthEffect"
+        },
+        {
+          "type": "bool",
+          "name": "ChromaticAberration"
+        },
+        {
+          "type": "double",
+          "name": "BlurRadius"
+        },
+        {
+          "type": "double",
+          "name": "Vibrancy"
+        },
+        {
+          "type": "double",
+          "name": "Brightness"
+        },
+        {
+          "type": "double",
+          "name": "Contrast"
+        },
+        {
+          "type": "double",
+          "name": "ExposureEv"
+        },
+        {
+          "type": "double",
+          "name": "GammaPower"
+        },
+        {
+          "type": "double",
+          "name": "BackdropOpacity"
+        },
+        {
+          "type": "string",
+          "name": "TintColor"
+        },
+        {
+          "type": "string",
+          "name": "SurfaceColor"
+        },
+        {
+          "type": "bool",
+          "name": "ProgressiveBlurEnabled"
+        },
+        {
+          "type": "double",
+          "name": "ProgressiveBlurStart"
+        },
+        {
+          "type": "double",
+          "name": "ProgressiveBlurEnd"
+        },
+        {
+          "type": "string",
+          "name": "ProgressiveTintColor"
+        },
+        {
+          "type": "double",
+          "name": "ProgressiveTintIntensity"
+        },
+        {
+          "type": "bool",
+          "name": "AdaptiveLuminanceEnabled"
+        },
+        {
+          "type": "double",
+          "name": "AdaptiveLuminanceUpdateIntervalMs"
+        },
+        {
+          "type": "double",
+          "name": "AdaptiveLuminanceSmoothing"
+        },
+        {
+          "type": "bool",
+          "name": "HighlightEnabled"
+        },
+        {
+          "type": "double",
+          "name": "HighlightWidth"
+        },
+        {
+          "type": "double",
+          "name": "HighlightBlurRadius"
+        },
+        {
+          "type": "double",
+          "name": "HighlightOpacity"
+        },
+        {
+          "type": "double",
+          "name": "HighlightAngle"
+        },
+        {
+          "type": "double",
+          "name": "HighlightFalloff"
+        },
+        {
+          "type": "bool",
+          "name": "ShadowEnabled"
+        },
+        {
+          "type": "double",
+          "name": "ShadowRadius"
+        },
+        {
+          "type": "double",
+          "name": "ShadowOffsetX"
+        },
+        {
+          "type": "double",
+          "name": "ShadowOffsetY"
+        },
+        {
+          "type": "string",
+          "name": "ShadowColor"
+        },
+        {
+          "type": "double",
+          "name": "ShadowOpacity"
+        },
+        {
+          "type": "bool",
+          "name": "InnerShadowEnabled"
+        },
+        {
+          "type": "double",
+          "name": "InnerShadowRadius"
+        },
+        {
+          "type": "double",
+          "name": "InnerShadowOffsetX"
+        },
+        {
+          "type": "double",
+          "name": "InnerShadowOffsetY"
+        },
+        {
+          "type": "string",
+          "name": "InnerShadowColor"
+        },
+        {
+          "type": "double",
+          "name": "InnerShadowOpacity"
+        }
+      ],
+      "explicitJsonNames": [
+        "cornerRadius",
+        "backdropRefreshIntervalMs",
+        "backdropZoom",
+        "backdropOffsetX",
+        "backdropOffsetY",
+        "refractionHeight",
+        "refractionAmount",
+        "depthEffect",
+        "chromaticAberration",
+        "blurRadius",
+        "vibrancy",
+        "brightness",
+        "contrast",
+        "exposureEv",
+        "gammaPower",
+        "backdropOpacity",
+        "tintColor",
+        "surfaceColor",
+        "progressiveBlurEnabled",
+        "progressiveBlurStart",
+        "progressiveBlurEnd",
+        "progressiveTintColor",
+        "progressiveTintIntensity",
+        "adaptiveLuminanceEnabled",
+        "adaptiveLuminanceUpdateIntervalMs",
+        "adaptiveLuminanceSmoothing",
+        "highlightEnabled",
+        "highlightWidth",
+        "highlightBlurRadius",
+        "highlightOpacity",
+        "highlightAngle",
+        "highlightFalloff",
+        "shadowEnabled",
+        "shadowRadius",
+        "shadowOffsetX",
+        "shadowOffsetY",
+        "shadowColor",
+        "shadowOpacity",
+        "innerShadowEnabled",
+        "innerShadowRadius",
+        "innerShadowOffsetX",
+        "innerShadowOffsetY",
+        "innerShadowColor",
+        "innerShadowOpacity"
+      ],
+      "defaultExpressions": [
+        "private double _cornerRadius = 18;",
+        "private double _backdropRefreshIntervalMs = 50;",
+        "private double _backdropZoom = 1;",
+        "private double _refractionHeight = 12;",
+        "private double _refractionAmount = 24;",
+        "private double _blurRadius = 2;",
+        "private double _vibrancy = 1.5;",
+        "private double _contrast = 1;",
+        "private double _gammaPower = 1;",
+        "private double _backdropOpacity = 1;",
+        "private string _tintColor = \"#00000000\";",
+        "private string _surfaceColor = \"#00000000\";",
+        "private double _progressiveBlurStart = 0.5;",
+        "private double _progressiveBlurEnd = 1;",
+        "private string _progressiveTintColor = \"#00000000\";",
+        "private double _progressiveTintIntensity = 0.8;",
+        "private double _adaptiveLuminanceUpdateIntervalMs = 250;",
+        "private double _adaptiveLuminanceSmoothing = 0.2;",
+        "private bool _highlightEnabled = true;",
+        "private double _highlightWidth = 0.5;",
+        "private double _highlightBlurRadius = 0.25;",
+        "private double _highlightOpacity = 0.5;",
+        "private double _highlightAngle = 45;",
+        "private double _highlightFalloff = 1;",
+        "private bool _shadowEnabled = true;",
+        "private double _shadowRadius = 24;",
+        "private double _shadowOffsetY = 4;",
+        "private string _shadowColor = \"#1A000000\";",
+        "private double _shadowOpacity = 1;",
+        "private double _innerShadowRadius = 24;",
+        "private double _innerShadowOffsetY = 24;",
+        "private string _innerShadowColor = \"#26000000\";",
+        "private double _innerShadowOpacity = 1;",
+        "_suppressNotifications = true;",
+        "_suppressNotifications = false;",
+        "_suppressNotifications = true;",
+        "_suppressNotifications = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "ConfigHandlers/MainConfigData.cs",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "EnableExperimentalFeatures"
+        },
+        {
+          "type": "bool",
+          "name": "EnableFfmpegFeatures"
+        },
+        {
+          "type": "bool",
+          "name": "EnableFloatingWindowFeature"
+        },
+        {
+          "type": "bool",
+          "name": "LyricifyLiteWarningDismissed"
+        },
+        {
+          "type": "bool",
+          "name": "EnableFaceRecognition"
+        },
+        {
+          "type": "bool",
+          "name": "EnableWindowsHello"
+        },
+        {
+          "type": "bool",
+          "name": "AutoSwitchClassIslandTheme"
+        },
+        {
+          "type": "bool",
+          "name": "AutoOpenUsbDriveOnInsert"
+        },
+        {
+          "type": "bool",
+          "name": "VirtualAfterSchoolEnabled"
+        },
+        {
+          "type": "bool",
+          "name": "WallpaperAsAccentColorSource"
+        },
+        {
+          "type": "string?",
+          "name": "WallpaperAccentOriginalPrimaryColor"
+        },
+        {
+          "type": "int?",
+          "name": "WallpaperAccentOriginalColorSource"
+        },
+        {
+          "type": "TimeSpan",
+          "name": "VirtualAfterSchoolTriggerTime"
+        },
+        {
+          "type": "int",
+          "name": "VirtualAfterSchoolDurationSeconds"
+        },
+        {
+          "type": "bool",
+          "name": "AutoCleanupClassIslandMemory"
+        },
+        {
+          "type": "bool",
+          "name": "AutoCleanupSystemMemory"
+        },
+        {
+          "type": "int",
+          "name": "SystemMemoryCleanupThresholdPercent"
+        },
+        {
+          "type": "bool",
+          "name": "AutoHideMainWindowWhenOccluded"
+        },
+        {
+          "type": "bool",
+          "name": "EnableAiService"
+        },
+        {
+          "type": "int",
+          "name": "AiConversationFloatingWindowStyle"
+        },
+        {
+          "type": "LiquidGlassSettings",
+          "name": "AiConversationLiquidGlass"
+        },
+        {
+          "type": "LiquidGlassButtonSettings",
+          "name": "AiConversationApprovalButtonGlass"
+        },
+        {
+          "type": "string",
+          "name": "AiProviderName"
+        },
+        {
+          "type": "bool",
+          "name": "IsAiApiKeyUnavailable"
+        },
+        {
+          "type": "string",
+          "name": "AiApiKey"
+        },
+        {
+          "type": "string",
+          "name": "StoredAiApiKey"
+        },
+        {
+          "type": "bool",
+          "name": "RequiresCredentialMigration"
+        },
+        {
+          "type": "string",
+          "name": "AiApiUrl"
+        },
+        {
+          "type": "string",
+          "name": "AiModel"
+        },
+        {
+          "type": "bool",
+          "name": "ShareAiRepliesWithClassIslandNotifications"
+        },
+        {
+          "type": "bool",
+          "name": "EnableVoiceWakeAi"
+        },
+        {
+          "type": "string",
+          "name": "AiWakeWord"
+        },
+        {
+          "type": "string",
+          "name": "LastAcceptedAnnouncement"
+        },
+        {
+          "type": "bool",
+          "name": "ShowFloatingWindow"
+        },
+        {
+          "type": "bool",
+          "name": "FloatingWindowHorizontal"
+        },
+        {
+          "type": "List<string>",
+          "name": "FloatingWindowButtonOrder"
+        },
+        {
+          "type": "List<List<string>>",
+          "name": "FloatingWindowButtonRows"
+        },
+        {
+          "type": "double",
+          "name": "FloatingWindowScale"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowTextSize"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowIconSize"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowOpacity"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowTransparency"
+        },
+        {
+          "type": "bool",
+          "name": "FloatingWindowShadowEnabled"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowTheme"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowPositionX"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowPositionY"
+        },
+        {
+          "type": "int?",
+          "name": "ActionFlowExecutionConfirmationPositionX"
+        },
+        {
+          "type": "int?",
+          "name": "ActionFlowExecutionConfirmationPositionY"
+        },
+        {
+          "type": "int?",
+          "name": "ActionFlowExecutionDelayPositionX"
+        },
+        {
+          "type": "int?",
+          "name": "ActionFlowExecutionDelayPositionY"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowLayer"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowLayerRecheckMode"
+        },
+        {
+          "type": "string",
+          "name": "CurrentFloatingWindowProfile"
+        },
+        {
+          "type": "bool",
+          "name": "FloatingWindowRulesetEnabled"
+        },
+        {
+          "type": "bool",
+          "name": "FloatingWindowDragHandleAlwaysVisible"
+        },
+        {
+          "type": "Ruleset",
+          "name": "FloatingWindowRuleset"
+        },
+        {
+          "type": "Dictionary<string, ButtonRulesetConfig>",
+          "name": "FloatingWindowButtonRulesets"
+        },
+        {
+          "type": "List<RowRulesetConfig>",
+          "name": "FloatingWindowRowRulesets"
+        },
+        {
+          "type": "Dictionary<string, bool>",
+          "name": "EnabledActions"
+        },
+        {
+          "type": "Dictionary<string, bool>",
+          "name": "EnabledTriggers"
+        },
+        {
+          "type": "Dictionary<string, bool>",
+          "name": "EnabledComponents"
+        },
+        {
+          "type": "Dictionary<string, bool>",
+          "name": "EnabledRules"
+        },
+        {
+          "type": "int",
+          "name": "FloatingWindowAppearanceStyle"
+        },
+        {
+          "type": "LiquidGlassSettings",
+          "name": "FloatingWindowLiquidGlass"
+        },
+        {
+          "type": "double",
+          "name": "FloatingWindowGlassButtonScaleDip"
+        }
+      ],
+      "explicitJsonNames": [
+        "enableExperimentalFeatures",
+        "enableFfmpegFeatures",
+        "enableFloatingWindowFeature",
+        "lyricifyLiteWarningDismissed",
+        "enableFaceRecognition",
+        "enableWindowsHello",
+        "autoSwitchClassIslandTheme",
+        "autoOpenUsbDriveOnInsert",
+        "virtualAfterSchoolEnabled",
+        "wallpaperAsAccentColorSource",
+        "wallpaperAccentOriginalPrimaryColor",
+        "wallpaperAccentOriginalColorSource",
+        "virtualAfterSchoolTriggerTime",
+        "virtualAfterSchoolDurationSeconds",
+        "autoCleanupClassIslandMemory",
+        "autoCleanupSystemMemory",
+        "systemMemoryCleanupThresholdPercent",
+        "autoHideMainWindowWhenOccluded",
+        "enableAiService",
+        "aiConversationFloatingWindowStyle",
+        "aiConversationLiquidGlass",
+        "aiConversationApprovalButtonGlass",
+        "aiProviderName",
+        "aiApiKey",
+        "aiApiUrl",
+        "aiModel",
+        "shareAiRepliesWithClassIslandNotifications",
+        "enableVoiceWakeAi",
+        "aiWakeWord",
+        "lastAcceptedAnnouncement",
+        "showFloatingWindow",
+        "floatingWindowHorizontal",
+        "floatingWindowButtonOrder",
+        "floatingWindowButtonRows",
+        "floatingWindowScale",
+        "floatingWindowTextSize",
+        "floatingWindowIconSize",
+        "floatingWindowOpacity",
+        "floatingWindowShadowEnabled",
+        "floatingWindowTheme",
+        "floatingWindowPositionX",
+        "floatingWindowPositionY",
+        "actionFlowExecutionConfirmationPositionX",
+        "actionFlowExecutionConfirmationPositionY",
+        "actionFlowExecutionDelayPositionX",
+        "actionFlowExecutionDelayPositionY",
+        "floatingWindowLayer",
+        "floatingWindowLayerRecheckMode",
+        "currentFloatingWindowProfile",
+        "floatingWindowRulesetEnabled",
+        "floatingWindowDragHandleAlwaysVisible",
+        "floatingWindowRuleset",
+        "floatingWindowButtonRulesets",
+        "floatingWindowRowRulesets",
+        "enabledActions",
+        "enabledTriggers",
+        "enabledComponents",
+        "enabledRules",
+        "floatingWindowAppearanceStyle",
+        "floatingWindowLiquidGlass",
+        "floatingWindowGlassButtonScaleDip"
+      ],
+      "defaultExpressions": [
+        "_enableExperimentalFeatures = value;",
+        "_enableFfmpegFeatures = value;",
+        "bool _enableFloatingWindowFeature = true;",
+        "_enableFloatingWindowFeature = value;",
+        "_lyricifyLiteWarningDismissed = value;",
+        "_enableFaceRecognition = value;",
+        "_enableWindowsHello = value;",
+        "_autoSwitchClassIslandTheme = value;",
+        "_autoOpenUsbDriveOnInsert = value;",
+        "_virtualAfterSchoolEnabled = value;",
+        "_wallpaperAsAccentColorSource = value;",
+        "_wallpaperAccentOriginalPrimaryColor = value;",
+        "_wallpaperAccentOriginalColorSource = value;",
+        "TimeSpan _virtualAfterSchoolTriggerTime = new(12, 10, 0);",
+        "_virtualAfterSchoolTriggerTime = value;",
+        "int _virtualAfterSchoolDurationSeconds = 60;",
+        "_virtualAfterSchoolDurationSeconds = clamped;",
+        "_autoCleanupClassIslandMemory = value;",
+        "_autoCleanupSystemMemory = value;",
+        "int _systemMemoryCleanupThresholdPercent = 90;",
+        "_systemMemoryCleanupThresholdPercent = clamped;",
+        "_autoHideMainWindowWhenOccluded = value;",
+        "_enableAiService = value;",
+        "_aiConversationFloatingWindowStyle = normalized;",
+        "LiquidGlassSettings _aiConversationLiquidGlass = new();",
+        "_aiConversationLiquidGlass = value;",
+        "private LiquidGlassButtonSettings _aiConversationApprovalButtonGlass = new();",
+        "_aiConversationApprovalButtonGlass = value;",
+        "string _aiProviderName = \"OpenAI\";",
+        "_aiProviderName = value;",
+        "string _aiApiKey = string.Empty;",
+        "string? _storedAiApiKey = string.Empty;",
+        "_aiApiKey = value;",
+        "_storedAiApiKey = null;",
+        "_storedAiApiKey = value;",
+        "_aiApiKey = isDecrypted ? apiKey : string.Empty;",
+        "_aiApiKey = value;",
+        "_storedAiApiKey = value.Length == 0 ? string.Empty : null;",
+        "string _aiApiUrl = \"https://api.openai.com/v1\";",
+        "_aiApiUrl = value;",
+        "string _aiModel = string.Empty;",
+        "_aiModel = value;",
+        "_shareAiRepliesWithClassIslandNotifications = value;",
+        "_enableVoiceWakeAi = value;",
+        "string _aiWakeWord = \"你好ci\";",
+        "_aiWakeWord = value;",
+        "/*string _lastAcceptedAnnouncement = string.Empty;",
+        "_lastAcceptedAnnouncement = value;",
+        "bool _showFloatingWindow = true;",
+        "_showFloatingWindow = value;",
+        "_floatingWindowHorizontal = value;",
+        "public List<string> FloatingWindowButtonOrder { get; set; } = new();",
+        "public List<List<string>> FloatingWindowButtonRows { get; set; } = new();",
+        "double _floatingWindowScale = 1.0;",
+        "_floatingWindowScale = clamped;",
+        "int _floatingWindowTextSize = 12;",
+        "_floatingWindowTextSize = clamped;",
+        "int _floatingWindowIconSize = 22;",
+        "_floatingWindowIconSize = clamped;",
+        "int _floatingWindowOpacity = 80;",
+        "_floatingWindowOpacity = clamped;",
+        "bool _floatingWindowShadowEnabled = true;",
+        "_floatingWindowShadowEnabled = value;",
+        "int _floatingWindowTheme = 0;",
+        "_floatingWindowTheme = normalized;",
+        "int _floatingWindowPositionX = 100;",
+        "_floatingWindowPositionX = value;",
+        "int _floatingWindowPositionY = 100;",
+        "_floatingWindowPositionY = value;",
+        "int _floatingWindowLayer = 1;",
+        "_floatingWindowLayer = normalized;",
+        "int _floatingWindowLayerRecheckMode = 1;",
+        "_floatingWindowLayerRecheckMode = normalized;",
+        "string _currentFloatingWindowProfile = \"Default\";",
+        "_currentFloatingWindowProfile = value;",
+        "bool _floatingWindowRulesetEnabled = false;",
+        "_floatingWindowRulesetEnabled = value;",
+        "bool _floatingWindowDragHandleAlwaysVisible = false;",
+        "_floatingWindowDragHandleAlwaysVisible = value;",
+        "public Ruleset FloatingWindowRuleset { get; set; } = new();",
+        "public Dictionary<string, ButtonRulesetConfig> FloatingWindowButtonRulesets { get; set; } = new();",
+        "public List<RowRulesetConfig> FloatingWindowRowRulesets { get; set; } = new();",
+        "[JsonPropertyName(\"enabledActions\")] public Dictionary<string, bool> EnabledActions { get; set; } = new();",
+        "[JsonPropertyName(\"enabledTriggers\")] public Dictionary<string, bool> EnabledTriggers { get; set; } = new();",
+        "public Dictionary<string, bool> EnabledComponents { get; set; } = new();",
+        "public Dictionary<string, bool> EnabledRules { get; set; } = new();",
+        "private int _floatingWindowAppearanceStyle = 1;",
+        "_floatingWindowAppearanceStyle = normalized;",
+        "private LiquidGlassSettings _floatingWindowLiquidGlass = CreateFloatingWindowLiquidGlassDefaults();",
+        "_floatingWindowLiquidGlass = value;",
+        "private double _floatingWindowGlassButtonScaleDip = 3.5;",
+        "_floatingWindowGlassButtonScaleDip = clamped;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "ConfigHandlers/MainConfigHandler.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "MainConfigHandler"
+        },
+        {
+          "type": "MainConfigData",
+          "name": "Data"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private readonly List<(string Message, string ExceptionType)> _pendingMigrationWarnings = [];",
+        "_configPath = Path.Combine(pluginConfigFolder, \"Main.json\");",
+        "_logger = logger ?? IAppHost.TryGetService<ILogger<MainConfigHandler>>();"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "ConfigHandlers/RowRulesetConfig.cs",
+      "properties": [],
+      "explicitJsonNames": [
+        "isVisible",
+        "hideOnRule",
+        "hidingRules"
+      ],
+      "defaultExpressions": [
+        "private bool _isVisible = true;",
+        "private Ruleset _hidingRules = new();"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Models/ComponentSettings/BetterCarouselContainerSettings.cs",
+      "properties": [
+        {
+          "type": "enum",
+          "name": "BetterCarouselRotationMode"
+        },
+        {
+          "type": "enum",
+          "name": "BetterCarouselAnimationStyle"
+        },
+        {
+          "type": "enum",
+          "name": "BetterCarouselProgressBarPosition"
+        },
+        {
+          "type": "ObservableCollection<CoreComponentSettings>",
+          "name": "Children"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private ObservableCollection<CoreComponentSettings> _children = new();",
+        "private ObservableCollection<double> _componentDisplayDurations = new();",
+        "private BetterCarouselRotationMode _rotationMode = BetterCarouselRotationMode.Loop;",
+        "private bool _isAnimationEnabled = true;",
+        "private BetterCarouselAnimationStyle _animationStyle = BetterCarouselAnimationStyle.Slide;",
+        "private bool _showProgressBar = true;",
+        "private bool _reduceProgressBarPrecision = false;",
+        "private bool _showSideSeparators = false;",
+        "private BetterCarouselProgressBarPosition _progressBarPosition = BetterCarouselProgressBarPosition.Bottom;",
+        "_children = value ?? new ObservableCollection<CoreComponentSettings>();"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Models/ComponentSettings/ClipboardContentSettings.cs",
+      "properties": [],
+      "explicitJsonNames": [],
+      "defaultExpressions": [],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Models/ComponentSettings/LocalQuoteSettings.cs",
+      "properties": [
+        {
+          "type": "enum",
+          "name": "LocalQuoteProgressBarPosition"
+        },
+        {
+          "type": "enum",
+          "name": "LocalQuotePlaybackOrder"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private string _quotesFilePath = string.Empty;",
+        "private bool _enableAnimation = true;",
+        "private int _carouselIntervalSeconds = 6;",
+        "private bool _isPersistenceEnabled = true;",
+        "private int _lastIndex = -1;",
+        "private DateTime _lastSwitchTime = DateTime.MinValue;",
+        "private bool _showProgressBar = true;",
+        "private LocalQuoteProgressBarPosition _progressBarPosition = LocalQuoteProgressBarPosition.Bottom;",
+        "private LocalQuotePlaybackOrder _playbackOrder = LocalQuotePlaybackOrder.Sequential;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Models/ComponentSettings/LyricsDisplaySettings.cs",
+      "properties": [
+        {
+          "type": "enum",
+          "name": "MusicSoftware"
+        },
+        {
+          "type": "string",
+          "name": "TargetWindowClassName"
+        },
+        {
+          "type": "string?",
+          "name": "TargetWindowTitle"
+        },
+        {
+          "type": "bool",
+          "name": "CheckWindowTitle"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "[ObservableProperty] private double _imageScale = 1.5;",
+        "[ObservableProperty] private string _windowTitle = \"桌面歌词\";",
+        "[ObservableProperty] private int _refreshRate = 100;",
+        "[ObservableProperty] private bool _keepLyricsWindowBottom = false;",
+        "[ObservableProperty] private MusicSoftware _selectedMusicSoftware = MusicSoftware.QQMusic;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Models/ComponentSettings/NetworkStatusSettings.cs",
+      "properties": [
+        {
+          "type": "enum",
+          "name": "NetworkDetectMode"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private string _pingUrl = \"https://www.baidu.com\";",
+        "private string _displayText = \"网络延迟 \";",
+        "private NetworkDetectMode _detectMode = NetworkDetectMode.Auto;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Models/ComponentSettings/NextClassDisplaySettings.cs",
+      "properties": [],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private string _prefixText = \"下节课是 \";",
+        "private bool _showTimeRange = true;",
+        "private bool _showTeacherName = true;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Models/ComponentSettings/ScrollingTextSettings.cs",
+      "properties": [],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private string _textContent = \"欢迎光临 SystemTools 插件！\";",
+        "private double _componentWidth = 400;",
+        "private double _scrollSpeed = 50; // 像素/秒",
+        "private bool _showBorder = true;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/Handlers/InTimePeriodRuleHandler.cs",
+      "properties": [
+        {
+          "type": "partial class",
+          "name": "Plugin"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/Handlers/MediaMusicPlayingRuleHandler.cs",
+      "properties": [
+        {
+          "type": "partial class",
+          "name": "Plugin"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private static DateTime _lastMediaRuleCheckAt = DateTime.MinValue;",
+        "_lastMediaRuleResult = isPlaying;",
+        "_lastMediaRuleCheckAt = now;",
+        "_lastMediaRuleCheckAt = now;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/Handlers/ProcessRunningRuleHandler.cs",
+      "properties": [
+        {
+          "type": "partial class",
+          "name": "Plugin"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/Handlers/UsingClassPlanRuleHandler.cs",
+      "properties": [
+        {
+          "type": "partial class",
+          "name": "Plugin"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/Handlers/UsingTimeLayoutRuleHandler.cs",
+      "properties": [
+        {
+          "type": "partial class",
+          "name": "Plugin"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/InTimePeriodRuleSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "InTimePeriodRuleSettings"
+        },
+        {
+          "type": "string",
+          "name": "StartTime"
+        },
+        {
+          "type": "string",
+          "name": "EndTime"
+        }
+      ],
+      "explicitJsonNames": [
+        "startTime",
+        "endTime"
+      ],
+      "defaultExpressions": [
+        "public string StartTime { get; set; } = \"08:00:00\";",
+        "public string EndTime { get; set; } = \"18:00:00\";"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/MediaMusicPlayingRuleSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "MediaMusicPlayingRuleSettings"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/ProcessRunningRuleSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ProcessRunningRuleSettings"
+        },
+        {
+          "type": "string",
+          "name": "ProcessName"
+        }
+      ],
+      "explicitJsonNames": [
+        "processName"
+      ],
+      "defaultExpressions": [
+        "[JsonPropertyName(\"processName\")] public string ProcessName { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/UsingClassPlanRuleSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "UsingClassPlanRuleSettings"
+        },
+        {
+          "type": "string",
+          "name": "ClassPlanId"
+        }
+      ],
+      "explicitJsonNames": [
+        "classPlanId"
+      ],
+      "defaultExpressions": [
+        "public string ClassPlanId { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Rules/UsingTimeLayoutRuleSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "UsingTimeLayoutRuleSettings"
+        },
+        {
+          "type": "string",
+          "name": "TimeLayoutId"
+        }
+      ],
+      "explicitJsonNames": [
+        "timeLayoutId"
+      ],
+      "defaultExpressions": [
+        "public string TimeLayoutId { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/AccentColorSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "AccentColorSettings"
+        },
+        {
+          "type": "string",
+          "name": "ColorHex"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        }
+      ],
+      "explicitJsonNames": [
+        "colorHex",
+        "notifyOnExecute"
+      ],
+      "defaultExpressions": [
+        "[JsonPropertyName(\"colorHex\")] public string ColorHex { get; set; } = \"#FF0078D4\";",
+        "[JsonPropertyName(\"notifyOnExecute\")] public bool NotifyOnExecute { get; set; } = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ActionFlowExecutionConfirmationSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ActionFlowExecutionConfirmationSettings"
+        },
+        {
+          "type": "string",
+          "name": "PromptName"
+        }
+      ],
+      "explicitJsonNames": [
+        "promptName"
+      ],
+      "defaultExpressions": [
+        "public string PromptName { get; set; } = \"未命名自动化\";"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ActionInProgressTriggerSettings.cs",
+      "properties": [],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "_textBox = new Avalonia.Controls.TextBox"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/AdjustScreenBrightnessSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "AdjustScreenBrightnessSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "int",
+          "name": "BrightnessPercent"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "brightnessPercent"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "public int BrightnessPercent { get; set; } = 50;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/AdvancedShutdownSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "AdvancedShutdownSettings"
+        },
+        {
+          "type": "int",
+          "name": "Minutes"
+        }
+      ],
+      "explicitJsonNames": [
+        "minutes"
+      ],
+      "defaultExpressions": [
+        "[JsonPropertyName(\"minutes\")] public int Minutes { get; set; } = 2;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/AutoHideMainWindowWhenOccludedActionSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "AutoHideMainWindowWhenOccludedActionSettings"
+        },
+        {
+          "type": "bool",
+          "name": "Enable"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        }
+      ],
+      "explicitJsonNames": [
+        "enable",
+        "notifyOnExecute"
+      ],
+      "defaultExpressions": [
+        "public bool Enable { get; set; } = true;",
+        "public bool NotifyOnExecute { get; set; } = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/AutoOpenUsbDriveOnInsertActionSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "AutoOpenUsbDriveOnInsertActionSettings"
+        },
+        {
+          "type": "bool",
+          "name": "Enable"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        }
+      ],
+      "explicitJsonNames": [
+        "enable",
+        "notifyOnExecute"
+      ],
+      "defaultExpressions": [
+        "public bool Enable { get; set; } = true;",
+        "public bool NotifyOnExecute { get; set; } = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/AutoSwitchClassIslandThemeActionSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "AutoSwitchClassIslandThemeActionSettings"
+        },
+        {
+          "type": "bool",
+          "name": "Enable"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        }
+      ],
+      "explicitJsonNames": [
+        "enable",
+        "notifyOnExecute"
+      ],
+      "defaultExpressions": [
+        "public bool Enable { get; set; } = true;",
+        "public bool NotifyOnExecute { get; set; } = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/BackgroundPlayAudioSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "BackgroundPlayAudioSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "AudioFilePath"
+        },
+        {
+          "type": "bool",
+          "name": "WaitForPlaybackCompleted"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "audioFilePath",
+        "waitForPlaybackCompleted"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "public string AudioFilePath { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/CameraCaptureSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "CameraCaptureSettings"
+        },
+        {
+          "type": "string",
+          "name": "DeviceName"
+        },
+        {
+          "type": "string",
+          "name": "SaveFolder"
+        }
+      ],
+      "explicitJsonNames": [
+        "deviceName",
+        "saveFolder"
+      ],
+      "defaultExpressions": [
+        "public string DeviceName { get; set; } = string.Empty;",
+        "public string SaveFolder { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ClickSimulationSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ClickSimulationSettings"
+        },
+        {
+          "type": "int",
+          "name": "X"
+        },
+        {
+          "type": "int",
+          "name": "Y"
+        }
+      ],
+      "explicitJsonNames": [
+        "x",
+        "y"
+      ],
+      "defaultExpressions": [
+        "public int X { get; set; } = 0;",
+        "public int Y { get; set; } = 0;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/CopySettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "CopySettings"
+        },
+        {
+          "type": "string",
+          "name": "OperationType"
+        },
+        {
+          "type": "string",
+          "name": "SourcePath"
+        },
+        {
+          "type": "string",
+          "name": "DestinationPath"
+        }
+      ],
+      "explicitJsonNames": [
+        "operationType",
+        "sourcePath",
+        "destinationPath"
+      ],
+      "defaultExpressions": [
+        "[JsonPropertyName(\"operationType\")] public string OperationType { get; set; } = \"文件\";",
+        "[JsonPropertyName(\"sourcePath\")] public string SourcePath { get; set; } = string.Empty;",
+        "[JsonPropertyName(\"destinationPath\")] public string DestinationPath { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/DeleteSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "DeleteSettings"
+        },
+        {
+          "type": "string",
+          "name": "OperationType"
+        },
+        {
+          "type": "string",
+          "name": "TargetPath"
+        }
+      ],
+      "explicitJsonNames": [
+        "operationType",
+        "targetPath"
+      ],
+      "defaultExpressions": [
+        "[JsonPropertyName(\"operationType\")] public string OperationType { get; set; } = \"文件\";",
+        "[JsonPropertyName(\"targetPath\")] public string TargetPath { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/DisableDeviceSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "DisableDeviceSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "DeviceId"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "deviceId"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"deviceId\")] public string DeviceId { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/EnableDeviceSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "EnableDeviceSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "DeviceId"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "deviceId"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"deviceId\")] public string DeviceId { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/EnableVoiceWakeAiActionSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "EnableVoiceWakeAiActionSettings"
+        },
+        {
+          "type": "bool",
+          "name": "Enable"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        }
+      ],
+      "explicitJsonNames": [
+        "enable",
+        "notifyOnExecute"
+      ],
+      "defaultExpressions": [
+        "public bool Enable { get; set; } = true;",
+        "public bool NotifyOnExecute { get; set; } = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/FaceRecognitionSettings.cs",
+      "properties": [
+        {
+          "type": "string?",
+          "name": "FaceTemplate"
+        },
+        {
+          "type": "double",
+          "name": "Threshold"
+        },
+        {
+          "type": "string",
+          "name": "StatusMessage"
+        },
+        {
+          "type": "string",
+          "name": "CaptureButtonText"
+        },
+        {
+          "type": "string",
+          "name": "CameraPlaceholderText"
+        },
+        {
+          "type": "bool",
+          "name": "HasError"
+        },
+        {
+          "type": "bool",
+          "name": "CanRetry"
+        },
+        {
+          "type": "bool",
+          "name": "CameraReady"
+        },
+        {
+          "type": "bool",
+          "name": "Operating"
+        },
+        {
+          "type": "bool",
+          "name": "OperationFinished"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private string _statusMessage = string.Empty;",
+        "private string _captureButtonText = \"捕获并保存人脸\";",
+        "private string _cameraPlaceholderText = \"正在准备摄像头画面\";",
+        "public double Threshold { get; set; } = 0.5;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/FloatingWindowTriggerSettings.cs",
+      "properties": [],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private readonly IconExpressionEditor _iconEditor = new();",
+        "_nameTextBox = new TextBox { PlaceholderText = \"例如：按钮1\" };"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/FullscreenClockSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "FullscreenClockSettings"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/KeyCombinationSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "KeyCombinationSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "List<KeyCombinationKey>",
+          "name": "Keys"
+        },
+        {
+          "type": "class",
+          "name": "KeyCombinationKey"
+        },
+        {
+          "type": "byte?",
+          "name": "KeyCode"
+        },
+        {
+          "type": "string",
+          "name": "KeyName"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "keys",
+        "keyCode",
+        "keyName"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "public List<KeyCombinationKey> Keys { get; set; } = [];",
+        "public string KeyName { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/KeyboardInputSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "KeyboardInputSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "List<string>",
+          "name": "Keys"
+        },
+        {
+          "type": "List<KeyboardAction>",
+          "name": "Actions"
+        },
+        {
+          "type": "class",
+          "name": "KeyboardAction"
+        },
+        {
+          "type": "enum",
+          "name": "ActionType"
+        },
+        {
+          "type": "ActionType",
+          "name": "Type"
+        },
+        {
+          "type": "byte",
+          "name": "KeyCode"
+        },
+        {
+          "type": "string",
+          "name": "KeyName"
+        },
+        {
+          "type": "long",
+          "name": "Interval"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "keys",
+        "actions",
+        "type",
+        "keyCode",
+        "keyName",
+        "interval"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"keys\")] public List<string> Keys { get; set; } = [];",
+        "[JsonPropertyName(\"actions\")] public List<KeyboardAction> Actions { get; set; } = [];",
+        "[JsonPropertyName(\"type\")] public ActionType Type { get; set; } = ActionType.Press;",
+        "[JsonPropertyName(\"keyName\")] public string KeyName { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/KillProcessSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "KillProcessSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "ProcessName"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "processName"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"processName\")] public string ProcessName { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/LoadTemporaryClassPlanSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "LoadTemporaryClassPlanSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "ClassPlanId"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "classPlanId"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "public string ClassPlanId { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/LongIdleTriggerSettings.cs",
+      "properties": [],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "_minutesInput = new NumericUpDown"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/MainWindowClickTriggerSettings.cs",
+      "properties": [],
+      "explicitJsonNames": [],
+      "defaultExpressions": [],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/MouseInputSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "MouseInputSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "List<MouseAction>",
+          "name": "Actions"
+        },
+        {
+          "type": "bool",
+          "name": "DisableMouseDuringExecution"
+        },
+        {
+          "type": "class",
+          "name": "MouseAction"
+        },
+        {
+          "type": "enum",
+          "name": "ActionType"
+        },
+        {
+          "type": "ActionType",
+          "name": "Type"
+        },
+        {
+          "type": "int",
+          "name": "X"
+        },
+        {
+          "type": "int",
+          "name": "Y"
+        },
+        {
+          "type": "int",
+          "name": "ScrollDelta"
+        },
+        {
+          "type": "long",
+          "name": "Interval"
+        },
+        {
+          "type": "bool",
+          "name": "IsDragEnd"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "actions",
+        "disableMouseDuringExecution",
+        "type",
+        "x",
+        "y",
+        "scrollDelta",
+        "interval",
+        "isDragEnd"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"actions\")] public List<MouseAction> Actions { get; set; } = [];",
+        "public bool DisableMouseDuringExecution { get; set; } = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/MoveSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "MoveSettings"
+        },
+        {
+          "type": "string",
+          "name": "OperationType"
+        },
+        {
+          "type": "string",
+          "name": "SourcePath"
+        },
+        {
+          "type": "string",
+          "name": "DestinationPath"
+        }
+      ],
+      "explicitJsonNames": [
+        "operationType",
+        "sourcePath",
+        "destinationPath"
+      ],
+      "defaultExpressions": [
+        "[JsonPropertyName(\"operationType\")] public string OperationType { get; set; } = \"文件\";",
+        "[JsonPropertyName(\"sourcePath\")] public string SourcePath { get; set; } = string.Empty;",
+        "[JsonPropertyName(\"destinationPath\")] public string DestinationPath { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ReadFileSettings.cs",
+      "properties": [
+        {
+          "type": "sealed class",
+          "name": "ReadFileSettings"
+        },
+        {
+          "type": "string",
+          "name": "FilePath"
+        }
+      ],
+      "explicitJsonNames": [
+        "filePath"
+      ],
+      "defaultExpressions": [
+        "public string FilePath { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ScreenShotSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ScreenShotSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "SaveFolder"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "saveFolder"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "public string SaveFolder { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/SetVolumeSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "SetVolumeSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "float",
+          "name": "VolumePercent"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "volumePercent"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"volumePercent\")] public float VolumePercent { get; set; } = 50f;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ShortcutKeyNotificationSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ShortcutKeyNotificationSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ShowFloatingWindowSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ShowFloatingWindowSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "bool",
+          "name": "ShowFloatingWindow"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "showFloatingWindow"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "public bool ShowFloatingWindow { get; set; } = true;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ShowToastSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ShowToastSettings"
+        },
+        {
+          "type": "string",
+          "name": "Title"
+        },
+        {
+          "type": "string",
+          "name": "Content"
+        }
+      ],
+      "explicitJsonNames": [
+        "title",
+        "content"
+      ],
+      "defaultExpressions": [
+        "[JsonPropertyName(\"title\")] public string Title { get; set; } = string.Empty;",
+        "[JsonPropertyName(\"content\")] public string Content { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ShutdownSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ShutdownSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "int",
+          "name": "Seconds"
+        },
+        {
+          "type": "bool",
+          "name": "ShowPrompt"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "seconds",
+        "showPrompt"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"seconds\")] public int Seconds { get; set; } = 60;",
+        "[JsonPropertyName(\"showPrompt\")] public bool ShowPrompt { get; set; } = true;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/SwitchFloatingWindowThemeSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "SwitchFloatingWindowThemeSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "int",
+          "name": "TargetTheme"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "targetTheme"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "public int TargetTheme { get; set; } = -1;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ThemeSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ThemeSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "Theme"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "theme"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"theme\")] public string Theme { get; set; } = \"浅色\"; // 默认浅色"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ToggleFloatingWindowLayerSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ToggleFloatingWindowLayerSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "int",
+          "name": "TargetLayer"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "targetLayer"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "public int TargetLayer { get; set; } = -1;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ToggleFloatingWindowProfileSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ToggleFloatingWindowProfileSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string?",
+          "name": "TargetProfileName"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "targetProfileName"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/ToggleWorkflowSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "ToggleWorkflowSettings"
+        },
+        {
+          "type": "string",
+          "name": "TargetWorkflowName"
+        },
+        {
+          "type": "int",
+          "name": "TargetWorkflowIndex"
+        },
+        {
+          "type": "bool?",
+          "name": "EnableMode"
+        },
+        {
+          "type": "bool",
+          "name": "RevertToOriginal"
+        }
+      ],
+      "explicitJsonNames": [
+        "targetWorkflowName",
+        "targetWorkflowIndex",
+        "enableMode",
+        "revertToOriginal"
+      ],
+      "defaultExpressions": [
+        "public string TargetWorkflowName { get; set; } = string.Empty;",
+        "public int TargetWorkflowIndex { get; set; } = -1;",
+        "public bool? EnableMode { get; set; } = null;",
+        "public bool RevertToOriginal { get; set; } = true;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/TriggerCustomTriggerSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "TriggerCustomTriggerSettings"
+        },
+        {
+          "type": "string",
+          "name": "TriggerId"
+        }
+      ],
+      "explicitJsonNames": [
+        "triggerId"
+      ],
+      "defaultExpressions": [
+        "[JsonPropertyName(\"triggerId\")] public string TriggerId { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/TypeContentSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "TypeContentSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "Content"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "content"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"content\")] public string Content { get; set; } = string.Empty;"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/UsbDeviceTriggerSettings.cs",
+      "properties": [],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "_usbOnlyCheckBox = new CheckBox"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/WallpaperSettings.cs",
+      "properties": [
+        {
+          "type": "enum",
+          "name": "ChangeWallpaperMode"
+        },
+        {
+          "type": "class",
+          "name": "ChangeWallpaperSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "ImagePath"
+        },
+        {
+          "type": "ChangeWallpaperMode",
+          "name": "Mode"
+        },
+        {
+          "type": "string",
+          "name": "SolidColor"
+        },
+        {
+          "type": "int",
+          "name": "FitStyle"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "imagePath",
+        "mode",
+        "solidColor",
+        "fitStyle"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"imagePath\")] public string ImagePath { get; set; } = string.Empty;",
+        "[JsonPropertyName(\"mode\")] public ChangeWallpaperMode Mode { get; set; } = ChangeWallpaperMode.Image;",
+        "[JsonPropertyName(\"solidColor\")] public string SolidColor { get; set; } = \"#000000\";",
+        "public int FitStyle { get; set; } = 3; // 默认填充"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/WindowOperationSettings.cs",
+      "properties": [
+        {
+          "type": "class",
+          "name": "WindowOperationSettings"
+        },
+        {
+          "type": "bool",
+          "name": "NotifyOnExecute"
+        },
+        {
+          "type": "string",
+          "name": "Operation"
+        }
+      ],
+      "explicitJsonNames": [
+        "notifyOnExecute",
+        "operation"
+      ],
+      "defaultExpressions": [
+        "public bool NotifyOnExecute { get; set; } = false;",
+        "[JsonPropertyName(\"operation\")] public string Operation { get; set; } = \"最大化\";"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    },
+    {
+      "source": "Settings/WindowsHelloSettings.cs",
+      "properties": [
+        {
+          "type": "bool",
+          "name": "IsConfigured"
+        },
+        {
+          "type": "bool",
+          "name": "Operating"
+        },
+        {
+          "type": "bool",
+          "name": "HasError"
+        },
+        {
+          "type": "string",
+          "name": "StatusMessage"
+        }
+      ],
+      "explicitJsonNames": [],
+      "defaultExpressions": [
+        "private string _statusMessage = \"正在检查 Windows Hello…\";"
+      ],
+      "defaultNote": "保留源码表达式；未在 Windows 实例化。未初始化字段遵循 CLR 默认值；条件/计算默认值需参照原源码。"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "ActionSet": {
+      "Guid": "11111111-1111-4111-8111-111111111111",
+      "Name": "Synthetic copy and volume",
+      "IsEnabled": false,
+      "IsRevertEnabled": true,
+      "Actions": [
+        {
+          "Id": "SystemTools.Copy",
+          "Settings": {
+            "SourcePath": "C:\\Fixture\\input.txt",
+            "DestinationPath": "C:\\Fixture\\output.txt",
+            "OperationType": "文件"
+          }
+        },
+        {
+          "Id": "SystemTools.SetVolume",
+          "Settings": {
+            "Volume": 25
+          }
+        }
+      ]
+    },
+    "Triggers": []
+  }
+]

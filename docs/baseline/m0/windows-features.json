@@ -1,0 +1,2457 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "10a39f9db130ecaf38158e7fad8808dc3416acc3",
+  "extraction": "属性标记+Plugin.cs 注册；静态证据，不等于实机验证。registrationLines 指向条件分支。",
+  "counts": {
+    "action": 62,
+    "component": 7,
+    "authorizer": 2,
+    "settingsPage": 6,
+    "trigger": 7,
+    "rule": 5,
+    "theme": 3,
+    "integration": 6
+  },
+  "features": [
+    {
+      "kind": "action",
+      "id": "SystemTools.ActionFlowExecutionConfirmation",
+      "name": "行动流执行确认",
+      "type": "ActionFlowExecutionConfirmationAction",
+      "source": "Actions/ActionFlowExecutionConfirmationAction.cs",
+      "line": 18,
+      "settingsType": "ActionFlowExecutionConfirmationSettings",
+      "settingsSources": [
+        "Settings/ActionFlowExecutionConfirmationSettings.cs"
+      ],
+      "registrationLines": [
+        456
+      ],
+      "revert": false,
+      "interrupt": true,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；运行中停止；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.AdjustScreenBrightness",
+      "name": "调整屏幕亮度",
+      "type": "AdjustScreenBrightnessAction",
+      "source": "Actions/AdjustScreenBrightnessAction.cs",
+      "line": 15,
+      "settingsType": "AdjustScreenBrightnessSettings",
+      "settingsSources": [
+        "Settings/AdjustScreenBrightnessSettings.cs"
+      ],
+      "registrationLines": [
+        380
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.AdvancedShutdown",
+      "name": "高级计时关机",
+      "type": "AdvancedShutdownAction",
+      "source": "Actions/AdvancedShutdownAction.cs",
+      "line": 22,
+      "settingsType": "AdvancedShutdownSettings",
+      "settingsSources": [
+        "Settings/AdvancedShutdownSettings.cs"
+      ],
+      "registrationLines": [
+        384,
+        1058
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "会话/电源权限，仅在测试机验证"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.AltF4",
+      "name": "按下 Alt+F4",
+      "type": "AltF4Action",
+      "source": "Actions/AltF4Action.cs",
+      "line": 11,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        368
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.AltTab",
+      "name": "按下 Alt+Tab",
+      "type": "AltTabAction",
+      "source": "Actions/AltTabAction.cs",
+      "line": 11,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        370
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.AutoHideMainWindowWhenOccluded",
+      "name": "遮挡文字时隐藏主界面",
+      "type": "AutoHideMainWindowWhenOccludedAction",
+      "source": "Actions/AutoHideMainWindowWhenOccludedAction.cs",
+      "line": 14,
+      "settingsType": "AutoHideMainWindowWhenOccludedActionSettings",
+      "settingsSources": [
+        "Settings/AutoHideMainWindowWhenOccludedActionSettings.cs"
+      ],
+      "registrationLines": [
+        441
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.AutoOpenUsbDriveOnInsert",
+      "name": "自动播放",
+      "type": "AutoOpenUsbDriveOnInsertAction",
+      "source": "Actions/AutoOpenUsbDriveOnInsertAction.cs",
+      "line": 14,
+      "settingsType": "AutoOpenUsbDriveOnInsertActionSettings",
+      "settingsSources": [
+        "Settings/AutoOpenUsbDriveOnInsertActionSettings.cs"
+      ],
+      "registrationLines": [
+        443
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.AutoSwitchClassIslandTheme",
+      "name": "自动切换 ClassIsland 主题",
+      "type": "AutoSwitchClassIslandThemeAction",
+      "source": "Actions/AutoSwitchClassIslandThemeAction.cs",
+      "line": 14,
+      "settingsType": "AutoSwitchClassIslandThemeActionSettings",
+      "settingsSources": [
+        "Settings/AutoSwitchClassIslandThemeActionSettings.cs"
+      ],
+      "registrationLines": [
+        439
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.BackgroundPlayAudio",
+      "name": "后台播放音频",
+      "type": "BackgroundPlayAudioAction",
+      "source": "Actions/BackgroundPlayAudioAction.cs",
+      "line": 15,
+      "settingsType": "BackgroundPlayAudioSettings",
+      "settingsSources": [
+        "Settings/BackgroundPlayAudioSettings.cs"
+      ],
+      "registrationLines": [
+        418
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.BlackScreenHtml",
+      "name": "黑屏html",
+      "type": "BlackScreenHtmlAction",
+      "source": "Actions/BlackScreenHtmlAction.cs",
+      "line": 17,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        378
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.CameraCapture",
+      "name": "摄像头抓拍",
+      "type": "CameraCaptureAction",
+      "source": "Actions/CameraCaptureAction.cs",
+      "line": 13,
+      "settingsType": "CameraCaptureSettings",
+      "settingsSources": [
+        "Settings/CameraCaptureSettings.cs"
+      ],
+      "registrationLines": [
+        569
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [
+        "FFmpeg 扩展"
+      ],
+      "permissions": [
+        "相机/硬件/识别模型",
+        "屏幕/窗口采集"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.CancelShutdown",
+      "name": "取消关机计划",
+      "type": "CancelShutdownAction",
+      "source": "Actions/CancelShutdownAction.cs",
+      "line": 14,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        387
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "会话/电源权限，仅在测试机验证"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ChangeWallpaper",
+      "name": "切换壁纸",
+      "type": "ChangeWallpaperAction",
+      "source": "Actions/ChangeWallpaperAction.cs",
+      "line": 18,
+      "settingsType": "ChangeWallpaperSettings",
+      "settingsSources": [
+        "Settings/WallpaperSettings.cs"
+      ],
+      "registrationLines": [
+        398
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "文件权限和路径"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ClearAllNotifications",
+      "name": "清除全部提醒",
+      "type": "ClearAllNotificationsAction",
+      "source": "Actions/ClearAllNotificationsAction.cs",
+      "line": 14,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        450
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ClickSimulation",
+      "name": "模拟点击",
+      "type": "ClickSimulationAction",
+      "source": "Actions/ClickSimulationAction.cs",
+      "line": 11,
+      "settingsType": "ClickSimulationSettings",
+      "settingsSources": [
+        "Settings/ClickSimulationSettings.cs"
+      ],
+      "registrationLines": [],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.CloneDisplay",
+      "name": "复制屏幕",
+      "type": "CloneDisplayAction",
+      "source": "Actions/CloneDisplayAction.cs",
+      "line": 17,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        374
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.Copy",
+      "name": "复制",
+      "type": "CopyAction",
+      "source": "Actions/CopyAction.cs",
+      "line": 12,
+      "settingsType": "CopySettings",
+      "settingsSources": [
+        "Settings/CopySettings.cs"
+      ],
+      "registrationLines": [
+        393
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "文件权限和路径"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.CtrlZ",
+      "name": "按下 Ctrl+Z",
+      "type": "CtrlZAction",
+      "source": "Actions/CtrlZAction.cs",
+      "line": 11,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        369
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.Delete",
+      "name": "删除",
+      "type": "DeleteAction",
+      "source": "Actions/DeleteAction.cs",
+      "line": 12,
+      "settingsType": "DeleteSettings",
+      "settingsSources": [
+        "Settings/DeleteSettings.cs"
+      ],
+      "registrationLines": [
+        395
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "文件权限和路径"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.DisableDevice",
+      "name": "禁用硬件设备",
+      "type": "DisableDeviceAction",
+      "source": "Actions/DisableDeviceAction.cs",
+      "line": 15,
+      "settingsType": "DisableDeviceSettings",
+      "settingsSources": [
+        "Settings/DisableDeviceSettings.cs"
+      ],
+      "registrationLines": [
+        411
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.DisableMouse",
+      "name": "禁用鼠标",
+      "type": "DisableMouseAction",
+      "source": "Actions/DisableMouseAction.cs",
+      "line": 11,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        559
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.EnableDevice",
+      "name": "启用硬件设备",
+      "type": "EnableDeviceAction",
+      "source": "Actions/EnableDeviceAction.cs",
+      "line": 15,
+      "settingsType": "EnableDeviceSettings",
+      "settingsSources": [
+        "Settings/EnableDeviceSettings.cs"
+      ],
+      "registrationLines": [
+        409
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.EnableMouse",
+      "name": "启用鼠标",
+      "type": "EnableMouseAction",
+      "source": "Actions/EnableMouseAction.cs",
+      "line": 11,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        560
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.EnableVoiceWakeAi",
+      "name": "启用语音唤醒 AI",
+      "type": "EnableVoiceWakeAiAction",
+      "source": "Actions/EnableVoiceWakeAiAction.cs",
+      "line": 14,
+      "settingsType": "EnableVoiceWakeAiActionSettings",
+      "settingsSources": [
+        "Settings/EnableVoiceWakeAiActionSettings.cs"
+      ],
+      "registrationLines": [
+        460
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "网络/麦克风/密钥，按功能启用"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.EnterKey",
+      "name": "按下 Enter 键",
+      "type": "EnterKeyAction",
+      "source": "Actions/EnterKeyAction.cs",
+      "line": 11,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        366
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.EscKey",
+      "name": "按下 Esc 键",
+      "type": "EscAction",
+      "source": "Actions/EscAction.cs",
+      "line": 11,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        367
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ExtendDisplay",
+      "name": "扩展屏幕",
+      "type": "ExtendDisplayAction",
+      "source": "Actions/ExtendDisplayAction.cs",
+      "line": 17,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        375
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ExternalDisplay",
+      "name": "仅第二屏幕",
+      "type": "ExternalDisplayAction",
+      "source": "Actions/ExternalDisplayAction.cs",
+      "line": 17,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        377
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.F11Key",
+      "name": "按下 F11 键",
+      "type": "F11Action",
+      "source": "Actions/F11Action.cs",
+      "line": 11,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        371
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.FullscreenClock",
+      "name": "沉浸式时钟",
+      "type": "FullscreenClockAction",
+      "source": "Actions/FullscreenClockAction.cs",
+      "line": 10,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        435
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "用户指定不迁移沉浸式时钟"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ImmediateRestart",
+      "name": "立即重启",
+      "type": "ImmediateRestartAction",
+      "source": "Actions/ImmediateRestartAction.cs",
+      "line": 12,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        388
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "会话/电源权限，仅在测试机验证"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ImmediateShutdown",
+      "name": "立即关机",
+      "type": "ImmediateShutdownAction",
+      "source": "Actions/ImmediateShutdownAction.cs",
+      "line": 12,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        389
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "会话/电源权限，仅在测试机验证"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.InternalDisplay",
+      "name": "仅电脑屏幕",
+      "type": "InternalDisplayAction",
+      "source": "Actions/InternalDisplayAction.cs",
+      "line": 17,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        376
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.KillProcess",
+      "name": "退出进程",
+      "type": "KillProcessAction",
+      "source": "Actions/KillProcessAction.cs",
+      "line": 15,
+      "settingsType": "KillProcessSettings",
+      "settingsSources": [
+        "Settings/KillProcessSettings.cs"
+      ],
+      "registrationLines": [
+        407
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.LoadTemporaryClassPlan",
+      "name": "加载临时课表",
+      "type": "LoadTemporaryClassPlanAction",
+      "source": "Actions/LoadTemporaryClassPlanAction.cs",
+      "line": 15,
+      "settingsType": "LoadTemporaryClassPlanSettings",
+      "settingsSources": [
+        "Settings/LoadTemporaryClassPlanSettings.cs"
+      ],
+      "registrationLines": [
+        414
+      ],
+      "revert": true,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；恢复初值；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.LockScreen",
+      "name": "锁定屏幕",
+      "type": "LockScreenAction",
+      "source": "Actions/LockScreenAction.cs",
+      "line": 14,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        386
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "会话/电源权限，仅在测试机验证"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.Move",
+      "name": "移动",
+      "type": "MoveAction",
+      "source": "Actions/MoveAction.cs",
+      "line": 12,
+      "settingsType": "MoveSettings",
+      "settingsSources": [
+        "Settings/MoveSettings.cs"
+      ],
+      "registrationLines": [
+        394
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "文件权限和路径"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.OpenAppSettings",
+      "name": "打开应用设置",
+      "type": "OpenAppSettingsAction",
+      "source": "Actions/OpenAppSettingsAction.cs",
+      "line": 14,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        451
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.OpenClassSwapWindow",
+      "name": "打开换课窗口",
+      "type": "OpenClassSwapWindowAction",
+      "source": "Actions/OpenClassSwapWindowAction.cs",
+      "line": 14,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        453
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.OpenProfileEditor",
+      "name": "打开档案编辑",
+      "type": "OpenProfileEditorAction",
+      "source": "Actions/OpenProfileEditorAction.cs",
+      "line": 14,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        452
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.RestartAsAdmin",
+      "name": "重启应用为管理员身份",
+      "type": "RestartAsAdminAction",
+      "source": "Actions/RestartAsAdminAction.cs",
+      "line": 13,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        449
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "会话/电源权限，仅在测试机验证"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ScreenShot",
+      "name": "屏幕截图",
+      "type": "ScreenShotAction",
+      "source": "Actions/ScreenShotAction.cs",
+      "line": 17,
+      "settingsType": "ScreenShotSettings",
+      "settingsSources": [
+        "Settings/ScreenShotSettings.cs"
+      ],
+      "registrationLines": [
+        404
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "屏幕/窗口采集"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.SetVolume",
+      "name": "设置系统音量",
+      "type": "SetVolumeAction",
+      "source": "Actions/SetVolume.cs",
+      "line": 15,
+      "settingsType": "SetVolumeSettings",
+      "settingsSources": [
+        "Settings/SetVolumeSettings.cs"
+      ],
+      "registrationLines": [
+        406
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ShowAiChatDialog",
+      "name": "显示AI对话框",
+      "type": "ShowAiChatDialogAction",
+      "source": "Actions/ShowAiChatDialogAction.cs",
+      "line": 9,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        464
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "网络/麦克风/密钥，按功能启用"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ShowDesktop",
+      "name": "显示桌面",
+      "type": "ShowDesktopAction",
+      "source": "Actions/ShowDesktopAction.cs",
+      "line": 15,
+      "settingsType": "ShortcutKeyNotificationSettings",
+      "settingsSources": [
+        "Settings/ShortcutKeyNotificationSettings.cs"
+      ],
+      "registrationLines": [
+        379
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ShowFloatingWindow",
+      "name": "显示悬浮窗",
+      "type": "ShowFloatingWindowAction",
+      "source": "Actions/ShowFloatingWindowAction.cs",
+      "line": 15,
+      "settingsType": "ShowFloatingWindowSettings",
+      "settingsSources": [
+        "Settings/ShowFloatingWindowSettings.cs"
+      ],
+      "registrationLines": [
+        424
+      ],
+      "revert": true,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；恢复初值；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ShowToast",
+      "name": "拉起自定义Windows通知",
+      "type": "ShowToastAction",
+      "source": "Actions/ShowToastAction.cs",
+      "line": 11,
+      "settingsType": "ShowToastSettings",
+      "settingsSources": [
+        "Settings/ShowToastSettings.cs"
+      ],
+      "registrationLines": [
+        413
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.Shutdown",
+      "name": "计时关机",
+      "type": "ShutdownAction",
+      "source": "Actions/ShutdownAction.cs",
+      "line": 15,
+      "settingsType": "ShutdownSettings",
+      "settingsSources": [
+        "Settings/ShutdownSettings.cs"
+      ],
+      "registrationLines": [
+        383,
+        384,
+        387,
+        389,
+        1058
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "会话/电源权限，仅在测试机验证"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.SimulateKeyCombination",
+      "name": "模拟组合键",
+      "type": "SimulateKeyCombinationAction",
+      "source": "Actions/SimulateKeyCombinationAction.cs",
+      "line": 17,
+      "settingsType": "KeyCombinationSettings",
+      "settingsSources": [
+        "Settings/KeyCombinationSettings.cs"
+      ],
+      "registrationLines": [
+        354
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.SimulateKeyboard",
+      "name": "模拟键盘",
+      "type": "SimulateKeyboardAction",
+      "source": "Actions/SimulateKeyboardAction.cs",
+      "line": 15,
+      "settingsType": "KeyboardInputSettings",
+      "settingsSources": [
+        "Settings/KeyboardInputSettings.cs"
+      ],
+      "registrationLines": [
+        356
+      ],
+      "revert": false,
+      "interrupt": true,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；运行中停止；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.SimulateMouse",
+      "name": "模拟鼠标",
+      "type": "SimulateMouseAction",
+      "source": "Actions/SimulateMouseAction.cs",
+      "line": 17,
+      "settingsType": "MouseInputSettings",
+      "settingsSources": [
+        "Settings/MouseInputSettings.cs"
+      ],
+      "registrationLines": [
+        358
+      ],
+      "revert": false,
+      "interrupt": true,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；运行中停止；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.Sleep",
+      "name": "睡眠",
+      "type": "SleepAction",
+      "source": "Actions/SleepAction.cs",
+      "line": 10,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        390
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "会话/电源权限，仅在测试机验证"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.SwitchFloatingWindowTheme",
+      "name": "切换悬浮窗主题",
+      "type": "SwitchFloatingWindowThemeAction",
+      "source": "Actions/SwitchFloatingWindowThemeAction.cs",
+      "line": 15,
+      "settingsType": "SwitchFloatingWindowThemeSettings",
+      "settingsSources": [
+        "Settings/SwitchFloatingWindowThemeSettings.cs"
+      ],
+      "registrationLines": [
+        430
+      ],
+      "revert": true,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；恢复初值；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.SwitchSystemAccentColor",
+      "name": "切换系统强调色",
+      "type": "SwitchSystemAccentColorAction",
+      "source": "Actions/SwitchSystemAccentColorAction.cs",
+      "line": 15,
+      "settingsType": "AccentColorSettings",
+      "settingsSources": [
+        "Settings/AccentColorSettings.cs"
+      ],
+      "registrationLines": [
+        401
+      ],
+      "revert": true,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；恢复初值；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.SwitchTheme",
+      "name": "切换主题色",
+      "type": "SwitchThemeAction",
+      "source": "Actions/SwitchThemeAction.cs",
+      "line": 15,
+      "settingsType": "ThemeSettings",
+      "settingsSources": [
+        "Settings/ThemeSettings.cs"
+      ],
+      "registrationLines": [
+        400
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ToggleFloatingWindowLayer",
+      "name": "切换悬浮窗层级",
+      "type": "ToggleFloatingWindowLayerAction",
+      "source": "Actions/ToggleFloatingWindowLayerAction.cs",
+      "line": 18,
+      "settingsType": "ToggleFloatingWindowLayerSettings",
+      "settingsSources": [
+        "Settings/ToggleFloatingWindowLayerSettings.cs"
+      ],
+      "registrationLines": [
+        426
+      ],
+      "revert": true,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；恢复初值；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ToggleFloatingWindowProfile",
+      "name": "切换悬浮窗配置方案",
+      "type": "ToggleFloatingWindowProfileAction",
+      "source": "Actions/ToggleFloatingWindowProfileAction.cs",
+      "line": 17,
+      "settingsType": "ToggleFloatingWindowProfileSettings",
+      "settingsSources": [
+        "Settings/ToggleFloatingWindowProfileSettings.cs"
+      ],
+      "registrationLines": [
+        428
+      ],
+      "revert": true,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；恢复初值；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.ToggleWorkflow",
+      "name": "开关自动化",
+      "type": "ToggleWorkflowAction",
+      "source": "Actions/ToggleWorkflowAction.cs",
+      "line": 15,
+      "settingsType": "ToggleWorkflowSettings",
+      "settingsSources": [
+        "Settings/ToggleWorkflowSettings.cs"
+      ],
+      "registrationLines": [
+        454
+      ],
+      "revert": true,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；恢复初值；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.TriggerCustomTrigger",
+      "name": "触发指定触发器",
+      "type": "TriggerCustomTriggerAction",
+      "source": "Actions/TriggerCustomTriggerAction.cs",
+      "line": 13,
+      "settingsType": "TriggerCustomTriggerSettings",
+      "settingsSources": [
+        "Settings/TriggerCustomTriggerSettings.cs"
+      ],
+      "registrationLines": [
+        447
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.TypeContent",
+      "name": "键入内容",
+      "type": "TypeContentAction",
+      "source": "Actions/TypeContentAction.cs",
+      "line": 16,
+      "settingsType": "TypeContentSettings",
+      "settingsSources": [
+        "Settings/TypeContentSettings.cs"
+      ],
+      "registrationLines": [
+        360
+      ],
+      "revert": false,
+      "interrupt": true,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；运行中停止；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.WakeUpVoiceConversationAi",
+      "name": "唤醒语音对话 AI",
+      "type": "WakeUpVoiceConversationAiAction",
+      "source": "Actions/WakeUpVoiceConversationAiAction.cs",
+      "line": 9,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        462
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "网络/麦克风/密钥，按功能启用"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "action",
+      "id": "SystemTools.WindowOperation",
+      "name": "窗口操作",
+      "type": "WindowOperationAction",
+      "source": "Actions/WindowOperationAction.cs",
+      "line": 15,
+      "settingsType": "WindowOperationSettings",
+      "settingsSources": [
+        "Settings/WindowOperationSettings.cs"
+      ],
+      "registrationLines": [
+        362
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "component",
+      "id": "A7C3455E-6A4E-4D4D-9D0D-7C6FCB5E1E3A",
+      "name": "更好的轮播容器",
+      "type": "BetterCarouselContainerComponent",
+      "source": "Controls/Components/BetterCarouselContainerComponent.axaml.cs",
+      "line": 22,
+      "settingsType": "BetterCarouselContainerSettings",
+      "settingsSources": [
+        "Models/ComponentSettings/BetterCarouselContainerSettings.cs"
+      ],
+      "registrationLines": [
+        539
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "component",
+      "id": "E2A41B7D-9F36-4A08-8B8D-1BA29E570F62",
+      "name": "显示剪切板内容",
+      "type": "ClipboardContentComponent",
+      "source": "Controls/Components/ClipboardContentComponent.axaml.cs",
+      "line": 14,
+      "settingsType": "ClipboardContentSettings",
+      "settingsSources": [
+        "Models/ComponentSettings/ClipboardContentSettings.cs"
+      ],
+      "registrationLines": [
+        533
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "component",
+      "id": "5D2C0E65-8648-4A67-BBEA-3FA713B1CF8D",
+      "name": "本地一言",
+      "type": "LocalQuoteComponent",
+      "source": "Controls/Components/LocalQuoteComponent.axaml.cs",
+      "line": 23,
+      "settingsType": "LocalQuoteSettings",
+      "settingsSources": [
+        "Models/ComponentSettings/LocalQuoteSettings.cs"
+      ],
+      "registrationLines": [
+        535
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "component",
+      "id": "A1B2C3D4-E5F6-7890-ABCD-EF1234567891",
+      "name": "音乐软件歌词显示",
+      "type": "LyricsDisplayComponent",
+      "source": "Controls/Components/LyricsDisplayComponent.axaml.cs",
+      "line": 22,
+      "settingsType": "LyricsDisplaySettings",
+      "settingsSources": [
+        "Models/ComponentSettings/LyricsDisplaySettings.cs"
+      ],
+      "registrationLines": [
+        531
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "component",
+      "id": "8F5E2D1C-3B4A-5678-9ABC-DEF012345678",
+      "name": "网络延迟检测",
+      "type": "NetworkStatusComponent",
+      "source": "Controls/Components/NetworkStatusComponent.axaml.cs",
+      "line": 17,
+      "settingsType": "NetworkStatusSettings",
+      "settingsSources": [
+        "Models/ComponentSettings/NetworkStatusSettings.cs"
+      ],
+      "registrationLines": [
+        529
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "component",
+      "id": "C3E56B6B-0E01-4F3C-8F7B-9264CA2B2143",
+      "name": "下节课是",
+      "type": "NextClassDisplayComponent",
+      "source": "Controls/Components/NextClassDisplayComponent.axaml.cs",
+      "line": 14,
+      "settingsType": "NextClassDisplaySettings",
+      "settingsSources": [
+        "Models/ComponentSettings/NextClassDisplaySettings.cs"
+      ],
+      "registrationLines": [
+        537
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "component",
+      "id": "A7B3E4D1-2F8C-4B9A-9E5D-6C1B2A3F4E5D",
+      "name": " LED 文本仿真显示框",
+      "type": "ScrollingTextComponent",
+      "source": "Controls/Components/ScrollingTextComponent.axaml.cs",
+      "line": 17,
+      "settingsType": "ScrollingTextSettings",
+      "settingsSources": [
+        "Models/ComponentSettings/ScrollingTextSettings.cs"
+      ],
+      "registrationLines": [
+        541
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "authorizer",
+      "id": "systemtools.authProviders.faceRecognition",
+      "name": "人脸识别",
+      "type": "FaceRecognitionAuthorizer",
+      "source": "Controls/FaceRecognitionAuthorizer.axaml.cs",
+      "line": 20,
+      "settingsType": "FaceRecognitionSettings",
+      "settingsSources": [
+        "Settings/FaceRecognitionSettings.cs"
+      ],
+      "registrationLines": [
+        160
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [
+        "OpenCV"
+      ],
+      "permissions": [
+        "相机/硬件/识别模型"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "authorizer",
+      "id": "systemtools.authProviders.windowsHello",
+      "name": "Windows Hello 验证器",
+      "type": "WindowsHelloAuthorizer",
+      "source": "Controls/WindowsHelloAuthorizer.axaml.cs",
+      "line": 18,
+      "settingsType": "WindowsHelloSettings",
+      "settingsSources": [
+        "Settings/WindowsHelloSettings.cs"
+      ],
+      "registrationLines": [
+        172
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [
+        "Windows Hello"
+      ],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "settingsPage",
+      "id": "systemtools.settings.about",
+      "name": "关于",
+      "type": "AboutSettingsPage",
+      "source": "SettingsPage/AboutSettingsPage.axaml.cs",
+      "line": 23,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        188
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "settingsPage",
+      "id": "systemtools.settings.aiChat",
+      "name": "AI 对话",
+      "type": "AiChatSettingsPage",
+      "source": "SettingsPage/AiChatSettingsPage.axaml.cs",
+      "line": 26,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        182
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [
+        "Vosk Worker/模型"
+      ],
+      "permissions": [
+        "网络/麦克风/密钥，按功能启用"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "settingsPage",
+      "id": "systemtools.settings.floating",
+      "name": "悬浮窗编辑",
+      "type": "FloatingWindowEditorSettingsPage",
+      "source": "SettingsPage/FloatingWindowEditorSettingsPage.axaml.cs",
+      "line": 32,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        186
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "settingsPage",
+      "id": "systemtools.settings.more",
+      "name": "更多功能选项…",
+      "type": "MoreFeaturesOptionsSettingsPage",
+      "source": "SettingsPage/MoreFeaturesOptionsSettingsPage.axaml.cs",
+      "line": 18,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        179
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "settingsPage",
+      "id": "systemtools.settings.pluginDebug",
+      "name": "插件调试",
+      "type": "PluginDebugSettingsPage",
+      "source": "SettingsPage/PluginDebugSettingsPage.axaml.cs",
+      "line": 15,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        189
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "settingsPage",
+      "id": "systemtools.settings.main",
+      "name": "主设置",
+      "type": "SystemToolsSettingsPage",
+      "source": "SettingsPage/SystemToolsSettingsPage.axaml.cs",
+      "line": 27,
+      "settingsType": null,
+      "settingsSources": [],
+      "registrationLines": [
+        178
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [
+        "FFmpeg 扩展",
+        "Vosk Worker/模型",
+        "Windows Hello"
+      ],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "trigger",
+      "id": "SystemTools.ActionInProgressTrigger",
+      "name": "行动进行时",
+      "type": "ActionInProgressTrigger",
+      "source": "Triggers/ActionInProgressTrigger.cs",
+      "line": 14,
+      "settingsType": "ActionInProgressTriggerConfig",
+      "settingsSources": [
+        "Config/ActionInProgressTriggerConfig.cs"
+      ],
+      "registrationLines": [
+        475,
+        476
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "trigger",
+      "id": "SystemTools.FloatingWindowTrigger",
+      "name": "从悬浮窗触发",
+      "type": "FloatingWindowTrigger",
+      "source": "Triggers/FloatingWindowTrigger.cs",
+      "line": 12,
+      "settingsType": "FloatingWindowTriggerConfig",
+      "settingsSources": [
+        "Triggers/FloatingWindowTriggerConfig.cs"
+      ],
+      "registrationLines": [
+        485,
+        486
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "trigger",
+      "id": "SystemTools.HotkeyTrigger",
+      "name": "按下自定义热键时",
+      "type": "HotkeyTrigger",
+      "source": "Triggers/HotkeyTrigger.cs",
+      "line": 9,
+      "settingsType": "HotkeyTriggerConfig",
+      "settingsSources": [
+        "Config/HotkeyTriggerConfig.cs"
+      ],
+      "registrationLines": [
+        474
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "trigger",
+      "id": "SystemTools.KeywordTrigger",
+      "name": "关键词触发",
+      "type": "KeywordTrigger",
+      "source": "Triggers/KeywordTrigger.cs",
+      "line": 10,
+      "settingsType": "KeywordTriggerConfig",
+      "settingsSources": [
+        "Config/KeywordTriggerConfig.cs"
+      ],
+      "registrationLines": [
+        479,
+        480
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "网络/麦克风/密钥，按功能启用"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "trigger",
+      "id": "SystemTools.LongIdleTrigger",
+      "name": "长时间未操作电脑时",
+      "type": "LongIdleTrigger",
+      "source": "Triggers/LongIdleTrigger.cs",
+      "line": 12,
+      "settingsType": "LongIdleTriggerConfig",
+      "settingsSources": [
+        "Config/LongIdleTriggerConfig.cs"
+      ],
+      "registrationLines": [
+        477,
+        478
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "trigger",
+      "id": "SystemTools.MainWindowClickTrigger",
+      "name": "点击主界面时",
+      "type": "MainWindowClickTrigger",
+      "source": "Triggers/MainWindowClickTrigger.cs",
+      "line": 9,
+      "settingsType": "MainWindowClickTriggerConfig",
+      "settingsSources": [
+        "Config/MainWindowClickTriggerConfig.cs"
+      ],
+      "registrationLines": [
+        481,
+        482
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "trigger",
+      "id": "SystemTools.UsbDeviceTrigger",
+      "name": "USB设备插入时",
+      "type": "UsbDeviceTrigger",
+      "source": "Triggers/UsbDeviceTrigger.cs",
+      "line": 15,
+      "settingsType": "UsbDeviceTriggerConfig",
+      "settingsSources": [
+        "Config/UsbDeviceTriggerConfig.cs"
+      ],
+      "registrationLines": [
+        472,
+        473
+      ],
+      "revert": false,
+      "interrupt": false,
+      "dependencies": [],
+      "permissions": [
+        "输入/设备/窗口权限"
+      ],
+      "verification": "开关/重启；新增/保存配置；执行；缺依赖/拒绝权限；退出重进；稳定 ID",
+      "runtimeStatus": "Windows 实机待验证",
+      "platformTargets": {
+        "Windows": "M2 保留并迁入",
+        "Linux X11": "后续逐项实现/验收",
+        "macOS arm64": "后续逐项实现/验收"
+      },
+      "policy": "保留原行为"
+    },
+    {
+      "kind": "rule",
+      "id": "SystemTools.ProcessRunningRule",
+      "name": "程序正在运行",
+      "type": "ProcessRunningRuleSettings",
+      "settingsType": "ProcessRunningRuleSettings",
+      "source": "Plugin.cs",
+      "line": 496,
+      "verification": "启用/禁用；真假分支；保存重进；目标/依赖缺失",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "rule",
+      "id": "SystemTools.UsingClassPlanRule",
+      "name": "正在使用某课程表",
+      "type": "UsingClassPlanRuleSettings",
+      "settingsType": "UsingClassPlanRuleSettings",
+      "source": "Plugin.cs",
+      "line": 502,
+      "verification": "启用/禁用；真假分支；保存重进；目标/依赖缺失",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "rule",
+      "id": "SystemTools.UsingTimeLayoutRule",
+      "name": "正在使用某时间表",
+      "type": "UsingTimeLayoutRuleSettings",
+      "settingsType": "UsingTimeLayoutRuleSettings",
+      "source": "Plugin.cs",
+      "line": 508,
+      "verification": "启用/禁用；真假分支；保存重进；目标/依赖缺失",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "rule",
+      "id": "SystemTools.InTimePeriodRule",
+      "name": "是否在某时间段",
+      "type": "InTimePeriodRuleSettings",
+      "settingsType": "InTimePeriodRuleSettings",
+      "source": "Plugin.cs",
+      "line": 514,
+      "verification": "启用/禁用；真假分支；保存重进；目标/依赖缺失",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "rule",
+      "id": "SystemTools.MediaMusicPlayingRule",
+      "name": "正在播放媒体音乐",
+      "type": "MediaMusicPlayingRuleSettings",
+      "settingsType": "MediaMusicPlayingRuleSettings",
+      "source": "Plugin.cs",
+      "line": 520,
+      "verification": "启用/禁用；真假分支；保存重进；目标/依赖缺失",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "theme",
+      "id": "Card-type-component",
+      "name": "Card-type Component",
+      "source": "Plugin.cs",
+      "line": 77,
+      "verification": "列表/启用；横竖布局；重启；旧 avares URI；截图对照",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "theme",
+      "id": "classwidgets",
+      "name": "ClassWidgets 2 Style",
+      "source": "Plugin.cs",
+      "line": 89,
+      "verification": "列表/启用；横竖布局；重启；旧 avares URI；截图对照",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "theme",
+      "id": "notch-style",
+      "name": "Notch Style",
+      "source": "Plugin.cs",
+      "line": 101,
+      "verification": "列表/启用；横竖布局；重启；旧 avares URI；截图对照",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "integration",
+      "id": "SystemTools.AI",
+      "name": "AI 对话/课程档案/行动工具/语音",
+      "source": "Services/AiChatWindowService.cs",
+      "verification": "密钥保留；会话保存；中断/审批；语音争用；网络失败",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "integration",
+      "id": "SystemTools.SAI",
+      "name": "SAI/Blockly 接入",
+      "source": "Plugin.cs",
+      "verification": "SAI 已装/未装；接口身份；能力目录",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "integration",
+      "id": "SystemTools.Excel",
+      "name": "课程表 Excel 导出",
+      "source": "Services/ClassIslandProfileExcelExporter.cs",
+      "verification": "导出/打开；排版；NPOI 缺失",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "integration",
+      "id": "SystemTools.Tray",
+      "name": "托盘/快捷入口",
+      "source": "Plugin.cs",
+      "verification": "菜单；窗口；重复启动；退出清理",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "integration",
+      "id": "SystemTools.OptionalDependencies",
+      "name": "扩展下载/FFmpeg/人脸/Vosk",
+      "source": "Shared/DependencyPaths.cs",
+      "verification": "空目录/模型缺失/损坏/下载失败",
+      "runtimeStatus": "Windows 实机待验证"
+    },
+    {
+      "kind": "integration",
+      "id": "SystemTools.Exit",
+      "name": "普通退出取消关机计划",
+      "source": "Plugin.cs",
+      "verification": "Windows 普通退出无条件 shutdown /a，按用户要求保持",
+      "runtimeStatus": "Windows 实机待验证"
+    }
+  ]
+}

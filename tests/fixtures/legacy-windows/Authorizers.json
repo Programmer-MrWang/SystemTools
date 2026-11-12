@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "systemtools.authProviders.windowsHello",
+    "Settings": {
+      "IsConfigured": true,
+      "future": {
+        "retain": true
+      }
+    }
+  },
+  {
+    "Id": "systemtools.authProviders.faceRecognition",
+    "Settings": {
+      "FaceTemplate": "SYNTHETIC-NOT-A-BIOMETRIC-TEMPLATE",
+      "Threshold": 0.5
+    }
+  }
+]

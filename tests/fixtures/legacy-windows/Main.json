@@ -1,0 +1,35 @@
+{
+  "enableExperimentalFeatures": false,
+  "enableFfmpegFeatures": false,
+  "enableFloatingWindowFeature": true,
+  "enableFaceRecognition": true,
+  "enableWindowsHello": true,
+  "enableAiService": false,
+  "aiApiKey": "dpapi-current-user:v1:U1lOVEhFVElDLU5PVC1BLUNSRURFTlRJQUw=",
+  "aiApiUrl": "https://example.invalid/v1",
+  "aiModel": "fixture-model",
+  "enabledActions": {
+    "SystemTools.Copy": true,
+    "SystemTools.SetVolume": false,
+    "FuturePlugin.UnknownAction": false
+  },
+  "enabledTriggers": {
+    "SystemTools.LongIdleTrigger": true
+  },
+  "enabledComponents": {
+    "SystemTools.ClipboardContent": true
+  },
+  "enabledRules": {
+    "SystemTools.ProcessRunningRule": true
+  },
+  "futurePlatformData": {
+    "WindowsOnly": {
+      "retain": true
+    }
+  },
+  "floatingWindowButtonOrder": [
+    "SystemTools.Copy",
+    "SystemTools.SetVolume"
+  ],
+  "currentFloatingWindowProfile": "Fixture"
+}

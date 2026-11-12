@@ -1,0 +1,78 @@
+name: M1 native build and package
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/cross-platform]
+  pull_request:
+    branches: [codex/cross-platform]
+
+permissions:
+  contents: read
+
+jobs:
+  native-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2025
+            rid: win-x64
+          - runner: ubuntu-24.04
+            rid: linux-x64
+          # Official runner table currently maps macos-15 to Apple Silicon.
+          # The architecture assertion fails if this label ever changes.
+          - runner: macos-15
+            rid: osx-arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.403
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Assert actual runner architecture
+        shell: bash
+        run: python -c "import sys; sys.path.insert(0, 'eng'); import m1; assert m1.native_rid() == '${{ matrix.rid }}'"
+      - name: Native clean restore and build
+        run: python eng/m1.py build --clean
+      - name: Package boundary tests
+        run: python eng/test_m1_packaging.py
+      - name: Loader checks on Windows and Mac
+        if: runner.os != 'Linux'
+        run: python eng/m1.py test
+      - name: Loader checks on Linux X11
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb xauth
+          xvfb-run -a env -u WAYLAND_DISPLAY XDG_SESSION_TYPE=x11 python eng/m1.py test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m1-${{ matrix.rid }}
+          path: artifacts/m1/${{ matrix.rid }}
+          if-no-files-found: error
+
+  aggregate:
+    needs: native-build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m1-*
+          path: artifacts/inputs
+      - name: Aggregate verified common files, never merge deps.json
+        run: python eng/m1.py package --input artifacts/inputs/m1-win-x64 artifacts/inputs/m1-linux-x64 artifacts/inputs/m1-osx-arm64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SystemTools-M1-isolated-preview
+          path: |
+            artifacts/m1/SystemTools.M1.cipx
+            artifacts/m1/SystemTools.M1.cipx.sha256
+          if-no-files-found: error

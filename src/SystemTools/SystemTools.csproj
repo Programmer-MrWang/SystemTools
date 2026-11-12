@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Avalonia" Version="12.1.4" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.10" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" ExcludeAssets="runtime;native" />
+    <ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" />
+    <!-- Build only this machine's backend; never reference its types from the entrance. -->
+    <ProjectReference Include="../SystemTools.Platforms.$(SystemToolsPlatform)/SystemTools.Platforms.$(SystemToolsPlatform).csproj" ReferenceOutputAssembly="false" />
+    <None Include="manifest.yml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../icon.png" Link="icon.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CheckPlatform" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(SystemToolsPlatform)' != 'Windows' and '$(SystemToolsPlatform)' != 'Linux' and '$(SystemToolsPlatform)' != 'MacOS'" Text="Unsupported SystemToolsPlatform: $(SystemToolsPlatform)" />
+  </Target>
+  <Target Name="CopyLocalBackend" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/../SystemTools.Platforms.$(SystemToolsPlatform)/bin/$(Configuration)/net10.0/SystemTools.Platforms.$(SystemToolsPlatform).dll" DestinationFolder="$(TargetDir)" />
+  </Target>
+</Project>

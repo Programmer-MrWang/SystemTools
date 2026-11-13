@@ -41,11 +41,16 @@ internal static class WindowsAcceptance
             var keyBefore = JsonSerializer.Serialize(main.Data).Length;
             main.Save();
             var fileActions = stage < 3 || await CheckFileActionsAsync(provider);
+            var actionFactories = stage < 3 ? Array.Empty<string>() :
+                IActionService.ActionInfos.Keys.Where(key => key.StartsWith("SystemTools."))
+                    .Select(key => provider.GetRequiredKeyedService<ActionBase>(key).GetType().FullName!)
+                    .ToArray();
+            var screenshot = stage < 4 || await CheckScreenshotAsync(provider);
             var result = new
             {
-                passed = constructed.Length >= 5 && themes.Length == 3 && assets && fileActions,
+                passed = constructed.Length >= 5 && themes.Length == 3 && assets && fileActions && screenshot,
                 stage, pages = constructed, themes, legacyImageUris = assets,
-                fileActions,
+                fileActions, screenshot, actionFactories,
                 actions = IActionService.ActionInfos.Keys.Where(key => key.StartsWith("SystemTools.")).OrderBy(key => key).ToArray(),
                 configSaved = File.Exists(Path.Combine(GlobalConstants.PluginConfigFolder!, "Main.json")),
                 configSerializedLength = keyBefore,
@@ -58,6 +63,24 @@ internal static class WindowsAcceptance
             File.WriteAllText(destination, JsonSerializer.Serialize(new { passed = false, stage, error = exception.ToString() },
                 new JsonSerializerOptions { WriteIndented = true }));
         }
+    }
+
+    private static async Task<bool> CheckScreenshotAsync(IServiceProvider provider)
+    {
+        var folder = Path.Combine(GlobalConstants.PluginConfigFolder!, "M2-screenshot");
+        var action = provider.GetRequiredKeyedService<ActionBase>("SystemTools.ScreenShot");
+        var item = new ActionItem
+        {
+            Id = "SystemTools.ScreenShot",
+            Settings = new Settings.ScreenShotSettings { SaveFolder = folder }
+        };
+        var set = new ActionSet();
+        set.ActionItems.Add(item);
+        set.SetStartRunning(true);
+        try { await action.InvokeAsync(item, set); }
+        finally { set.SetEndRunning(true); }
+        return item.IsCompleted && item.Exception == null &&
+               Directory.EnumerateFiles(folder, "*.png").Any(path => new FileInfo(path).Length > 100);
     }
 
     private static async Task<bool> CheckFileActionsAsync(IServiceProvider provider)

@@ -50,6 +50,9 @@ def stage(host, destination):
             target = destination / path.relative_to(windows)
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
+    worker = ROOT / 'VoskWorker/bin/Release/net10.0/win-x64'
+    if worker.exists():
+        shutil.copytree(worker, destination / 'VoskWorker')
     files = {path.relative_to(destination).as_posix(): m1.sha(path)
              for path in sorted(destination.rglob('*')) if path.is_file()}
     m1.write_json(destination / 'm2-package.json',
@@ -57,7 +60,7 @@ def stage(host, destination):
                        hostSharedAssemblies=sorted(shared), files=files))
     return destination
 
-def smoke(host, source, timeout=40):
+def smoke(host, source, timeout=40, missing_dependencies=False):
     host, source = Path(host).resolve(), Path(source).resolve()
     run = ARTIFACTS / 'runs' / (time.strftime('%Y%m%d-%H%M%S') + '-windows')
     sandbox = run / 'sandbox'
@@ -73,6 +76,8 @@ def smoke(host, source, timeout=40):
     original = {'enableAiService': True, 'enableFloatingWindowFeature': True,
                 'aiApiKey': 'dpapi-current-user:v1:not-a-real-user-secret',
                 'm2UnknownField': {'preserved': True, 'windowsOnly': [1, 2, 3]}}
+    if missing_dependencies:
+        original.update(enableFfmpegFeatures=True, enableFaceRecognition=True)
     m1.write_json(config / 'Main.json', original)
     environment = os.environ.copy()
     environment['ClassIsland_PackageRoot'] = str(sandbox)
@@ -108,11 +113,15 @@ def smoke(host, source, timeout=40):
                 process.wait(timeout=10)
     after = m1.sha(global_path) if global_path.exists() else None
     saved = json.loads((config / 'Main.json').read_text(encoding='utf-8'))
-    preserved = all(saved.get(key) == original[key] for key in ('aiApiKey', 'm2UnknownField'))
+    keys = ['aiApiKey', 'm2UnknownField']
+    if missing_dependencies:
+        keys += ['enableFfmpegFeatures', 'enableFaceRecognition']
+    preserved = all(saved.get(key) == original[key] for key in keys)
     result = dict(m1.identity(), passed=bool(proof and proof.get('passed') and preserved and before == after),
                   proof=proof, host=str(host), hostSha256=m1.sha(host),
                   source=str(source), globalUnchanged=before == after,
                   configContractPreserved=preserved, run=str(run),
+                  missingDependenciesRequested=missing_dependencies,
                   hostExitCode=process.returncode)
     m1.write_json(run / 'result.json', result)
     print(json.dumps(result, ensure_ascii=False, indent=2), flush=True)
@@ -125,11 +134,12 @@ def main():
     parser.add_argument('operation', choices=['stage', 'smoke'])
     parser.add_argument('--host-bin', required=True)
     parser.add_argument('--stage', default=str(ARTIFACTS / 'stage'))
+    parser.add_argument('--missing-dependencies', action='store_true')
     args = parser.parse_args()
     if args.operation == 'stage':
         print(stage(args.host_bin, args.stage))
     else:
-        smoke(args.host_bin, args.stage)
+        smoke(args.host_bin, args.stage, missing_dependencies=args.missing_dependencies)
 
 if __name__ == '__main__':
     main()

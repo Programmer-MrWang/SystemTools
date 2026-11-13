@@ -14,6 +14,10 @@ using ClassIsland.Core.Services.Registry;
 using ClassIsland.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using SystemTools.Shared;
+using SystemTools.Services;
+using SystemTools.Models;
+using NPOI.XSSF.UserModel;
+using NPOI.HSSF.UserModel;
 
 namespace SystemTools.Platforms.Windows;
 
@@ -46,11 +50,19 @@ internal static class WindowsAcceptance
                     .Select(key => provider.GetRequiredKeyedService<ActionBase>(key).GetType().FullName!)
                     .ToArray();
             var screenshot = stage < 4 || await CheckScreenshotAsync(provider);
+            var excel = stage < 5 || CheckExcel(provider);
+            var unavailableCamera = stage < 5 || await CheckUnavailableCameraAsync(provider);
             var result = new
             {
-                passed = constructed.Length >= 5 && themes.Length == 3 && assets && fileActions && screenshot,
+                passed = constructed.Length >= 5 && themes.Length == 3 && assets && fileActions && screenshot && excel && unavailableCamera,
                 stage, pages = constructed, themes, legacyImageUris = assets,
-                fileActions, screenshot, actionFactories,
+                fileActions, screenshot, actionFactories, excel, unavailableCamera,
+                components = ComponentRegistryService.Registered
+                    .Where(info => info.ComponentType?.Assembly == typeof(Backend).Assembly)
+                    .Select(info => info.Guid).OrderBy(id => id).ToArray(),
+                triggers = IAutomationService.RegisteredTriggers.Where(info => info.Id.StartsWith("SystemTools."))
+                    .Select(info => info.Id).OrderBy(id => id).ToArray(),
+                rules = IRulesetService.Rules.Keys.Where(id => id.StartsWith("SystemTools.")).OrderBy(id => id).ToArray(),
                 actions = IActionService.ActionInfos.Keys.Where(key => key.StartsWith("SystemTools.")).OrderBy(key => key).ToArray(),
                 configSaved = File.Exists(Path.Combine(GlobalConstants.PluginConfigFolder!, "Main.json")),
                 configSerializedLength = keyBefore,
@@ -63,6 +75,46 @@ internal static class WindowsAcceptance
             File.WriteAllText(destination, JsonSerializer.Serialize(new { passed = false, stage, error = exception.ToString() },
                 new JsonSerializerOptions { WriteIndented = true }));
         }
+    }
+
+    private static async Task<bool> CheckUnavailableCameraAsync(IServiceProvider provider)
+    {
+        var action = provider.GetRequiredKeyedService<ActionBase>("SystemTools.CameraCapture");
+        if (action is not UnavailableCameraAction) return true;
+        var item = new ActionItem { Id = "SystemTools.CameraCapture" };
+        var set = new ActionSet();
+        set.SetStartRunning(true);
+        try
+        {
+            await action.InvokeAsync(item, set);
+            return false;
+        }
+        catch (InvalidOperationException)
+        {
+            return item.IsCompleted && item.Exception != null;
+        }
+        finally { set.SetEndRunning(true); }
+    }
+
+    private static bool CheckExcel(IServiceProvider provider)
+    {
+        var exporter = provider.GetRequiredService<ClassIslandProfileExcelExporter>();
+        var profile = new ClassIslandProfileDocument { Name = "M2 acceptance" };
+        profile.Subjects["sample"] = new ClassIslandSubject { Name = "数学", TeacherName = "测试教师" };
+        var source = new ProfileExportSource { FilePath = "M2-synthetic.json", Profile = profile };
+        var folder = Path.Combine(GlobalConstants.PluginConfigFolder!, "M2-excel");
+        Directory.CreateDirectory(folder);
+        foreach (var xlsx in new[] { true, false })
+        {
+            var data = exporter.BuildWorkbook(source,
+                new ProfileExcelExportOptions { ExportSubject = true, UseXlsx = xlsx });
+            var file = Path.Combine(folder, xlsx ? "subject.xlsx" : "subject.xls");
+            File.WriteAllBytes(file, data);
+            using var input = new MemoryStream(data);
+            using NPOI.SS.UserModel.IWorkbook workbook = xlsx ? new XSSFWorkbook(input) : new HSSFWorkbook(input);
+            if (workbook.NumberOfSheets != 1 || workbook.GetSheetAt(0).LastRowNum < 1) return false;
+        }
+        return true;
     }
 
     private static async Task<bool> CheckScreenshotAsync(IServiceProvider provider)

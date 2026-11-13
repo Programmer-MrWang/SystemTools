@@ -432,7 +432,7 @@ public static class DependencyPaths
         Directory.CreateDirectory(GetDependencyRoot());
     }
 
-    public static void InitializeResolvers()
+    public static void InitializeResolvers(bool isolated = false)
     {
         lock (SyncRoot)
         {
@@ -442,6 +442,41 @@ public static class DependencyPaths
             }
 
             EnsureDependencyDirectories();
+
+            if (isolated)
+            {
+                var context = AssemblyLoadContext.GetLoadContext(typeof(DependencyPaths).Assembly)!;
+                context.Resolving += (_, name) =>
+                {
+                    if (name.Name is not ("OpenCvSharp" or "OpenCvSharp.Extensions" or "DlibDotNet"))
+                        return null;
+                    var path = GetDependencyFile(name.Name + ".dll");
+                    return File.Exists(path) ? context.LoadFromAssemblyPath(path) : null;
+                };
+                context.ResolvingUnmanagedDll += (_, name) =>
+                {
+                    if (Path.GetFileName(name) != name) return IntPtr.Zero;
+                    var rid = RuntimeInformation.ProcessArchitecture == Architecture.X64 ? "win-x64" : null;
+                    if (rid == null) return IntPtr.Zero;
+                    var names = Path.HasExtension(name) ? new[] { name } : new[] { name, name + ".dll" };
+                    var pluginRoot = GlobalConstants.Information.PluginFolder;
+                    var directories = new[]
+                    {
+                        GetDependencyRoot(), Path.Combine(GetDependencyRoot(), "runtimes", rid, "native"),
+                        Path.Combine(GetDependencyRoot(), "runtimes", "win", "native"),
+                        Path.Combine(pluginRoot, "runtimes", rid, "native")
+                    };
+                    foreach (var directory in directories)
+                    foreach (var file in names)
+                    {
+                        var path = Path.Combine(directory, file);
+                        if (File.Exists(path)) return NativeLibrary.Load(path);
+                    }
+                    return IntPtr.Zero;
+                };
+                _initialized = true;
+                return;
+            }
 
             var dependencyRoot = GetDependencyRoot();
             var searchDirectories = GetNativeSearchDirectories(dependencyRoot)

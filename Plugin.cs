@@ -80,7 +80,7 @@ public partial class Plugin : PluginBase
         GlobalConstants.Information.PluginVersion = entrance.Info.Manifest.Version;
         GlobalConstants.MainConfig = new MainConfigHandler(entrance.PluginConfigFolder);
         EnsureOptionalDependencyState();
-        DependencyPaths.InitializeResolvers();
+        DependencyPaths.InitializeResolvers(isolated: _entrance != null);
 
         services.AddLogging();
         services.AddXamlTheme(
@@ -216,7 +216,8 @@ public partial class Plugin : PluginBase
         RegisterBaseComponents(services);
 
         var experimentalEnabled = GlobalConstants.MainConfig?.Data.EnableExperimentalFeatures ?? false;
-        var ffmpegEnabled = GlobalConstants.MainConfig?.Data.EnableFfmpegFeatures ?? false;
+        var ffmpegEnabled = GlobalConstants.MainConfig?.Data.EnableFfmpegFeatures == true &&
+                            !_ffmpegDisabledDueToMissingDependency;
 
         AppBase.Current.AppStarted += (o, args) =>
         {
@@ -246,7 +247,7 @@ public partial class Plugin : PluginBase
             _logger?.LogInformation("[SystemTools]FFmpeg功能状态: {Status}", ffmpegEnabled);
             if (_ffmpegDisabledDueToMissingDependency)
             {
-                _logger?.LogWarning("[SystemTools]FFmpeg 功能已自动关闭：缺少依赖文件 ffmpeg.exe。");
+                _logger?.LogWarning("[SystemTools]FFmpeg 暂不可用：缺少依赖文件，已保留原设置。");
             }
 
             if (GlobalConstants.MainConfig?.Data.EnableFaceRecognition == true)
@@ -262,7 +263,7 @@ public partial class Plugin : PluginBase
             }
             else if (_faceRecognitionDisabledDueToMissingDependency)
             {
-                _logger?.LogWarning("[SystemTools]人脸识别功能已自动关闭：缺少 runtimes、Models 或 OpenCvSharp/Dlib 依赖，并已清理对应验证器配置。");
+                _logger?.LogWarning("[SystemTools]人脸识别暂不可用，已保留设置与认证记录。");
             }
 
             if (GlobalConstants.MainConfig?.Data.EnableWindowsHello == true)
@@ -278,7 +279,7 @@ public partial class Plugin : PluginBase
             }
             else if (_windowsHelloDisabledDueToUnsupportedSystem)
             {
-                _logger?.LogWarning("[SystemTools]Windows Hello 验证器已自动关闭：当前系统低于 Windows build {MinimumBuild}，并已清理对应验证器配置。",
+                _logger?.LogWarning("[SystemTools]Windows Hello 暂不可用：当前系统低于 Windows build {MinimumBuild}，已保留设置与认证记录。",
                     WindowsHelloService.MinimumWindowsBuild);
             }
 
@@ -323,36 +324,12 @@ public partial class Plugin : PluginBase
             return;
         }
 
-        var changed = false;
-
-        if (config.EnableFfmpegFeatures && !DependencyPaths.HasFfmpegDependency())
-        {
-            config.EnableFfmpegFeatures = false;
-            _ffmpegDisabledDueToMissingDependency = true;
-            changed = true;
-        }
-
-        if (config.EnableFaceRecognition && !DependencyPaths.HasFaceRecognitionDependencies())
-        {
-            config.EnableFaceRecognition = false;
-            FaceRecognitionCredentialCleanup.RemoveFaceRecognitionProviderFromManagementCredentials();
-            _faceRecognitionDisabledDueToMissingDependency = true;
-            changed = true;
-        }
-
-        if (config.EnableWindowsHello &&
-            !OperatingSystem.IsWindowsVersionAtLeast(10, 0, WindowsHelloService.MinimumWindowsBuild))
-        {
-            config.EnableWindowsHello = false;
-            FaceRecognitionCredentialCleanup.RemoveWindowsHelloProviderFromManagementCredentials();
-            _windowsHelloDisabledDueToUnsupportedSystem = true;
-            changed = true;
-        }
-
-        if (changed)
-        {
-            GlobalConstants.MainConfig?.Save();
-        }
+        _ffmpegDisabledDueToMissingDependency =
+            config.EnableFfmpegFeatures && !DependencyPaths.HasFfmpegDependency();
+        _faceRecognitionDisabledDueToMissingDependency =
+            config.EnableFaceRecognition && !DependencyPaths.HasFaceRecognitionDependencies();
+        _windowsHelloDisabledDueToUnsupportedSystem = config.EnableWindowsHello &&
+            !OperatingSystem.IsWindowsVersionAtLeast(10, 0, WindowsHelloService.MinimumWindowsBuild);
     }
 
     #endregion

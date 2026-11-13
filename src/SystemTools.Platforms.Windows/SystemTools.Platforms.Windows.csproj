@@ -35,6 +35,7 @@
     <Compile Include="Backend.cs" />
     <Compile Include="WindowsDependencies.cs" />
     <Compile Include="WindowsAcceptance.cs" />
+    <Compile Include="UnavailableCameraAction.cs" />
     <Compile Include="../../Plugin.cs;../../DlibExtensions.cs;../../DriveUtils.cs" Link="%(Filename)%(Extension)" />
     <Compile Include="../../Actions/**/*.cs" Exclude="../../Actions/**/obj/**;../../Actions/**/bin/**" Link="Actions/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="../../Config/**/*.cs" Exclude="../../Config/**/obj/**;../../Config/**/bin/**" Link="Config/%(RecursiveDir)%(Filename)%(Extension)" />

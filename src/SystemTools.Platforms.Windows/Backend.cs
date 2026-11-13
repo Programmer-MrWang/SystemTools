@@ -11,8 +11,11 @@ public sealed class Backend : IPlatformBackend, IPlatformPlugin
     public void Initialize(PluginBase entrance, HostBuilderContext context, IServiceCollection services)
     {
         WindowsDependencies.Install();
-        new global::SystemTools.Plugin().InitializeFromEntrance(entrance, context, services, 4);
+        new global::SystemTools.Plugin().InitializeFromEntrance(entrance, context, services, 5);
+        if (!ClassIsland.Core.Abstractions.Services.IActionService.ActionInfos.ContainsKey("SystemTools.CameraCapture") &&
+            Shared.GlobalConstants.MainConfig!.Data.IsActionEnabled("SystemTools.CameraCapture"))
+            services.AddAction<UnavailableCameraAction>();
         if (System.Environment.GetEnvironmentVariable("SystemTools_M2_Acceptance") == "1")
-            ClassIsland.Core.AppBase.Current.AppStarted += async (_, _) => await WindowsAcceptance.RunAsync(4);
+            ClassIsland.Core.AppBase.Current.AppStarted += async (_, _) => await WindowsAcceptance.RunAsync(5);
     }
 }

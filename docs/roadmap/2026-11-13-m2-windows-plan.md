@@ -8,7 +8,7 @@
 
 Windows M1 已有 clean build、19 项加载检查、10 项打包检查、7 个跨目录一致输出、同一 Mac 包的三项宿主加载及 GUI/工作流证据。完整结果见 ../validation/2026-11-13-windows-m1.md。
 
-M1 的全球验收仍有 Linux 原生 x64 X11、三端同提交/SDK 原生汇总及远端 CI 缺口。先补齐原路线图的 M1 阶段闸门，再进入完整 M2 迁移；可以先准备 Windows 原版台账和技术方案。当前 Windows SDK 为 10.0.302，与 Mac/CI 的 10.0.403 不同，汇总前需对齐并重新构建，不混用当前 stage。
+2026-11-14 用户调整：Linux M1 完成代码与构建检查，不再要求真机测试，也不阻塞 Windows M2。Linux 实际运行仍如实标注未验证；三端相同 SDK 汇总和远端 CI 属于后续发行检查。按下列顺序继续 Windows 全量开发，每阶段验证后创建中文约定式本地提交。
 
 验收宿主 runtimeconfig 已确认包含 Microsoft.NETCore.App 与 Microsoft.WindowsDesktop.App 10.0.0 框架引用，本机实际加载 10.0.10。这只解决本机 WinForms 框架存在性，不代表原版所有 Windows/native 功能已可用。
 

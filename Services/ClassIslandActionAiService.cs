@@ -517,6 +517,8 @@ public sealed class ClassIslandActionAiService
         }
 
         cancellationToken.ThrowIfCancellationRequested();
+        foreach (var action in preparedActions)
+            if (SystemTools.Contracts.FeatureCatalog.Owns(action.Id)) SystemTools.Shared.GlobalConstants.Features?.EnsureExecutable(action.Id);
         var actionSet = new ActionSet
         {
             Name = $"AI：{request.Summary}",
@@ -1678,7 +1680,8 @@ public sealed class ClassIslandActionAiService
             registryVersion = -1;
         }
 
-        return new ActionRegistryStamp(registryVersion, IActionService.ActionInfos.Count);
+        return new ActionRegistryStamp(registryVersion, IActionService.ActionInfos.Count,
+            string.Join(";", SystemTools.Shared.GlobalConstants.Features?.Snapshot().Select(x => x.Feature.Id + "=" + x.Capability.State) ?? []));
     }
 
     private static Func<long>? CreateActionRegistryVersionAccessor()
@@ -1806,7 +1809,7 @@ public sealed class ClassIslandActionAiService
 
     private sealed record ActionAlias(string Path, Type? SettingsType, Delegate? SettingsSetter);
 
-    private readonly record struct ActionRegistryStamp(long Version, int ActionCount);
+    private readonly record struct ActionRegistryStamp(long Version, int ActionCount, string Capabilities);
 
     private sealed record CachedMenuVariant(string Path, JsonElement? PresetSettings);
 

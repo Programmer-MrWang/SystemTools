@@ -413,6 +413,14 @@ public class MainConfigData : INotifyPropertyChanged
                 return;
             }
 
+            if (value.Length != 0 && !CredentialProtection.Provider.Availability.CanExecute)
+            {
+                _storedAiApiKey = value;
+                _aiApiKey = string.Empty;
+                IsAiApiKeyUnavailable = true;
+                RequiresCredentialMigration = false;
+                return;
+            }
             _aiApiKey = value;
             _storedAiApiKey = value.Length == 0 ? string.Empty : null;
             IsAiApiKeyUnavailable = false;

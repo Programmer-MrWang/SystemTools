@@ -9,7 +9,7 @@ public sealed record Capability(CapabilityState State, string Reason = "", bool 
 {
     public bool CanExecute => State == CapabilityState.Available;
 }
-public sealed record FeatureDefinition(string Id, string Name, string Kind);
+public sealed record FeatureDefinition(string Id, string Name, string Kind, string? RegistrationId = null, string? Group = null);
 public sealed record FeatureStatus(FeatureDefinition Feature, Capability Capability);
 
 /// <summary>Read-only probes are evaluated at use time; discovery never requests permissions.</summary>

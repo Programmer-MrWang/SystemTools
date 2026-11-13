@@ -25,6 +25,7 @@ internal static class WindowsFeatureCatalog
             "trigger" => config.IsTriggerEnabled(feature.Id),
             "component" => config.IsComponentEnabled(feature.Id),
             "rule" => config.IsRuleEnabled(feature.Id),
+            "data" => true,
             _ => false
         };
         if (!enabled) return new(CapabilityState.Disabled, "用户已关闭该功能。" );

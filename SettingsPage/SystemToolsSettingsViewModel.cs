@@ -169,163 +169,15 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
     {
         FeatureItems.Clear();
 
-        var components = new[]
+        foreach (var status in GlobalConstants.Features!.Snapshot())
         {
-            ("SystemTools.NetworkStatus", "网络延迟"),
-            ("SystemTools.LyricsDisplay", "歌词显示"),
-            ("SystemTools.ClipboardContent", "显示剪切板内容"),
-            ("SystemTools.LocalQuote", "本地一言"),
-            ("SystemTools.NextClassDisplay", "下节课是"),
-            ("SystemTools.BetterCarouselContainer", "更好的轮播容器"),
-            ("SystemTools.ScrollingText", " LED 文本仿真显示框"),
-        };
-        foreach (var (id, name) in components)
-        {
+            var feature = status.Feature;
+            if (feature.Kind == "data" || feature.Id is "SystemTools.FullscreenClock" or "SystemTools.ClickSimulation") continue;
+            var type = feature.Kind switch { "component" => FeatureItemType.Component, "trigger" => FeatureItemType.Trigger, "rule" => FeatureItemType.Rule, _ => FeatureItemType.Action };
             FeatureItems.Add(new UnifiedFeatureItem
             {
-                Id = id,
-                DisplayName = name,
-                IsEnabled = Settings.IsComponentEnabled(id),
-                ItemType = FeatureItemType.Component,
-                GroupName = null
-            });
-        }
-
-        var triggers = new List<(string Id, string Name)>
-        {
-            ("SystemTools.UsbDeviceTrigger", "USB设备插入时"),
-            ("SystemTools.HotkeyTrigger", "按下F9时"),
-            ("SystemTools.ActionInProgressTrigger", "行动进行时"),
-           ("SystemTools.LongIdleTrigger", "长时间未操作电脑时"),
-            ("SystemTools.MainWindowClickTrigger", "点击主界面时"),
-       };
-        triggers.Add(("SystemTools.KeywordTrigger", "关键词触发"));
-
-        if (Settings.EnableFloatingWindowFeature)
-        {
-            triggers.Add(("SystemTools.FloatingWindowTrigger", "从悬浮窗触发"));
-        }
-        foreach (var (id, name) in triggers)
-        {
-            FeatureItems.Add(new UnifiedFeatureItem
-            {
-                Id = id,
-                DisplayName = name,
-                IsEnabled = Settings.IsTriggerEnabled(id),
-                ItemType = FeatureItemType.Trigger,
-                GroupName = null
-            });
-        }
-
-        var rules = new List<(string Id, string Name)>
-        {
-            ("SystemTools.ProcessRunningRule", "程序正在运行"),
-            ("SystemTools.UsingClassPlanRule", "正在使用某课程表"),
-            ("SystemTools.UsingTimeLayoutRule", "正在使用某时间表"),
-            ("SystemTools.InTimePeriodRule", "是否在某时间段"),
-            ("SystemTools.MediaMusicPlayingRule", "正在播放媒体音乐")
-        };
-        foreach (var (id, name) in rules)
-        {
-            FeatureItems.Add(new UnifiedFeatureItem
-            {
-                Id = id,
-                DisplayName = name,
-                IsEnabled = Settings.IsRuleEnabled(id),
-                ItemType = FeatureItemType.Rule,
-                GroupName = null
-            });
-        }
-
-        var actions = new List<(string Id, string Name, string? Group)>
-        {
-            ("SystemTools.SimulateKeyCombination", "模拟组合键", "模拟操作"),
-            ("SystemTools.SimulateKeyboard", "模拟键盘", "模拟操作"),
-            ("SystemTools.SimulateMouse", "模拟鼠标", "模拟操作"),
-            ("SystemTools.TypeContent", "键入内容", "模拟操作"),
-            ("SystemTools.WindowOperation", "窗口操作", "模拟操作"),
-            ("SystemTools.AltF4", "按下 Alt+F4", "常用模拟键"),
-            ("SystemTools.AltTab", "按下 Alt+Tab", "常用模拟键"),
-            ("SystemTools.CtrlZ", "按下 Ctrl+Z", "常用模拟键"),
-            ("SystemTools.EnterKey", "按下 Enter 键", "常用模拟键"),
-            ("SystemTools.EscKey", "按下 Esc 键", "常用模拟键"),
-            ("SystemTools.F11Key", "按下 F11 键", "常用模拟键"),
-            ("SystemTools.CloneDisplay", "复制屏幕", "显示设置"),
-            ("SystemTools.ExtendDisplay", "扩展屏幕", "显示设置"),
-            ("SystemTools.InternalDisplay", "仅电脑屏幕", "显示设置"),
-            ("SystemTools.ExternalDisplay", "仅第二屏幕", "显示设置"),
-            ("SystemTools.BlackScreenHtml", "黑屏html", "显示设置"),
-            ("SystemTools.ShowDesktop", "显示桌面", "显示设置"),
-            ("SystemTools.AdjustScreenBrightness", "调整屏幕亮度", "显示设置"),
-            ("SystemTools.Shutdown", "计时关机", "电源选项"),
-            ("SystemTools.AdvancedShutdown", "高级计时关机", "电源选项"),
-            ("SystemTools.CancelShutdown", "取消关机计划", "电源选项"),
-            ("SystemTools.LockScreen", "锁定屏幕", "电源选项"),
-            ("SystemTools.ImmediateRestart", "立即重启", "电源选项"),
-            ("SystemTools.ImmediateShutdown", "立即关机", "电源选项"),
-            ("SystemTools.Sleep", "睡眠", "电源选项"),
-            ("SystemTools.Copy", "复制", "文件操作"),
-            ("SystemTools.Move", "移动", "文件操作"),
-            ("SystemTools.Delete", "删除", "文件操作"),
-            ("SystemTools.ChangeWallpaper", "切换壁纸", "系统个性化"),
-            ("SystemTools.SwitchTheme", "切换主题色", "系统个性化"),
-            ("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "系统个性化"),
-            ("SystemTools.FullscreenClock", "沉浸式时钟", "其他工具"),
-            ("SystemTools.AutoSwitchClassIslandTheme", "自动切换 ClassIsland 主题", "更多功能选项…"),
-            ("SystemTools.AutoHideMainWindowWhenOccluded", "遮挡文字时隐藏主界面", "更多功能选项…"),
-            ("SystemTools.AutoOpenUsbDriveOnInsert", "自动播放", "更多功能选项…"),
-            ("SystemTools.KillProcess", "退出进程", "实用工具"),
-            ("SystemTools.ScreenShot", "屏幕截图", "实用工具"),
-            ("SystemTools.ShowToast", "拉起自定义Windows通知", "实用工具"),
-            ("SystemTools.DisableDevice", "禁用硬件设备", "实用工具"),
-            ("SystemTools.EnableDevice", "启用硬件设备", "实用工具"),
-            ("SystemTools.SetVolume", "设置系统音量", "媒体工具"),
-            ("SystemTools.BackgroundPlayAudio", "后台播放音频", "媒体工具"),
-            ("SystemTools.CameraCapture", "摄像头抓拍", "媒体工具"),
-            ("SystemTools.TriggerCustomTrigger", "触发指定触发器", "高级自动化工具…"),
-            ("SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", "高级自动化工具…"),
-            ("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "ClassIsland"),
-            ("SystemTools.ClearAllNotifications", "清除全部提醒", "ClassIsland"),
-            ("SystemTools.LoadTemporaryClassPlan", "加载临时课表", "ClassIsland"),
-            ("SystemTools.OpenAppSettings", "打开应用设置", "ClassIsland"),
-            ("SystemTools.OpenProfileEditor", "打开档案编辑", "ClassIsland"),
-            ("SystemTools.OpenClassSwapWindow", "打开换课窗口", "ClassIsland"),
-            ("SystemTools.ToggleWorkflow", "开关自动化", "高级自动化工具…"),
-        };
-
-        if (Settings.EnableAiService)
-        {
-            actions.Add(("SystemTools.EnableVoiceWakeAi", "启用语音唤醒 AI", "AI 功能…"));
-            actions.Add(("SystemTools.WakeUpVoiceConversationAi", "唤醒语音对话 AI", "AI 功能…"));
-            actions.Add(("SystemTools.ShowAiChatDialog", "显示AI对话框", "AI 功能…"));
-        }
-
-        if (Settings.EnableFloatingWindowFeature)
-        {
-            actions.Add(("SystemTools.ShowFloatingWindow", "显示悬浮窗", "悬浮窗设置"));
-            actions.Add(("SystemTools.ToggleFloatingWindowLayer", "切换悬浮窗层级", "悬浮窗设置"));
-            actions.Add(("SystemTools.ToggleFloatingWindowProfile", "切换悬浮窗配置方案", "悬浮窗设置"));
-            actions.Add(("SystemTools.SwitchFloatingWindowTheme", "切换悬浮窗主题", "悬浮窗设置"));
-        }
-
-        if (Settings.EnableExperimentalFeatures)
-        {
-            actions.Add(("SystemTools.DisableMouse", "禁用鼠标", "实验性功能…"));
-            actions.Add(("SystemTools.EnableMouse", "启用鼠标", "实验性功能…"));
-        }
-
-        if (GlobalConstants.IsUnifiedBuild)
-            actions.RemoveAll(item => item.Id == "SystemTools.FullscreenClock");
-
-        foreach (var (id, name, group) in actions)
-        {
-            FeatureItems.Add(new UnifiedFeatureItem
-            {
-                Id = id,
-                DisplayName = name,
-                IsEnabled = Settings.IsActionEnabled(id),
-                ItemType = FeatureItemType.Action,
-                GroupName = group
+                Id = feature.Id, DisplayName = feature.Name, ItemType = type, GroupName = feature.Group,
+                IsEnabled = type switch { FeatureItemType.Component => Settings.IsComponentEnabled(feature.Id), FeatureItemType.Trigger => Settings.IsTriggerEnabled(feature.Id), FeatureItemType.Rule => Settings.IsRuleEnabled(feature.Id), _ => Settings.IsActionEnabled(feature.Id) }
             });
         }
         UpdateFeatureSearchResults(null);
@@ -404,20 +256,6 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
         HasFloatingTriggerEntries = entries.Count > 0;
 
         var profile = CurrentFloatingWindowProfile;
-        var globalShow = _configHandler.Data.ShowFloatingWindow;
-        if (!HasFloatingTriggerEntries && globalShow)
-        {
-            _configHandler.Data.ShowFloatingWindow = false;
-            _configHandler.Save();
-            _floatingWindowService.UpdateWindowState();
-        }
-
-        // 清理不存在的按钮ID
-        if (profile.PruneInvalidButtonIds(entries.Keys))
-        {
-            _floatingWindowService.ProfileManager.SaveProfile();
-        }
-
         // 收集已配置的按钮ID
         var configuredIds = new HashSet<string>();
         foreach (var row in profile.FloatingWindowButtonRows ?? [])

@@ -596,7 +596,7 @@ public partial class Plugin : PluginBase
         where TTrigger : ClassIsland.Core.Abstractions.Automation.TriggerBase
         where TSettings : ClassIsland.Core.Abstractions.Controls.TriggerSettingsControlBase
     {
-        if (config.IsTriggerEnabled(triggerId))
+        if (config.IsTriggerEnabled(triggerId) && GlobalConstants.Features?.CanCreate(triggerId) != false)
         {
             services.AddTrigger<TTrigger, TSettings>();
         }
@@ -607,7 +607,7 @@ public partial class Plugin : PluginBase
         where TComponent : ClassIsland.Core.Abstractions.Controls.ComponentBase
         where TSettingsControl : ClassIsland.Core.Abstractions.Controls.ComponentBase
     {
-        if (config.IsComponentEnabled(componentId))
+        if (config.IsComponentEnabled(componentId) && GlobalConstants.Features?.CanCreate(componentId) != false)
         {
             services.AddComponent<TComponent, TSettingsControl>();
         }

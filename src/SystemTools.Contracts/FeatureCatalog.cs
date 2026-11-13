@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace SystemTools.Contracts;
 
-public enum CapabilityState { Available, Disabled, MissingDependency, PermissionRequired, MissingDevice, Unsupported }
+public enum CapabilityState { Available, Disabled, MissingDependency, PermissionRequired, MissingDevice, RestartRequired, Unsupported }
 public sealed record Capability(CapabilityState State, string Reason = "", bool RuntimeVerified = false)
 {
     public bool CanExecute => State == CapabilityState.Available;
@@ -28,6 +28,16 @@ public sealed class FeatureCatalog
     {
         if (!_features.TryGetValue(id, out var feature)) throw new ArgumentException("未知功能 ID：" + id);
         _features[id] = (feature.Definition, probe);
+    }
+    public void BindForRegistration(string id, Func<Capability> probe)
+    {
+        var initial = probe();
+        Bind(id, () =>
+        {
+            var current = probe();
+            return current.CanExecute && !initial.CanExecute
+                ? new(CapabilityState.RestartRequired, "条件已就绪，请重启 ClassIsland 完成注册。") : current;
+        });
     }
     public Capability Get(string id) => _features.TryGetValue(id, out var feature)
         ? feature.Probe() : new(CapabilityState.Unsupported, "功能未登记。" );

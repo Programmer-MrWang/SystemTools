@@ -11,6 +11,7 @@ internal static class LegacyActionDiagnostics
 {
     internal static void Register(IServiceCollection services)
     {
+        if (!IActionService.ActionInfos.ContainsKey("SystemTools.CameraCapture")) services.AddAction<UnavailableCamera>();
         if (!IActionService.ActionInfos.ContainsKey("SystemTools.ActionFlowExecutionConfirmation")) services.AddAction<Unavailable0>();
         if (!IActionService.ActionInfos.ContainsKey("SystemTools.AdjustScreenBrightness")) services.AddAction<Unavailable1>();
         if (!IActionService.ActionInfos.ContainsKey("SystemTools.AdvancedShutdown")) services.AddAction<Unavailable2>();
@@ -366,4 +367,10 @@ internal sealed class Unavailable57(FeatureCatalog catalog) : ActionBase
 internal sealed class Unavailable58(FeatureCatalog catalog) : ActionBase
 {
     protected override Task OnInvoke() { catalog.EnsureExecutable("SystemTools.WindowOperation"); throw new InvalidOperationException("功能实现未注册，请重启或重新安装插件。"); }
+}
+
+[ActionInfo("SystemTools.CameraCapture", "摄像头抓拍", "", false)]
+internal sealed class UnavailableCamera(FeatureCatalog catalog) : ActionBase
+{
+    protected override Task OnInvoke() { catalog.EnsureExecutable("SystemTools.CameraCapture"); throw new InvalidOperationException("摄像头实现未注册，请重启或重新安装插件。"); }
 }

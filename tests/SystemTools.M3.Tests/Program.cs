@@ -12,6 +12,10 @@ enabled = false;
 Check(!catalog.CanCreate("SystemTools.Copy"), "能力每次使用重新检查");
 try { catalog.EnsureExecutable("SystemTools.Copy"); throw new Exception("静默成功"); } catch (InvalidOperationException) { Check(true, "不可用旧行动明确失败"); }
 Check(catalog.Snapshot().Select(x => x.Feature.Id).Distinct().Count() == catalog.Snapshot().Count, "稳定 ID 唯一");
+var needsRestart = false;
+catalog.BindForRegistration("SystemTools.Move", () => new(needsRestart ? CapabilityState.Available : CapabilityState.Disabled));
+needsRestart = true;
+Check(catalog.Get("SystemTools.Move").State == CapabilityState.RestartRequired && !catalog.CanCreate("SystemTools.Move"), "初始未注册功能就绪后明确要求重启");
 var temporary = Path.Combine(Path.GetTempPath(), "systemtools-m3-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(temporary);
 try
@@ -39,6 +43,11 @@ try
     File.WriteAllText(path, """{"_systemToolsSchema":999}""");
     try { new SystemTools.Common.Storage.AtomicJsonStore<TestDocument>(path).Load(); throw new Exception("未来版本降级"); } catch (InvalidDataException) { Check(true, "拒绝覆写未来版本配置"); }
     var migration = new SystemTools.Common.Migration.IdentityMigration();
+    var identitySource = Path.Combine(temporary, "identity.json");
+    File.WriteAllText(identitySource, """{"selectedThemeId":"SystemTools.CrossPlatform.notch-style","channelId":"4bee12e4-ab5a-4193-8e8e-1651c23228f3","componentId":"e6fc9a28-a104-50f2-95e3-b237f9cc4dac","userText":"SystemTools.CrossPlatform.notch-style"}""");
+    var mappedIdentities = System.Text.Json.Nodes.JsonNode.Parse(migration.Preview(new(identitySource, Path.Combine(temporary, "identity-target.json"))).Candidate)!;
+    Check(mappedIdentities["selectedThemeId"]!.GetValue<string>() == "notch-style" && mappedIdentities["channelId"]!.GetValue<string>() == "7D7EFBF1-02A4-4A15-9C1A-2229027339B2", "主题选择及通知渠道采用显式身份映射");
+    Check(mappedIdentities["componentId"]!.GetValue<string>() == "A7C3455E-6A4E-4D4D-9D0D-7C6FCB5E1E3A" && mappedIdentities["userText"]!.GetValue<string>() == "SystemTools.CrossPlatform.notch-style", "组件 GUID 映射忽略大小写且普通文本不变");
     var migrationSource = Path.Combine(temporary, "legacy.json");
     var migrationTarget = Path.Combine(temporary, "formal.json");
     File.WriteAllText(migrationSource, """{"enabledActions":{"SystemTools.CrossPlatform.Copy":true},"Action":{"Id":"SystemTools.CrossPlatform.Copy"},"userText":"SystemTools.CrossPlatform.Copy","aiApiKey":"dpapi-current-user:v1:REDACTED","unknown":{"keep":1}}""");

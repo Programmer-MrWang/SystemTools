@@ -42,5 +42,15 @@
   "SystemTools.CrossPlatform.ScrollingText": "SystemTools.ScrollingText",
   "avares://SystemTools.CrossPlatform/Themes/CardTypeComponent/Styles.axaml": "avares://SystemTools/Themes/CardTypeComponent/Styles.axaml",
   "avares://SystemTools.CrossPlatform/Themes/ClassWidgets/Styles.axaml": "avares://SystemTools/Themes/ClassWidgets/Styles.axaml",
-  "avares://SystemTools.CrossPlatform/Themes/NotchStyle/Styles.axaml": "avares://SystemTools/Themes/NotchStyle/Styles.axaml"
+  "avares://SystemTools.CrossPlatform/Themes/NotchStyle/Styles.axaml": "avares://SystemTools/Themes/NotchStyle/Styles.axaml",
+  "SystemTools.CrossPlatform.Card-type-component": "Card-type-component",
+  "SystemTools.CrossPlatform.classwidgets": "classwidgets",
+  "SystemTools.CrossPlatform.notch-style": "notch-style",
+  "44BB7B21-9831-4446-B3B6-3A4D7D1BE402": "7E9A3D5C-1B8F-4E2A-9C6D-0F5E8B1A4D7C",
+  "DD9150A5-A457-45CA-B1B5-393699CFB083": "6F8C2B4A-9D1E-5F3B-8A7C-1E4D9F6B3A8C",
+  "4BEE12E4-AB5A-4193-8E8E-1651C23228F3": "7D7EFBF1-02A4-4A15-9C1A-2229027339B2",
+  "SystemTools.CrossPlatform.ProcessRunningRule": "SystemTools.ProcessRunningRule",
+  "SystemTools.CrossPlatform.UsingClassPlanRule": "SystemTools.UsingClassPlanRule",
+  "SystemTools.CrossPlatform.UsingTimeLayoutRule": "SystemTools.UsingTimeLayoutRule",
+  "SystemTools.CrossPlatform.InTimePeriodRule": "SystemTools.InTimePeriodRule"
 }

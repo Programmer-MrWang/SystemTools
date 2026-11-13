@@ -47,9 +47,9 @@ public static class SharedHostRegistration
         foreach (var suffix in actions)
         {
             var id = "SystemTools." + suffix;
-            catalog.Bind(id, () => config.Data.IsActionEnabled(id) ? new(CapabilityState.Available, "共享实现已接入，尚待本平台运行验证。" ) : new(CapabilityState.Disabled, "用户已关闭。" ));
+            catalog.BindForRegistration(id, () => config.Data.IsActionEnabled(id) ? new(CapabilityState.Available, "共享实现已接入，尚待本平台运行验证。" ) : new(CapabilityState.Disabled, "用户已关闭。" ));
         }
-        catalog.Bind("SystemTools.ReadFile", () => new(CapabilityState.Available, "共享实现已接入。" ));
+        catalog.BindForRegistration("SystemTools.ReadFile", () => new(CapabilityState.Available, "共享实现已接入。" ));
         if (catalog.CanCreate("SystemTools.Copy")) services.AddAction<CopyAction, CopySettingsControl>();
         if (catalog.CanCreate("SystemTools.Move")) services.AddAction<MoveAction, MoveSettingsControl>();
         if (catalog.CanCreate("SystemTools.Delete")) services.AddAction<DeleteAction, DeleteSettingsControl>();
@@ -68,7 +68,7 @@ public static class SharedHostRegistration
         {
             var id = status.Feature.Id;
             if (id == "SystemTools.LyricsDisplay") continue;
-            catalog.Bind(id, () => config.Data.IsComponentEnabled(id) ? new(CapabilityState.Available, "共享组件已接入，尚待本平台运行验证。" ) : new(CapabilityState.Disabled, "用户已关闭。" ));
+            catalog.BindForRegistration(id, () => config.Data.IsComponentEnabled(id) ? new(CapabilityState.Available, "共享组件已接入，尚待本平台运行验证。" ) : new(CapabilityState.Disabled, "用户已关闭。" ));
         }
         if (catalog.CanCreate("SystemTools.NetworkStatus")) services.AddComponent<NetworkStatusComponent, NetworkStatusSettingsControl>();
         if (catalog.CanCreate("SystemTools.ClipboardContent")) services.AddComponent<ClipboardContentComponent, ClipboardContentSettingsControl>();
@@ -79,7 +79,7 @@ public static class SharedHostRegistration
         foreach (var suffix in new[] { "ProcessRunning", "UsingClassPlan", "UsingTimeLayout", "InTimePeriod" })
         {
             var id = "SystemTools." + suffix + "Rule";
-            catalog.Bind(id, () => config.Data.IsRuleEnabled(id) ? new(CapabilityState.Available) : new(CapabilityState.Disabled, "用户已关闭。" ));
+            catalog.BindForRegistration(id, () => config.Data.IsRuleEnabled(id) ? new(CapabilityState.Available) : new(CapabilityState.Disabled, "用户已关闭。" ));
         }
         if (catalog.CanCreate("SystemTools.ProcessRunningRule")) services.AddRule<ProcessRunningRuleSettings, ProcessRunningRuleSettingsControl>("SystemTools.ProcessRunningRule", "程序正在运行", "\uE342", SharedRuleHandlers.HandleProcessRunningRule);
         if (catalog.CanCreate("SystemTools.UsingClassPlanRule")) services.AddRule<UsingClassPlanRuleSettings, UsingClassPlanRuleSettingsControl>("SystemTools.UsingClassPlanRule", "正在使用某课程表", "\uE6B1", SharedRuleHandlers.HandleUsingClassPlanRule);

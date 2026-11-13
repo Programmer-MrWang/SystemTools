@@ -12,7 +12,7 @@ internal static class WindowsFeatureCatalog
         foreach (var feature in catalog.Snapshot())
         {
             var definition = feature.Feature;
-            catalog.Bind(definition.Id, () => Probe(definition, config));
+            catalog.BindForRegistration(definition.Id, () => Probe(definition, config));
         }
     }
     private static Capability Probe(FeatureDefinition feature, MainConfigData config)

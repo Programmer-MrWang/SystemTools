@@ -12,9 +12,9 @@ public sealed record MigrationPreview(MigrationRequest Request, string? SourceHa
 public sealed class IdentityMigration
 {
     private static readonly HashSet<string> IdentityFields = new(StringComparer.OrdinalIgnoreCase)
-        { "id", "actionId", "triggerId", "componentId", "providerId", "pluginId", "ruleId", "themeId", "theme", "buttonId" };
+        { "id", "actionId", "triggerId", "componentId", "providerId", "pluginId", "ruleId", "themeId", "theme", "buttonId", "selectedThemeId", "selectedTheme", "xamlThemeId", "channelId", "notificationProviderId" };
     private static readonly HashSet<string> IdentityDictionaries = new(StringComparer.OrdinalIgnoreCase)
-        { "enabledActions", "enabledTriggers", "enabledComponents", "enabledRules", "floatingWindowButtonRulesets" };
+        { "enabledActions", "enabledTriggers", "enabledComponents", "enabledRules", "floatingWindowButtonRulesets", "notificationProviders", "notificationChannels", "channels" };
     private static readonly HashSet<string> IdentityArrays = new(StringComparer.OrdinalIgnoreCase)
         { "floatingWindowButtonOrder", "floatingWindowButtonRows", "buttonIds" };
     private readonly IReadOnlyDictionary<string, string> _mapping;
@@ -137,7 +137,15 @@ public sealed class IdentityMigration
     {
         var journal = ReadJournal(journalPath);
         using var lease = new FileStream(Path.Combine(journal.Root, ".migration.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-        foreach (var entry in journal.Entries) ValidateEntry(journalPath, journal.Root, entry);
+        foreach (var entry in journal.Entries)
+        {
+            ValidateEntry(journalPath, journal.Root, entry);
+            var current = AtomicJsonStore<MigrationJournal>.Hash(entry.Target);
+            if (current != entry.BeforeHash && current != entry.AfterHash)
+                throw new ConfigurationConflictException("迁移后目标已被修改，回退已暂停以保留新数据。");
+            if (entry.Backup is not null && AtomicJsonStore<MigrationJournal>.Hash(entry.Backup) != entry.BeforeHash)
+                throw new InvalidDataException("迁移备份校验失败。");
+        }
         foreach (var entry in journal.Entries.AsEnumerable().Reverse())
         {
             var current = AtomicJsonStore<MigrationJournal>.Hash(entry.Target);

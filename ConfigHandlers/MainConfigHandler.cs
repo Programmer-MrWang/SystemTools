@@ -89,6 +89,7 @@ public class MainConfigHandler : IDisposable
 
     private void MigrateBackupCredential()
     {
+        if (!CredentialProtection.Provider.Availability.CanExecute) return;
         var backupPath = _configPath + ".bak";
         string? temporaryPath = null;
         try

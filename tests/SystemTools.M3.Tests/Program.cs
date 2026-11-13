@@ -51,6 +51,9 @@ try
     Check(SystemTools.Common.Storage.PersistentProfileImport.CopyOnce(source, destination).Conflicts.SequenceEqual(["Conflict.json"]), "方案冲突保留两端并报告");
 }
 finally { Directory.Delete(temporary, recursive: true); }
+var unavailable = new UnavailableCredentialProtector("keychain:v1:", "未接入系统凭据后端");
+Check(!unavailable.TryUnprotect("dpapi-current-user:v1:REDACTED", out var plaintext) && plaintext == "", "无凭据后端时不伪造解密结果");
+try { unavailable.Protect("test-secret"); throw new Exception("不安全降级"); } catch (PlatformNotSupportedException) { Check(true, "无凭据后端时拒绝明文降级"); }
 Console.WriteLine($"M3 checks: {checks}");
 
 public sealed class TestDocument

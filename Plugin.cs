@@ -77,6 +77,8 @@ public partial class Plugin : PluginBase
         GlobalConstants.PluginConfigFolder = entrance.PluginConfigFolder;
         GlobalConstants.Information.PluginFolder = entrance.Info.PluginFolderPath;
         GlobalConstants.Information.PluginVersion = entrance.Info.Manifest.Version;
+        CredentialProtection.Provider = new SystemTools.Platforms.Windows.WindowsDpapiProtector();
+        services.AddSingleton<SystemTools.Contracts.ICredentialProtector>(CredentialProtection.Provider);
         GlobalConstants.MainConfig = new MainConfigHandler(entrance.PluginConfigFolder);
         GlobalConstants.Features = services.LastOrDefault(x => x.ServiceType == typeof(SystemTools.Contracts.FeatureCatalog))?.ImplementationInstance as SystemTools.Contracts.FeatureCatalog
             ?? new SystemTools.Contracts.FeatureCatalog("win-x64");

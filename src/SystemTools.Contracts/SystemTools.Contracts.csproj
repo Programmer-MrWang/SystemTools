@@ -1,1 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk" />
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.10" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.10" ExcludeAssets="runtime;native" />
+  </ItemGroup>
+</Project>

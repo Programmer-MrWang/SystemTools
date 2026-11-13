@@ -74,6 +74,17 @@ try
     Check(Path.GetFullPath(profiles.ProfilesDirectory).StartsWith(configFolder + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase), "真实方案管理器使用持久配置目录");
     profiles.LoadProfile("Default"); profiles.SaveProfile();
     Check(File.Exists(Path.Combine(profiles.ProfilesDirectory, "Default.json")), "真实方案可读写");
+    foreach (var fixture in Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "fixtures"), "*-main.json"))
+    {
+        var folder = Path.Combine(temporary, Path.GetFileNameWithoutExtension(fixture));
+        Directory.CreateDirectory(folder); File.Copy(fixture, Path.Combine(folder, "Main.json"));
+        using var handler = new MainConfigHandler(folder);
+        handler.Save();
+        using var document = JsonDocument.Parse(File.ReadAllText(Path.Combine(folder, "Main.json")));
+        Check(document.RootElement.GetProperty("futurePlatform").GetProperty("nested").GetProperty("keep").GetInt32() > 0 &&
+            document.RootElement.GetProperty("aiApiKey").GetString() == "dpapi-current-user:v1:REDACTED-INACCESSIBLE", Path.GetFileName(fixture) + " 夹具通过实际序列化器往返保存");
+    }
+    GlobalConstants.MainConfig = main;
     var shared = typeof(SharedHostRegistration).Assembly;
     using var stream = File.OpenRead(shared.Location); using var pe = new PEReader(stream);
     var metadata = pe.GetMetadataReader();

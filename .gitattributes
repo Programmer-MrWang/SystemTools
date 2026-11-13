@@ -13,3 +13,6 @@
 *.sksl text eol=lf
 *.resx text eol=lf
 /NativeMethods.txt text eol=lf
+
+/eng/shared-host-sources.props text eol=lf
+/eng/shared-host-sources.json text eol=lf

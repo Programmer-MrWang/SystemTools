@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / 'artifacts/m2'
 TFM = 'net10.0-windows10.0.19041.0'
 PRIVATE = 'platforms/win-x64'
+SHARED_PRIVATE = 'platforms/shared'
 EXTRAS = ['black.html', 'title.png', 'version.json', 'README-1.md', 'README-2.md',
           'Lyricify Lite - README.md', 'huifu.bat', 'huifu.ps1',
           'jinyongshubiao.bat', 'jinyongshubiao.ps1']
@@ -51,6 +52,7 @@ def verify_files(names, manifest, read):
     if len(names) != len(set(name.casefold() for name in names)) or set(names) != expected:
         raise RuntimeError('Package contents differ from the file manifest or contain duplicate paths.')
     shared = set(manifest['hostSharedAssemblies'])
+    managed_locations = {}
     for name in names:
         if not safe_name(name):
             raise RuntimeError('Invalid package path: ' + name)
@@ -60,13 +62,19 @@ def verify_files(names, manifest, read):
             raise RuntimeError('Package hash mismatch: ' + name)
         basename = PurePosixPath(name).name.casefold()
         is_worker = name.startswith(PRIVATE + '/VoskWorker/')
+        if name.startswith(SHARED_PRIVATE + '/') and (len(PurePosixPath(name).parts) != 3 or not basename.endswith('.dll')):
+            raise RuntimeError('Shared assets must be flat managed DLLs: ' + name)
+        if basename.endswith('.dll') and not is_worker:
+            if basename in managed_locations:
+                raise RuntimeError('Duplicate plugin dependency: ' + name)
+            managed_locations[basename] = name
         if basename.endswith('.dll') and not is_worker:
             if basename in shared or basename.startswith(HOST_PREFIXES):
                 raise RuntimeError('Duplicate host/shared assembly: ' + name)
         if '/' not in name:
             if name not in set(m1.COMMON + MODULES + EXTRAS):
                 raise RuntimeError('Unexpected root file: ' + name)
-        elif not name.startswith(PRIVATE + '/'):
+        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/'):
             raise RuntimeError('Unexpected platform asset: ' + name)
     if not set(m1.COMMON + MODULES).issubset(names):
         raise RuntimeError('Missing entry, contract or platform module.')
@@ -99,10 +107,18 @@ def stage(host, destination):
               if host else sdk_shared_assemblies())
     for name in m1.COMMON:
         shutil.copy2(entry / name, destination / name)
+    shared_output = ROOT / 'src/SystemTools.SharedHost/bin/Release/net10.0'
+    shared_private = {path.name for path in shared_output.glob('*.dll')
+                      if path.name not in m1.COMMON and path.name.casefold() not in shared
+                      and not path.name.casefold().startswith(HOST_PREFIXES)}
+    for name in shared_private:
+        target = destination / SHARED_PRIVATE / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(shared_output / name, target)
     for path in windows.glob('*.dll'):
         if path.name.casefold() in shared or path.name.casefold().startswith(HOST_PREFIXES):
             continue
-        if path.name in {'SystemTools.dll', 'SystemTools.Contracts.dll'}:
+        if path.name in set(m1.COMMON) | shared_private:
             continue
         target = destination / path.name if path.name in MODULES else destination / PRIVATE / path.name
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -126,13 +142,13 @@ def stage(host, destination):
     files = {path.relative_to(destination).as_posix(): m1.sha(path)
              for path in sorted(destination.rglob('*')) if path.is_file()}
     m1.write_json(destination / 'm2-package.json',
-                  dict(m1.identity(), schemaVersion=1, milestone='M2-Windows-preview',
-                       kind='native-windows-with-managed-platform-descriptors',
+                  dict(m1.identity(), schemaVersion=1, milestone='M3-shared-preview',
+                       kind='windows-and-shared-business-preview',
                        sdk=subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip(),
                        host=str(host) if host else None, hostSha256=m1.sha(host) if host else None,
                        hostContract='actual-host-files' if host else 'sdk-contract-only-not-runtime-validated',
                        hostSharedAssemblies=sorted(shared), files=files,
-                       linuxRuntimeValidated=False, macBusinessImplemented=False))
+                       linuxRuntimeValidated=False, macBusinessImplemented=True, macRuntimeValidated=False, sharedBusinessRuntimeValidated=False))
     validate(destination)
     return destination
 

@@ -7,7 +7,7 @@ import argparse, hashlib, json, os, platform, shutil, signal, subprocess, sys, t
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / 'artifacts/m1'
 MODULES = {'win-x64': 'Windows', 'linux-x64': 'Linux', 'osx-arm64': 'MacOS'}
-COMMON = ['SystemTools.dll', 'SystemTools.Contracts.dll', 'SystemTools.deps.json', 'manifest.yml', 'README.md', 'icon.png']
+COMMON = ['SystemTools.dll', 'SystemTools.Contracts.dll', 'SystemTools.Common.dll', 'SystemTools.SharedHost.dll', 'SystemTools.deps.json', 'manifest.yml', 'README.md', 'icon.png']
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
@@ -44,7 +44,7 @@ def global_storage_path():
 
 def identity():
     # Content identity includes uncommitted new source too. Ignore bin/obj outputs.
-    paths = [ROOT / 'global.json', ROOT / 'SystemTools.slnx']
+    paths = [ROOT / 'global.json', ROOT / 'SystemTools.slnx', ROOT / 'eng/shared-host-sources.props', ROOT / 'eng/shared-host-sources.json']
     paths += [p for p in (ROOT / 'src').rglob('*') if p.is_file() and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
     # M2 compiles the preserved Windows tree as linked inputs, so include its bytes.
     for name in ('Plugin.cs', 'DlibExtensions.cs', 'DriveUtils.cs', 'NativeMethods.txt', 'icon.png'):
@@ -62,7 +62,7 @@ def identity():
                       and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
     digest = hashlib.sha256()
     # Preserve the original POSIX component order; Windows Path ordering folds case.
-    for path in sorted(paths, key=lambda value: value.relative_to(ROOT).parts):
+    for path in sorted((path for path in paths if path.is_file()), key=lambda value: value.relative_to(ROOT).parts):
         digest.update(path.relative_to(ROOT).as_posix().encode())
         digest.update(path.read_bytes())
     return {'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip(), 'sourceHash': digest.hexdigest()}
@@ -74,7 +74,7 @@ def build(clean=False):
     rid = native_rid()
     if clean:
         # Copied FileListAbsolute caches can point at another OS and leave generated source behind.
-        projects = ['SystemTools', 'SystemTools.Contracts', 'SystemTools.Platforms.' + MODULES[rid]]
+        projects = ['SystemTools', 'SystemTools.Contracts', 'SystemTools.Common', 'SystemTools.SharedHost', 'SystemTools.Platforms.' + MODULES[rid]]
         for name in projects:
             project = (ROOT / 'src' / name).resolve()
             if not project.is_relative_to(ROOT.resolve()):
@@ -97,7 +97,7 @@ def build(clean=False):
     for name in COMMON + [module_name(rid)]:
         shutil.copy2(output / name, stage / name)
     write_json(stage / 'm1-build.json', dict(identity(), runtimeId=rid, buildMachine=platform.platform(),
-        milestone='M2-Windows-preview', kind='native',
+        milestone='M3-shared-preview', kind='native',
         files={n: sha(stage / n) for n in COMMON + [module_name(rid)]}))
     print('LOCAL STAGE:', stage, flush=True)
     return stage
@@ -105,8 +105,8 @@ def build(clean=False):
 def pack(stages, output, prototype=False):
     stages = [Path(p).resolve() for p in stages]
     builds = [json.loads((p / 'm1-build.json').read_text(encoding='utf-8')) for p in stages]
-    if any(build_info.get('milestone') == 'M2-Windows-preview' for build_info in builds):
-        raise RuntimeError('M2 Windows assets require eng/m2.py package; the M1 format excludes Windows dependencies.')
+    if any(build_info.get('milestone') in ('M2-Windows-preview', 'M3-shared-preview') for build_info in builds):
+        raise RuntimeError('M2/M3 assets require eng/m2.py or eng/m3.py package; the M1 format excludes private dependencies.')
     pairs = sorted(zip(stages, builds), key=lambda pair: pair[1]['runtimeId'])
     stages, builds = [p for p, _ in pairs], [b for _, b in pairs]
     if not prototype:

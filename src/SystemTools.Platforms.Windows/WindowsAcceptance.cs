@@ -24,6 +24,7 @@ namespace SystemTools.Platforms.Windows;
 
 internal static class WindowsAcceptance
 {
+    private static object? _directoryValidation;
     public static async Task RunAsync(int stage)
     {
         var destination = Path.Combine(GlobalConstants.PluginConfigFolder!, "M2.Acceptance.json");
@@ -31,7 +32,7 @@ internal static class WindowsAcceptance
         {
             var provider = IAppHost.Host!.Services;
             var pages = SettingsWindowRegistryService.Registered
-                .Where(page => page.Id.StartsWith("systemtools.settings.", StringComparison.Ordinal)).ToArray();
+                .Where(page => page.Id.StartsWith("systemtools.", StringComparison.OrdinalIgnoreCase)).ToArray();
             var constructed = await Dispatcher.UIThread.InvokeAsync(() =>
                 pages.Select(page => provider.GetRequiredKeyedService<SettingsPageBase>(page.Id)
                     .GetType().FullName).ToArray());
@@ -54,6 +55,13 @@ internal static class WindowsAcceptance
             var excel = stage < 5 || CheckExcel(provider);
             var unavailableCamera = stage < 5 || await CheckUnavailableCameraAsync(provider);
             var nativeLibraries = stage < 6 || CheckNativeLibraries();
+            var componentsCount = ComponentRegistryService.Registered.Count(info => info.ComponentType?.Assembly == typeof(Backend).Assembly || info.ComponentType?.Assembly == typeof(global::SystemTools.SharedHostRegistration).Assembly);
+            var registrations = componentsCount == 7 && IAutomationService.RegisteredTriggers.Count(info => info.Id.StartsWith("SystemTools.")) == 7 && IRulesetService.Rules.Keys.Count(id => id.StartsWith("SystemTools.")) == 5;
+            var dpapi = new WindowsDpapiProtector();
+            var encrypted = dpapi.Protect("M3-fixture-secret");
+            var credentials = dpapi.TryUnprotect(encrypted, out var decrypted) && decrypted == "M3-fixture-secret" && !dpapi.TryUnprotect("dpapi-current-user:v1:REDACTED", out _);
+            var sharedDirectory = typeof(global::SystemTools.SharedHostRegistration).Assembly.Location;
+
             var context = AssemblyLoadContext.GetLoadContext(typeof(Backend).Assembly)!;
             var isolated = context.Assemblies.Count(assembly =>
                     assembly.GetName().Name!.StartsWith("SystemTools.Platforms.")) == 1 &&
@@ -63,12 +71,13 @@ internal static class WindowsAcceptance
                     assembly.GetName().Name is "WinRT.Runtime" or "Microsoft.Windows.SDK.NET");
             var result = new
             {
-                passed = constructed.Length == 6 && themes.Length == 3 && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
+                passed = constructed.Length == 8 && themes.Length == 3 && registrations && credentials && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
                 stage, pages = constructed, themes, legacyImageUris = assets,
-                fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries,
+                fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries, registrations, credentials, sharedDirectory,
+                directoryValidation = _directoryValidation,
                 isolated, loadedAssemblies = context.Assemblies.Select(assembly => assembly.GetName().Name).OrderBy(name => name).ToArray(),
                 components = ComponentRegistryService.Registered
-                    .Where(info => info.ComponentType?.Assembly == typeof(Backend).Assembly)
+                    .Where(info => info.ComponentType?.Assembly == typeof(Backend).Assembly || info.ComponentType?.Assembly == typeof(global::SystemTools.SharedHostRegistration).Assembly)
                     .Select(info => info.Guid).OrderBy(id => id).ToArray(),
                 triggers = IAutomationService.RegisteredTriggers.Where(info => info.Id.StartsWith("SystemTools."))
                     .Select(info => info.Id).OrderBy(id => id).ToArray(),
@@ -178,7 +187,36 @@ internal static class WindowsAcceptance
         await Run("SystemTools.Move", new Settings.MoveSettings { SourcePath = copied, DestinationPath = moved });
         if (File.Exists(copied) || !File.Exists(moved)) return false;
         await Run("SystemTools.Delete", new Settings.DeleteSettings { TargetPath = moved });
-        return !File.Exists(moved) && File.Exists(source);
+        if (File.Exists(moved) || !File.Exists(source)) return false;
+        var sourceDirectory = Path.Combine(root, "directory-source");
+        var copyParent = Path.Combine(root, "directory-copy");
+        var moveParent = Path.Combine(root, "directory-move");
+        Directory.CreateDirectory(Path.Combine(sourceDirectory, "nested"));
+        File.WriteAllText(Path.Combine(sourceDirectory, "nested", "content.txt"), "M3 native metadata copy");
+        var originalTarget = Path.Combine(copyParent, "directory-source");
+        Directory.CreateDirectory(originalTarget);
+        File.WriteAllText(Path.Combine(originalTarget, "original-target.txt"), "keep-original-target");
+        try
+        {
+            await Run("SystemTools.Copy", new Settings.CopySettings { SourcePath = sourceDirectory, DestinationPath = copyParent, OperationType = "文件夹" });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            var baseline = await SystemTools.Common.Processes.CommandRunner.RunAsync("robocopy.exe",
+                [sourceDirectory, Path.Combine(root, "original-baseline-copy"), "/e", "/copyall", "/r:0", "/w:0", "/nfl", "/ndl", "/np"]);
+            var sourceAndTargetPreserved = File.Exists(Path.Combine(sourceDirectory, "nested", "content.txt")) && File.ReadAllText(Path.Combine(originalTarget, "original-target.txt")) == "keep-original-target";
+            _directoryValidation = new { outcome = "permission-denied-original-baseline-also-fails", baselineExitCode = baseline.ExitCode,
+                sourceAndTargetPreserved, originalCopyAllSemanticsRetained = true, privilegedSuccessRuntimeVerified = false };
+            return baseline.ExitCode >= 8 && sourceAndTargetPreserved;
+        }
+        var copyDirectory = Path.Combine(copyParent, "directory-source");
+        if (!File.Exists(Path.Combine(copyDirectory, "nested", "content.txt"))) return false;
+        await Run("SystemTools.Move", new Settings.MoveSettings { SourcePath = copyDirectory, DestinationPath = moveParent, OperationType = "文件夹" });
+        var moveDirectory = Path.Combine(moveParent, "directory-source");
+        if (Directory.Exists(copyDirectory) || !File.Exists(Path.Combine(moveDirectory, "nested", "content.txt"))) return false;
+        await Run("SystemTools.Delete", new Settings.DeleteSettings { TargetPath = moveDirectory, OperationType = "文件夹" });
+        _directoryValidation = new { outcome = "native-directory-copy-move-delete-passed", privilegedSuccessRuntimeVerified = true };
+        return !Directory.Exists(moveDirectory) && Directory.Exists(sourceDirectory);
     }
 }
 

@@ -1,6 +1,6 @@
 id: SystemTools
 name: SystemTools 跨平台开发预览
-description: Windows 完整业务接入预览；Linux X11 和 macOS ARM64 当前提供加载与平台诊断。
+description: 统一配置与共享业务预览；Windows 保留原生业务，Linux X11 和 macOS ARM64 接入基础共享能力。
 entranceAssembly: SystemTools.dll
 url: https://github.com/Programmer-MrWang/SystemTools
 version: 3.0.0.0

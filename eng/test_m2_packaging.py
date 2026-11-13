@@ -16,7 +16,7 @@ class M2PackagingTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.stage = self.root / 'stage'
         self.stage.mkdir()
-        self.names = m1.COMMON + m2.MODULES + [m2.PRIVATE + '/NPOI.Core.dll',
+        self.names = m1.COMMON + m2.MODULES + [m2.SHARED_PRIVATE + '/NPOI.Core.dll',
             m2.PRIVATE + '/VoskWorker/coreclr.dll']
         for name in self.names:
             path = self.stage / name
@@ -86,6 +86,21 @@ class M2PackagingTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             m2.extract(bad, self.root / 'out')
         self.assertFalse((self.root / 'escaped').exists())
+
+    def test_host_copy_is_rejected_in_shared_directory(self):
+        self.add(m2.SHARED_PRIVATE + '/Avalonia.Base.dll')
+        with self.assertRaisesRegex(RuntimeError, 'host/shared'):
+            m2.validate(self.stage)
+
+    def test_shared_directory_cannot_contain_native_layout(self):
+        self.add(m2.SHARED_PRIVATE + '/runtimes/linux-x64/native/libexample.so')
+        with self.assertRaisesRegex(RuntimeError, 'flat managed'):
+            m2.validate(self.stage)
+
+    def test_duplicate_dependency_across_shared_and_windows_is_rejected(self):
+        self.add(m2.PRIVATE + '/NPOI.Core.dll')
+        with self.assertRaisesRegex(RuntimeError, 'Duplicate plugin'):
+            m2.validate(self.stage)
 
     def test_linked_windows_source_affects_identity(self):
         repo = self.root / 'repository'

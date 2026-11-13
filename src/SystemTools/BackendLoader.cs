@@ -8,6 +8,7 @@ internal static class BackendLoader
 {
     public static IPlatformBackend Load(string pluginDirectory, string runtimeId)
     {
+        SharedDependencies.Install();
         var module = PlatformSelection.ModuleName(runtimeId);
         var path = Path.GetFullPath(Path.Combine(pluginDirectory, module + ".dll"));
         if (!File.Exists(path))

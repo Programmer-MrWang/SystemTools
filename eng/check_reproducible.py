@@ -8,7 +8,7 @@ import m1
 def main():
     dirty = subprocess.check_output(['git', 'status', '--porcelain', '--', 'src', 'global.json',
         'SystemTools.slnx', 'icon.png', 'Plugin.cs', 'DlibExtensions.cs', 'DriveUtils.cs',
-        'NativeMethods.txt', 'Actions', 'Config', 'ConfigHandlers', 'Controls', 'Converters',
+        'NativeMethods.txt', 'eng/shared-host-sources.props', 'eng/shared-host-sources.json', 'Actions', 'Config', 'ConfigHandlers', 'Controls', 'Converters',
         'Helpers', 'Models', 'Properties', 'Rules', 'Services', 'Settings', 'SettingsPage',
         'Shared', 'Themes', 'ThirdParty', 'Triggers', 'Version', 'Views', 'VoskWorker'], cwd=m1.ROOT).decode()
     if dirty:
@@ -30,7 +30,7 @@ def main():
             hashes[name] = m1.sha(first)
     report = dict(m1.identity(), passed=True, nativeRuntime=m1.native_rid(), differentCheckoutPaths=True, sameOrigin=True, files=hashes, scope='Same OS only. Cross-OS common hash comparison remains enforced by package aggregation.')
     m1.write_json(m1.ARTIFACTS / 'reproducible-build.json', report)
-    print('PASS: seven output files identical across two checkout paths on ' + m1.native_rid())
+    print('PASS: common and platform output files identical across two checkout paths on ' + m1.native_rid())
 
 if __name__ == '__main__':
     main()

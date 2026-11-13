@@ -6,7 +6,7 @@ using ClassIsland.Core.Attributes;
 
 namespace SystemTools;
 
-[SettingsPageInfo("SystemTools.M1.Diagnostics", "SystemTools M1 诊断")]
+[SettingsPageInfo("SystemTools.M1.Diagnostics", "SystemTools 平台与功能状态")]
 public sealed class DiagnosticsSettingsPage : SettingsPageBase
 {
     public DiagnosticsSettingsPage(DiagnosticService diagnostics, SystemTools.Contracts.FeatureCatalog catalog)
@@ -24,7 +24,7 @@ public sealed class DiagnosticsSettingsPage : SettingsPageBase
             Children =
             {
                 new TextBlock { Text = "SystemTools · 平台诊断", FontSize = 24 },
-                new TextBlock { Text = "Windows 业务已接入；其他平台当前提供构建与加载诊断。", TextWrapping = TextWrapping.Wrap },
+                new TextBlock { Text = "Windows 原生业务与跨平台基础共享业务已接入；下方列出当前功能状态。", TextWrapping = TextWrapping.Wrap },
                 status, button,
                 new TextBox { Text = string.Join("\n", catalog.Snapshot().Select(x => $"{x.Feature.Name}：{x.Capability.State} {x.Capability.Reason}")), IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap },
                 new TextBlock { Text = "此按钮仅保存平台诊断。Windows 设置与原有功能请使用 SystemTools 设置页。", TextWrapping = TextWrapping.Wrap }

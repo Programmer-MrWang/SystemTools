@@ -5,5 +5,6 @@
     <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" />
     <PackageReference Include="Avalonia" Version="12.1.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
+    <None Include="../fixtures/m3/*-main.json" Link="fixtures/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

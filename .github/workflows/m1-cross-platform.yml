@@ -1,4 +1,4 @@
-name: M2 native checks and Windows preview
+name: M3 shared checks and Windows preview
 
 on:
   workflow_dispatch:
@@ -36,6 +36,8 @@ jobs:
         run: python -c "import sys; sys.path.insert(0, 'eng'); import m1; assert m1.native_rid() == '${{ matrix.rid }}'"
       - name: Native clean restore and build
         run: python eng/m1.py build --clean
+      - name: Shared configuration migration and host contract checks
+        run: python eng/m3.py check
       - name: Package boundary tests
         run: |
           python eng/test_m1_packaging.py
@@ -56,18 +58,17 @@ jobs:
       - name: Stage and package Windows preview against SDK contracts
         if: runner.os == 'Windows'
         run: |
-          python eng/m2.py stage
-          python eng/m2.py package
+          python eng/m3.py package
       - uses: actions/upload-artifact@v4
         with:
-          name: m2-build-${{ matrix.rid }}
+          name: m3-build-${{ matrix.rid }}
           path: artifacts/m1/${{ matrix.rid }}
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: runner.os == 'Windows'
         with:
-          name: SystemTools-M2-Windows-build-only-preview
+          name: SystemTools-M3-Windows-build-only-preview
           path: |
-            artifacts/m2/SystemTools.M2.cipx
-            artifacts/m2/SystemTools.M2.cipx.sha256
+            artifacts/m3/SystemTools.M3.cipx
+            artifacts/m3/SystemTools.M3.cipx.sha256
           if-no-files-found: error

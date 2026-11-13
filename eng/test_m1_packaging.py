@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """Boundary tests for package provenance, collisions and archive extraction."""
 from pathlib import Path
-import json, tempfile, unittest, zipfile
+import hashlib, json, tempfile, unittest, zipfile
+from unittest.mock import patch
 import m1
 
 class PackagingTests(unittest.TestCase):
@@ -62,6 +63,23 @@ class PackagingTests(unittest.TestCase):
         self.update(0, kind='local-managed-prototype')
         with self.assertRaisesRegex(RuntimeError, 'prototype'):
             m1.pack(self.stages, self.root / 'bad.cipx')
+
+    def test_source_identity_preserves_posix_order_on_every_os(self):
+        files = {
+            'SystemTools.slnx': b'solution', 'global.json': b'sdk',
+            'src/Zeta/value.cs': b'upper', 'src/alpha/value.cs': b'lower',
+            'src/alpha.extra/value.cs': b'dotted'
+        }
+        for name, content in files.items():
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+        expected = hashlib.sha256(
+            b'SystemTools.slnxsolutionglobal.jsonsdk'
+            b'src/Zeta/value.csuppersrc/alpha/value.cslower'
+            b'src/alpha.extra/value.csdotted').hexdigest()
+        with patch.object(m1, 'ROOT', self.root), patch.object(m1.subprocess, 'check_output', return_value=b'same-commit\n'):
+            self.assertEqual(m1.identity(), {'commit': 'same-commit', 'sourceHash': expected})
 
     def altered_archive(self, replacement=None, extra=None):
         package = m1.pack(self.stages, self.root / 'ok.cipx')

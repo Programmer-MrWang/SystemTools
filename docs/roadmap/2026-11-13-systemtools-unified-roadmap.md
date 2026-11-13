@@ -1,6 +1,6 @@
 # SystemTools 统一跨平台版本：改造路线图
 
-日期：2026-11-13。状态：M0 静态基线与 M1 骨架已实施，Mac 加载验收通过；Windows/Linux 实机及三端原生汇总待验证。进度与命令见 `../validation/m1.md`。下文是阶段目标与初稿时的调查记录，不表示后续里程碑已经完成。
+日期：2026-11-13。状态：M0 静态基线与 M1 骨架已实施，Mac、Windows 本机加载与界面验收通过；Linux 实机、统一 SDK 的三端原生汇总及远端 CI 待验证。进度与命令见 `../validation/m1.md`，Windows 结果见 `../validation/2026-11-13-windows-m1.md`，M2 分批计划见 `2026-11-13-m2-windows-plan.md`。下文是阶段目标与初稿时的调查记录，不表示后续里程碑已经完成。
 
 **目标：同一套源码、一个正式插件身份、同一个 CIPX，Windows 保留完整功能，Linux X11 与 macOS Apple Silicon 使用各自实现和可用功能；三端均可从源码构建本平台版本。**
 

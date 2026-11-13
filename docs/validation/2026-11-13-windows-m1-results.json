@@ -1,0 +1,364 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-13",
+  "timezone": "Asia/Shanghai",
+  "completedAt": "2026-11-13T23:57:18.707490+08:00",
+  "milestone": "M1",
+  "scope": "Windows x64 native build, loading and UI acceptance only",
+  "passed": true,
+  "repository": {
+    "path": "E:\\My Github Projects\\working\\SystemTools",
+    "branch": "codex/cross-platform",
+    "head": "de14dc833adc0dcb934f7cc1442d98791388ccfa",
+    "sourceHash": "649df9fa03cb87af05e9388f866a0b4d43433d43a223592da2abd0fa4ed035ac",
+    "uncommittedAcceptanceChanges": [
+      "eng/m1.py",
+      "eng/test_m1_packaging.py",
+      "tests/SystemTools.M1.Tests/Program.cs"
+    ],
+    "productionPluginSourceChanged": false
+  },
+  "environment": {
+    "os": "Windows 11 Home China",
+    "osVersion": "10.0.26300",
+    "architecture": "x64",
+    "cpu": "Intel Core Ultra 9 290HX Plus",
+    "sdk": "10.0.302",
+    "runtime": "Microsoft.NETCore.App 10.0.10",
+    "windowsDesktopRuntime": "10.0.10",
+    "python": "3.12.10",
+    "sdkDiffersFromMacAndCi": true,
+    "macAndCiSdk": "10.0.403"
+  },
+  "host": {
+    "path": "E:\\My Github Projects\\working\\ClassIsland1\\ClassIsland.Desktop\\bin\\Debug\\net10.0-windows10.0.19041.0\\ClassIsland.Desktop.exe",
+    "head": "1d532ce6755dc1396b48beb9f045b1acbdf2b6fa",
+    "sourceBuild": true,
+    "buildConfiguration": "Debug",
+    "tfm": "net10.0-windows10.0.19041.0",
+    "appVersion": "2.1.2.0",
+    "appHostSha256": "57ecaf3118abf3c32d19658dc25d6e3c760d7b97e4d304b10ff8eb6153eeb9e7",
+    "desktopAssemblySha256": "6051dfc7787e1038fce699313da182ef6e336f115697c22274aa5ad2927da5af",
+    "classIslandAssemblySha256": "ea7108803174ac22858023899c36e683afe7eb7f647822e2d9098605db16d272",
+    "coreAssemblySha256": "4c5c3b0ed5106e2f32f352a179410bc009e4c60688a532c63b205f50033777ef",
+    "runtimeConfig": {
+      "runtimeOptions": {
+        "tfm": "net10.0",
+        "frameworks": [
+          {
+            "name": "Microsoft.NETCore.App",
+            "version": "10.0.0"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App",
+            "version": "10.0.0"
+          }
+        ],
+        "configProperties": {
+          "Avalonia.Diagnostics.Diagnostic.IsEnabled": true,
+          "System.Diagnostics.Metrics.Meter.IsSupported": true,
+          "System.Reflection.NullabilityInfoContext.IsSupported": true,
+          "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false,
+          "CSWINRT_USE_WINDOWS_UI_XAML_PROJECTIONS": false
+        }
+      }
+    },
+    "buildWarnings": 1496,
+    "buildErrors": 0,
+    "productionSourceChangedThisAcceptance": false
+  },
+  "package": {
+    "path": "E:\\My Github Projects\\working\\SystemTools-Windows-Handoff-2026-11-13\\SystemTools-Windows-Handoff-2026-11-13\\evidence\\SystemTools-m1\\SystemTools.M1.cipx",
+    "sha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
+    "sameAsMacVerified": true,
+    "kind": "local-managed-prototype",
+    "sourceHash": "649df9fa03cb87af05e9388f866a0b4d43433d43a223592da2abd0fa4ed035ac",
+    "repackagedOnWindows": false,
+    "nativeAggregate": false,
+    "sourceHashMatchesCurrentSource": true
+  },
+  "checks": {
+    "importRepair": {
+      "passed": true,
+      "repairedPaths": 32,
+      "identicalContentRenames": 25,
+      "restoredExactGitBlobs": 7,
+      "sealedHandoffFilesChecked": 998
+    },
+    "nativeBuild": {
+      "passed": true,
+      "warnings": 0,
+      "errors": 0,
+      "projects": [
+        "SystemTools",
+        "SystemTools.Contracts",
+        "SystemTools.Platforms.Windows"
+      ]
+    },
+    "loaderBoundary": {
+      "passed": true,
+      "checks": 19
+    },
+    "packagingBoundary": {
+      "passed": true,
+      "checks": 10
+    },
+    "sameOsReproducibility": {
+      "passed": true,
+      "files": 7,
+      "report": "artifacts/m1/reproducible-build.json"
+    },
+    "nativeHostSmoke": [
+      {
+        "case": "normal",
+        "result": "artifacts/m1/runs/20261113-233832-normal/result.json",
+        "resultSha256": "2832e9f7d29cb859bfd809def6d16c6724c8383342892079f1e9729f35b5b8a3",
+        "hostLog": "artifacts/m1/runs/20261113-233832-normal/host.log",
+        "passed": true,
+        "hostExitCode": 1,
+        "packageSha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
+        "hostSha256": "57ecaf3118abf3c32d19658dc25d6e3c760d7b97e4d304b10ff8eb6153eeb9e7",
+        "sourceHash": "649df9fa03cb87af05e9388f866a0b4d43433d43a223592da2abd0fa4ed035ac",
+        "runtimeId": "win-x64",
+        "fixtureHashesUnchanged": true,
+        "hostGlobalStorageUnchanged": true,
+        "expectedNegativeResult": false,
+        "proof": {
+          "passed": true,
+          "runtimeId": "win-x64",
+          "page": "SystemTools.DiagnosticsSettingsPage",
+          "action": "SystemTools.RecordDiagnosticsAction",
+          "IsCompleted": true,
+          "diagnostics": {
+            "schemaVersion": 1,
+            "milestone": "M1-preview",
+            "source": "host-smoke-complete",
+            "runtimeId": "win-x64",
+            "os": "Microsoft Windows 10.0.26300",
+            "architecture": "X64",
+            "runtime": ".NET 10.0.10",
+            "context": "ClassIsland.PluginLoadContext[SystemTools]",
+            "entry": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233832-normal\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.dll",
+            "contract": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233832-normal\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Contracts.dll",
+            "backend": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233832-normal\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Platforms.Windows.dll",
+            "assemblies": [
+              {
+                "name": "SystemTools",
+                "path": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233832-normal\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.dll"
+              },
+              {
+                "name": "SystemTools.Contracts",
+                "path": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233832-normal\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Contracts.dll"
+              },
+              {
+                "name": "SystemTools.Platforms.Windows",
+                "path": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233832-normal\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Platforms.Windows.dll"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case": "foreign-corrupt",
+        "result": "artifacts/m1/runs/20261113-233836-foreign-corrupt/result.json",
+        "resultSha256": "7c0badd2f44144be460c575580435460ec0e5c40f9da36337d597e43636a467d",
+        "hostLog": "artifacts/m1/runs/20261113-233836-foreign-corrupt/host.log",
+        "passed": true,
+        "hostExitCode": 1,
+        "packageSha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
+        "hostSha256": "57ecaf3118abf3c32d19658dc25d6e3c760d7b97e4d304b10ff8eb6153eeb9e7",
+        "sourceHash": "649df9fa03cb87af05e9388f866a0b4d43433d43a223592da2abd0fa4ed035ac",
+        "runtimeId": "win-x64",
+        "fixtureHashesUnchanged": true,
+        "hostGlobalStorageUnchanged": true,
+        "expectedNegativeResult": false,
+        "proof": {
+          "passed": true,
+          "runtimeId": "win-x64",
+          "page": "SystemTools.DiagnosticsSettingsPage",
+          "action": "SystemTools.RecordDiagnosticsAction",
+          "IsCompleted": true,
+          "diagnostics": {
+            "schemaVersion": 1,
+            "milestone": "M1-preview",
+            "source": "host-smoke-complete",
+            "runtimeId": "win-x64",
+            "os": "Microsoft Windows 10.0.26300",
+            "architecture": "X64",
+            "runtime": ".NET 10.0.10",
+            "context": "ClassIsland.PluginLoadContext[SystemTools]",
+            "entry": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233836-foreign-corrupt\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.dll",
+            "contract": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233836-foreign-corrupt\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Contracts.dll",
+            "backend": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233836-foreign-corrupt\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Platforms.Windows.dll",
+            "assemblies": [
+              {
+                "name": "SystemTools",
+                "path": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233836-foreign-corrupt\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.dll"
+              },
+              {
+                "name": "SystemTools.Contracts",
+                "path": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233836-foreign-corrupt\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Contracts.dll"
+              },
+              {
+                "name": "SystemTools.Platforms.Windows",
+                "path": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233836-foreign-corrupt\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Platforms.Windows.dll"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "case": "missing-backend",
+        "result": "artifacts/m1/runs/20261113-233839-missing-backend/result.json",
+        "resultSha256": "9ca5bb9459ff34ac371826919890764293c27dc97933bac7e02d2381fedae997",
+        "hostLog": "artifacts/m1/runs/20261113-233839-missing-backend/host.log",
+        "passed": true,
+        "hostExitCode": 1,
+        "packageSha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
+        "hostSha256": "57ecaf3118abf3c32d19658dc25d6e3c760d7b97e4d304b10ff8eb6153eeb9e7",
+        "sourceHash": "649df9fa03cb87af05e9388f866a0b4d43433d43a223592da2abd0fa4ed035ac",
+        "runtimeId": "win-x64",
+        "fixtureHashesUnchanged": true,
+        "hostGlobalStorageUnchanged": true,
+        "expectedNegativeResult": true,
+        "proof": {
+          "passed": false,
+          "error": "System.IO.FileNotFoundException: 缺少当前平台模块 SystemTools.Platforms.Windows；请安装完整 M1 包。\r\nFile name: 'E:\\My Github Projects\\working\\SystemTools\\artifacts\\m1\\runs\\20261113-233839-missing-backend\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Platforms.Windows.dll'\r\n   at SystemTools.BackendLoader.Load(String pluginDirectory, String runtimeId) in /_/src/SystemTools/BackendLoader.cs:line 14\r\n   at SystemTools.Plugin.Initialize(HostBuilderContext context, IServiceCollection services) in /_/src/SystemTools/Plugin.cs:line 22"
+        }
+      }
+    ],
+    "gui": {
+      "passed": true,
+      "report": "artifacts/windows-acceptance/2026-11-13/gui/result.json",
+      "settingsPageVisible": true,
+      "settingsButtonSaved": true,
+      "navigationToAutomationAndBack": true,
+      "settingsClosedAndReopened": true,
+      "savedAfterReopen": true,
+      "workflowCreatedAndTriggeredViaGui": true,
+      "workflowActionCompleted": true,
+      "fixtureHashesUnchanged": true,
+      "hostGlobalStorageUnchanged": true,
+      "testHostStopped": true
+    }
+  },
+  "failuresResolved": [
+    {
+      "symptom": "Transferred source archives contained mojibake image names and missing images",
+      "resolution": "25 exact-content renames; 7 exact HEAD blobs restored; handoff verifier passed"
+    },
+    {
+      "symptom": "First clean failed with NETSDK1064 because copied assets pointed at old package locations",
+      "resolution": "Forced local restore, then explicit clean now removes only verified local M1 bin/obj"
+    },
+    {
+      "symptom": "Loader boundary test failed on Windows when deleting an already loaded DLL",
+      "resolution": "Separate foreign-corrupt/missing-backend directories; Python owns cleanup after test process exit"
+    },
+    {
+      "symptom": "First cross-directory reproduction differed despite identical source and SourceLink JSON",
+      "resolution": "Removed copied Mac obj generated attributes with LF; native Windows regenerated CRLF; seven outputs now identical"
+    },
+    {
+      "symptom": "Native Windows Path sorting produced a different sourceHash from identical Mac source bytes",
+      "resolution": "Explicit case-sensitive relative-component order preserves existing Mac source identity; fixed-input regression added; final smoke rerun"
+    }
+  ],
+  "observations": [
+    "Host GUI log contains caught first-chance CompositionMaterial WinUI renderer exceptions and background request failures; no unhandled host crash or fail/crit events were observed during final GUI acceptance.",
+    "Smoke tester terminates only its own process. Windows exit code 1 is the expected forced termination, not proof of ordinary exit behavior.",
+    "Host working tree retains pre-existing script file-mode and skill symlink portability differences; their contents match the handoff.",
+    "Product M1 package remains the original Mac-verified bytes; local Windows stage is a separate build with a different SDK and revision metadata."
+  ],
+  "pending": [
+    "Linux x64 native X11 build and same-package desktop smoke",
+    "Three native platforms rebuilt from one commit with aligned SDK and common-byte aggregate validation",
+    "Remote GitHub CI execution",
+    "M0 original Windows full-feature and hardware baseline regression",
+    "M2 original Windows business migration and full regression",
+    "Ordinary Windows exit shutdown /a behavior regression",
+    "Production release and upgrade acceptance"
+  ],
+  "evidenceRoot": "artifacts/windows-acceptance/2026-11-13",
+  "evidenceFiles": {
+    "m1-clean-build-final.log": {
+      "bytes": 1529,
+      "sha256": "bd9a39200227ddb4f577d997b3d3a704da0193d1803fa6b236641744e7cb8056"
+    },
+    "host-debug-build.log": {
+      "bytes": 1041349,
+      "sha256": "34307ad7533b86faf9fe925ddec0d6668c8fe3aaea32702c7321745c688064da"
+    },
+    "m1-boundary-tests-final.log": {
+      "bytes": 1508,
+      "sha256": "0b623ac33de0883edd5ca3db1494aceeb60013ebd9f9c4f85080e1f6c888d3cd"
+    },
+    "m1-packaging-tests-final.log": {
+      "bytes": 887,
+      "sha256": "4b837eb48625b561549c71f615041144fe9dc134513780e2ce823daeac5322ae"
+    },
+    "reproducible-build-final.log": {
+      "bytes": 1846,
+      "sha256": "09b6f636a4e9320025da1342aad0c51225888c01fdb83e0e3740498869e4651e"
+    },
+    "import-repair.json": {
+      "bytes": 15639,
+      "sha256": "6d20f5d239bab231ad573d6093b97a953079ef976eb6dcf3aff8b98d38bd6117"
+    },
+    "handoff-verification.json": {
+      "bytes": 3209,
+      "sha256": "3c2921d8a3bc38e2ae233acb8d535023bf30e80ca4d973197e67ce76eeb9d34a"
+    },
+    "gui/result.json": {
+      "bytes": 2473,
+      "sha256": "d07592320cb04d100887b2fe875f639437d038840c0d3181494ded4cad33ccde"
+    },
+    "gui/settings-button-diagnostics.json": {
+      "bytes": 1498,
+      "sha256": "767c012615a251c22b940cd088f5df9c58c48278882bfec56ce6f3cdfd36c93b"
+    },
+    "gui/workflow-action-diagnostics.json": {
+      "bytes": 1494,
+      "sha256": "495848f18d7c27ef607e598a76b4e84a5f8d63faf5782e2534b979d3a00c0117"
+    },
+    "gui/settings-saved.png": {
+      "bytes": 118408,
+      "sha256": "fb70cc377cc0cd87d76a301443304391fcea514be35ff5bedebe2c76a2bf3e91"
+    },
+    "gui/settings-reopened-saved.png": {
+      "bytes": 130464,
+      "sha256": "2b43e6f0b0bea30b827fb73720561bff2280ea0ac9cc4200684c9985ec54bdb1"
+    },
+    "gui/uia-final.json": {
+      "bytes": 21312,
+      "sha256": "5d215e74b13fd02da94deebeeb41ebaa21ea370e6c9a1d2a94b092f537d2690a"
+    },
+    "gui/sandbox/data/Config/Automations/Default.json": {
+      "bytes": 535,
+      "sha256": "5d63689e02c0e41d9fdaf908de2b28db274afe20bf1e9cf05e4af47f92f23bdd"
+    },
+    "smoke-normal-final.log": {
+      "bytes": 139,
+      "sha256": "acf42f0733c81f08c7590c355262b48f194a5a282591b85597130646b28f95cb"
+    },
+    "smoke-foreign-corrupt-final.log": {
+      "bytes": 157,
+      "sha256": "734aee72978d459f270a1a0d501170943c4588ce413bd6cffd5c70344a66a302"
+    },
+    "smoke-missing-backend-final.log": {
+      "bytes": 157,
+      "sha256": "8738ebef9fbdda3a8312a202843357f2468dce7ebb07853bcf13cc78aa6c36c3"
+    },
+    "final-smoke-index.json": {
+      "bytes": 821,
+      "sha256": "365e318994fa7bb0bac038551e89c82b352ae18ed645bbbdb494b15dd754f768"
+    }
+  },
+  "committed": false,
+  "pushed": false,
+  "published": false,
+  "documentation": {
+    "report": "docs/validation/2026-11-13-windows-m1.md",
+    "m2Plan": "docs/roadmap/2026-11-13-m2-windows-plan.md"
+  }
+}

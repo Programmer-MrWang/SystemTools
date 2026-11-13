@@ -8,7 +8,8 @@ using ClassIsland.Core.Abstractions;
 using ClassIsland.Core.Models.Plugin;
 using SystemTools.Contracts;
 
-var stage = Path.GetFullPath(args.Single());
+var stage = Path.GetFullPath(args[0]);
+var temporary = Path.GetFullPath(args[1]);
 var checks = 0;
 void Check(bool value, string description)
 {
@@ -67,25 +68,27 @@ Check(context.Assemblies.Count(a => a.GetName().Name!.StartsWith("SystemTools.Pl
 Check(context.Assemblies.Count(a => a.GetName().Name == "SystemTools.Contracts") == 1, "契约只加载一次");
 Check(!context.Assemblies.Any(a => a.GetName().Name!.StartsWith("ClassIsland") || a.GetName().Name!.StartsWith("Avalonia")), "宿主程序集未被插件重复载入");
 
-var temporary = Path.Combine(Path.GetTempPath(), "systemtools-m1-loader-" + Guid.NewGuid().ToString("N"));
-Directory.CreateDirectory(temporary);
-try
+var foreignDirectory = Path.Combine(temporary, "foreign-corrupt");
+var missingDirectory = Path.Combine(temporary, "missing-backend");
+Directory.CreateDirectory(foreignDirectory);
+Directory.CreateDirectory(missingDirectory);
+var local = PlatformSelection.ModuleName(rid) + ".dll";
+foreach (var file in Directory.EnumerateFiles(stage))
 {
-    foreach (var file in Directory.EnumerateFiles(stage)) File.Copy(file, Path.Combine(temporary, Path.GetFileName(file)));
-    var local = PlatformSelection.ModuleName(rid) + ".dll";
-    foreach (var other in new[] { "win-x64", "linux-x64", "osx-arm64" })
-    {
-        var name = PlatformSelection.ModuleName(other) + ".dll";
-        if (name != local) File.WriteAllText(Path.Combine(temporary, name), "corrupt foreign platform sentinel");
-    }
-    var isolated = Load(temporary, out var second);
-    LoadBackend(isolated, temporary);
-    Check(second.Assemblies.Count(a => a.GetName().Name!.StartsWith("SystemTools.Platforms.")) == 1, "损坏的异平台 DLL 不影响当前平台加载");
-    File.Delete(Path.Combine(temporary, local));
-    var missing = Load(temporary, out _);
-    try { LoadBackend(missing, temporary); throw new Exception("Missing backend accepted"); }
-    catch (TargetInvocationException ex) when (ex.InnerException is FileNotFoundException)
-    { Check(true, "本平台 DLL 缺失时明确失败"); }
+    var name = Path.GetFileName(file);
+    File.Copy(file, Path.Combine(foreignDirectory, name));
+    if (name != local) File.Copy(file, Path.Combine(missingDirectory, name));
 }
-finally { Directory.Delete(temporary, true); }
+foreach (var other in new[] { "win-x64", "linux-x64", "osx-arm64" })
+{
+    var name = PlatformSelection.ModuleName(other) + ".dll";
+    if (name != local) File.WriteAllText(Path.Combine(foreignDirectory, name), "corrupt foreign platform sentinel");
+}
+var isolated = Load(foreignDirectory, out var second);
+LoadBackend(isolated, foreignDirectory);
+Check(second.Assemblies.Count(a => a.GetName().Name!.StartsWith("SystemTools.Platforms.")) == 1, "损坏的异平台 DLL 不影响当前平台加载");
+var missing = Load(missingDirectory, out _);
+try { LoadBackend(missing, missingDirectory); throw new Exception("Missing backend accepted"); }
+catch (TargetInvocationException ex) when (ex.InnerException is FileNotFoundException)
+{ Check(true, "本平台 DLL 缺失时明确失败"); }
 Console.WriteLine($"PASS: {checks} M1 boundary checks; native runtime under test: {rid}");

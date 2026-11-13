@@ -47,7 +47,8 @@ def identity():
     paths = [ROOT / 'global.json', ROOT / 'SystemTools.slnx']
     paths += [p for p in (ROOT / 'src').rglob('*') if p.is_file() and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
     digest = hashlib.sha256()
-    for path in sorted(paths):
+    # Preserve the original POSIX component order; Windows Path ordering folds case.
+    for path in sorted(paths, key=lambda value: value.relative_to(ROOT).parts):
         digest.update(path.relative_to(ROOT).as_posix().encode())
         digest.update(path.read_bytes())
     return {'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT).decode().strip(), 'sourceHash': digest.hexdigest()}
@@ -58,7 +59,19 @@ def module_name(rid):
 def build(clean=False):
     rid = native_rid()
     if clean:
-        command('dotnet', 'clean', 'SystemTools.slnx', '-c', 'Release', '--nologo', '-v', 'minimal')
+        # Copied FileListAbsolute caches can point at another OS and leave generated source behind.
+        projects = ['SystemTools', 'SystemTools.Contracts', 'SystemTools.Platforms.' + MODULES[rid]]
+        for name in projects:
+            project = (ROOT / 'src' / name).resolve()
+            if not project.is_relative_to(ROOT.resolve()):
+                raise RuntimeError('Clean project is outside the repository: ' + str(project))
+            for directory in ('bin', 'obj'):
+                output = project / directory
+                if output.exists():
+                    if output.is_symlink() or output.resolve().parent != project:
+                        raise RuntimeError('Clean output is outside the project: ' + str(output))
+                    shutil.rmtree(output)
+                    print('CLEAN OUTPUT:', output, flush=True)
     command('dotnet', 'restore', 'SystemTools.slnx', '--nologo')
     command('dotnet', 'build', 'SystemTools.slnx', '-c', 'Release', '--no-restore', '--nologo', '-v', 'minimal')
     output = ROOT / 'src/SystemTools/bin/Release/net10.0'
@@ -237,7 +250,10 @@ def main():
     if args.operation == 'build': build(args.clean)
     elif args.operation == 'prototype': pack([build()], args.output, prototype=True)
     elif args.operation == 'package': pack(args.input, args.output)
-    elif args.operation == 'test': command('dotnet', 'run', '--project', 'tests/SystemTools.M1.Tests', '-c', 'Release', '--', args.stage or ARTIFACTS / native_rid())
+    elif args.operation == 'test':
+        # The real host context is non-collectible; Windows releases DLL locks at process exit.
+        with tempfile.TemporaryDirectory(prefix='systemtools-m1-loader-') as temporary:
+            command('dotnet', 'run', '--project', 'tests/SystemTools.M1.Tests', '-c', 'Release', '--', args.stage or ARTIFACTS / native_rid(), temporary)
     elif args.operation == 'smoke': smoke(args.host_bin, args.package, args.case, args.timeout)
 
 if __name__ == '__main__':

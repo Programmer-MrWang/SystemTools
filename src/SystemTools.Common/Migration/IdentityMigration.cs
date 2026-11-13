@@ -117,6 +117,8 @@ public sealed class IdentityMigration
         var journal = ReadJournal(journalPath);
         if (journal.Status == "RolledBack") throw new InvalidOperationException("已回退的迁移不能继续。" );
         using var lease = leaseHeld ? null : new FileStream(Path.Combine(journal.Root, ".migration.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        foreach (var entry in journal.Entries) ValidateEntry(journalPath, journal.Root, entry);
+        using var documents = LockDocuments(journal.Entries);
         foreach (var entry in journal.Entries)
         {
             ValidateEntry(journalPath, journal.Root, entry);
@@ -137,6 +139,8 @@ public sealed class IdentityMigration
     {
         var journal = ReadJournal(journalPath);
         using var lease = new FileStream(Path.Combine(journal.Root, ".migration.lock"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        foreach (var entry in journal.Entries) ValidateEntry(journalPath, journal.Root, entry);
+        using var documents = LockDocuments(journal.Entries);
         foreach (var entry in journal.Entries)
         {
             ValidateEntry(journalPath, journal.Root, entry);
@@ -191,6 +195,21 @@ public sealed class IdentityMigration
                 throw new IOException("迁移不支持链接路径。" );
     }
     private static StringComparer PathComparer => OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
+    private static IDisposable LockDocuments(IEnumerable<MigrationEntry> entries)
+    {
+        var lifetime = new SystemTools.Common.Lifecycle.LifetimeScope();
+        try
+        {
+            foreach (var path in entries.Select(x => x.Target).Distinct(PathComparer).OrderBy(x => x, PathComparer))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                var lease = new FileStream(path + ".lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                lifetime.Own(lease.Dispose);
+            }
+            return lifetime;
+        }
+        catch { lifetime.Close(); throw; }
+    }
     private static string HashText(string text) => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(text)));
     private static void WriteJournal(string path, MigrationJournal journal) => AtomicJsonStore<MigrationJournal>.AtomicWrite(path, JsonSerializer.Serialize(journal, new JsonSerializerOptions { WriteIndented = true }));
 }

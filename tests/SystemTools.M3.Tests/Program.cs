@@ -76,6 +76,11 @@ try
     File.Delete(target2);
     resumeState.Status = "Prepared";
     File.WriteAllText(resumeJournal, System.Text.Json.JsonSerializer.Serialize(resumeState));
+    using (var documentLock = new FileStream(target2 + ".lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+    {
+        try { SystemTools.Common.Migration.IdentityMigration.Resume(resumeJournal); throw new Exception("迁移忽略文档锁"); }
+        catch (IOException) { Check(!File.Exists(target2), "迁移与普通保存共享文档锁"); }
+    }
     SystemTools.Common.Migration.IdentityMigration.Resume(resumeJournal);
     Check(File.Exists(target2), "迁移日志恢复中途缺失的后续写入");
     File.WriteAllText(migrationTarget, "{\"editedAfterMigration\":true}");
@@ -150,6 +155,9 @@ try
     File.WriteAllText(Path.Combine(source, "Conflict.json"), "{\"a\":1}");
     File.WriteAllText(Path.Combine(destination, "Conflict.json"), "{\"a\":2}");
     Check(SystemTools.Common.Storage.PersistentProfileImport.CopyOnce(source, destination).Conflicts.SequenceEqual(["Conflict.json"]), "方案冲突保留两端并报告");
+    File.WriteAllText(Path.Combine(source, "Damaged.json"), "{damaged");
+    var invalidReport = SystemTools.Common.Storage.PersistentProfileImport.CopyOnce(source, destination);
+    Check(invalidReport.Invalid.SequenceEqual(["Damaged.json"]) && !File.Exists(Path.Combine(destination, "Damaged.json")), "旧方案损坏时保留来源并报告而不阻止其他方案");
 }
 finally { Directory.Delete(temporary, recursive: true); }
 var cleanupOrder = new List<int>();

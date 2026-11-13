@@ -19,7 +19,8 @@
     "hostLoaderBoundaries": 19,
     "packageBoundaries": 9,
     "sameOSReproducibleOutputs": 7,
-    "currentBusinessSourcesMatchVerifiedPackage": 9
+    "currentBusinessSourcesMatchVerifiedPackage": 9,
+    "hostAccessibilityRegression": 6
   },
   "macVerifiedPackage": {
     "path": "artifacts/m1/SystemTools.M1.MacVerified.cipx",
@@ -27,43 +28,77 @@
   },
   "latestPackage": {
     "path": "artifacts/m1/SystemTools.M1.cipx",
-    "sha256": "7649a725f35b713041b846503a4d8aa28786e3d0a773310fb8bb5ba78e14effd",
-    "runtimeRetest": "blocked before plugin initialization by Avalonia.Native RenderTimer -6661; active display=0, asleep=1"
+    "sha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
+    "buildCommit": "bb5bc95c5f87149871b709da4771f7abe8046f59",
+    "sourceHash": "649df9fa03cb87af05e9388f866a0b4d43433d43a223592da2abd0fa4ed035ac",
+    "runtimeRetest": "Original-host normal install, foreign-corrupt and missing-backend cases passed after display activation. Full GUI AX/button checks passed on an isolated host-only workaround copy."
   },
   "macHostCases": [
     {
       "case": "normal",
       "passed": true,
       "runtimeId": "osx-arm64",
-      "packageSha256": "253efbb0e7e1b4ca036228c396b47fa52211eab546baf1a1f1ac883220fa36fd",
+      "packageSha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
       "fixtureHashesUnchanged": true,
+      "hostGlobalStorageUnchanged": true,
+      "hostExitCode": 0,
       "hostSha256": "ac0db4aee41fcef99ede78866f01fa22b1d13c2c1f797906b9028b00be4c3259",
-      "evidencePath": "artifacts/m1/runs/20261113-024059-normal/result.json"
+      "evidencePath": "artifacts/m1/runs/20261113-113412-normal/result.json"
     },
     {
       "case": "foreign-corrupt",
       "passed": true,
       "runtimeId": "osx-arm64",
-      "packageSha256": "253efbb0e7e1b4ca036228c396b47fa52211eab546baf1a1f1ac883220fa36fd",
+      "packageSha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
       "fixtureHashesUnchanged": true,
+      "hostGlobalStorageUnchanged": true,
+      "hostExitCode": 0,
       "hostSha256": "ac0db4aee41fcef99ede78866f01fa22b1d13c2c1f797906b9028b00be4c3259",
-      "evidencePath": "artifacts/m1/runs/20261113-024136-foreign-corrupt/result.json"
+      "evidencePath": "artifacts/m1/runs/20261113-113414-foreign-corrupt/result.json"
     },
     {
       "case": "missing-backend",
       "passed": true,
       "runtimeId": "osx-arm64",
-      "packageSha256": "253efbb0e7e1b4ca036228c396b47fa52211eab546baf1a1f1ac883220fa36fd",
+      "packageSha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
       "fixtureHashesUnchanged": true,
+      "hostGlobalStorageUnchanged": true,
+      "hostExitCode": 0,
       "hostSha256": "ac0db4aee41fcef99ede78866f01fa22b1d13c2c1f797906b9028b00be4c3259",
-      "evidencePath": "artifacts/m1/runs/20261113-024138-missing-backend/result.json"
+      "evidencePath": "artifacts/m1/runs/20261113-113416-missing-backend/result.json"
     }
   ],
   "limitations": [
-    "Latest package install retest and complete settings-window visual check require an active Mac display. Earlier three-case evidence retained separately.",
     "Windows/Linux native builds, desktop loads and cross-OS aggregation not executed.",
-    "CI configured but not run on GitHub.",
-    "No real native bridge, full original Windows migration, configuration migration or production release in M1.",
-    "Successful early host runs predate Global.json hash observation; the updated runner checks machine-wide storage but this extra observation is not yet exercised in an active GUI session."
-  ]
+    "GitHub CI configured but not run.",
+    "The original host still has the accessibility regression; the complete GUI test used an isolated host-side workaround and is not evidence that the unchanged host was fixed.",
+    "No full original Windows migration, real native bridge, configuration migration or production release in M1."
+  ],
+  "guiVerification": {
+    "passed": true,
+    "runtimeId": "osx-arm64",
+    "packageSha256": "ee4d9611f71aa891a5161fc8aa265eecd87d933168a71dca73962f54f4923874",
+    "hostKind": "isolated-host-entry-workaround",
+    "testBundleId": "cn.classisland.app.m1compat",
+    "settingsPageVisible": true,
+    "buttonClicked": true,
+    "successTextObserved": "诊断已保存。",
+    "diagnosticSource": "settings-button",
+    "fixtureHashesUnchanged": true,
+    "hostGlobalStorageUnchanged": true,
+    "accessibilityTreeEnumeration": "passed with host-only navigation peer workaround",
+    "teardown": "SIGTERM sent only to recorded owned PID; no unhandled exception in GUI host log",
+    "source": "Native CUA state and screenshot observed; diagnostic JSON and process/log checked after interaction.",
+    "evidencePath": "artifacts/m1/runs/20261113-112127-normal/gui-result.json"
+  },
+  "hostCompatibility": {
+    "sourcePatch": "eng/host-patches/classisland-macos-navigation-accessibility.patch",
+    "sourcePatchApplyCheck": "passed against recorded host source commit",
+    "originalHostUnchanged": true,
+    "regressionRoot": "FluentAvalonia 3.0.0 empty navigation repeater accessibility peer dereferences null base children",
+    "sourceOfGuard": "Existing host Android workaround, enabled only for Mac in the host patch",
+    "finalTestHostEvidence": "artifacts/m1/runs/20261113-113102-normal/result.json",
+    "fallbackIsolationEvidence": "artifacts/m1/host-compat-final/fallback-result.json",
+    "guiHostHasWorkaround": true
+  }
 }

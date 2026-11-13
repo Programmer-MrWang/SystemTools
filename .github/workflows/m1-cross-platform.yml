@@ -43,6 +43,9 @@ jobs:
       - name: Verify reproducible paths on Mac
         if: runner.os == 'macOS'
         run: python eng/check_reproducible.py
+      - name: Reproduce and guard host accessibility regression
+        if: runner.os == 'macOS'
+        run: dotnet run --project tests/SystemTools.HostCompatibility.Tests -c Release
       - name: Loader checks on Windows and Mac
         if: runner.os != 'Linux'
         run: python eng/m1.py test

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """M1 build/package/isolated host verification. Python 3.9+, .NET SDK 10."""
 from pathlib import Path
-import argparse, hashlib, json, os, platform, shutil, subprocess, sys, tempfile, time, zipfile
+import argparse, hashlib, json, os, platform, shutil, signal, subprocess, sys, tempfile, time, zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / 'artifacts/m1'
@@ -208,13 +208,17 @@ def smoke(host, package, case, timeout):
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.wait(timeout=5)
+    exit_code = process.returncode
+    expected_exit_codes = {0, 1} if platform.system() == 'Windows' else {0, -signal.SIGTERM}
+    if exit_code not in expected_exit_codes:
+        failure = 'Host exited abnormally after startup evidence: ' + str(exit_code)
     after = {name: sha(config / name) for name in before}
     if before != after:
         failure = 'Legacy fixture bytes changed during host startup/shutdown.'
     global_after = sha(global_path) if global_path.exists() else None
     if global_after != global_before:
         failure = 'Host machine-wide Global.json changed; inspect host behavior before repeating. No automatic restore was performed.'
-    evidence = dict(identity(), case=case, passed=failure is None, runtimeId=rid, machine=platform.platform(), host=str(host), hostSha256=sha(host), packageSha256=sha(package), fixtureHashesUnchanged=before == after, hostGlobalStorageUnchanged=global_before == global_after, evidence=proof, error=failure)
+    evidence = dict(identity(), case=case, passed=failure is None, runtimeId=rid, machine=platform.platform(), host=str(host), hostSha256=sha(host), hostExitCode=exit_code, packageSha256=sha(package), fixtureHashesUnchanged=before == after, hostGlobalStorageUnchanged=global_before == global_after, evidence=proof, error=failure)
     write_json(run / 'result.json', evidence)
     print('EVIDENCE:', run / 'result.json', flush=True)
     if failure:

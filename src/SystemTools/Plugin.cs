@@ -32,6 +32,11 @@ public sealed class Plugin : PluginBase
         services.AddSingleton(catalog);
         if (backend is IPlatformPlugin platformPlugin)
             platformPlugin.Initialize(this, context, services);
+        else
+        {
+            SharedHostRegistration.Initialize(PluginConfigFolder, Info.PluginFolderPath, services, catalog);
+            AppBase.Current.AppStarted += (_, _) => SystemTools.Services.SuperAutoIslandIntegration.Register();
+        }
         LegacyActionDiagnostics.Register(services);
         var diagnostics = new DiagnosticService(backend, PluginConfigFolder);
         services.AddSingleton(backend);

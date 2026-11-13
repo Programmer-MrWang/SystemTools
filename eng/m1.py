@@ -57,6 +57,8 @@ def identity():
         directory = ROOT / name
         if directory.is_dir():
             paths += [p for p in directory.rglob('*') if p.is_file()
+                      and (p.suffix.lower() in {'.cs', '.csproj', '.axaml', '.sksl', '.png', '.resx'}
+                           or p.name.endswith('.axaml.txt'))
                       and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
     digest = hashlib.sha256()
     # Preserve the original POSIX component order; Windows Path ordering folds case.

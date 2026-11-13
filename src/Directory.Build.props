@@ -9,6 +9,9 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <DeterministicSourcePaths>true</DeterministicSourcePaths>
     <DebugType>embedded</DebugType>
+    <!-- Avalonia embeds absolute XAML document paths in symbols after C# PathMap runs. -->
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Release'">false</DebugSymbols>
     <!-- The solution intentionally contains only the entrance; preserve config for conditional references. -->
     <ShouldUnsetParentConfigurationAndPlatform>false</ShouldUnsetParentConfigurationAndPlatform>
     <Version>3.0.0</Version>

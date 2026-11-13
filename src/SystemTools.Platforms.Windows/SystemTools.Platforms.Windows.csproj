@@ -67,4 +67,10 @@
     <AvaloniaResource Include="../../ThirdParty/**/*.sksl" Link="ThirdParty/%(RecursiveDir)%(Filename)%(Extension)" />
     <AdditionalFiles Include="../../NativeMethods.txt" Link="NativeMethods.txt" />
   </ItemGroup>
+  <Import Project="../../eng/shared-host-sources.props" />
+  <ItemGroup>
+    <ProjectReference Include="../../src/SystemTools.SharedHost/SystemTools.SharedHost.csproj" />
+    <Compile Remove="@(SharedHostSource)" />
+    <AvaloniaXaml Remove="@(SharedHostXaml)" />
+  </ItemGroup>
 </Project>

@@ -14,7 +14,7 @@ public static class GlobalConstants
 
     public static class HostInterfaces
     {
-        public static ILogger<Plugin>? PluginLogger;
+        public static ILogger? PluginLogger;
     }
 
     public static class Information

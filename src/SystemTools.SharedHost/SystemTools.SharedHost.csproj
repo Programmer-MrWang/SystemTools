@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><RootNamespace>SystemTools</RootNamespace><EnableDefaultAvaloniaItems>false</EnableDefaultAvaloniaItems><CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Avalonia" Version="12.1.4" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" ExcludeAssets="runtime;native" />
+    <ProjectReference Include="../SystemTools.Common/SystemTools.Common.csproj" />
+  </ItemGroup>
+  <Import Project="../../eng/shared-host-sources.props" />
+  <ItemGroup><Compile Include="@(SharedHostSource)" Link="%(Filename)%(Extension)" /><AvaloniaXaml Include="@(SharedHostXaml)" Link="%(Filename)%(Extension)" /></ItemGroup>
+</Project>

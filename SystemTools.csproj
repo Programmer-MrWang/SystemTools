@@ -212,4 +212,10 @@
       <AvaloniaResource Remove="cipx\**" />
     </ItemGroup>
 
+  <Import Project="eng/shared-host-sources.props" />
+  <ItemGroup>
+    <ProjectReference Include="src/SystemTools.SharedHost/SystemTools.SharedHost.csproj" />
+    <Compile Remove="@(SharedHostSource)" />
+    <AvaloniaXaml Remove="@(SharedHostXaml)" />
+  </ItemGroup>
 </Project>

@@ -30,7 +30,7 @@ public class FloatingWindowProfileManager
     {
         _profilesDirectory = Path.Combine(GlobalConstants.PluginConfigFolder ?? throw new InvalidOperationException("插件配置目录尚未初始化。"), "FloatingWindowProfiles");
         SystemTools.Common.Storage.PersistentProfileImport.CopyOnce(
-            Path.Combine(DependencyPaths.GetDependencyRoot(), "FloatingWindowProfiles"), _profilesDirectory);
+            Path.GetFullPath(Path.Combine(GlobalConstants.Information.PluginFolder, "..", "..", "Cache", "SystemTools", "FloatingWindowProfiles")), _profilesDirectory);
         if (!Directory.Exists(_profilesDirectory))
         {
             Directory.CreateDirectory(_profilesDirectory);

@@ -13,8 +13,13 @@ namespace SystemTools;
 [PluginEntrance]
 public sealed class Plugin : PluginBase
 {
+    private int _initialized;
+    private int _started;
+    private int _stopped;
+    private readonly SystemTools.Common.Lifecycle.LifetimeScope _lifetime = new();
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
+        if (Interlocked.Exchange(ref _initialized, 1) != 0) return;
         IPlatformBackend backend;
         try
         {
@@ -35,7 +40,9 @@ public sealed class Plugin : PluginBase
         else
         {
             SharedHostRegistration.Initialize(PluginConfigFolder, Info.PluginFolderPath, services, catalog);
-            AppBase.Current.AppStarted += (_, _) => SystemTools.Services.SuperAutoIslandIntegration.Register();
+            EventHandler startShared = (_, _) => SystemTools.Services.SuperAutoIslandIntegration.Register();
+            AppBase.Current.AppStarted += startShared;
+            _lifetime.Own(() => AppBase.Current.AppStarted -= startShared);
         }
         LegacyActionDiagnostics.Register(services);
         var diagnostics = new DiagnosticService(backend, PluginConfigFolder);
@@ -45,8 +52,9 @@ public sealed class Plugin : PluginBase
         services.AddSingleton(new MigrationLocation(PluginConfigFolder));
         services.AddSettingsPage<MigrationSettingsPage>();
         services.AddAction<RecordDiagnosticsAction>();
-        AppBase.Current.AppStarted += async (_, _) =>
+        EventHandler started = async (_, _) =>
         {
+            if (Interlocked.Exchange(ref _started, 1) != 0) return;
             try
             {
                 diagnostics.Capture("host-started");
@@ -58,5 +66,22 @@ public sealed class Plugin : PluginBase
                 IAppHost.TryGetService<ILogger<Plugin>>()?.LogError(ex, "M1 诊断保存失败。");
             }
         };
+        AppBase.Current.AppStarted += started;
+        _lifetime.Own(() => AppBase.Current.AppStarted -= started);
+        EventHandler? stopping = null;
+        stopping = (_, _) =>
+        {
+            if (Interlocked.Exchange(ref _stopped, 1) != 0) return;
+            AppBase.Current.AppStopping -= stopping;
+            foreach (var error in _lifetime.Close())
+                IAppHost.TryGetService<ILogger<Plugin>>()?.LogWarning("取消插件事件订阅失败：{Type}", error.GetType().Name);
+            if (backend is not IPlatformPlugin)
+            {
+                try { SystemTools.Shared.GlobalConstants.MainConfig?.Save(); }
+                catch (Exception error) { IAppHost.TryGetService<ILogger<Plugin>>()?.LogWarning("保存配置失败，原文件已保留：{Type}", error.GetType().Name); }
+                SystemTools.Shared.GlobalConstants.MainConfig?.Dispose();
+            }
+        };
+        AppBase.Current.AppStopping += stopping;
     }
 }

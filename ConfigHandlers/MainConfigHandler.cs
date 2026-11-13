@@ -13,7 +13,7 @@ using SystemTools.Shared;
 
 namespace SystemTools.ConfigHandlers;
 
-public class MainConfigHandler
+public class MainConfigHandler : IDisposable
 {
     readonly string _configPath;
     private readonly SystemTools.Common.Storage.AtomicJsonStore<MainConfigData> _store;
@@ -64,8 +64,12 @@ public class MainConfigHandler
 
     void SubscribeToChanges()
     {
-        Data.PropertyChanged += (sender, args) => { Save(); };
+        Data.PropertyChanged += OnDataChanged;
     }
+
+    private void OnDataChanged(object? sender, PropertyChangedEventArgs args) => Save();
+
+    public void Dispose() => Data.PropertyChanged -= OnDataChanged;
 
     public void Save()
     {

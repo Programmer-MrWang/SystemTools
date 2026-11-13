@@ -143,6 +143,23 @@ try
     Check(SystemTools.Common.Storage.PersistentProfileImport.CopyOnce(source, destination).Conflicts.SequenceEqual(["Conflict.json"]), "方案冲突保留两端并报告");
 }
 finally { Directory.Delete(temporary, recursive: true); }
+var cleanupOrder = new List<int>();
+var lifetime = new SystemTools.Common.Lifecycle.LifetimeScope();
+lifetime.Own(() => cleanupOrder.Add(1));
+lifetime.Own(() => throw new IOException("清理故障注入"));
+lifetime.Own(() => cleanupOrder.Add(3));
+Check(lifetime.Close().Count == 1 && cleanupOrder.SequenceEqual([3, 1]), "资源逆序清理且单项失败不跳过后续项");
+Check(lifetime.Close().Count == 0 && cleanupOrder.Count == 2, "重复停止只清理一次");
+try { lifetime.Own(() => { }); throw new Exception("关闭后注册"); } catch (ObjectDisposedException) { Check(true, "关闭后不接受新资源"); }
+var layout = SystemTools.Common.Layout.FloatingWindowRows.WithFallback([["a", "missing"]], ["a", "b", "c"], new HashSet<string> { "c" });
+Check(layout.Count == 1 && layout[0].SequenceEqual(["a", "b"]), "布局仅计算可见按钮并保留原配置");
+if (OperatingSystem.IsWindows())
+{
+    var command = await SystemTools.Common.Processes.CommandRunner.RunAsync("cmd.exe", ["/d", "/c", "echo output & echo error 1>&2"]);
+    Check(command.ExitCode == 0 && command.StandardOutput.Contains("output") && command.StandardError.Contains("error"), "异步命令同时读取输出和错误流");
+    try { await SystemTools.Common.Processes.CommandRunner.RunAsync("ping.exe", ["-n", "20", "127.0.0.1"], timeout: TimeSpan.FromMilliseconds(100)); throw new Exception("命令无超时"); }
+    catch (TimeoutException) { Check(true, "命令超时终止子进程并排空输出"); }
+}
 var unavailable = new UnavailableCredentialProtector("keychain:v1:", "未接入系统凭据后端");
 Check(!unavailable.TryUnprotect("dpapi-current-user:v1:REDACTED", out var plaintext) && plaintext == "", "无凭据后端时不伪造解密结果");
 try { unavailable.Protect("test-secret"); throw new Exception("不安全降级"); } catch (PlatformNotSupportedException) { Check(true, "无凭据后端时拒绝明文降级"); }

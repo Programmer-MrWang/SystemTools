@@ -7,8 +7,10 @@ namespace SystemTools.Platforms.Windows;
 
 internal static class WindowsDependencies
 {
+    private static int _installed;
     public static void Install()
     {
+        if (System.Threading.Interlocked.Exchange(ref _installed, 1) != 0) return;
         var assembly = typeof(Backend).Assembly;
         var context = AssemblyLoadContext.GetLoadContext(assembly)!;
         var directory = Path.GetDirectoryName(assembly.Location)!;

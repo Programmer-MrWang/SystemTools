@@ -28,7 +28,7 @@ public class TriggerCustomTriggerAction(ILogger<TriggerCustomTriggerAction> logg
 
         try
         {
-            string? configDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string? configDir = SystemTools.Shared.GlobalConstants.Information.PluginFolder;
             if (string.IsNullOrEmpty(configDir))
             {
                 _logger.LogError("无法获取程序运行位置");

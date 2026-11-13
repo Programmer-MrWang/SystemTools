@@ -47,6 +47,10 @@ namespace SystemTools;
 public partial class Plugin : PluginBase
 {
     private PluginBase? _entrance;
+    private int _initialized;
+    private int _started;
+    private int _stopped;
+    private readonly SystemTools.Common.Lifecycle.LifetimeScope _lifetime = new();
 
     public void InitializeFromEntrance(PluginBase entrance, HostBuilderContext context,
         IServiceCollection services)
@@ -67,6 +71,7 @@ public partial class Plugin : PluginBase
 
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
+        if (System.Threading.Interlocked.Exchange(ref _initialized, 1) != 0) return;
         // ========== 初始化配置 ==========
         Console.WriteLine("[SystemTools]-------------------------------------------------------------------\r\n"
                           + GlobalConstants.Assets.AsciiLogo
@@ -222,8 +227,9 @@ public partial class Plugin : PluginBase
         var ffmpegEnabled = GlobalConstants.MainConfig?.Data.EnableFfmpegFeatures == true &&
                             !_ffmpegDisabledDueToMissingDependency;
 
-        AppBase.Current.AppStarted += (o, args) =>
+        SubscribeStarted((o, args) =>
         {
+            if (System.Threading.Interlocked.Exchange(ref _started, 1) != 0) return;
             _logger = IAppHost.GetService<ILogger<Plugin>>();
             GlobalConstants.MainConfig?.LogPendingMigrationWarnings(_logger);
 
@@ -291,7 +297,7 @@ public partial class Plugin : PluginBase
 
             _logger?.LogInformation("[SystemTools]SystemTools 启动完成");
             RegisterOrUpdateFloatingWindowTrayMenu();
-        };
+        });
 
         // ========== 注册实验性功能 ==========
         if (experimentalEnabled)
@@ -307,14 +313,14 @@ public partial class Plugin : PluginBase
 
         // ========== 注册热键服务 ==========
        // ========== 版本检查 ==========
-        AppBase.Current.AppStarted += (_, _) => { VersionCheckService.CheckAndNotify(); };
+        SubscribeStarted((_, _) => { VersionCheckService.CheckAndNotify(); });
 
         // ========== 订阅关闭事件 ==========
         RegisterShutdownRequestedHandler();
         AppBase.Current.AppStopping += OnAppStopping;
 
         // ========== 注册设置页面分组 ==========
-        AppBase.Current.AppStarted += (_, _) => RegisterSettingsPageGroup(services);
+        SubscribeStarted((_, _) => RegisterSettingsPageGroup(services));
     }
 
     #region 依赖检查
@@ -1035,8 +1041,23 @@ public partial class Plugin : PluginBase
 
     #endregion
 
+    private void SubscribeStarted(EventHandler handler)
+    {
+        AppBase.Current.AppStarted += handler;
+        _lifetime.Own(() => AppBase.Current.AppStarted -= handler);
+    }
+
     private void OnAppStopping(object? sender, EventArgs e)
     {
+        if (System.Threading.Interlocked.Exchange(ref _stopped, 1) != 0) return;
+        AppBase.Current.AppStopping -= OnAppStopping;
+        foreach (var error in _lifetime.Close()) _logger?.LogWarning("[SystemTools]取消事件订阅失败：{Type}", error.GetType().Name);
+        void Cleanup(Action action)
+        {
+            try { action(); }
+            catch (Exception error) { _logger?.LogWarning("[SystemTools]资源清理失败，其余清理继续：{Type}", error.GetType().Name); }
+        }
+
         var systemShutdownMonitor = _systemShutdownMonitor ?? IAppHost.GetService<SystemShutdownMonitor>();
         var isSessionEnding = systemShutdownMonitor.IsSessionEnding;
         if (AppBase.Current.DesktopLifetime is { } desktopLifetime && _shutdownRequestedHandler != null)
@@ -1044,14 +1065,14 @@ public partial class Plugin : PluginBase
             desktopLifetime.ShutdownRequested -= _shutdownRequestedHandler;
             _shutdownRequestedHandler = null;
         }
-        IAppHost.GetService<AdaptiveThemeSyncService>().Stop();
-        IAppHost.TryGetService<AiVoiceConversationService>()?.Dispose();
-        IAppHost.GetService<MainWindowTextOcclusionService>().Shutdown(restoreMainWindow: true);
-        IAppHost.GetService<UsbAutoPlayService>().Stop();
-        IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop();
-        IAppHost.GetService<SystemMemoryCleanupService>().Stop();
-        IAppHost.GetService<VirtualAfterSchoolService>().Stop();
-        IAppHost.GetService<WallpaperAccentColorService>().Stop();
+        Cleanup(() => IAppHost.GetService<AdaptiveThemeSyncService>().Stop());
+        Cleanup(() => IAppHost.TryGetService<AiVoiceConversationService>()?.Dispose());
+        Cleanup(() => IAppHost.GetService<MainWindowTextOcclusionService>().Shutdown(restoreMainWindow: true));
+        Cleanup(() => IAppHost.GetService<UsbAutoPlayService>().Stop());
+        Cleanup(() => IAppHost.GetService<ClassIslandMemoryAutoCleanupService>().Stop());
+        Cleanup(() => IAppHost.GetService<SystemMemoryCleanupService>().Stop());
+        Cleanup(() => IAppHost.GetService<VirtualAfterSchoolService>().Stop());
+        Cleanup(() => IAppHost.GetService<WallpaperAccentColorService>().Stop());
         var appStoppingHandled = AdvancedShutdownAction.CancelPlanOnAppStopping(isSessionEnding);
         if (appStoppingHandled && isSessionEnding)
         {
@@ -1061,17 +1082,18 @@ public partial class Plugin : PluginBase
         {
             _logger?.LogInformation("[SystemTools]检测到 ClassIsland 主动退出，尝试执行一次 shutdown /a。");
         }
-        systemShutdownMonitor.Dispose();
-        IAppHost.TryGetService<AiChatWindowService>()?.Close();
-        IAppHost.TryGetService<VoskSpeechService>()?.Dispose();
-        IAppHost.TryGetService<KeywordSpeechService>()?.Dispose();
+        Cleanup(systemShutdownMonitor.Dispose);
+        Cleanup(() => IAppHost.TryGetService<AiChatWindowService>()?.Close());
+        Cleanup(() => IAppHost.TryGetService<VoskSpeechService>()?.Dispose());
+        Cleanup(() => IAppHost.TryGetService<KeywordSpeechService>()?.Dispose());
         if (GlobalConstants.MainConfig?.Data.EnableFloatingWindowFeature == true)
         {
-            IAppHost.GetService<FloatingWindowService>().Stop();
+            Cleanup(() => IAppHost.GetService<FloatingWindowService>().Stop());
         }
         _logger?.LogInformation("[SystemTools]关闭插件SystemTools，保存配置...");
-        UnregisterFloatingWindowTrayMenu();
-        GlobalConstants.MainConfig?.Save();
+        Cleanup(UnregisterFloatingWindowTrayMenu);
+        Cleanup(() => GlobalConstants.MainConfig?.Save());
+        GlobalConstants.MainConfig?.Dispose();
     }
 
     private void RegisterShutdownRequestedHandler()

@@ -34,6 +34,7 @@ public class ActionInProgressTrigger : TriggerBase<ActionInProgressTriggerConfig
 
     public override void Loaded()
     {
+        if (_checkTimer is not null) return;
         _checkTimer = new Timer(2000);
         _checkTimer.Elapsed += OnCheckTimer;
         _checkTimer.Start();

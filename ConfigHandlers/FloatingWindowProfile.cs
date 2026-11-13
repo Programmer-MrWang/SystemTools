@@ -11,6 +11,9 @@ namespace SystemTools.ConfigHandlers;
 /// </summary>
 public partial class FloatingWindowProfile : ObservableObject
 {
+    [System.Text.Json.Serialization.JsonExtensionData]
+    public System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
+
     [ObservableProperty]
     [JsonPropertyName("name")]
     private string _name = "Default";

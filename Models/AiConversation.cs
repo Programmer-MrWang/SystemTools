@@ -8,6 +8,8 @@ namespace SystemTools.Models;
 
 public sealed class AiConversation : INotifyPropertyChanged
 {
+    [JsonExtensionData]
+    public System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
     private string _title = "新对话";
     private DateTimeOffset _updatedAt = DateTimeOffset.Now;
 
@@ -50,6 +52,8 @@ public sealed class AiConversation : INotifyPropertyChanged
 
 public sealed class AiConversationMessage : INotifyPropertyChanged
 {
+    [JsonExtensionData]
+    public System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
     private string _role = "user";
     private string _content = string.Empty;
     private bool _isStreaming;

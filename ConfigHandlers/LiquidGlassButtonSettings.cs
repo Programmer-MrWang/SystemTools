@@ -10,6 +10,9 @@ namespace SystemTools.ConfigHandlers;
 /// </summary>
 public sealed class LiquidGlassButtonSettings : INotifyPropertyChanged
 {
+    [System.Text.Json.Serialization.JsonExtensionData]
+    public System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
+
     private double _scaleDip = 3.5;
     private bool _interactiveHighlightEnabled = true;
     private bool _shadowEnabled = true;

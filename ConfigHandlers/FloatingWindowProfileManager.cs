@@ -13,6 +13,7 @@ namespace SystemTools.ConfigHandlers;
 public class FloatingWindowProfileManager
 {
     private readonly string _profilesDirectory;
+    private readonly Dictionary<string, SystemTools.Common.Storage.AtomicJsonStore<FloatingWindowProfile>> _stores = new();
     private FloatingWindowProfile _currentProfile = new();
     private string _currentProfileName = "Default";
 
@@ -27,7 +28,9 @@ public class FloatingWindowProfileManager
 
     public FloatingWindowProfileManager()
     {
-        _profilesDirectory = Path.Combine(DependencyPaths.GetDependencyRoot(), "FloatingWindowProfiles");
+        _profilesDirectory = Path.Combine(GlobalConstants.PluginConfigFolder ?? throw new InvalidOperationException("插件配置目录尚未初始化。"), "FloatingWindowProfiles");
+        SystemTools.Common.Storage.PersistentProfileImport.CopyOnce(
+            Path.Combine(DependencyPaths.GetDependencyRoot(), "FloatingWindowProfiles"), _profilesDirectory);
         if (!Directory.Exists(_profilesDirectory))
         {
             Directory.CreateDirectory(_profilesDirectory);
@@ -55,7 +58,7 @@ public class FloatingWindowProfileManager
             FloatingWindowRowRulesets = new List<RowRulesetConfig>(legacyData.FloatingWindowRowRulesets ?? [])
         };
 
-        ConfigureFileHelper.SaveConfig(defaultPath, profile);
+        SaveDocument(defaultPath, profile);
     }
 
     public string ProfilesDirectory => _profilesDirectory;
@@ -97,6 +100,7 @@ public class FloatingWindowProfileManager
         }
 
         var names = Directory.GetFiles(_profilesDirectory, "*.json")
+            .Where(path => !Path.GetFileName(path).StartsWith(".", StringComparison.Ordinal))
             .Select(Path.GetFileNameWithoutExtension)
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Select(x => x!)
@@ -130,7 +134,7 @@ public class FloatingWindowProfileManager
         }
         else
         {
-            _currentProfile = ConfigureFileHelper.LoadConfig<FloatingWindowProfile>(path);
+            _currentProfile = GetStore(path).Load();
             _currentProfile.Name = profileName;
         }
 
@@ -143,7 +147,7 @@ public class FloatingWindowProfileManager
     public void SaveProfile()
     {
         var path = GetProfilePath(_currentProfileName);
-        ConfigureFileHelper.SaveConfig(path, _currentProfile);
+        SaveDocument(path, _currentProfile);
     }
 
     /// <summary>
@@ -169,7 +173,7 @@ public class FloatingWindowProfileManager
         newProfile.Name = profileName;
 
         var path = GetProfilePath(profileName);
-        ConfigureFileHelper.SaveConfig(path, newProfile);
+        SaveDocument(path, newProfile);
 
         return profileName;
     }
@@ -193,6 +197,7 @@ public class FloatingWindowProfileManager
         try
         {
             File.Delete(path);
+            _stores.Remove(path);
             return true;
         }
         catch
@@ -223,6 +228,8 @@ public class FloatingWindowProfileManager
         try
         {
             File.Move(oldPath, newPath);
+            _stores.Remove(oldPath);
+            _stores.Remove(newPath);
             if (string.Equals(_currentProfileName, oldName, StringComparison.OrdinalIgnoreCase))
             {
                 _currentProfileName = newName;
@@ -251,6 +258,14 @@ public class FloatingWindowProfileManager
                !(stem.Length == 4 && (stem.StartsWith("COM") || stem.StartsWith("LPT")) &&
                  "123456789¹²³".Contains(stem[3]));
     }
+
+    private SystemTools.Common.Storage.AtomicJsonStore<FloatingWindowProfile> GetStore(string path)
+    {
+        if (!_stores.TryGetValue(path, out var store)) _stores[path] = store = PluginJsonStore.Open<FloatingWindowProfile>(path);
+        return store;
+    }
+
+    private void SaveDocument(string path, FloatingWindowProfile profile) => GetStore(path).Save(profile);
 
     private string GetProfilePath(string profileName)
     {

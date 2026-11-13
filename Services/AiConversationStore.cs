@@ -17,6 +17,7 @@ public sealed class AiConversationStore
     };
 
     private readonly string _filePath;
+    private readonly SystemTools.Common.Storage.AtomicJsonStore<ConversationStoreDocument> _store;
 
     public AiConversationStore()
     {
@@ -26,8 +27,11 @@ public sealed class AiConversationStore
             "Plugins",
             "SystemTools");
         _filePath = Path.Combine(configFolder, "AiConversations.json");
+        _store = new(_filePath, value => JsonSerializer.Serialize(value, SerializerOptions), json => JsonSerializer.Deserialize<ConversationStoreDocument>(json, SerializerOptions)!);
         Load();
     }
+
+    private Dictionary<string, JsonElement>? _extensionData;
 
     public ObservableCollection<AiConversation> Conversations { get; } = [];
 
@@ -96,12 +100,10 @@ public sealed class AiConversationStore
         var document = new ConversationStoreDocument
         {
             ActiveConversationId = ActiveConversationId,
+            ExtensionData = _extensionData,
             Conversations = Conversations.ToList()
         };
-        var json = JsonSerializer.Serialize(document, SerializerOptions);
-        var temporaryPath = _filePath + ".tmp";
-        File.WriteAllText(temporaryPath, json);
-        File.Move(temporaryPath, _filePath, overwrite: true);
+        _store.Save(document);
     }
 
     private void Load()
@@ -113,8 +115,7 @@ public sealed class AiConversationStore
 
         try
         {
-            var json = File.ReadAllText(_filePath);
-            var document = JsonSerializer.Deserialize<ConversationStoreDocument>(json, SerializerOptions);
+            var document = _store.Load();
             if (document?.Conversations is null)
             {
                 return;
@@ -136,6 +137,7 @@ public sealed class AiConversationStore
             }
 
             ActiveConversationId = document.ActiveConversationId;
+            _extensionData = document.ExtensionData;
         }
         catch (Exception ex)
         {
@@ -154,6 +156,8 @@ public sealed class AiConversationStore
 
     private sealed class ConversationStoreDocument
     {
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public Dictionary<string, JsonElement>? ExtensionData { get; set; }
         public Guid? ActiveConversationId { get; init; }
 
         public List<AiConversation> Conversations { get; init; } = [];

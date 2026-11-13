@@ -9,6 +9,9 @@ namespace SystemTools.ConfigHandlers;
 /// </summary>
 public partial class RowRulesetConfig : ObservableObject
 {
+    [System.Text.Json.Serialization.JsonExtensionData]
+    public System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
+
     [ObservableProperty]
     [JsonPropertyName("isVisible")]
     private bool _isVisible = true;

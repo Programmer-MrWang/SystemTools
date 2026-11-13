@@ -16,6 +16,8 @@ public enum AiAttachmentKind
 
 public sealed class AiAttachment : INotifyPropertyChanged, IDisposable
 {
+    [JsonExtensionData]
+    public System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
     private Bitmap? _thumbnail;
 
     public Guid Id { get; set; } = Guid.NewGuid();

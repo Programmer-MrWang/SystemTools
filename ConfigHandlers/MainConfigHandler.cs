@@ -16,6 +16,7 @@ namespace SystemTools.ConfigHandlers;
 public class MainConfigHandler
 {
     readonly string _configPath;
+    private readonly SystemTools.Common.Storage.AtomicJsonStore<MainConfigData> _store;
     private readonly ILogger<MainConfigHandler>? _logger;
     private readonly List<(string Message, string ExceptionType)> _pendingMigrationWarnings = [];
     public MainConfigData Data { get; set; }
@@ -30,7 +31,8 @@ public class MainConfigHandler
         _configPath = Path.Combine(pluginConfigFolder, "Main.json");
         _logger = logger ?? IAppHost.TryGetService<ILogger<MainConfigHandler>>();
 
-        Data = ConfigureFileHelper.LoadConfig<MainConfigData>(_configPath);
+        _store = PluginJsonStore.Open<MainConfigData>(_configPath);
+        Data = _store.Load();
 
         if (Data.RequiresCredentialMigration)
         {
@@ -39,8 +41,7 @@ public class MainConfigHandler
             {
                 // The host helper truncates the destination before writing. Stage
                 // migration first so disk/write failures cannot damage the old file.
-                ConfigureFileHelper.SaveConfig(migrationPath, Data);
-                File.Move(migrationPath, _configPath, true);
+                _store.Save(Data);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or CryptographicException)
             {
@@ -68,7 +69,7 @@ public class MainConfigHandler
 
     public void Save()
     {
-        ConfigureFileHelper.SaveConfig(_configPath, Data);
+        _store.Save(Data);
     }
 
     internal void LogPendingMigrationWarnings(ILogger logger)

@@ -30,6 +30,7 @@
     <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="System.Speech" Version="8.0.0" />
     <ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" />
+    <ProjectReference Include="../SystemTools.Common/SystemTools.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Backend.cs" />

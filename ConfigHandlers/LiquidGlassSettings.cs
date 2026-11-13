@@ -7,6 +7,9 @@ namespace SystemTools.ConfigHandlers;
 
 public sealed class LiquidGlassSettings : INotifyPropertyChanged
 {
+    [System.Text.Json.Serialization.JsonExtensionData]
+    public System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
+
     private bool _suppressNotifications;
     private double _cornerRadius = 18;
     private double _backdropRefreshIntervalMs = 50;

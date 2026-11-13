@@ -9,6 +9,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.10" ExcludeAssets="runtime;native" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" ExcludeAssets="runtime;native" />
     <ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" />
+    <ProjectReference Include="../SystemTools.Common/SystemTools.Common.csproj" />
     <!-- Build only this machine's backend; never reference its types from the entrance. -->
     <ProjectReference Include="../SystemTools.Platforms.$(SystemToolsPlatform)/SystemTools.Platforms.$(SystemToolsPlatform).csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
     <None Include="manifest.yml" CopyToOutputDirectory="PreserveNewest" />

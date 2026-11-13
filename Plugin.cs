@@ -46,6 +46,16 @@ namespace SystemTools;
 */
 public partial class Plugin : PluginBase
 {
+    private PluginBase? _entrance;
+    private int _migrationStage = int.MaxValue;
+
+    public void InitializeFromEntrance(PluginBase entrance, HostBuilderContext context,
+        IServiceCollection services, int stage)
+    {
+        _entrance = entrance;
+        _migrationStage = stage;
+        Initialize(context, services);
+    }
     private ILogger<Plugin>? _logger;
     private NativeMenuItem? _toggleFloatingWindowMenuItem;
     private bool _faceRecognitionRegistered = false;
@@ -64,10 +74,11 @@ public partial class Plugin : PluginBase
                           + "\r\n Copyright (C) 2026 Programmer_MrWang \r\n Licensed under GNU AGPLv3. \r\n"
                           + "正在初始化SystemTools配置...-----------------------------------------------------------");
 
-        GlobalConstants.PluginConfigFolder = PluginConfigFolder;
-        GlobalConstants.Information.PluginFolder = Info.PluginFolderPath;
-        GlobalConstants.Information.PluginVersion = Info.Manifest.Version;
-        GlobalConstants.MainConfig = new MainConfigHandler(PluginConfigFolder);
+        var entrance = _entrance ?? this;
+        GlobalConstants.PluginConfigFolder = entrance.PluginConfigFolder;
+        GlobalConstants.Information.PluginFolder = entrance.Info.PluginFolderPath;
+        GlobalConstants.Information.PluginVersion = entrance.Info.Manifest.Version;
+        GlobalConstants.MainConfig = new MainConfigHandler(entrance.PluginConfigFolder);
         EnsureOptionalDependencyState();
         DependencyPaths.InitializeResolvers();
 
@@ -129,6 +140,9 @@ public partial class Plugin : PluginBase
         services.AddSingleton(_systemShutdownMonitor);
         services.AddSingleton<MainWindowClickService>();
         services.AddSingleton<IOpenAiCompatibleService, OpenAiCompatibleService>();
+        services.AddSingleton<IHotkeyService, HotkeyService>();
+        services.AddSingleton<KeywordSpeechService>();
+        services.AddSingleton<VoskSpeechService>();
         if (GlobalConstants.MainConfig?.Data.EnableAiService == true)
         {
             services.AddSingleton<AiConversationStore>();
@@ -189,6 +203,10 @@ public partial class Plugin : PluginBase
         services.AddSettingsPage<PluginDebugSettingsPage>();
 
         // ========== 构建行动树（根据配置）==========
+        if (_migrationStage == 2)
+        {
+            return;
+        }
         BuildBaseActionTree();
 
         // ========== 注册行动、触发器和组件（根据配置）==========
@@ -284,10 +302,6 @@ public partial class Plugin : PluginBase
         }
 
         // ========== 注册热键服务 ==========
-       services.AddSingleton<IHotkeyService, HotkeyService>();
-
-        services.AddSingleton<KeywordSpeechService>();
-        services.AddSingleton<VoskSpeechService>();
        // ========== 版本检查 ==========
         AppBase.Current.AppStarted += (_, _) => { VersionCheckService.CheckAndNotify(); };
 

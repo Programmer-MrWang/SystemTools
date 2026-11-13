@@ -11,6 +11,9 @@ namespace SystemTools.ConfigHandlers;
 
 public class MainConfigData : INotifyPropertyChanged
 {
+    [JsonExtensionData]
+    public Dictionary<string, System.Text.Json.JsonElement>? ExtensionData { get; set; }
+
     public MainConfigData()
     {
         _aiConversationLiquidGlass.PropertyChanged += OnLiquidGlassSettingsPropertyChanged;

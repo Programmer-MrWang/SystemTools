@@ -10,15 +10,29 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.10" ExcludeAssets="runtime;native" />
     <ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" />
     <!-- Build only this machine's backend; never reference its types from the entrance. -->
-    <ProjectReference Include="../SystemTools.Platforms.$(SystemToolsPlatform)/SystemTools.Platforms.$(SystemToolsPlatform).csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="../SystemTools.Platforms.$(SystemToolsPlatform)/SystemTools.Platforms.$(SystemToolsPlatform).csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
     <None Include="manifest.yml" CopyToOutputDirectory="PreserveNewest" />
     <None Include="README.md" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../icon.png" Link="icon.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Remove="Compatibility/*.axaml" />
+    <AvaloniaResource Include="Compatibility/CardTypeComponent.axaml" Link="Themes/CardTypeComponent/Styles.axaml" />
+    <AvaloniaResource Include="Compatibility/ClassWidgets.axaml" Link="Themes/ClassWidgets/Styles.axaml" />
+    <AvaloniaResource Include="Compatibility/NotchStyle.axaml" Link="Themes/NotchStyle/Styles.axaml" />
+    <AvaloniaResource Include="Compatibility/SettingsPageLazy.axaml" Link="Controls/SettingsPageLazy.axaml" />
+    <AvaloniaResource Include="../../Themes/**/*.axaml.txt" Link="Themes/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../Themes/**/*.png" Link="Themes/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../ThirdParty/**/*.sksl" Link="ThirdParty/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <Target Name="CheckPlatform" BeforeTargets="PrepareForBuild">
     <Error Condition="'$(SystemToolsPlatform)' != 'Windows' and '$(SystemToolsPlatform)' != 'Linux' and '$(SystemToolsPlatform)' != 'MacOS'" Text="Unsupported SystemToolsPlatform: $(SystemToolsPlatform)" />
   </Target>
   <Target Name="CopyLocalBackend" AfterTargets="Build">
-    <Copy SourceFiles="$(MSBuildProjectDirectory)/../SystemTools.Platforms.$(SystemToolsPlatform)/bin/$(Configuration)/net10.0/SystemTools.Platforms.$(SystemToolsPlatform).dll" DestinationFolder="$(TargetDir)" />
+    <PropertyGroup>
+      <BackendFramework Condition="'$(SystemToolsPlatform)' == 'Windows'">net10.0-windows10.0.19041.0</BackendFramework>
+      <BackendFramework Condition="'$(BackendFramework)' == ''">net10.0</BackendFramework>
+    </PropertyGroup>
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/../SystemTools.Platforms.$(SystemToolsPlatform)/bin/$(Configuration)/$(BackendFramework)/SystemTools.Platforms.$(SystemToolsPlatform).dll" DestinationFolder="$(TargetDir)" />
   </Target>
 </Project>

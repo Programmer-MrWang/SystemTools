@@ -14,7 +14,7 @@
                      d:DesignWidth="980">
     <ci:SettingsPageBase.Styles>
         <StyleInclude Source="avares://ClassIsland.Core/Themes/RichTextStyles.axaml" />
-        <StyleInclude Source="avares://SystemTools/Controls/SettingsPageLazy.axaml" />
+        <StyleInclude Source="/Controls/SettingsPageLazy.axaml" />
     </ci:SettingsPageBase.Styles>
 
     <loading:SettingsPageLazy>

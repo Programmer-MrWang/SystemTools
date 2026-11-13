@@ -1,0 +1,5 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:compat="using:SystemTools.Compatibility">
+    <compat:NotchStyles />
+</Styles>
+

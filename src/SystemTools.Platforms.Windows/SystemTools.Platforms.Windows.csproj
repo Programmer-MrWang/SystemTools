@@ -1,3 +1,66 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup><ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" /></ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultAvaloniaItems>false</EnableDefaultAvaloniaItems>
+    <RootNamespace>SystemTools</RootNamespace>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <ShouldUnsetParentConfigurationAndPlatform>false</ShouldUnsetParentConfigurationAndPlatform>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="SuperAutoIsland.Interface" Version="0.3.9.2-dev.3" GeneratePathProperty="true" />
+    <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" />
+    <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
+    <PackageReference Include="NPOI" Version="2.7.2" GeneratePathProperty="true" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.298">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="OpenCvSharp4" Version="4.9.0.20240103" />
+    <PackageReference Include="OpenCvSharp4.Extensions" Version="4.5.3.20211225" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.9.0.20240103" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.Speech" Version="8.0.0" />
+    <ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Backend.cs" />
+    <Compile Include="WindowsDependencies.cs" />
+    <Compile Include="WindowsAcceptance.cs" />
+    <Compile Include="../../Plugin.cs;../../DlibExtensions.cs;../../DriveUtils.cs" Link="%(Filename)%(Extension)" />
+    <Compile Include="../../Actions/**/*.cs" Exclude="../../Actions/**/obj/**;../../Actions/**/bin/**" Link="Actions/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Config/**/*.cs" Exclude="../../Config/**/obj/**;../../Config/**/bin/**" Link="Config/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../ConfigHandlers/**/*.cs" Exclude="../../ConfigHandlers/**/obj/**;../../ConfigHandlers/**/bin/**" Link="ConfigHandlers/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Controls/**/*.cs" Exclude="../../Controls/**/obj/**;../../Controls/**/bin/**" Link="Controls/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaXaml Include="../../Controls/**/*.axaml" Link="Controls/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Converters/**/*.cs" Exclude="../../Converters/**/obj/**;../../Converters/**/bin/**" Link="Converters/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Helpers/**/*.cs" Exclude="../../Helpers/**/obj/**;../../Helpers/**/bin/**" Link="Helpers/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Models/**/*.cs" Exclude="../../Models/**/obj/**;../../Models/**/bin/**" Link="Models/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Properties/**/*.cs" Exclude="../../Properties/**/obj/**;../../Properties/**/bin/**" Link="Properties/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Rules/**/*.cs" Exclude="../../Rules/**/obj/**;../../Rules/**/bin/**" Link="Rules/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Services/**/*.cs" Exclude="../../Services/**/obj/**;../../Services/**/bin/**" Link="Services/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Settings/**/*.cs" Exclude="../../Settings/**/obj/**;../../Settings/**/bin/**" Link="Settings/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../SettingsPage/**/*.cs" Exclude="../../SettingsPage/**/obj/**;../../SettingsPage/**/bin/**" Link="SettingsPage/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaXaml Include="../../SettingsPage/**/*.axaml" Link="SettingsPage/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Shared/**/*.cs" Exclude="../../Shared/**/obj/**;../../Shared/**/bin/**" Link="Shared/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Themes/**/*.cs" Exclude="../../Themes/**/obj/**;../../Themes/**/bin/**" Link="Themes/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaXaml Include="../../Themes/**/*.axaml" Link="Themes/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../ThirdParty/**/*.cs" Exclude="../../ThirdParty/**/obj/**;../../ThirdParty/**/bin/**" Link="ThirdParty/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Triggers/**/*.cs" Exclude="../../Triggers/**/obj/**;../../Triggers/**/bin/**" Link="Triggers/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Version/**/*.cs" Exclude="../../Version/**/obj/**;../../Version/**/bin/**" Link="Version/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../Views/**/*.cs" Exclude="../../Views/**/obj/**;../../Views/**/bin/**" Link="Views/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaXaml Include="../../Views/**/*.axaml" Link="Views/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../Themes/**/*.axaml.txt" Link="Themes/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../Themes/**/*.png" Link="Themes/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AvaloniaResource Include="../../ThirdParty/**/*.sksl" Link="ThirdParty/%(RecursiveDir)%(Filename)%(Extension)" />
+    <AdditionalFiles Include="../../NativeMethods.txt" Link="NativeMethods.txt" />
+  </ItemGroup>
 </Project>

@@ -10,6 +10,9 @@ public sealed class Backend : IPlatformBackend, IPlatformPlugin
 
     public void Initialize(PluginBase entrance, HostBuilderContext context, IServiceCollection services)
     {
-        services.AddAction<OpenSettingsAction>();
+        WindowsDependencies.Install();
+        new global::SystemTools.Plugin().InitializeFromEntrance(entrance, context, services, 2);
+        if (System.Environment.GetEnvironmentVariable("SystemTools_M2_Acceptance") == "1")
+            ClassIsland.Core.AppBase.Current.AppStarted += async (_, _) => await WindowsAcceptance.RunAsync(2);
     }
 }

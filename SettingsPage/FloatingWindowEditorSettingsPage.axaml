@@ -17,7 +17,7 @@
     <ci:SettingsPageBase.Resources>
     </ci:SettingsPageBase.Resources>
     <ci:SettingsPageBase.Styles>
-        <StyleInclude Source="avares://SystemTools/Controls/SettingsPageLazy.axaml" />
+        <StyleInclude Source="/Controls/SettingsPageLazy.axaml" />
     </ci:SettingsPageBase.Styles>
 
     <loading:SettingsPageLazy>

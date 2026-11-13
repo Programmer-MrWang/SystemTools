@@ -17,7 +17,8 @@ public sealed class NotchStyleStyles : Styles
         using var stream = AssetLoader.Open(ThemeResourceUri);
         using var reader = new StreamReader(stream);
         if (AvaloniaRuntimeXamlLoader.Load(
-                reader.ReadToEnd(),
+                reader.ReadToEnd().Replace("assembly=SystemTools\"",
+                    "assembly=" + typeof(NotchStyleStyles).Assembly.GetName().Name + "\"", StringComparison.Ordinal),
                 Assembly.GetExecutingAssembly(),
                 uri: ThemeResourceUri) is not Styles styles)
         {

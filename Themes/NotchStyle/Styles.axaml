@@ -1,4 +1,4 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:theme="clr-namespace:SystemTools.Themes.NotchStyle;assembly=SystemTools">
+        xmlns:theme="clr-namespace:SystemTools.Themes.NotchStyle">
     <theme:NotchStyleStyles />
 </Styles>

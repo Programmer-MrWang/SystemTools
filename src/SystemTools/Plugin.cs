@@ -28,8 +28,11 @@ public sealed class Plugin : PluginBase
                     System.Text.Json.JsonSerializer.Serialize(new { passed = false, error = ex.ToString() }));
             throw;
         }
+        var catalog = new FeatureCatalog(backend.Describe().RuntimeId);
+        services.AddSingleton(catalog);
         if (backend is IPlatformPlugin platformPlugin)
             platformPlugin.Initialize(this, context, services);
+        LegacyActionDiagnostics.Register(services);
         var diagnostics = new DiagnosticService(backend, PluginConfigFolder);
         services.AddSingleton(backend);
         services.AddSingleton(diagnostics);

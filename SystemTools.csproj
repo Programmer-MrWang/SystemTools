@@ -8,6 +8,7 @@
         <CreateCipx>true</CreateCipx>
     </PropertyGroup>
     <ItemGroup>
+      <ProjectReference Include="src/SystemTools.Contracts/SystemTools.Contracts.csproj" />
       <!-- M1 新结构由 SystemTools.slnx 构建；此项目保留原 Windows 实现供 M2 迁移。 -->
       <Compile Remove="src\**;tests\**;eng\**;artifacts\**" />
       <AvaloniaXaml Remove="src\**;tests\**;eng\**;artifacts\**" />

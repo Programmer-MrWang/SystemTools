@@ -9,7 +9,7 @@ namespace SystemTools;
 [SettingsPageInfo("SystemTools.M1.Diagnostics", "SystemTools M1 诊断")]
 public sealed class DiagnosticsSettingsPage : SettingsPageBase
 {
-    public DiagnosticsSettingsPage(DiagnosticService diagnostics)
+    public DiagnosticsSettingsPage(DiagnosticService diagnostics, SystemTools.Contracts.FeatureCatalog catalog)
     {
         var status = new TextBlock { Text = diagnostics.Summary, TextWrapping = TextWrapping.Wrap };
         var button = new Button { Content = "记录平台诊断", HorizontalAlignment = HorizontalAlignment.Left };
@@ -26,6 +26,7 @@ public sealed class DiagnosticsSettingsPage : SettingsPageBase
                 new TextBlock { Text = "SystemTools · 平台诊断", FontSize = 24 },
                 new TextBlock { Text = "Windows 业务已接入；其他平台当前提供构建与加载诊断。", TextWrapping = TextWrapping.Wrap },
                 status, button,
+                new TextBox { Text = string.Join("\n", catalog.Snapshot().Select(x => $"{x.Feature.Name}：{x.Capability.State} {x.Capability.Reason}")), IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap },
                 new TextBlock { Text = "此按钮仅保存平台诊断。Windows 设置与原有功能请使用 SystemTools 设置页。", TextWrapping = TextWrapping.Wrap }
             }
         };

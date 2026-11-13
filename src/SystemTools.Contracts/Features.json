@@ -1,0 +1,382 @@
+[
+  {
+    "Id": "SystemTools.ActionFlowExecutionConfirmation",
+    "Name": "行动流执行确认",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.AdjustScreenBrightness",
+    "Name": "调整屏幕亮度",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.AdvancedShutdown",
+    "Name": "高级计时关机",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.AltF4",
+    "Name": "按下 Alt+F4",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.AltTab",
+    "Name": "按下 Alt+Tab",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.AutoHideMainWindowWhenOccluded",
+    "Name": "遮挡文字时隐藏主界面",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.AutoOpenUsbDriveOnInsert",
+    "Name": "自动播放",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.AutoSwitchClassIslandTheme",
+    "Name": "自动切换 ClassIsland 主题",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.BackgroundPlayAudio",
+    "Name": "后台播放音频",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.BlackScreenHtml",
+    "Name": "黑屏html",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.CameraCapture",
+    "Name": "摄像头抓拍",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.CancelShutdown",
+    "Name": "取消关机计划",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ChangeWallpaper",
+    "Name": "切换壁纸",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ClearAllNotifications",
+    "Name": "清除全部提醒",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ClickSimulation",
+    "Name": "模拟点击",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.CloneDisplay",
+    "Name": "复制屏幕",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.Copy",
+    "Name": "复制",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.CtrlZ",
+    "Name": "按下 Ctrl+Z",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.Delete",
+    "Name": "删除",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.DisableDevice",
+    "Name": "禁用硬件设备",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.DisableMouse",
+    "Name": "禁用鼠标",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.EnableDevice",
+    "Name": "启用硬件设备",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.EnableMouse",
+    "Name": "启用鼠标",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.EnableVoiceWakeAi",
+    "Name": "启用语音唤醒 AI",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.EnterKey",
+    "Name": "按下 Enter 键",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.EscKey",
+    "Name": "按下 Esc 键",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ExtendDisplay",
+    "Name": "扩展屏幕",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ExternalDisplay",
+    "Name": "仅第二屏幕",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.F11Key",
+    "Name": "按下 F11 键",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.FullscreenClock",
+    "Name": "沉浸式时钟",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ImmediateRestart",
+    "Name": "立即重启",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ImmediateShutdown",
+    "Name": "立即关机",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.InternalDisplay",
+    "Name": "仅电脑屏幕",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.KillProcess",
+    "Name": "退出进程",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.LoadTemporaryClassPlan",
+    "Name": "加载临时课表",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.LockScreen",
+    "Name": "锁定屏幕",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.Move",
+    "Name": "移动",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.OpenAppSettings",
+    "Name": "打开应用设置",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.OpenClassSwapWindow",
+    "Name": "打开换课窗口",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.OpenProfileEditor",
+    "Name": "打开档案编辑",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.RestartAsAdmin",
+    "Name": "重启应用为管理员身份",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ScreenShot",
+    "Name": "屏幕截图",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.SetVolume",
+    "Name": "设置系统音量",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ShowAiChatDialog",
+    "Name": "显示AI对话框",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ShowDesktop",
+    "Name": "显示桌面",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ShowFloatingWindow",
+    "Name": "显示悬浮窗",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ShowToast",
+    "Name": "拉起自定义Windows通知",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.Shutdown",
+    "Name": "计时关机",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.SimulateKeyboard",
+    "Name": "模拟键盘",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.SimulateKeyCombination",
+    "Name": "模拟组合键",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.SimulateMouse",
+    "Name": "模拟鼠标",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.Sleep",
+    "Name": "睡眠",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.SwitchFloatingWindowTheme",
+    "Name": "切换悬浮窗主题",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.SwitchSystemAccentColor",
+    "Name": "切换系统强调色",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.SwitchTheme",
+    "Name": "切换主题色",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ToggleFloatingWindowLayer",
+    "Name": "切换悬浮窗层级",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ToggleFloatingWindowProfile",
+    "Name": "切换悬浮窗配置方案",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.ToggleWorkflow",
+    "Name": "开关自动化",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.TriggerCustomTrigger",
+    "Name": "触发指定触发器",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.TypeContent",
+    "Name": "键入内容",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.WakeUpVoiceConversationAi",
+    "Name": "唤醒语音对话 AI",
+    "Kind": "action"
+  },
+  {
+    "Id": "SystemTools.WindowOperation",
+    "Name": "窗口操作",
+    "Kind": "action"
+  },
+  {
+    "Id": "A7C3455E-6A4E-4D4D-9D0D-7C6FCB5E1E3A",
+    "Name": "更好的轮播容器",
+    "Kind": "component"
+  },
+  {
+    "Id": "E2A41B7D-9F36-4A08-8B8D-1BA29E570F62",
+    "Name": "显示剪切板内容",
+    "Kind": "component"
+  },
+  {
+    "Id": "5D2C0E65-8648-4A67-BBEA-3FA713B1CF8D",
+    "Name": "本地一言",
+    "Kind": "component"
+  },
+  {
+    "Id": "A1B2C3D4-E5F6-7890-ABCD-EF1234567891",
+    "Name": "音乐软件歌词显示",
+    "Kind": "component"
+  },
+  {
+    "Id": "8F5E2D1C-3B4A-5678-9ABC-DEF012345678",
+    "Name": "网络延迟检测",
+    "Kind": "component"
+  },
+  {
+    "Id": "C3E56B6B-0E01-4F3C-8F7B-9264CA2B2143",
+    "Name": "下节课是",
+    "Kind": "component"
+  },
+  {
+    "Id": "A7B3E4D1-2F8C-4B9A-9E5D-6C1B2A3F4E5D",
+    "Name": " LED 文本仿真显示框",
+    "Kind": "component"
+  },
+  {
+    "Id": "SystemTools.ActionInProgressTrigger",
+    "Name": "行动进行时",
+    "Kind": "trigger"
+  },
+  {
+    "Id": "SystemTools.FloatingWindowTrigger",
+    "Name": "从悬浮窗触发",
+    "Kind": "trigger"
+  },
+  {
+    "Id": "SystemTools.HotkeyTrigger",
+    "Name": "按下自定义热键时",
+    "Kind": "trigger"
+  },
+  {
+    "Id": "SystemTools.KeywordTrigger",
+    "Name": "关键词触发",
+    "Kind": "trigger"
+  },
+  {
+    "Id": "SystemTools.LongIdleTrigger",
+    "Name": "长时间未操作电脑时",
+    "Kind": "trigger"
+  },
+  {
+    "Id": "SystemTools.MainWindowClickTrigger",
+    "Name": "点击主界面时",
+    "Kind": "trigger"
+  },
+  {
+    "Id": "SystemTools.UsbDeviceTrigger",
+    "Name": "USB设备插入时",
+    "Kind": "trigger"
+  }
+]

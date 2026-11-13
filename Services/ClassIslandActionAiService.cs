@@ -705,6 +705,7 @@ public sealed class ClassIslandActionAiService
     {
         var aliases = BuildMenuAliases();
         var actions = IActionService.ActionInfos
+            .Where(pair => SystemTools.Shared.GlobalConstants.Features?.CanCreate(pair.Key) != false)
             .OrderBy(pair => pair.Value.Name, StringComparer.CurrentCultureIgnoreCase)
             .ThenBy(pair => pair.Key, StringComparer.Ordinal)
             .Select(pair =>

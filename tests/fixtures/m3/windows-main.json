@@ -3,5 +3,5 @@
   "enableWindowsHello": true,
   "aiApiKey": "dpapi-current-user:v1:REDACTED-INACCESSIBLE",
   "futurePlatform": { "nested": { "keep": 42 } },
-  "actionEnabledStates": { "SystemTools.Copy": true, "Unknown.Action": false }
+  "enabledActions": { "SystemTools.Copy": true, "Unknown.Action": false }
 }

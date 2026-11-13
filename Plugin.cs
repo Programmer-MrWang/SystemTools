@@ -78,6 +78,9 @@ public partial class Plugin : PluginBase
         GlobalConstants.Information.PluginFolder = entrance.Info.PluginFolderPath;
         GlobalConstants.Information.PluginVersion = entrance.Info.Manifest.Version;
         GlobalConstants.MainConfig = new MainConfigHandler(entrance.PluginConfigFolder);
+        GlobalConstants.Features = services.LastOrDefault(x => x.ServiceType == typeof(SystemTools.Contracts.FeatureCatalog))?.ImplementationInstance as SystemTools.Contracts.FeatureCatalog
+            ?? new SystemTools.Contracts.FeatureCatalog("win-x64");
+        WindowsFeatureCatalog.Bind(GlobalConstants.Features, GlobalConstants.MainConfig.Data);
         EnsureOptionalDependencyState();
         DependencyPaths.InitializeResolvers(isolated: _entrance != null);
 
@@ -721,8 +724,7 @@ public partial class Plugin : PluginBase
     }
 
     private bool IsActionEnabled(MainConfigData config, string actionId) =>
-        (_entrance == null || actionId != "SystemTools.FullscreenClock") &&
-        config.IsActionEnabled(actionId);
+        (_entrance == null ? config.IsActionEnabled(actionId) : GlobalConstants.Features!.CanCreate(actionId));
 
     private bool HasAnyActionEnabled(MainConfigData config, params string[] actionIds)
     {

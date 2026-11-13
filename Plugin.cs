@@ -87,6 +87,7 @@ public partial class Plugin : PluginBase
         DependencyPaths.InitializeResolvers(isolated: _entrance != null);
 
         services.AddLogging();
+        services.AddSingleton<SystemTools.Contracts.IDeviceCatalog, SystemTools.Platforms.Windows.WindowsDeviceCatalog>();
         services.AddSingleton<SystemTools.Common.Files.IDirectoryCopyBackend, SystemTools.Platforms.Windows.WindowsDirectoryCopyBackend>();
         services.AddSingleton<SystemTools.Common.Files.FileOperations>();
         services.AddXamlTheme(

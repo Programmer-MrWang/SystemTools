@@ -44,6 +44,9 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/UsingTimeLayoutRuleSettingsControl.cs" Link="Controls/UsingTimeLayoutRuleSettingsControl.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Converters/EnumDescriptionConverter.cs" Link="Converters/EnumDescriptionConverter.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Converters/NullableBooleanStringConverter.cs" Link="Converters/NullableBooleanStringConverter.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/AiAttachment.cs" Link="Models/AiAttachment.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/AiConversation.cs" Link="Models/AiConversation.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ClassIslandProfileDocument.cs" Link="Models/ClassIslandProfileDocument.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/BetterCarouselContainerSettings.cs" Link="Models/ComponentSettings/BetterCarouselContainerSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/ClipboardContentSettings.cs" Link="Models/ComponentSettings/ClipboardContentSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/LocalQuoteSettings.cs" Link="Models/ComponentSettings/LocalQuoteSettings.cs" />
@@ -54,11 +57,23 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/ProcessRunningRuleSettings.cs" Link="Rules/ProcessRunningRuleSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/UsingClassPlanRuleSettings.cs" Link="Rules/UsingClassPlanRuleSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/UsingTimeLayoutRuleSettings.cs" Link="Rules/UsingTimeLayoutRuleSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/AiAttachmentService.cs" Link="Services/AiAttachmentService.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/AiChatOperationGate.cs" Link="Services/AiChatOperationGate.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/AiConversationStore.cs" Link="Services/AiConversationStore.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/AiPromptService.cs" Link="Services/AiPromptService.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/Automations/ReadFileDataBlock.cs" Link="Services/Automations/ReadFileDataBlock.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/ClassIslandActionAiService.cs" Link="Services/ClassIslandActionAiService.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/ClassIslandProfileAiService.cs" Link="Services/ClassIslandProfileAiService.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/ClassIslandProfileExcelExporter.cs" Link="Services/ClassIslandProfileExcelExporter.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/IOpenAiCompatibleService.cs" Link="Services/IOpenAiCompatibleService.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/OpenAiCompatibleService.cs" Link="Services/OpenAiCompatibleService.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/SuperAutoIslandIntegration.cs" Link="Services/SuperAutoIslandIntegration.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/SystemToolsNotificationProvider.cs" Link="Services/SystemToolsNotificationProvider.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/CopySettings.cs" Link="Settings/CopySettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/DeleteSettings.cs" Link="Settings/DeleteSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/LoadTemporaryClassPlanSettings.cs" Link="Settings/LoadTemporaryClassPlanSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/MoveSettings.cs" Link="Settings/MoveSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ReadFileSettings.cs" Link="Settings/ReadFileSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ShortcutKeyNotificationSettings.cs" Link="Settings/ShortcutKeyNotificationSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ToggleWorkflowSettings.cs" Link="Settings/ToggleWorkflowSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/TriggerCustomTriggerSettings.cs" Link="Settings/TriggerCustomTriggerSettings.cs" />

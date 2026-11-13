@@ -7,7 +7,8 @@ using SuperAutoIsland.Interface.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Management;
+using SystemTools.Contracts;
+using SystemTools.Shared;
 using System.Threading.Tasks;
 using SystemTools.ConfigHandlers;
 using SystemTools.Services.Automations;
@@ -225,7 +226,7 @@ public static class SuperAutoIslandIntegration
 
     private static void AddAction(BlocksRegister register, string id, string name, Dictionary<string, Field>? fields = null)
     {
-        if (!IActionService.ActionInfos.ContainsKey(id))
+        if (!IActionService.ActionInfos.ContainsKey(id) || GlobalConstants.Features?.CanCreate(id) == false)
         {
             return;
         }
@@ -245,7 +246,7 @@ public static class SuperAutoIslandIntegration
         string name,
         Dictionary<string, Field>? fields = null)
     {
-        if (!IRulesetService.Rules.ContainsKey(id))
+        if (!IRulesetService.Rules.ContainsKey(id) || GlobalConstants.Features?.CanCreate(id) == false)
         {
             return;
         }
@@ -318,31 +319,8 @@ public static class SuperAutoIslandIntegration
 
     private static Task<List<(string, string)>> GetDeviceOptions()
     {
-        var options = new List<(string, string)>();
-        if (OperatingSystem.IsWindows())
-        {
-            try
-            {
-                using var searcher = new ManagementObjectSearcher(
-                    "SELECT Name, PNPDeviceID FROM Win32_PnPEntity WHERE PNPDeviceID IS NOT NULL");
-                using var devices = searcher.Get();
-                foreach (var device in devices)
-                {
-                    var id = device["PNPDeviceID"]?.ToString();
-                    if (string.IsNullOrWhiteSpace(id))
-                    {
-                        continue;
-                    }
-
-                    var name = device["Name"]?.ToString();
-                    options.Add((string.IsNullOrWhiteSpace(name) ? id : $"{name} ({id})", id));
-                }
-            }
-            catch
-            {
-                // 设备管理查询可能因权限或 WMI 状态失败，保留手动输入。
-            }
-        }
+        var options = IAppHost.TryGetService<IDeviceCatalog>()?.GetDevices()
+            .Select(x => (x.Name, x.Id)).ToList() ?? [];
 
         options = options
             .DistinctBy(x => x.Item2, StringComparer.OrdinalIgnoreCase)

@@ -36,6 +36,7 @@
     <Compile Include="Backend.cs" />
     <Compile Include="WindowsDpapiProtector.cs" />
     <Compile Include="WindowsDirectoryCopyBackend.cs" />
+    <Compile Include="WindowsDeviceCatalog.cs" />
     <Compile Include="WindowsDependencies.cs" />
     <Compile Include="WindowsAcceptance.cs" />
     <Compile Include="UnavailableCameraAction.cs" />

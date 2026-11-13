@@ -14,6 +14,7 @@
       <Compile Remove="src\**;tests\**;eng\**;artifacts\**" />
       <Compile Include="src/SystemTools.Platforms.Windows/WindowsDpapiProtector.cs" />
       <Compile Include="src/SystemTools.Platforms.Windows/WindowsDirectoryCopyBackend.cs" />
+      <Compile Include="src/SystemTools.Platforms.Windows/WindowsDeviceCatalog.cs" />
       <AvaloniaXaml Remove="src\**;tests\**;eng\**;artifacts\**" />
       <AvaloniaResource Remove="src\**;tests\**;eng\**;artifacts\**" />
       <EmbeddedResource Remove="src\**;tests\**;eng\**;artifacts\**" />

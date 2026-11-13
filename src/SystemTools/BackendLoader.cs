@@ -11,7 +11,7 @@ internal static class BackendLoader
         var module = PlatformSelection.ModuleName(runtimeId);
         var path = Path.GetFullPath(Path.Combine(pluginDirectory, module + ".dll"));
         if (!File.Exists(path))
-            throw new FileNotFoundException($"缺少当前平台模块 {module}；请安装完整 M1 包。", path);
+            throw new FileNotFoundException($"缺少当前平台模块 {module}；请重新安装完整 SystemTools 包。", path);
         var context = AssemblyLoadContext.GetLoadContext(typeof(Plugin).Assembly)
                       ?? throw new InvalidOperationException("入口没有程序集加载上下文。");
         // Host's macOS resolver only probes the plugin root. Explicit paths also

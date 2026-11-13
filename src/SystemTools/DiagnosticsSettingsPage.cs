@@ -23,10 +23,10 @@ public sealed class DiagnosticsSettingsPage : SettingsPageBase
             Margin = new Avalonia.Thickness(24), Spacing = 16,
             Children =
             {
-                new TextBlock { Text = "SystemTools · M1 加载预览", FontSize = 24 },
-                new TextBlock { Text = "当前仅验证平台构建与加载。完整 Windows 功能将在 M2 接入。", TextWrapping = TextWrapping.Wrap },
+                new TextBlock { Text = "SystemTools · 平台诊断", FontSize = 24 },
+                new TextBlock { Text = "Windows 业务已接入；其他平台当前提供构建与加载诊断。", TextWrapping = TextWrapping.Wrap },
                 status, button,
-                new TextBlock { Text = "已有配置在此阶段保持原样。此操作只在插件配置目录保存 M1 诊断文件。", TextWrapping = TextWrapping.Wrap }
+                new TextBlock { Text = "此按钮仅保存平台诊断。Windows 设置与原有功能请使用 SystemTools 设置页。", TextWrapping = TextWrapping.Wrap }
             }
         };
     }

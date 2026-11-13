@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Runtime.Loader;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
 using Avalonia.Threading;
@@ -52,11 +53,20 @@ internal static class WindowsAcceptance
             var screenshot = stage < 4 || await CheckScreenshotAsync(provider);
             var excel = stage < 5 || CheckExcel(provider);
             var unavailableCamera = stage < 5 || await CheckUnavailableCameraAsync(provider);
+            var nativeLibraries = stage < 6 || CheckNativeLibraries();
+            var context = AssemblyLoadContext.GetLoadContext(typeof(Backend).Assembly)!;
+            var isolated = context.Assemblies.Count(assembly =>
+                    assembly.GetName().Name!.StartsWith("SystemTools.Platforms.")) == 1 &&
+                !context.Assemblies.Any(assembly =>
+                    assembly.GetName().Name!.StartsWith("ClassIsland.") ||
+                    assembly.GetName().Name!.StartsWith("Avalonia") ||
+                    assembly.GetName().Name is "WinRT.Runtime" or "Microsoft.Windows.SDK.NET");
             var result = new
             {
-                passed = constructed.Length >= 5 && themes.Length == 3 && assets && fileActions && screenshot && excel && unavailableCamera,
+                passed = constructed.Length == 6 && themes.Length == 3 && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
                 stage, pages = constructed, themes, legacyImageUris = assets,
-                fileActions, screenshot, actionFactories, excel, unavailableCamera,
+                fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries,
+                isolated, loadedAssemblies = context.Assemblies.Select(assembly => assembly.GetName().Name).OrderBy(name => name).ToArray(),
                 components = ComponentRegistryService.Registered
                     .Where(info => info.ComponentType?.Assembly == typeof(Backend).Assembly)
                     .Select(info => info.Guid).OrderBy(id => id).ToArray(),
@@ -75,6 +85,14 @@ internal static class WindowsAcceptance
             File.WriteAllText(destination, JsonSerializer.Serialize(new { passed = false, stage, error = exception.ToString() },
                 new JsonSerializerOptions { WriteIndented = true }));
         }
+    }
+
+    private static bool CheckNativeLibraries()
+    {
+        if (string.IsNullOrWhiteSpace(OpenCvSharp.Cv2.GetVersionString())) return false;
+        using var detector = DlibDotNet.Dlib.GetFrontalFaceDetector();
+        var path = DependencyPaths.FindSpeechRecognitionWorkerPath();
+        return path != null && File.Exists(path);
     }
 
     private static async Task<bool> CheckUnavailableCameraAsync(IServiceProvider provider)

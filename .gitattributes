@@ -6,3 +6,10 @@
 /eng/*.py text eol=lf
 /SystemTools.slnx text eol=lf
 /global.json text eol=lf
+*.cs text eol=lf
+*.csproj text eol=lf
+*.axaml text eol=lf
+*.axaml.txt text eol=lf
+*.sksl text eol=lf
+*.resx text eol=lf
+/NativeMethods.txt text eol=lf

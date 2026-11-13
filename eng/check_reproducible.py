@@ -6,7 +6,11 @@ import json, subprocess, tempfile
 import m1
 
 def main():
-    dirty = subprocess.check_output(['git', 'status', '--porcelain', '--', 'src', 'global.json', 'SystemTools.slnx', 'icon.png'], cwd=m1.ROOT).decode()
+    dirty = subprocess.check_output(['git', 'status', '--porcelain', '--', 'src', 'global.json',
+        'SystemTools.slnx', 'icon.png', 'Plugin.cs', 'DlibExtensions.cs', 'DriveUtils.cs',
+        'NativeMethods.txt', 'Actions', 'Config', 'ConfigHandlers', 'Controls', 'Converters',
+        'Helpers', 'Models', 'Properties', 'Rules', 'Services', 'Settings', 'SettingsPage',
+        'Shared', 'Themes', 'ThirdParty', 'Triggers', 'Version', 'Views', 'VoskWorker'], cwd=m1.ROOT).decode()
     if dirty:
         raise RuntimeError('Commit build inputs before reproducibility verification:\n' + dirty)
     m1.build()

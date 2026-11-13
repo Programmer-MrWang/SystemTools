@@ -32,7 +32,19 @@
     <PropertyGroup>
       <BackendFramework Condition="'$(SystemToolsPlatform)' == 'Windows'">net10.0-windows10.0.19041.0</BackendFramework>
       <BackendFramework Condition="'$(BackendFramework)' == ''">net10.0</BackendFramework>
+      <BackendOutput>$(MSBuildProjectDirectory)/../SystemTools.Platforms.$(SystemToolsPlatform)/bin/$(Configuration)/$(BackendFramework)</BackendOutput>
     </PropertyGroup>
-    <Copy SourceFiles="$(MSBuildProjectDirectory)/../SystemTools.Platforms.$(SystemToolsPlatform)/bin/$(Configuration)/$(BackendFramework)/SystemTools.Platforms.$(SystemToolsPlatform).dll" DestinationFolder="$(TargetDir)" />
+    <Copy SourceFiles="$(BackendOutput)/SystemTools.Platforms.$(SystemToolsPlatform).dll" DestinationFolder="$(TargetDir)" />
+    <ItemGroup Condition="'$(SystemToolsPlatform)' == 'Windows'">
+      <!-- SDK/framework assemblies remain owned by the host; these are plugin-private dependencies. -->
+      <WindowsPrivateFiles Include="$(BackendOutput)/DlibDotNet.dll;$(BackendOutput)/Enums.NET.dll;$(BackendOutput)/ExtendedNumerics.BigDecimal.dll;$(BackendOutput)/MathNet.Numerics.dll;$(BackendOutput)/NPOI.*.dll;$(BackendOutput)/OpenCvSharp*.dll;$(BackendOutput)/SixLabors.*.dll;$(BackendOutput)/SuperAutoIsland.Interface.dll" />
+      <WindowsNativeFiles Include="$(BackendOutput)/runtimes/win-x64/native/DlibDotNet*.dll;$(BackendOutput)/runtimes/win-x64/native/OpenCvSharpExtern.dll;$(BackendOutput)/runtimes/win-x64/native/opencv_videoio_ffmpeg*.dll" />
+      <WindowsWorkerFiles Include="$(MSBuildProjectDirectory)/../../VoskWorker/bin/$(Configuration)/net10.0/win-x64/**/*" />
+      <WindowsContent Include="$(MSBuildProjectDirectory)/../../black.html;$(MSBuildProjectDirectory)/../../title.png;$(MSBuildProjectDirectory)/../../version.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(WindowsPrivateFiles)" DestinationFolder="$(TargetDir)platforms/win-x64" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(WindowsNativeFiles)" DestinationFolder="$(TargetDir)platforms/win-x64/runtimes/win-x64/native" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(WindowsWorkerFiles)" DestinationFiles="@(WindowsWorkerFiles->'$(TargetDir)platforms/win-x64/VoskWorker/%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(WindowsContent)" DestinationFolder="$(TargetDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

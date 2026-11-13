@@ -1,4 +1,4 @@
-name: M1 native build and package
+name: M2 native checks and Windows preview
 
 on:
   workflow_dispatch:
@@ -20,8 +20,6 @@ jobs:
             rid: win-x64
           - runner: ubuntu-24.04
             rid: linux-x64
-          # Official runner table currently maps macos-15 to Apple Silicon.
-          # The architecture assertion fails if this label ever changes.
           - runner: macos-15
             rid: osx-arm64
     runs-on: ${{ matrix.runner }}
@@ -33,52 +31,43 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Assert actual runner architecture
+      - name: Assert actual build architecture
         shell: bash
         run: python -c "import sys; sys.path.insert(0, 'eng'); import m1; assert m1.native_rid() == '${{ matrix.rid }}'"
       - name: Native clean restore and build
         run: python eng/m1.py build --clean
       - name: Package boundary tests
-        run: python eng/test_m1_packaging.py
-      - name: Verify reproducible paths on Mac
-        if: runner.os == 'macOS'
+        run: |
+          python eng/test_m1_packaging.py
+          python eng/test_m2_packaging.py
+      - name: Verify same-OS reproducible paths
+        if: runner.os != 'Linux'
         run: python eng/check_reproducible.py
-      - name: Reproduce and guard host accessibility regression
+      - name: Guard host accessibility regression
         if: runner.os == 'macOS'
         run: dotnet run --project tests/SystemTools.HostCompatibility.Tests -c Release
-      - name: Loader checks on Windows and Mac
+      - name: Managed loader checks
         if: runner.os != 'Linux'
         run: python eng/m1.py test
-      - name: Loader checks on Linux X11
-        if: runner.os == 'Linux'
+      # Linux M1 is build-only at the user's request; there is no desktop/X11 runtime claim.
+      - name: Build self-contained Windows speech worker
+        if: runner.os == 'Windows'
+        run: dotnet build VoskWorker/SystemTools.VoskWorker.csproj -c Release --nologo
+      - name: Stage and package Windows preview against SDK contracts
+        if: runner.os == 'Windows'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb xauth
-          xvfb-run -a env -u WAYLAND_DISPLAY XDG_SESSION_TYPE=x11 python eng/m1.py test
+          python eng/m2.py stage
+          python eng/m2.py package
       - uses: actions/upload-artifact@v4
         with:
-          name: m1-${{ matrix.rid }}
+          name: m2-build-${{ matrix.rid }}
           path: artifacts/m1/${{ matrix.rid }}
           if-no-files-found: error
-
-  aggregate:
-    needs: native-build
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: m1-*
-          path: artifacts/inputs
-      - name: Aggregate verified common files, never merge deps.json
-        run: python eng/m1.py package --input artifacts/inputs/m1-win-x64 artifacts/inputs/m1-linux-x64 artifacts/inputs/m1-osx-arm64
       - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows'
         with:
-          name: SystemTools-M1-isolated-preview
+          name: SystemTools-M2-Windows-build-only-preview
           path: |
-            artifacts/m1/SystemTools.M1.cipx
-            artifacts/m1/SystemTools.M1.cipx.sha256
+            artifacts/m2/SystemTools.M2.cipx
+            artifacts/m2/SystemTools.M2.cipx.sha256
           if-no-files-found: error

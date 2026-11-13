@@ -1,6 +1,5 @@
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
-using System.Reflection;
 
 namespace SystemTools.Compatibility;
 
@@ -34,4 +33,3 @@ public sealed class SettingsPageStyles : Styles
 {
     public SettingsPageStyles() => Add(WindowsStyles.Load("Controls/SettingsPageLazy.axaml"));
 }
-

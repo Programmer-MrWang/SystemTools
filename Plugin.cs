@@ -47,13 +47,12 @@ namespace SystemTools;
 public partial class Plugin : PluginBase
 {
     private PluginBase? _entrance;
-    private int _migrationStage = int.MaxValue;
 
     public void InitializeFromEntrance(PluginBase entrance, HostBuilderContext context,
-        IServiceCollection services, int stage)
+        IServiceCollection services)
     {
         _entrance = entrance;
-        _migrationStage = stage;
+        GlobalConstants.IsUnifiedBuild = true;
         Initialize(context, services);
     }
     private ILogger<Plugin>? _logger;
@@ -203,10 +202,6 @@ public partial class Plugin : PluginBase
         services.AddSettingsPage<PluginDebugSettingsPage>();
 
         // ========== 构建行动树（根据配置）==========
-        if (_migrationStage == 2)
-        {
-            return;
-        }
         BuildBaseActionTree();
 
         // ========== 注册行动、触发器和组件（根据配置）==========
@@ -725,21 +720,8 @@ public partial class Plugin : PluginBase
 
     }
 
-    private static readonly HashSet<string> CommonActions = new(StringComparer.Ordinal)
-    {
-        "SystemTools.Copy", "SystemTools.Move", "SystemTools.Delete",
-        "SystemTools.LoadTemporaryClassPlan", "SystemTools.OpenAppSettings",
-        "SystemTools.OpenProfileEditor", "SystemTools.OpenClassSwapWindow",
-        "SystemTools.ToggleWorkflow", "SystemTools.TriggerCustomTrigger",
-        "SystemTools.ActionFlowExecutionConfirmation", "SystemTools.ClearAllNotifications",
-        "SystemTools.ShowFloatingWindow", "SystemTools.ToggleFloatingWindowLayer",
-        "SystemTools.ToggleFloatingWindowProfile", "SystemTools.SwitchFloatingWindowTheme",
-        "SystemTools.SwitchTheme", "SystemTools.BackgroundPlayAudio"
-    };
-
     private bool IsActionEnabled(MainConfigData config, string actionId) =>
         (_entrance == null || actionId != "SystemTools.FullscreenClock") &&
-        (_migrationStage != 3 || CommonActions.Contains(actionId)) &&
         config.IsActionEnabled(actionId);
 
     private bool HasAnyActionEnabled(MainConfigData config, params string[] actionIds)

@@ -50,11 +50,11 @@ Assembly Load(string directory, out PluginLoadContext context)
     context = new PluginLoadContext(info, Path.Combine(directory, "SystemTools.dll"), false);
     return context.LoadFromAssemblyName(new AssemblyName("SystemTools"));
 }
-object LoadBackend(Assembly entry, string directory)
+object LoadBackend(Assembly entry, string directory, string? runtimeId = null)
 {
     // Exercise the production explicit-path loader, not a mock implementation.
     var method = entry.GetType("SystemTools.BackendLoader", true)!.GetMethod("Load", BindingFlags.Static | BindingFlags.Public)!;
-    return method.Invoke(null, [directory, rid])!;
+    return method.Invoke(null, [directory, runtimeId ?? rid])!;
 }
 var entry = Load(stage, out var context);
 var exported = entry.ExportedTypes.ToArray();
@@ -92,3 +92,15 @@ try { LoadBackend(missing, missingDirectory); throw new Exception("Missing backe
 catch (TargetInvocationException ex) when (ex.InnerException is FileNotFoundException)
 { Check(true, "本平台 DLL 缺失时明确失败"); }
 Console.WriteLine($"PASS: {checks} M1 boundary checks; native runtime under test: {rid}");
+
+foreach (var other in new[] { "linux-x64", "osx-arm64" }.Where(other => other != rid))
+{
+    if (!File.Exists(Path.Combine(stage, PlatformSelection.ModuleName(other) + ".dll"))) continue;
+    var nonNative = Load(stage, out var nonNativeContext);
+    var descriptionOnly = LoadBackend(nonNative, stage, other);
+    Check(descriptionOnly.GetType().GetMethod("Describe")!.Invoke(descriptionOnly, null) != null &&
+          nonNativeContext.Assemblies.Count(a => a.GetName().Name!.StartsWith("SystemTools.Platforms.")) == 1 &&
+          !nonNativeContext.Assemblies.Any(a => a.GetName().Name is "SystemTools.Platforms.Windows" or
+              "System.Windows.Forms" or "OpenCvSharp" or "DlibDotNet" or "SuperAutoIsland.Interface"),
+        $"{other} 描述模块解析不加载 Windows 业务；此项不是目标 OS 实机验收");
+}

@@ -314,6 +314,9 @@ public partial class SystemToolsSettingsViewModel : ObservableObject, IDisposabl
             actions.Add(("SystemTools.EnableMouse", "启用鼠标", "实验性功能…"));
         }
 
+        if (GlobalConstants.IsUnifiedBuild)
+            actions.RemoveAll(item => item.Id == "SystemTools.FullscreenClock");
+
         foreach (var (id, name, group) in actions)
         {
             FeatureItems.Add(new UnifiedFeatureItem

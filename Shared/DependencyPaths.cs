@@ -79,6 +79,10 @@ public static class DependencyPaths
 
     public static string? FindSpeechRecognitionWorkerPath()
     {
+        var isolatedCandidate = Path.Combine(GlobalConstants.Information.PluginFolder,
+            "platforms", "win-x64", "VoskWorker", "SystemTools.VoskWorker.exe");
+        if (IsSpeechRecognitionWorkerInstallation(isolatedCandidate))
+            return isolatedCandidate;
         var rootCandidate = Path.Combine(
             GetDependencyRoot(),
             "VoskWorker",
@@ -464,7 +468,8 @@ public static class DependencyPaths
                     {
                         GetDependencyRoot(), Path.Combine(GetDependencyRoot(), "runtimes", rid, "native"),
                         Path.Combine(GetDependencyRoot(), "runtimes", "win", "native"),
-                        Path.Combine(pluginRoot, "runtimes", rid, "native")
+                        Path.Combine(pluginRoot, "runtimes", rid, "native"),
+                        Path.Combine(pluginRoot, "platforms", rid, "runtimes", rid, "native")
                     };
                     foreach (var directory in directories)
                     foreach (var file in names)

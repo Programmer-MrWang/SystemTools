@@ -46,6 +46,18 @@ def identity():
     # Content identity includes uncommitted new source too. Ignore bin/obj outputs.
     paths = [ROOT / 'global.json', ROOT / 'SystemTools.slnx']
     paths += [p for p in (ROOT / 'src').rglob('*') if p.is_file() and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
+    # M2 compiles the preserved Windows tree as linked inputs, so include its bytes.
+    for name in ('Plugin.cs', 'DlibExtensions.cs', 'DriveUtils.cs', 'NativeMethods.txt', 'icon.png'):
+        path = ROOT / name
+        if path.is_file():
+            paths.append(path)
+    for name in ('Actions', 'Config', 'ConfigHandlers', 'Controls', 'Converters', 'Helpers',
+                 'Models', 'Properties', 'Rules', 'Services', 'Settings', 'SettingsPage',
+                 'Shared', 'Themes', 'ThirdParty', 'Triggers', 'Version', 'Views', 'VoskWorker'):
+        directory = ROOT / name
+        if directory.is_dir():
+            paths += [p for p in directory.rglob('*') if p.is_file()
+                      and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
     digest = hashlib.sha256()
     # Preserve the original POSIX component order; Windows Path ordering folds case.
     for path in sorted(paths, key=lambda value: value.relative_to(ROOT).parts):
@@ -82,13 +94,17 @@ def build(clean=False):
     stage.mkdir(parents=True)
     for name in COMMON + [module_name(rid)]:
         shutil.copy2(output / name, stage / name)
-    write_json(stage / 'm1-build.json', dict(identity(), runtimeId=rid, buildMachine=platform.platform(), kind='native', files={n: sha(stage / n) for n in COMMON + [module_name(rid)]}))
+    write_json(stage / 'm1-build.json', dict(identity(), runtimeId=rid, buildMachine=platform.platform(),
+        milestone='M2-Windows-preview', kind='native',
+        files={n: sha(stage / n) for n in COMMON + [module_name(rid)]}))
     print('LOCAL STAGE:', stage, flush=True)
     return stage
 
 def pack(stages, output, prototype=False):
     stages = [Path(p).resolve() for p in stages]
     builds = [json.loads((p / 'm1-build.json').read_text(encoding='utf-8')) for p in stages]
+    if any(build_info.get('milestone') == 'M2-Windows-preview' for build_info in builds):
+        raise RuntimeError('M2 Windows assets require eng/m2.py package; the M1 format excludes Windows dependencies.')
     pairs = sorted(zip(stages, builds), key=lambda pair: pair[1]['runtimeId'])
     stages, builds = [p for p, _ in pairs], [b for _, b in pairs]
     if not prototype:
@@ -115,7 +131,8 @@ def pack(stages, output, prototype=False):
         # Compile the two other modules for the universal loading prototype only.
         for rid, name in MODULES.items():
             command('dotnet', 'build', ROOT / ('src/SystemTools.Platforms.' + name) / ('SystemTools.Platforms.' + name + '.csproj'), '-c', 'Release', '--nologo', '-v', 'minimal')
-            files[module_name(rid)] = ROOT / ('src/SystemTools.Platforms.' + name) / 'bin/Release/net10.0' / module_name(rid)
+            framework = 'net10.0-windows10.0.19041.0' if rid == 'win-x64' else 'net10.0'
+            files[module_name(rid)] = ROOT / ('src/SystemTools.Platforms.' + name) / 'bin/Release' / framework / module_name(rid)
     output = Path(output).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     metadata = {'schemaVersion': 1, 'milestone': 'M1-preview', 'kind': 'local-managed-prototype' if prototype else 'native-aggregate', 'source': builds[0]['sourceHash'], 'builds': builds, 'files': {n: sha(p) for n, p in files.items()}, 'runtimeValidation': 'Separate per-OS smoke evidence required; packaging is not runtime validation.'}

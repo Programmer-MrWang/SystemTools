@@ -7,6 +7,7 @@ namespace SystemTools.Shared;
 
 public static class GlobalConstants
 {
+    public static bool IsUnifiedBuild { get; set; }
     public static string? PluginConfigFolder { get; set; }
     public static ConfigHandlers.MainConfigHandler? MainConfig { get; set; }
 

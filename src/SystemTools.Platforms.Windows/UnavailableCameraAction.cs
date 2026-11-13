@@ -13,4 +13,3 @@ internal sealed class UnavailableCameraAction : ActionBase
     protected override Task OnInvoke() => throw new InvalidOperationException(
         "摄像头抓拍尚未准备好。请在 SystemTools 设置中启用该功能并安装所需组件，然后重启 ClassIsland。");
 }
-

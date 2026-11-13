@@ -1,6 +1,6 @@
 # M2 Windows 完整业务接入计划
 
-日期：2026-11-13。状态：计划，尚未开始业务迁移。唯一主开发目录为 SystemTools，分支 codex/cross-platform；SystemTools-Cross-platform 只作实现参考，ClassIsland1 是宿主。
+计划日期：2026-11-13；2026-11-14 更新：M2-0 至 M2-6 的 Windows 开发已按顺序实现并分批提交。实际结果与尚待硬件/发行验收见 [M2 开发验证记录](../validation/2026-11-14-windows-m2.md)。下表保留原计划与验收标准，不把代码完成等同于全部实机验收。唯一主开发目录为 SystemTools，分支 codex/cross-platform；SystemTools-Cross-platform 只作实现参考，ClassIsland1 是宿主。
 
 目标：把 Windows 原版完整行为接入现有中立入口和 Windows 后端，同时保持正式 SystemTools 身份、旧配置、稳定 ID 和资源契约。每批先对照基线、实施最小改动、验收和审查，再按项目授权创建中文约定式本地提交。
 

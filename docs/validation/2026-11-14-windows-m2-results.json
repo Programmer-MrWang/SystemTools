@@ -1,0 +1,382 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-14",
+  "timezone": "Asia/Shanghai",
+  "completedAt": "2026-11-14T01:26:28.311761+08:00",
+  "milestone": "M2",
+  "developmentStatus": "implemented-in-ordered-commits",
+  "fullFeatureRuntimeAcceptanceComplete": false,
+  "sourceCommit": "c0c24118b57712aebbb2bea8e93e36d62e73d6af",
+  "branch": "codex/cross-platform",
+  "sourceHash": "290156a376d25ec1372af2cbd07483628ec8f27eb04f4bd5a9fd73eab6576164",
+  "linuxM1": {
+    "implemented": true,
+    "buildCheckPassed": true,
+    "realMachineTestRequired": false,
+    "runtimeVerified": false,
+    "decision": "User waived Linux real-machine validation on 2026-11-14; does not block Windows M2."
+  },
+  "package": {
+    "path": "artifacts/m2/SystemTools.M2.cipx",
+    "bytes": 104291307,
+    "sha256": "4f53c1fc2579b97666e3486c54f70d74f6471d5ee69ae46b8311d2c2bac3063f",
+    "kind": "native-windows-with-managed-platform-descriptors",
+    "containsPrivateWindowsDependencies": true,
+    "containsSelfContainedSpeechWorker": true,
+    "notPublished": true
+  },
+  "coverage": {
+    "baselineActionDeclarations": 62,
+    "realWindowsActions": 59,
+    "unavailableCameraCompatibilityAction": 1,
+    "diagnosticAction": 1,
+    "registeredActionCount": 61,
+    "excluded": [
+      "SystemTools.FullscreenClock (confirmed product removal)",
+      "SystemTools.ClickSimulation (baseline declaration never registered)"
+    ],
+    "components": 7,
+    "triggers": 7,
+    "rules": 5,
+    "settingsPages": 6,
+    "themes": 3
+  },
+  "tests": {
+    "loaderAndDescriptorIsolation": {
+      "passed": true,
+      "checks": 21,
+      "log": "artifacts/m2/delivery-loader.log",
+      "note": "Foreign descriptor load checks on Windows are not target-OS runtime evidence."
+    },
+    "m1Packaging": {
+      "passed": true,
+      "checks": 10
+    },
+    "m2Packaging": {
+      "passed": true,
+      "checks": 8
+    },
+    "hostAccessibility": {
+      "passed": true,
+      "checks": 6
+    },
+    "reproducibleBuild": {
+      "passed": true,
+      "files": 7,
+      "report": "artifacts/m1/reproducible-build.json"
+    },
+    "desktopCases": [
+      {
+        "case": "normal",
+        "passed": true,
+        "result": "artifacts/m2/runs/20261114-012151-normal/result.json",
+        "resultSha256": "460cebeb884d75f752f52fb0ebb8936d5018ee09f7bc6274a0d6c24d47e3f173",
+        "packageSha256": "4f53c1fc2579b97666e3486c54f70d74f6471d5ee69ae46b8311d2c2bac3063f",
+        "globalUnchanged": true,
+        "configContractPreserved": true
+      },
+      {
+        "case": "foreign-corrupt",
+        "passed": true,
+        "result": "artifacts/m2/runs/20261114-012159-foreign-corrupt/result.json",
+        "resultSha256": "02a70b3116547bbf511afaedac25bd270cacd5778425d50e185617c388ed5eaa",
+        "packageSha256": "4f53c1fc2579b97666e3486c54f70d74f6471d5ee69ae46b8311d2c2bac3063f",
+        "globalUnchanged": true,
+        "configContractPreserved": true
+      },
+      {
+        "case": "missing-backend",
+        "passed": true,
+        "result": "artifacts/m2/runs/20261114-012206-missing-backend/result.json",
+        "resultSha256": "36c3f9044b8bc333cc254d5c0bca6e17c617ce3e12ea453630e43012820aff6f",
+        "packageSha256": "4f53c1fc2579b97666e3486c54f70d74f6471d5ee69ae46b8311d2c2bac3063f",
+        "globalUnchanged": true,
+        "configContractPreserved": true
+      }
+    ],
+    "runtimeProof": {
+      "passed": true,
+      "stage": 6,
+      "pages": [
+        "SystemTools.SystemToolsSettingsPage",
+        "SystemTools.MoreFeaturesOptionsSettingsPage",
+        "SystemTools.AiChatSettingsPage",
+        "SystemTools.FloatingWindowEditorSettingsPage",
+        "SystemTools.AboutSettingsPage",
+        "SystemTools.PluginDebugSettingsPage"
+      ],
+      "themes": [
+        "Avalonia.Styling.Styles",
+        "Avalonia.Styling.Styles",
+        "Avalonia.Styling.Styles"
+      ],
+      "legacyImageUris": true,
+      "fileActions": true,
+      "screenshot": true,
+      "actionFactories": [
+        "SystemTools.Actions.SimulateKeyCombinationAction",
+        "SystemTools.Actions.SimulateKeyboardAction",
+        "SystemTools.Actions.SimulateMouseAction",
+        "SystemTools.Actions.TypeContentAction",
+        "SystemTools.Actions.WindowOperationAction",
+        "SystemTools.Actions.EnterKeyAction",
+        "SystemTools.Actions.EscAction",
+        "SystemTools.Actions.AltF4Action",
+        "SystemTools.Actions.CtrlZAction",
+        "SystemTools.Actions.AltTabAction",
+        "SystemTools.Actions.F11Action",
+        "SystemTools.Actions.CloneDisplayAction",
+        "SystemTools.Actions.ExtendDisplayAction",
+        "SystemTools.Actions.InternalDisplayAction",
+        "SystemTools.Actions.ExternalDisplayAction",
+        "SystemTools.Actions.BlackScreenHtmlAction",
+        "SystemTools.Actions.ShowDesktopAction",
+        "SystemTools.Actions.AdjustScreenBrightnessAction",
+        "SystemTools.Actions.ShutdownAction",
+        "SystemTools.Actions.AdvancedShutdownAction",
+        "SystemTools.Actions.LockScreenAction",
+        "SystemTools.Actions.CancelShutdownAction",
+        "SystemTools.Actions.ImmediateRestartAction",
+        "SystemTools.Actions.ImmediateShutdownAction",
+        "SystemTools.Actions.SleepAction",
+        "SystemTools.Actions.CopyAction",
+        "SystemTools.Actions.MoveAction",
+        "SystemTools.Actions.DeleteAction",
+        "SystemTools.Actions.ChangeWallpaperAction",
+        "SystemTools.Actions.SwitchThemeAction",
+        "SystemTools.Actions.SwitchSystemAccentColorAction",
+        "SystemTools.Actions.ScreenShotAction",
+        "SystemTools.Actions.SetVolumeAction",
+        "SystemTools.Actions.KillProcessAction",
+        "SystemTools.Actions.EnableDeviceAction",
+        "SystemTools.Actions.DisableDeviceAction",
+        "SystemTools.Actions.ShowToastAction",
+        "SystemTools.Actions.LoadTemporaryClassPlanAction",
+        "SystemTools.Actions.BackgroundPlayAudioAction",
+        "SystemTools.Actions.ShowFloatingWindowAction",
+        "SystemTools.Actions.ToggleFloatingWindowLayerAction",
+        "SystemTools.Actions.ToggleFloatingWindowProfileAction",
+        "SystemTools.Actions.SwitchFloatingWindowThemeAction",
+        "SystemTools.Actions.AutoSwitchClassIslandThemeAction",
+        "SystemTools.Actions.AutoHideMainWindowWhenOccludedAction",
+        "SystemTools.Actions.AutoOpenUsbDriveOnInsertAction",
+        "SystemTools.Actions.TriggerCustomTriggerAction",
+        "SystemTools.Actions.RestartAsAdminAction",
+        "SystemTools.Actions.ClearAllNotificationsAction",
+        "SystemTools.Actions.OpenAppSettingsAction",
+        "SystemTools.Actions.OpenProfileEditorAction",
+        "SystemTools.Actions.OpenClassSwapWindowAction",
+        "SystemTools.Actions.ToggleWorkflowAction",
+        "SystemTools.Actions.ActionFlowExecutionConfirmationAction",
+        "SystemTools.Actions.EnableVoiceWakeAiAction",
+        "SystemTools.Actions.WakeUpVoiceConversationAiAction",
+        "SystemTools.Actions.ShowAiChatDialogAction",
+        "SystemTools.Actions.DisableMouseAction",
+        "SystemTools.Actions.EnableMouseAction",
+        "SystemTools.Platforms.Windows.UnavailableCameraAction",
+        "SystemTools.RecordDiagnosticsAction"
+      ],
+      "excel": true,
+      "unavailableCamera": true,
+      "nativeLibraries": true,
+      "isolated": true,
+      "loadedAssemblies": [
+        "DlibDotNet",
+        "Microsoft.GeneratedCode",
+        "Microsoft.GeneratedCode",
+        "NPOI.Core",
+        "NPOI.OOXML",
+        "NPOI.OpenXml4Net",
+        "NPOI.OpenXmlFormats",
+        "OpenCvSharp",
+        "SixLabors.Fonts",
+        "SixLabors.ImageSharp",
+        "SuperAutoIsland.Interface",
+        "SystemTools",
+        "SystemTools.Contracts",
+        "SystemTools.Platforms.Windows"
+      ],
+      "components": [
+        "5d2c0e65-8648-4a67-bbea-3fa713b1cf8d",
+        "8f5e2d1c-3b4a-5678-9abc-def012345678",
+        "a1b2c3d4-e5f6-7890-abcd-ef1234567891",
+        "a7b3e4d1-2f8c-4b9a-9e5d-6c1b2a3f4e5d",
+        "a7c3455e-6a4e-4d4d-9d0d-7c6fcb5e1e3a",
+        "c3e56b6b-0e01-4f3c-8f7b-9264ca2b2143",
+        "e2a41b7d-9f36-4a08-8b8d-1ba29e570f62"
+      ],
+      "triggers": [
+        "SystemTools.ActionInProgressTrigger",
+        "SystemTools.FloatingWindowTrigger",
+        "SystemTools.HotkeyTrigger",
+        "SystemTools.KeywordTrigger",
+        "SystemTools.LongIdleTrigger",
+        "SystemTools.MainWindowClickTrigger",
+        "SystemTools.UsbDeviceTrigger"
+      ],
+      "rules": [
+        "SystemTools.InTimePeriodRule",
+        "SystemTools.MediaMusicPlayingRule",
+        "SystemTools.ProcessRunningRule",
+        "SystemTools.UsingClassPlanRule",
+        "SystemTools.UsingTimeLayoutRule"
+      ],
+      "actions": [
+        "SystemTools.ActionFlowExecutionConfirmation",
+        "SystemTools.AdjustScreenBrightness",
+        "SystemTools.AdvancedShutdown",
+        "SystemTools.AltF4",
+        "SystemTools.AltTab",
+        "SystemTools.AutoHideMainWindowWhenOccluded",
+        "SystemTools.AutoOpenUsbDriveOnInsert",
+        "SystemTools.AutoSwitchClassIslandTheme",
+        "SystemTools.BackgroundPlayAudio",
+        "SystemTools.BlackScreenHtml",
+        "SystemTools.CameraCapture",
+        "SystemTools.CancelShutdown",
+        "SystemTools.ChangeWallpaper",
+        "SystemTools.ClearAllNotifications",
+        "SystemTools.CloneDisplay",
+        "SystemTools.Copy",
+        "SystemTools.CtrlZ",
+        "SystemTools.Delete",
+        "SystemTools.DisableDevice",
+        "SystemTools.DisableMouse",
+        "SystemTools.EnableDevice",
+        "SystemTools.EnableMouse",
+        "SystemTools.EnableVoiceWakeAi",
+        "SystemTools.EnterKey",
+        "SystemTools.EscKey",
+        "SystemTools.ExtendDisplay",
+        "SystemTools.ExternalDisplay",
+        "SystemTools.F11Key",
+        "SystemTools.ImmediateRestart",
+        "SystemTools.ImmediateShutdown",
+        "SystemTools.InternalDisplay",
+        "SystemTools.KillProcess",
+        "SystemTools.LoadTemporaryClassPlan",
+        "SystemTools.LockScreen",
+        "SystemTools.M1.RecordDiagnostics",
+        "SystemTools.Move",
+        "SystemTools.OpenAppSettings",
+        "SystemTools.OpenClassSwapWindow",
+        "SystemTools.OpenProfileEditor",
+        "SystemTools.RestartAsAdmin",
+        "SystemTools.ScreenShot",
+        "SystemTools.SetVolume",
+        "SystemTools.ShowAiChatDialog",
+        "SystemTools.ShowDesktop",
+        "SystemTools.ShowFloatingWindow",
+        "SystemTools.ShowToast",
+        "SystemTools.Shutdown",
+        "SystemTools.SimulateKeyboard",
+        "SystemTools.SimulateKeyCombination",
+        "SystemTools.SimulateMouse",
+        "SystemTools.Sleep",
+        "SystemTools.SwitchFloatingWindowTheme",
+        "SystemTools.SwitchSystemAccentColor",
+        "SystemTools.SwitchTheme",
+        "SystemTools.ToggleFloatingWindowLayer",
+        "SystemTools.ToggleFloatingWindowProfile",
+        "SystemTools.ToggleWorkflow",
+        "SystemTools.TriggerCustomTrigger",
+        "SystemTools.TypeContent",
+        "SystemTools.WakeUpVoiceConversationAi",
+        "SystemTools.WindowOperation"
+      ],
+      "configSaved": true,
+      "configSerializedLength": 4438,
+      "backendAssembly": "E:\\My Github Projects\\working\\SystemTools\\artifacts\\m2\\runs\\20261114-012151-normal\\sandbox\\data\\Plugins\\SystemTools\\SystemTools.Platforms.Windows.dll"
+    },
+    "speechWorkerMissingModel": {
+      "passed": true,
+      "exitCode": 2,
+      "message": {
+        "Type": "error",
+        "Text": null,
+        "Message": "语音识别模型目录无效。",
+        "Level": null,
+        "CaptureId": null
+      },
+      "scope": "Missing-model error protocol only; no microphone/model recognition test."
+    },
+    "gui": {
+      "page": "systemtools.settings.main",
+      "visible": true,
+      "screenshot": "artifacts/m2/gui/main-settings.png",
+      "uia": "artifacts/m2/gui/main-settings-uia.json",
+      "testProcessStopped": true,
+      "note": "GUI snapshot was made before the final symbol-only rebuild; final package separately passed all desktop cases."
+    }
+  },
+  "changes": [
+    "Neutral entry calls only the selected backend through IPlatformPlugin.",
+    "Windows backend compiles the preserved business source with linked inputs; original IDs and source namespaces retained.",
+    "Six settings pages, themes, image/shader URIs and serialized fields remain compatible; Main.json unknown data and inaccessible DPAPI ciphertext survive real writes.",
+    "Windows-only private/native libraries and worker are isolated in platforms/win-x64; no global optional assembly preload or PATH mutation.",
+    "Missing optional dependencies preserve switches and authentication records; old camera workflows return an explicit failure.",
+    "Default local build copies Windows assets; M2 stage/package/validation/extraction/smoke tooling is included.",
+    "M1 pack rejects M2 inputs to prevent incomplete distribution; CI has build-only Windows preview packaging.",
+    "Release omits Avalonia absolute-path symbols for deterministic binaries; Debug retains embedded symbols."
+  ],
+  "commits": [
+    {
+      "hash": "2a0a22cfb5929e1d17988c07b29a321b2f5b0bf3",
+      "subject": "fix(验收): 修复 Windows 构建边界并保存 M1 实机证据"
+    },
+    {
+      "hash": "f3b7403a47b84c231ad858c0021edcdb4fc8802d",
+      "subject": "docs(规划): 完成 Linux M1 代码检查并调整 Windows M2 实施顺序"
+    },
+    {
+      "hash": "4851ded49fc774b194cba86ce4bbc96604eaac19",
+      "subject": "test(Windows): 建立 M2 原版构建和真实宿主启动对照"
+    },
+    {
+      "hash": "a0d877288757d724f605d079f40be36c31436948",
+      "subject": "feat(Windows): 接通平台注册协议和原版设置行动"
+    },
+    {
+      "hash": "eb5f7f0ec8734740fc20ab083dc35803a3cc645c",
+      "subject": "feat(配置): 接入 Windows 设置资源并保留旧配置契约"
+    },
+    {
+      "hash": "928aa74b3e257ede72f2bc33fc22e2334eb1640d",
+      "subject": "feat(自动化): 接入 Windows 通用业务并验证行动生命周期"
+    },
+    {
+      "hash": "22afe1e82c3f568fb2680461f3ff235f4d36e9ff",
+      "subject": "feat(系统): 接入 Windows 原生行动并验证真实屏幕截图"
+    },
+    {
+      "hash": "97bffda30a068ae80dbbfcb758f258d86869891c",
+      "subject": "feat(扩展): 接入可选业务并保留缺依赖配置和认证记录"
+    },
+    {
+      "hash": "8cbd7224ab6e3f3f65ab4b70adb5aa23718eb569",
+      "subject": "feat(打包): 完成 Windows M2 依赖隔离与单包回归工具"
+    },
+    {
+      "hash": "c0c24118b57712aebbb2bea8e93e36d62e73d6af",
+      "subject": "fix(构建): 消除 Release XAML 绝对符号路径和无关来源差异"
+    }
+  ],
+  "pendingRuntimeAcceptance": [
+    "SAI actually installed and live Blockly integration",
+    "Microphone, offline speech models, cancellation and audio device changes",
+    "Real camera capture and face recognition with actual models",
+    "Windows Hello enrollment and authentication success/rejection/cancellation",
+    "Permission/device/power/display/input actions with real external side effects",
+    "Complete old-version upgrade, uninstall cleanup and production release matrix",
+    "Actual Mac/Linux regression of the changed neutral M2 preview and remote CI execution"
+  ],
+  "releasePolicy": {
+    "pushPerformed": false,
+    "published": false,
+    "productionReleaseAccepted": false
+  },
+  "preservedUserChanges": [
+    ".idea/.idea.SystemTools/.idea/workspace.xml",
+    "Existing dirty reference repository and host/submodule state"
+  ]
+}

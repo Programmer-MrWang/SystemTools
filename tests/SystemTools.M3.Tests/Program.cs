@@ -38,6 +38,52 @@ try
     Check(System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(path)) is not null, "恢复后安全保存");
     File.WriteAllText(path, """{"_systemToolsSchema":999}""");
     try { new SystemTools.Common.Storage.AtomicJsonStore<TestDocument>(path).Load(); throw new Exception("未来版本降级"); } catch (InvalidDataException) { Check(true, "拒绝覆写未来版本配置"); }
+    var migration = new SystemTools.Common.Migration.IdentityMigration();
+    var migrationSource = Path.Combine(temporary, "legacy.json");
+    var migrationTarget = Path.Combine(temporary, "formal.json");
+    File.WriteAllText(migrationSource, """{"enabledActions":{"SystemTools.CrossPlatform.Copy":true},"Action":{"Id":"SystemTools.CrossPlatform.Copy"},"userText":"SystemTools.CrossPlatform.Copy","aiApiKey":"dpapi-current-user:v1:REDACTED","unknown":{"keep":1}}""");
+    File.WriteAllText(migrationTarget, """{"original":true}""");
+    var preview = migration.Preview(new(migrationSource, migrationTarget));
+    var candidate = System.Text.Json.Nodes.JsonNode.Parse(preview.Candidate)!;
+    Check(preview.Conflict && preview.ConvertedReferences == 2, "旧身份迁移预览冲突与引用数量");
+    Check(candidate["userText"]!.GetValue<string>() == "SystemTools.CrossPlatform.Copy" && candidate["aiApiKey"]!.GetValue<string>() == "dpapi-current-user:v1:REDACTED", "迁移保留普通文本和不可解密密文");
+    Check(candidate["enabledActions"]!["SystemTools.Copy"]!.GetValue<bool>() && candidate["Action"]!["Id"]!.GetValue<string>() == "SystemTools.Copy", "结构化转换启用字典和宿主身份字段");
+    var journal = migration.Apply(temporary, [(preview, SystemTools.Common.Migration.ImportChoice.ImportLegacy)]);
+    Check(File.ReadAllText(migrationTarget) == preview.Candidate && File.Exists(migrationSource), "迁移提交并保留来源");
+    SystemTools.Common.Migration.IdentityMigration.Resume(journal);
+    Check(File.ReadAllText(migrationTarget) == preview.Candidate, "迁移恢复重复执行幂等");
+    Check(migration.Preview(new(migrationSource, migrationTarget)).Conflict == false, "重复导入不产生语义冲突");
+    SystemTools.Common.Migration.IdentityMigration.Rollback(journal);
+    Check(File.ReadAllText(migrationTarget) == "{\"original\":true}", "迁移回退恢复目标原文");
+    SystemTools.Common.Migration.IdentityMigration.Rollback(journal);
+    Check(File.ReadAllText(migrationTarget) == "{\"original\":true}", "迁移回退可重复执行");
+
+    var source2 = Path.Combine(temporary, "legacy2.json");
+    var target2 = Path.Combine(temporary, "formal2.json");
+    File.WriteAllText(source2, "{\"id\":\"SystemTools.CrossPlatform.Delete\"}");
+    var resumeJournal = migration.Apply(temporary, [(migration.Preview(new(migrationSource, migrationTarget)), SystemTools.Common.Migration.ImportChoice.ImportLegacy),
+        (migration.Preview(new(source2, target2)), SystemTools.Common.Migration.ImportChoice.ImportLegacy)]);
+    var resumeState = System.Text.Json.JsonSerializer.Deserialize<SystemTools.Common.Migration.MigrationJournal>(File.ReadAllText(resumeJournal))!;
+    File.Delete(target2);
+    resumeState.Status = "Prepared";
+    File.WriteAllText(resumeJournal, System.Text.Json.JsonSerializer.Serialize(resumeState));
+    SystemTools.Common.Migration.IdentityMigration.Resume(resumeJournal);
+    Check(File.Exists(target2), "迁移日志恢复中途缺失的后续写入");
+    File.WriteAllText(migrationTarget, "{\"editedAfterMigration\":true}");
+    try { SystemTools.Common.Migration.IdentityMigration.Rollback(resumeJournal); throw new Exception("回退覆盖新数据"); }
+    catch (SystemTools.Common.Storage.ConfigurationConflictException) { Check(true, "回退拒绝覆盖迁移后修改"); }
+    File.WriteAllBytes(migrationTarget, new byte[] { 0xef, 0xbb, 0xbf }.Concat(System.Text.Encoding.UTF8.GetBytes("{}")).ToArray());
+    var bomOriginal = File.ReadAllBytes(migrationTarget);
+    var bomJournal = migration.Apply(temporary, [(migration.Preview(new(migrationSource, migrationTarget)), SystemTools.Common.Migration.ImportChoice.ImportLegacy)]);
+    SystemTools.Common.Migration.IdentityMigration.Rollback(bomJournal);
+    Check(File.ReadAllBytes(migrationTarget).SequenceEqual(bomOriginal), "回退逐字节恢复含 BOM 的配置");
+    var stalePreview = migration.Preview(new(migrationSource, migrationTarget));
+    File.WriteAllText(migrationTarget, "{}");
+    try { migration.Apply(temporary, [(stalePreview, SystemTools.Common.Migration.ImportChoice.ImportLegacy)]); throw new Exception("预览失效仍覆盖"); }
+    catch (SystemTools.Common.Storage.ConfigurationConflictException) { Check(true, "迁移拒绝预览后发生的修改"); }
+    try { migration.Apply(Path.Combine(temporary, "other"), [(migration.Preview(new(migrationSource, migrationTarget)), SystemTools.Common.Migration.ImportChoice.ImportLegacy)]); throw new Exception("越界迁移"); }
+    catch (IOException) { Check(true, "迁移写入严格限制在指定目录"); }
+
     var source = Path.Combine(temporary, "Cache");
     var destination = Path.Combine(temporary, "Profiles");
     Directory.CreateDirectory(source);

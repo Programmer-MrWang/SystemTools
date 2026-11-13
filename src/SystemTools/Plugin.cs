@@ -37,6 +37,8 @@ public sealed class Plugin : PluginBase
         services.AddSingleton(backend);
         services.AddSingleton(diagnostics);
         services.AddSettingsPage<DiagnosticsSettingsPage>();
+        services.AddSingleton(new MigrationLocation(PluginConfigFolder));
+        services.AddSettingsPage<MigrationSettingsPage>();
         services.AddAction<RecordDiagnosticsAction>();
         AppBase.Current.AppStarted += async (_, _) =>
         {

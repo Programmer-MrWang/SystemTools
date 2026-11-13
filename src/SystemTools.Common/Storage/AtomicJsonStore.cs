@@ -88,6 +88,9 @@ public sealed class AtomicJsonStore<T> where T : class, new()
         }
     }
     public static void AtomicWrite(string path, string text)
+        => AtomicWriteBytes(path, Encoding.UTF8.GetBytes(text));
+
+    public static void AtomicWriteBytes(string path, byte[] bytes)
     {
         path = Path.GetFullPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
@@ -96,7 +99,6 @@ public sealed class AtomicJsonStore<T> where T : class, new()
         {
             using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough))
             {
-                var bytes = Encoding.UTF8.GetBytes(text);
                 stream.Write(bytes);
                 stream.Flush(flushToDisk: true);
             }

@@ -1,52 +1,95 @@
 <Project>
   <ItemGroup>
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/ClearAllNotificationsAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/CopyAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/DeleteAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/LoadTemporaryClassPlanAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/MoveAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/OpenAppSettingsAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/OpenClassSwapWindowAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/OpenProfileEditorAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/ToggleWorkflowAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/TriggerCustomTriggerAction.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/ButtonRulesetConfig.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/FloatingWindowProfile.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/FloatingWindowProfileManager.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/LiquidGlassButtonSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/LiquidGlassSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/MainConfigData.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/MainConfigHandler.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/RowRulesetConfig.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/CopySettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/DeleteSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/InTimePeriodRuleSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/LoadTemporaryClassPlanSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/MoveSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Notifications/AiReplyNotificationContent.axaml.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ProcessRunningRuleSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ShortcutKeyNotificationSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ToggleWorkflowSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/TriggerCustomTriggerSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/UsingClassPlanRuleSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/UsingTimeLayoutRuleSettingsControl.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Converters/NullableBooleanStringConverter.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/InTimePeriodRuleSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/ProcessRunningRuleSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/UsingClassPlanRuleSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/UsingTimeLayoutRuleSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/SystemToolsNotificationProvider.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/CopySettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/DeleteSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/LoadTemporaryClassPlanSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/MoveSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ShortcutKeyNotificationSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ToggleWorkflowSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/TriggerCustomTriggerSettings.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Shared/CredentialProtection.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Shared/GlobalConstants.cs" />
-    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Shared/PluginJsonStore.cs" />
-    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/InTimePeriodRuleSettingsControl.axaml" />
-    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Notifications/AiReplyNotificationContent.axaml" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/ClearAllNotificationsAction.cs" Link="Actions/ClearAllNotificationsAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/CopyAction.cs" Link="Actions/CopyAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/DeleteAction.cs" Link="Actions/DeleteAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/LoadTemporaryClassPlanAction.cs" Link="Actions/LoadTemporaryClassPlanAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/MoveAction.cs" Link="Actions/MoveAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/OpenAppSettingsAction.cs" Link="Actions/OpenAppSettingsAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/OpenClassSwapWindowAction.cs" Link="Actions/OpenClassSwapWindowAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/OpenProfileEditorAction.cs" Link="Actions/OpenProfileEditorAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/ToggleWorkflowAction.cs" Link="Actions/ToggleWorkflowAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/TriggerCustomTriggerAction.cs" Link="Actions/TriggerCustomTriggerAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/ButtonRulesetConfig.cs" Link="ConfigHandlers/ButtonRulesetConfig.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/FloatingWindowProfile.cs" Link="ConfigHandlers/FloatingWindowProfile.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/FloatingWindowProfileManager.cs" Link="ConfigHandlers/FloatingWindowProfileManager.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/LiquidGlassButtonSettings.cs" Link="ConfigHandlers/LiquidGlassButtonSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/LiquidGlassSettings.cs" Link="ConfigHandlers/LiquidGlassSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/MainConfigData.cs" Link="ConfigHandlers/MainConfigData.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/MainConfigHandler.cs" Link="ConfigHandlers/MainConfigHandler.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../ConfigHandlers/RowRulesetConfig.cs" Link="ConfigHandlers/RowRulesetConfig.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/BetterCarouselContainerComponent.axaml.cs" Link="Controls/Components/BetterCarouselContainerComponent.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/BetterCarouselContainerSettingsControl.axaml.cs" Link="Controls/Components/BetterCarouselContainerSettingsControl.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/ClipboardContentComponent.axaml.cs" Link="Controls/Components/ClipboardContentComponent.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/ClipboardContentSettingsControl.axaml.cs" Link="Controls/Components/ClipboardContentSettingsControl.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/LocalQuoteComponent.axaml.cs" Link="Controls/Components/LocalQuoteComponent.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/LocalQuoteSettingsControl.axaml.cs" Link="Controls/Components/LocalQuoteSettingsControl.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/NetworkStatusComponent.axaml.cs" Link="Controls/Components/NetworkStatusComponent.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/NetworkStatusSettingsControl.axaml.cs" Link="Controls/Components/NetworkStatusSettingsControl.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/NextClassDisplayComponent.axaml.cs" Link="Controls/Components/NextClassDisplayComponent.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/NextClassDisplaySettingsControl.axaml.cs" Link="Controls/Components/NextClassDisplaySettingsControl.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/ScrollingTextComponent.axaml.cs" Link="Controls/Components/ScrollingTextComponent.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Components/ScrollingTextSettingsControl.axaml.cs" Link="Controls/Components/ScrollingTextSettingsControl.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/CopySettingsControl.cs" Link="Controls/CopySettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/DeleteSettingsControl.cs" Link="Controls/DeleteSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/InTimePeriodRuleSettingsControl.cs" Link="Controls/InTimePeriodRuleSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/LoadTemporaryClassPlanSettingsControl.cs" Link="Controls/LoadTemporaryClassPlanSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/MoveSettingsControl.cs" Link="Controls/MoveSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/Notifications/AiReplyNotificationContent.axaml.cs" Link="Controls/Notifications/AiReplyNotificationContent.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ProcessRunningRuleSettingsControl.cs" Link="Controls/ProcessRunningRuleSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ShortcutKeyNotificationSettingsControl.cs" Link="Controls/ShortcutKeyNotificationSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ToggleWorkflowSettingsControl.cs" Link="Controls/ToggleWorkflowSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/TriggerCustomTriggerSettingsControl.cs" Link="Controls/TriggerCustomTriggerSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/UsingClassPlanRuleSettingsControl.cs" Link="Controls/UsingClassPlanRuleSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/UsingTimeLayoutRuleSettingsControl.cs" Link="Controls/UsingTimeLayoutRuleSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Converters/EnumDescriptionConverter.cs" Link="Converters/EnumDescriptionConverter.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Converters/NullableBooleanStringConverter.cs" Link="Converters/NullableBooleanStringConverter.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/BetterCarouselContainerSettings.cs" Link="Models/ComponentSettings/BetterCarouselContainerSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/ClipboardContentSettings.cs" Link="Models/ComponentSettings/ClipboardContentSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/LocalQuoteSettings.cs" Link="Models/ComponentSettings/LocalQuoteSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/NetworkStatusSettings.cs" Link="Models/ComponentSettings/NetworkStatusSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/NextClassDisplaySettings.cs" Link="Models/ComponentSettings/NextClassDisplaySettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/ScrollingTextSettings.cs" Link="Models/ComponentSettings/ScrollingTextSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/InTimePeriodRuleSettings.cs" Link="Rules/InTimePeriodRuleSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/ProcessRunningRuleSettings.cs" Link="Rules/ProcessRunningRuleSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/UsingClassPlanRuleSettings.cs" Link="Rules/UsingClassPlanRuleSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/UsingTimeLayoutRuleSettings.cs" Link="Rules/UsingTimeLayoutRuleSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/SystemToolsNotificationProvider.cs" Link="Services/SystemToolsNotificationProvider.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/CopySettings.cs" Link="Settings/CopySettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/DeleteSettings.cs" Link="Settings/DeleteSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/LoadTemporaryClassPlanSettings.cs" Link="Settings/LoadTemporaryClassPlanSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/MoveSettings.cs" Link="Settings/MoveSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ShortcutKeyNotificationSettings.cs" Link="Settings/ShortcutKeyNotificationSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ToggleWorkflowSettings.cs" Link="Settings/ToggleWorkflowSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/TriggerCustomTriggerSettings.cs" Link="Settings/TriggerCustomTriggerSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Shared/CredentialProtection.cs" Link="Shared/CredentialProtection.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Shared/GlobalConstants.cs" Link="Shared/GlobalConstants.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Shared/PluginJsonStore.cs" Link="Shared/PluginJsonStore.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Themes/CardTypeComponent/CardTypeComponentStyles.cs" Link="Themes/CardTypeComponent/CardTypeComponentStyles.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Themes/ClassWidgets/ClassWidgetsCard.axaml.cs" Link="Themes/ClassWidgets/ClassWidgetsCard.axaml.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Themes/ClassWidgets/ClassWidgetsStyles.cs" Link="Themes/ClassWidgets/ClassWidgetsStyles.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Themes/NotchStyle/NotchClipControl.cs" Link="Themes/NotchStyle/NotchClipControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Themes/NotchStyle/NotchFrameControl.cs" Link="Themes/NotchStyle/NotchFrameControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Themes/NotchStyle/NotchMaterialControl.cs" Link="Themes/NotchStyle/NotchMaterialControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Themes/NotchStyle/NotchShapeGeometry.cs" Link="Themes/NotchStyle/NotchShapeGeometry.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Themes/NotchStyle/NotchStyleStyles.cs" Link="Themes/NotchStyle/NotchStyleStyles.cs" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/BetterCarouselContainerComponent.axaml" Link="Controls/Components/BetterCarouselContainerComponent.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/BetterCarouselContainerSettingsControl.axaml" Link="Controls/Components/BetterCarouselContainerSettingsControl.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/ClipboardContentComponent.axaml" Link="Controls/Components/ClipboardContentComponent.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/ClipboardContentSettingsControl.axaml" Link="Controls/Components/ClipboardContentSettingsControl.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/LocalQuoteComponent.axaml" Link="Controls/Components/LocalQuoteComponent.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/LocalQuoteSettingsControl.axaml" Link="Controls/Components/LocalQuoteSettingsControl.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/NetworkStatusComponent.axaml" Link="Controls/Components/NetworkStatusComponent.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/NetworkStatusSettingsControl.axaml" Link="Controls/Components/NetworkStatusSettingsControl.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/NextClassDisplayComponent.axaml" Link="Controls/Components/NextClassDisplayComponent.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/NextClassDisplaySettingsControl.axaml" Link="Controls/Components/NextClassDisplaySettingsControl.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/ScrollingTextComponent.axaml" Link="Controls/Components/ScrollingTextComponent.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Components/ScrollingTextSettingsControl.axaml" Link="Controls/Components/ScrollingTextSettingsControl.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/InTimePeriodRuleSettingsControl.axaml" Link="Controls/InTimePeriodRuleSettingsControl.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Controls/Notifications/AiReplyNotificationContent.axaml" Link="Controls/Notifications/AiReplyNotificationContent.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Themes/CardTypeComponent/Styles.axaml" Link="Themes/CardTypeComponent/Styles.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Themes/ClassWidgets/ClassWidgetsCard.axaml" Link="Themes/ClassWidgets/ClassWidgetsCard.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Themes/ClassWidgets/Styles.axaml" Link="Themes/ClassWidgets/Styles.axaml" />
+    <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Themes/NotchStyle/Styles.axaml" Link="Themes/NotchStyle/Styles.axaml" />
   </ItemGroup>
 </Project>

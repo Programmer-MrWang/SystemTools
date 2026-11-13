@@ -1550,37 +1550,9 @@ public class FloatingWindowService
     }
 
 
-    private List<List<string>> GetConfiguredButtonRowsWithFallback(FloatingWindowProfile profile)
-    {
-        var validButtonIds = _entries.Values.Select(x => x.ButtonId).Distinct().ToList();
-        var validSet = validButtonIds.ToHashSet();
-        var rows = (profile.FloatingWindowButtonRows ?? [])
-            .Select(row => row.Where(validSet.Contains).Distinct().ToList())
-            .Where(row => row.Count > 0)
-            .ToList();
-
-        var configuredIds = rows.SelectMany(row => row).ToHashSet();
-        var missingIds = validButtonIds
-            .Where(id => !configuredIds.Contains(id))
-            .Where(id => !profile.FloatingWindowButtonRulesets.ContainsKey(id))
-            .ToList();
-
-        if (missingIds.Count == 0)
-        {
-            return rows;
-        }
-
-        if (rows.Count == 0)
-        {
-            rows.Add(missingIds);
-        }
-        else
-        {
-            rows[0].AddRange(missingIds);
-        }
-
-        return rows;
-    }
+    private List<List<string>> GetConfiguredButtonRowsWithFallback(FloatingWindowProfile profile) =>
+        SystemTools.Common.Layout.FloatingWindowRows.WithFallback(profile.FloatingWindowButtonRows,
+            _entries.Values.Select(x => x.ButtonId), profile.FloatingWindowButtonRulesets.Keys.ToHashSet());
 
     private void PruneButtonWidthCache()
     {

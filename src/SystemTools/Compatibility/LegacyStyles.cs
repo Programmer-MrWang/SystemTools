@@ -3,12 +3,13 @@ using Avalonia.Styling;
 
 namespace SystemTools.Compatibility;
 
-internal static class WindowsStyles
+internal static class CompatibilityStyles
 {
     public static IStyle Load(string path)
     {
-        if (!OperatingSystem.IsWindows())
-            return new Styles();
+        if (path.StartsWith("Themes/", StringComparison.Ordinal))
+            return (IStyle)AvaloniaXamlLoader.Load(new Uri("avares://SystemTools.SharedHost/" + path));
+        if (!OperatingSystem.IsWindows()) return new Styles();
         return (IStyle)AvaloniaXamlLoader.Load(
             new Uri("avares://SystemTools.Platforms.Windows/" + path));
     }
@@ -16,20 +17,20 @@ internal static class WindowsStyles
 
 public sealed class CardTypeStyles : Styles
 {
-    public CardTypeStyles() => Add(WindowsStyles.Load("Themes/CardTypeComponent/Styles.axaml"));
+    public CardTypeStyles() => Add(CompatibilityStyles.Load("Themes/CardTypeComponent/Styles.axaml"));
 }
 
 public sealed class ClassWidgetsStyles : Styles
 {
-    public ClassWidgetsStyles() => Add(WindowsStyles.Load("Themes/ClassWidgets/Styles.axaml"));
+    public ClassWidgetsStyles() => Add(CompatibilityStyles.Load("Themes/ClassWidgets/Styles.axaml"));
 }
 
 public sealed class NotchStyles : Styles
 {
-    public NotchStyles() => Add(WindowsStyles.Load("Themes/NotchStyle/Styles.axaml"));
+    public NotchStyles() => Add(CompatibilityStyles.Load("Themes/NotchStyle/Styles.axaml"));
 }
 
 public sealed class SettingsPageStyles : Styles
 {
-    public SettingsPageStyles() => Add(WindowsStyles.Load("Controls/SettingsPageLazy.axaml"));
+    public SettingsPageStyles() => Add(CompatibilityStyles.Load("Controls/SettingsPageLazy.axaml"));
 }

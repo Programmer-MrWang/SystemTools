@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SystemTools.Services;
 
-public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> logger)
+public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> logger) : IDisposable
 {
     private const string CardTypeComponentBannerDownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/a26b478872e7986800787a3b77d5a06e.png";
@@ -24,6 +24,11 @@ public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> log
     };
 
     private readonly SemaphoreSlim _downloadLock = new(1, 1);
+    private readonly CancellationTokenSource _lifetime = new();
+    private int _started;
+    private int _stopped;
+    public void Stop() { if (Interlocked.Exchange(ref _stopped, 1) == 0) _lifetime.Cancel(); }
+    public void Dispose() => Stop();
 
     public static string BannerPath => Path.GetFullPath(
         Path.Combine(CommonDirectories.AppCacheFolderPath, "SystemTools", "banner.png"));
@@ -36,6 +41,7 @@ public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> log
 
     public void Start()
     {
+        if (Interlocked.Exchange(ref _started, 1) != 0 || Volatile.Read(ref _stopped) != 0) return;
         _ = EnsureBannerAsync(CardTypeComponentBannerDownloadUrl, BannerPath);
         _ = EnsureBannerAsync(ClassWidgetsBannerDownloadUrl, ClassWidgetsBannerPath);
         _ = EnsureBannerAsync(NotchStyleBannerDownloadUrl, NotchStyleBannerPath);
@@ -60,7 +66,7 @@ public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> log
 
             using var response = await HttpClient.GetAsync(
                 downloadUrl,
-                HttpCompletionOption.ResponseHeadersRead);
+                HttpCompletionOption.ResponseHeadersRead, _lifetime.Token);
             response.EnsureSuccessStatusCode();
 
             await using (var output = new FileStream(
@@ -71,13 +77,15 @@ public sealed class ThemeBannerCacheService(ILogger<ThemeBannerCacheService> log
                              bufferSize: 81920,
                              FileOptions.Asynchronous))
             {
-                await response.Content.CopyToAsync(output);
+                await response.Content.CopyToAsync(output, _lifetime.Token);
             }
 
             await ValidatePngAsync(temporaryPath);
+            _lifetime.Token.ThrowIfCancellationRequested();
             File.Move(temporaryPath, bannerPath, overwrite: true);
             logger.LogInformation("主题预览图后台下载完成：{BannerPath}", bannerPath);
         }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
         catch (Exception exception)
         {
             logger.LogWarning(exception, "主题预览图后台下载失败，将在下次启动时重试。");

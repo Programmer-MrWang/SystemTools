@@ -31,6 +31,7 @@ public sealed class AdaptiveThemeSyncService(
     public void Stop()
     {
         _timer.Stop();
+        _timer.Tick -= OnTimerTick;
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = null;
@@ -48,6 +49,8 @@ public sealed class AdaptiveThemeSyncService(
 
         _continuousCaptureLease = backgroundCaptureService.BeginContinuousCapture();
         _cancellationTokenSource = new CancellationTokenSource();
+        _timer.Tick -= OnTimerTick;
+        _timer.Tick += OnTimerTick;
         _timer.Start();
         _ = RefreshNowAsync(_cancellationTokenSource.Token);
     }

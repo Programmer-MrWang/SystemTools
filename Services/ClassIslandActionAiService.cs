@@ -47,8 +47,10 @@ public sealed record LocalActionRoute(
     IReadOnlyList<string> AppSettingNames,
     bool RequiresAppSettingsLookup);
 
-public sealed class ClassIslandActionAiService
+public sealed class ClassIslandActionAiService : IDisposable
 {
+    private readonly CancellationTokenSource _lifetime = new();
+    public void Dispose() => _lifetime.Cancel();
     public const string ListActionsToolName = "list_classisland_actions";
     public const string DescribeActionsToolName = "describe_classisland_actions";
     public const string ListAppSettingsToolName = "list_classisland_app_settings";
@@ -249,7 +251,7 @@ public sealed class ClassIslandActionAiService
     {
         lock (_cacheGate)
         {
-            if (_warmupTask is { IsCompleted: false })
+            if (_lifetime.IsCancellationRequested || _warmupTask is { IsCompleted: false })
             {
                 return;
             }
@@ -262,6 +264,7 @@ public sealed class ClassIslandActionAiService
                     _ = GetAppSettingsSnapshot();
                     foreach (var action in catalog.Actions)
                     {
+                        _lifetime.Token.ThrowIfCancellationRequested();
                         _ = action.Description.Value;
                         if (action.SettingsType is not null)
                         {
@@ -273,6 +276,7 @@ public sealed class ClassIslandActionAiService
                         "AI 行动缓存预热完成：{ActionCount} 个行动。",
                         catalog.Actions.Count);
                 }
+                catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
                 catch (Exception ex)
                 {
                     _logger.LogWarning(ex, "AI 行动缓存后台预热失败，将在首次使用时重试。");

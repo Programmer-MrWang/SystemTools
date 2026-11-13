@@ -1066,6 +1066,9 @@ public partial class Plugin : PluginBase
             _shutdownRequestedHandler = null;
         }
         Cleanup(() => IAppHost.GetService<AdaptiveThemeSyncService>().Stop());
+        Cleanup(() => IAppHost.TryGetService<ThemeBannerCacheService>()?.Stop());
+        Cleanup(() => IAppHost.TryGetService<AboutTitleImageCacheService>()?.Stop());
+        Cleanup(() => IAppHost.TryGetService<ClassIslandActionAiService>()?.Dispose());
         Cleanup(() => IAppHost.TryGetService<AiVoiceConversationService>()?.Dispose());
         Cleanup(() => IAppHost.GetService<MainWindowTextOcclusionService>().Shutdown(restoreMainWindow: true));
         Cleanup(() => IAppHost.GetService<UsbAutoPlayService>().Stop());

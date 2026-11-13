@@ -9,7 +9,7 @@ using SystemTools.Shared;
 
 namespace SystemTools.Services;
 
-public sealed class AboutTitleImageCacheService(ILogger<AboutTitleImageCacheService> logger)
+public sealed class AboutTitleImageCacheService(ILogger<AboutTitleImageCacheService> logger) : IDisposable
 {
     private const string DownloadUrl =
         "https://livefile.xesimg.com/programme/python_assets/ef14f9e238d9fd955f0054e1679ba589.png";
@@ -21,6 +21,11 @@ public sealed class AboutTitleImageCacheService(ILogger<AboutTitleImageCacheServ
     };
 
     private readonly SemaphoreSlim _downloadLock = new(1, 1);
+    private readonly CancellationTokenSource _lifetime = new();
+    private int _started;
+    private int _stopped;
+    public void Stop() { if (Interlocked.Exchange(ref _stopped, 1) == 0) _lifetime.Cancel(); }
+    public void Dispose() => Stop();
 
     public event EventHandler<string>? ImagePathChanged;
 
@@ -32,7 +37,7 @@ public sealed class AboutTitleImageCacheService(ILogger<AboutTitleImageCacheServ
 
     public string CurrentImagePath => File.Exists(CachePath) ? CachePath : PluginPath;
 
-    public void Start() => _ = EnsureImageAsync();
+    public void Start() { if (Interlocked.Exchange(ref _started, 1) == 0 && Volatile.Read(ref _stopped) == 0) _ = EnsureImageAsync(); }
 
     private async Task EnsureImageAsync()
     {
@@ -59,7 +64,7 @@ public sealed class AboutTitleImageCacheService(ILogger<AboutTitleImageCacheServ
 
             using var response = await HttpClient.GetAsync(
                 DownloadUrl,
-                HttpCompletionOption.ResponseHeadersRead);
+                HttpCompletionOption.ResponseHeadersRead, _lifetime.Token);
             response.EnsureSuccessStatusCode();
 
             await using (var output = new FileStream(
@@ -70,14 +75,16 @@ public sealed class AboutTitleImageCacheService(ILogger<AboutTitleImageCacheServ
                              bufferSize: 81920,
                              FileOptions.Asynchronous))
             {
-                await response.Content.CopyToAsync(output);
+                await response.Content.CopyToAsync(output, _lifetime.Token);
             }
 
             await ValidatePngAsync(temporaryPath);
+            _lifetime.Token.ThrowIfCancellationRequested();
             File.Move(temporaryPath, CachePath, overwrite: true);
             logger.LogInformation("关于页顶部图像后台下载完成：{ImagePath}", CachePath);
             ImagePathChanged?.Invoke(this, CachePath);
         }
+        catch (OperationCanceledException) when (_lifetime.IsCancellationRequested) { }
         catch (Exception exception)
         {
             logger.LogWarning(exception, "关于页顶部图像后台下载失败，将继续使用插件内置图像并在下次启动时重试。");

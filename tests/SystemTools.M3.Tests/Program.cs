@@ -84,6 +84,52 @@ try
     try { migration.Apply(Path.Combine(temporary, "other"), [(migration.Preview(new(migrationSource, migrationTarget)), SystemTools.Common.Migration.ImportChoice.ImportLegacy)]); throw new Exception("越界迁移"); }
     catch (IOException) { Check(true, "迁移写入严格限制在指定目录"); }
 
+    var fileOperations = new SystemTools.Common.Files.FileOperations();
+    var fileSource = Path.Combine(temporary, "source.txt");
+    var fileCopy = Path.Combine(temporary, "copy.txt");
+    var fileMove = Path.Combine(temporary, "move.txt");
+    File.WriteAllText(fileSource, "file-content");
+    await fileOperations.TransferAsync(fileSource, fileCopy, directory: false, move: false);
+    await fileOperations.TransferAsync(fileCopy, fileMove, directory: false, move: true);
+    Check(File.ReadAllText(fileMove) == "file-content" && !File.Exists(fileCopy), "共享文件复制和移动");
+    await fileOperations.DeleteAsync(fileMove, directory: false);
+    Check(!File.Exists(fileMove), "共享文件删除");
+    var tree = Path.Combine(temporary, "tree");
+    Directory.CreateDirectory(Path.Combine(tree, "nested"));
+    File.WriteAllText(Path.Combine(tree, "nested", "keep.txt"), "tree-content");
+    var copyParent = Path.Combine(temporary, "copyParent");
+    await fileOperations.TransferAsync(tree, copyParent, directory: true, move: false);
+    Check(File.ReadAllText(Path.Combine(copyParent, "tree", "nested", "keep.txt")) == "tree-content", "共享目录递归复制");
+    File.WriteAllText(Path.Combine(copyParent, "tree", "old.txt"), "old");
+    await fileOperations.TransferAsync(tree, copyParent, directory: true, move: false);
+    Check(!File.Exists(Path.Combine(copyParent, "tree", "old.txt")), "目录复制保留原版整体覆盖语义");
+    try { await fileOperations.TransferAsync(tree, Path.Combine(tree, "child"), true, false); throw new Exception("包含路径可写"); }
+    catch (IOException) { Check(true, "拒绝源目标相互包含"); }
+    using (var cancelled = new CancellationTokenSource())
+    {
+        cancelled.Cancel();
+        try { await fileOperations.TransferAsync(tree, copyParent, true, false, cancelled.Token); throw new Exception("中断无效"); }
+        catch (OperationCanceledException) { Check(File.Exists(Path.Combine(copyParent, "tree", "nested", "keep.txt")), "中断前不破坏目标"); }
+    }
+    var failing = new SystemTools.Common.Files.FileOperations(new FailingDirectoryCopier());
+    try { await failing.TransferAsync(tree, copyParent, true, false); throw new Exception("故障未传播"); }
+    catch (IOException) { Check(File.Exists(Path.Combine(copyParent, "tree", "nested", "keep.txt")) && Directory.Exists(tree), "复制故障保留源和旧目标"); }
+    var moveParent = Path.Combine(temporary, "moveParent");
+    await fileOperations.TransferAsync(Path.Combine(copyParent, "tree"), moveParent, true, true);
+    Check(!Directory.Exists(Path.Combine(copyParent, "tree")) && Directory.Exists(Path.Combine(moveParent, "tree")), "目录移动提交后移除源");
+    await fileOperations.DeleteAsync(Path.Combine(moveParent, "tree"), true);
+    Check(!Directory.Exists(Path.Combine(moveParent, "tree")), "目录删除通过托管 API 执行");
+    var snapshots = new SystemTools.Common.Automation.ActionRestoreStore<bool>();
+    var groupA = Guid.NewGuid(); var groupB = Guid.NewGuid(); var ownerA = new object(); var ownerB = new object();
+    snapshots.Capture(groupA, ownerA, "target", false);
+    snapshots.Capture(groupB, ownerB, "target", true);
+    Check(!snapshots.TryRestore(groupA, ownerA, out _), "先恢复较早组不覆盖后续组状态");
+    Check(snapshots.TryRestore(groupB, ownerB, out var originalState) && !originalState, "后续组恢复到最初状态");
+    var idA = Guid.NewGuid(); var idB = Guid.NewGuid();
+    var workflows = new[] { new TestWorkflow(idB, "same"), new TestWorkflow(idA, "same") };
+    Check(SystemTools.Common.Automation.WorkflowTargetResolver.Resolve(workflows, idA, "same", 0, x => x.Id, x => x.Name)?.Id == idA, "工作流重排仍按稳定身份解析");
+    Check(SystemTools.Common.Automation.WorkflowTargetResolver.Resolve(workflows, null, "same", 0, x => x.Id, x => x.Name) is null, "工作流重名时拒绝猜测目标");
+
     var source = Path.Combine(temporary, "Cache");
     var destination = Path.Combine(temporary, "Profiles");
     Directory.CreateDirectory(source);
@@ -112,3 +158,9 @@ public sealed class TestItem
     public string Id { get; set; } = "";
     public int Value { get; set; }
 }
+
+public sealed class FailingDirectoryCopier : SystemTools.Common.Files.IDirectoryCopyBackend
+{
+    public Task CopyAsync(string source, string target, CancellationToken token) { Directory.CreateDirectory(target); throw new IOException("故障注入"); }
+}
+public sealed record TestWorkflow(Guid Id, string Name);

@@ -4,7 +4,7 @@ using ClassIsland.Core.Attributes;
 using ClassIsland.Shared;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
+using SystemTools.Common.Automation;
 using System.Linq;
 using System.Threading.Tasks;
 using SystemTools.Settings;
@@ -17,7 +17,7 @@ public class ToggleWorkflowAction(ILogger<ToggleWorkflowAction> logger) : Action
 {
     private readonly ILogger<ToggleWorkflowAction> _logger = logger;
 
-    private static readonly ConcurrentDictionary<Guid, OriginalStateSnapshot> PreviousSnapshots = new();
+    private static readonly ActionRestoreStore<OriginalStateSnapshot> PreviousSnapshots = new();
 
     protected override async Task OnInvoke()
     {
@@ -46,15 +46,14 @@ public class ToggleWorkflowAction(ILogger<ToggleWorkflowAction> logger) : Action
                 throw new InvalidOperationException($"未找到指定的自动化方案: {Settings.TargetWorkflowName}");
             }
 
+            InterruptCancellationToken.ThrowIfCancellationRequested();
             var actionSet = targetWorkflow.ActionSet;
             var currentStatus = actionSet.IsEnabled;
 
-            if (IsRevertable)
+            if (IsRevertable && Settings.RevertToOriginal)
             {
-                PreviousSnapshots[ActionSet.Guid] = new OriginalStateSnapshot(
-                    actionSet.Name,
-                    automationService.Workflows.IndexOf(targetWorkflow),
-                    currentStatus);
+                PreviousSnapshots.Capture(ActionSet.Guid, ActionItem, actionSet.Guid.ToString(),
+                    new OriginalStateSnapshot(actionSet.Guid, currentStatus));
                 _logger.LogDebug("已保存自动化 \"{WorkflowName}\" 的原始状态快照", actionSet.Name);
             }
 
@@ -101,11 +100,11 @@ public class ToggleWorkflowAction(ILogger<ToggleWorkflowAction> logger) : Action
             if (Settings == null || !Settings.RevertToOriginal)
             {
                 _logger.LogDebug("RevertToOriginal 为 false，跳过恢复");
-                PreviousSnapshots.TryRemove(ActionSet.Guid, out _);
+                PreviousSnapshots.TryRestore(ActionSet.Guid, ActionItem, out _);
                 return;
             }
 
-            if (!PreviousSnapshots.TryRemove(ActionSet.Guid, out var snapshot))
+            if (!PreviousSnapshots.TryRestore(ActionSet.Guid, ActionItem, out var snapshot))
             {
                 _logger.LogWarning("未找到触发前状态，跳过恢复。ActionSet={ActionSetGuid}", ActionSet.Guid);
                 return;
@@ -118,10 +117,10 @@ public class ToggleWorkflowAction(ILogger<ToggleWorkflowAction> logger) : Action
                 return;
             }
 
-            var targetWorkflow = FindTargetWorkflow(automationService);
+            var targetWorkflow = automationService.Workflows.FirstOrDefault(workflow => workflow.ActionSet.Guid == snapshot.WorkflowId);
             if (targetWorkflow == null)
             {
-                _logger.LogWarning("恢复时未找到目标自动化: {Name}", snapshot.WorkflowName);
+                _logger.LogWarning("恢复时未找到目标自动化: {Name}", snapshot.WorkflowId);
                 return;
             }
 
@@ -141,44 +140,17 @@ public class ToggleWorkflowAction(ILogger<ToggleWorkflowAction> logger) : Action
 
     private Workflow? FindTargetWorkflow(IAutomationService automationService)
     {
-        Workflow? targetWorkflow = null;
-
-        // 1. 尝试通过索引查找
-        if (Settings.TargetWorkflowIndex >= 0 && Settings.TargetWorkflowIndex < automationService.Workflows.Count)
+        var workflow = WorkflowTargetResolver.Resolve(automationService.Workflows,
+            Settings.TargetWorkflowId, Settings.TargetWorkflowName, Settings.TargetWorkflowIndex,
+            workflow => workflow.ActionSet.Guid, workflow => workflow.ActionSet.Name);
+        if (workflow != null)
         {
-            targetWorkflow = automationService.Workflows[Settings.TargetWorkflowIndex];
-            _logger.LogDebug("通过索引 {Index} 找到自动化: {Name}",
-                Settings.TargetWorkflowIndex, targetWorkflow.ActionSet.Name);
+            Settings.TargetWorkflowId = workflow.ActionSet.Guid;
+            Settings.TargetWorkflowName = workflow.ActionSet.Name;
+            Settings.TargetWorkflowIndex = automationService.Workflows.IndexOf(workflow);
         }
-
-        // 2. 如果索引找不到，尝试通过名称查找
-        if (targetWorkflow == null && !string.IsNullOrEmpty(Settings.TargetWorkflowName))
-        {
-            targetWorkflow = automationService.Workflows
-                .FirstOrDefault(w => w.ActionSet.Name == Settings.TargetWorkflowName);
-
-            if (targetWorkflow != null)
-            {
-                _logger.LogDebug("通过名称 \"{Name}\" 找到自动化", Settings.TargetWorkflowName);
-                Settings.TargetWorkflowIndex = automationService.Workflows.IndexOf(targetWorkflow);
-            }
-            else
-            {
-                _logger.LogWarning("通过名称 \"{Name}\" 未找到自动化", Settings.TargetWorkflowName);
-            }
-        }
-
-        if (targetWorkflow == null)
-        {
-            _logger.LogWarning("未能找到任何匹配的目标自动化 (Index={Index}, Name={Name})",
-                Settings.TargetWorkflowIndex, Settings.TargetWorkflowName);
-        }
-
-        return targetWorkflow;
+        return workflow;
     }
 
-    private readonly record struct OriginalStateSnapshot(
-        string WorkflowName,
-        int WorkflowIndex,
-        bool IsEnabled);
+    private readonly record struct OriginalStateSnapshot(Guid WorkflowId, bool IsEnabled);
 }

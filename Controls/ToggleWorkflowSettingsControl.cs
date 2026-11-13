@@ -172,31 +172,12 @@ public class ToggleWorkflowSettingsControl : ActionSettingsControlBase<ToggleWor
     {
         if (Settings == null) return;
 
-        if (Settings.TargetWorkflowIndex >= 0 && Settings.TargetWorkflowIndex < _workflowComboBox.Items.Count)
-        {
-            _workflowComboBox.SelectedIndex = Settings.TargetWorkflowIndex;
-        }
-        else if (!string.IsNullOrEmpty(Settings.TargetWorkflowName))
-        {
-            for (int i = 0; i < _workflowComboBox.Items.Count; i++)
-            {
-                if (_workflowComboBox.Items[i] is ComboBoxItem item &&
-                    item.Tag is Workflow workflow &&
-                    workflow.ActionSet.Name == Settings.TargetWorkflowName)
-                {
-                    _workflowComboBox.SelectedIndex = i;
-                    break;
-                }
-            }
-        }
+        var selected = SystemTools.Common.Automation.WorkflowTargetResolver.Resolve(_workflows,
+            Settings.TargetWorkflowId, Settings.TargetWorkflowName, Settings.TargetWorkflowIndex,
+            workflow => workflow.ActionSet.Guid, workflow => workflow.ActionSet.Name);
+        _workflowComboBox.SelectedIndex = selected is null ? -1 : _workflows.IndexOf(selected);
 
-        var modeIndex = Settings.EnableMode switch
-        {
-            null => 0,  // 切换
-            true => 1,  // 启用
-            false => 2  // 禁用
-        };
-        _modeComboBox.SelectedIndex = modeIndex;
+        _modeComboBox.SelectedIndex = Settings.EnableMode switch { true => 1, false => 2, _ => 0 };
 
         _revertCheckBox.IsChecked = Settings.RevertToOriginal;
     }
@@ -205,6 +186,7 @@ public class ToggleWorkflowSettingsControl : ActionSettingsControlBase<ToggleWor
     {
         if (_workflowComboBox.SelectedItem is ComboBoxItem item && item.Tag is Workflow workflow)
         {
+            Settings.TargetWorkflowId = workflow.ActionSet.Guid;
             Settings.TargetWorkflowName = workflow.ActionSet.Name;
             Settings.TargetWorkflowIndex = _workflowComboBox.SelectedIndex;
 

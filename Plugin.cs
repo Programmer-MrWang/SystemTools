@@ -87,6 +87,8 @@ public partial class Plugin : PluginBase
         DependencyPaths.InitializeResolvers(isolated: _entrance != null);
 
         services.AddLogging();
+        services.AddSingleton<SystemTools.Common.Files.IDirectoryCopyBackend, SystemTools.Platforms.Windows.WindowsDirectoryCopyBackend>();
+        services.AddSingleton<SystemTools.Common.Files.FileOperations>();
         services.AddXamlTheme(
             new Uri("avares://SystemTools/Themes/CardTypeComponent/Styles.axaml"),
             new ThemeManifest

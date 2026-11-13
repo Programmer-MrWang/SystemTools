@@ -8,6 +8,9 @@ namespace SystemTools.Settings;
 /// </summary>
 public class ToggleWorkflowSettings
 {
+    [JsonPropertyName("targetWorkflowId")]
+    public System.Guid? TargetWorkflowId { get; set; }
+
     /// <summary>
     /// 目标自动化的名称（用于显示）
     /// </summary>

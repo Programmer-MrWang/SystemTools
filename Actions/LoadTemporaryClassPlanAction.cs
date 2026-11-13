@@ -3,11 +3,11 @@ using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Attributes;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
+using SystemTools.Common.Automation;
 using System.Threading.Tasks;
+using SystemTools.Services;
 using SystemTools.Settings;
 using ClassIsland.Core.Models.Notification;
-using SystemTools.Services;
 using ClassIsland.Shared;
 
 namespace SystemTools.Actions;
@@ -22,7 +22,7 @@ public class LoadTemporaryClassPlanAction(
     private readonly IProfileService _profileService = profileService;
     private readonly IExactTimeService _exactTimeService = exactTimeService;
 
-    private static readonly ConcurrentDictionary<Guid, TempClassPlanSnapshot> PreviousSnapshots = new();
+    private static readonly ActionRestoreStore<TempClassPlanSnapshot> PreviousSnapshots = new();
 
     protected override async Task OnInvoke()
     {
@@ -40,9 +40,10 @@ public class LoadTemporaryClassPlanAction(
 
         if (IsRevertable)
         {
-            PreviousSnapshots[ActionSet.Guid] = new TempClassPlanSnapshot(
+            PreviousSnapshots.Capture(ActionSet.Guid, ActionItem, _profileService.Profile.Id.ToString(), new TempClassPlanSnapshot(
+                _profileService.Profile.Id,
                 _profileService.Profile.TempClassPlanId,
-                _profileService.Profile.TempClassPlanSetupTime);
+                _profileService.Profile.TempClassPlanSetupTime));
         }
 
         _profileService.Profile.TempClassPlanId = classPlanId;
@@ -63,7 +64,8 @@ public class LoadTemporaryClassPlanAction(
     {
         await base.OnRevert();
 
-        if (PreviousSnapshots.TryRemove(ActionSet.Guid, out var snapshot))
+        if (PreviousSnapshots.TryRestore(ActionSet.Guid, ActionItem, out var snapshot) &&
+            _profileService.Profile.Id == snapshot.ProfileId)
         {
             _profileService.Profile.TempClassPlanId = snapshot.TempClassPlanId;
             _profileService.Profile.TempClassPlanSetupTime = snapshot.TempClassPlanSetupTime;
@@ -72,10 +74,8 @@ public class LoadTemporaryClassPlanAction(
             return;
         }
 
-        _profileService.Profile.TempClassPlanId = null;
-        _profileService.SaveProfile();
-        _logger.LogInformation("未找到触发前状态，已清除临时课表。ActionSet={ActionSetGuid}", ActionSet.Guid);
+        _logger.LogInformation("此行动尚无需恢复，或原档案已切换。ActionSet={ActionSetGuid}", ActionSet.Guid);
     }
 
-    private readonly record struct TempClassPlanSnapshot(Guid? TempClassPlanId, DateTime TempClassPlanSetupTime);
+    private readonly record struct TempClassPlanSnapshot(Guid ProfileId, Guid? TempClassPlanId, DateTime TempClassPlanSetupTime);
 }

@@ -594,7 +594,7 @@ public partial class Plugin : PluginBase
     private void RegisterActionIfEnabled<TAction>(IServiceCollection services, MainConfigData config, string actionId)
         where TAction : ClassIsland.Core.Abstractions.Automation.ActionBase
     {
-        if (config.IsActionEnabled(actionId))
+        if (IsActionEnabled(config, actionId))
         {
             services.AddAction<TAction>();
         }
@@ -605,7 +605,7 @@ public partial class Plugin : PluginBase
         where TAction : ClassIsland.Core.Abstractions.Automation.ActionBase
         where TSettingsControl : ClassIsland.Core.Abstractions.Controls.ActionSettingsControlBase
     {
-        if (config.IsActionEnabled(actionId))
+        if (IsActionEnabled(config, actionId))
         {
             services.AddAction<TAction, TSettingsControl>();
         }
@@ -731,7 +731,7 @@ public partial class Plugin : PluginBase
         }
 
         // 其他工具
-        if (config.IsActionEnabled("SystemTools.FullscreenClock"))
+        if (IsActionEnabled(config, "SystemTools.FullscreenClock"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"].Add(new ActionMenuTreeGroup("其他工具…", "\uE32C"));
             BuildOtherMenu(config);
@@ -748,24 +748,41 @@ public partial class Plugin : PluginBase
 
     }
 
+    private static readonly HashSet<string> CommonActions = new(StringComparer.Ordinal)
+    {
+        "SystemTools.Copy", "SystemTools.Move", "SystemTools.Delete",
+        "SystemTools.LoadTemporaryClassPlan", "SystemTools.OpenAppSettings",
+        "SystemTools.OpenProfileEditor", "SystemTools.OpenClassSwapWindow",
+        "SystemTools.ToggleWorkflow", "SystemTools.TriggerCustomTrigger",
+        "SystemTools.ActionFlowExecutionConfirmation", "SystemTools.ClearAllNotifications",
+        "SystemTools.ShowFloatingWindow", "SystemTools.ToggleFloatingWindowLayer",
+        "SystemTools.ToggleFloatingWindowProfile", "SystemTools.SwitchFloatingWindowTheme",
+        "SystemTools.SwitchTheme", "SystemTools.BackgroundPlayAudio"
+    };
+
+    private bool IsActionEnabled(MainConfigData config, string actionId) =>
+        (_entrance == null || actionId != "SystemTools.FullscreenClock") &&
+        (_migrationStage != 3 || CommonActions.Contains(actionId)) &&
+        config.IsActionEnabled(actionId);
+
     private bool HasAnyActionEnabled(MainConfigData config, params string[] actionIds)
     {
-        return actionIds.Any(id => config.IsActionEnabled(id));
+        return actionIds.Any(id => IsActionEnabled(config, id));
     }
 
     private void BuildSimulationMenu(MainConfigData config)
     {
         var items = new List<ActionMenuTreeItem>();
         
-        if (config.IsActionEnabled("SystemTools.SimulateKeyboard"))
+        if (IsActionEnabled(config, "SystemTools.SimulateKeyboard"))
             items.Add(new ActionMenuTreeItem("SystemTools.SimulateKeyboard", "模拟键盘", "\uEA0F"));
-        if (config.IsActionEnabled("SystemTools.SimulateKeyCombination"))
+        if (IsActionEnabled(config, "SystemTools.SimulateKeyCombination"))
             items.Add(new ActionMenuTreeItem("SystemTools.SimulateKeyCombination", "模拟组合键", "\uEA15"));
-        if (config.IsActionEnabled("SystemTools.SimulateMouse"))
+        if (IsActionEnabled(config, "SystemTools.SimulateMouse"))
             items.Add(new ActionMenuTreeItem("SystemTools.SimulateMouse", "模拟鼠标", "\uE5C1"));
-        if (config.IsActionEnabled("SystemTools.TypeContent"))
+        if (IsActionEnabled(config, "SystemTools.TypeContent"))
             items.Add(new ActionMenuTreeItem("SystemTools.TypeContent", "键入内容", "\uE4BE"));
-        if (config.IsActionEnabled("SystemTools.WindowOperation"))
+        if (IsActionEnabled(config, "SystemTools.WindowOperation"))
             items.Add(new ActionMenuTreeItem("SystemTools.WindowOperation", "窗口操作", "\uF4B3"));
 
         if (items.Count > 0)
@@ -775,17 +792,17 @@ public partial class Plugin : PluginBase
 
         // 常用模拟键子菜单
         var commonKeys = new List<ActionMenuTreeItem>();
-        if (config.IsActionEnabled("SystemTools.AltF4"))
+        if (IsActionEnabled(config, "SystemTools.AltF4"))
             commonKeys.Add(new ActionMenuTreeItem("SystemTools.AltF4", "按下 Alt+F4", "\uEA0B"));
-        if (config.IsActionEnabled("SystemTools.AltTab"))
+        if (IsActionEnabled(config, "SystemTools.AltTab"))
             commonKeys.Add(new ActionMenuTreeItem("SystemTools.AltTab", "按下 Alt+Tab", "\uEA0B"));
-        if (config.IsActionEnabled("SystemTools.CtrlZ"))
+        if (IsActionEnabled(config, "SystemTools.CtrlZ"))
             commonKeys.Add(new ActionMenuTreeItem("SystemTools.CtrlZ", "按下 Ctrl+Z", "\uEA0B"));
-        if (config.IsActionEnabled("SystemTools.EnterKey"))
+        if (IsActionEnabled(config, "SystemTools.EnterKey"))
             commonKeys.Add(new ActionMenuTreeItem("SystemTools.EnterKey", "按下 Enter 键", "\uEA0B"));
-        if (config.IsActionEnabled("SystemTools.EscKey"))
+        if (IsActionEnabled(config, "SystemTools.EscKey"))
             commonKeys.Add(new ActionMenuTreeItem("SystemTools.EscKey", "按下 Esc 键", "\uEA0B"));
-        if (config.IsActionEnabled("SystemTools.F11Key"))
+        if (IsActionEnabled(config, "SystemTools.F11Key"))
             commonKeys.Add(new ActionMenuTreeItem("SystemTools.F11Key", "按下 F11 键", "\uEA0B"));
 
         if (commonKeys.Count > 0)
@@ -799,19 +816,19 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.IsActionEnabled("SystemTools.CloneDisplay"))
+        if (IsActionEnabled(config, "SystemTools.CloneDisplay"))
             items.Add(new ActionMenuTreeItem("SystemTools.CloneDisplay", "复制屏幕", "\uE635"));
-        if (config.IsActionEnabled("SystemTools.ExtendDisplay"))
+        if (IsActionEnabled(config, "SystemTools.ExtendDisplay"))
             items.Add(new ActionMenuTreeItem("SystemTools.ExtendDisplay", "扩展屏幕", "\uE647"));
-        if (config.IsActionEnabled("SystemTools.InternalDisplay"))
+        if (IsActionEnabled(config, "SystemTools.InternalDisplay"))
             items.Add(new ActionMenuTreeItem("SystemTools.InternalDisplay", "仅电脑屏幕", "\uE62F"));
-        if (config.IsActionEnabled("SystemTools.ExternalDisplay"))
+        if (IsActionEnabled(config, "SystemTools.ExternalDisplay"))
             items.Add(new ActionMenuTreeItem("SystemTools.ExternalDisplay", "仅第二屏幕", "\uE641"));
-        if (config.IsActionEnabled("SystemTools.BlackScreenHtml"))
+        if (IsActionEnabled(config, "SystemTools.BlackScreenHtml"))
             items.Add(new ActionMenuTreeItem("SystemTools.BlackScreenHtml", "黑屏html", "\uE643"));
-        if (config.IsActionEnabled("SystemTools.ShowDesktop"))
+        if (IsActionEnabled(config, "SystemTools.ShowDesktop"))
             items.Add(new ActionMenuTreeItem("SystemTools.ShowDesktop", "显示桌面", "\uE62F"));
-        if (config.IsActionEnabled("SystemTools.AdjustScreenBrightness"))
+        if (IsActionEnabled(config, "SystemTools.AdjustScreenBrightness"))
             items.Add(new ActionMenuTreeItem("SystemTools.AdjustScreenBrightness", "调整屏幕亮度", "\uF464"));
 
         if (items.Count > 0)
@@ -824,19 +841,19 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.IsActionEnabled("SystemTools.Shutdown"))
+        if (IsActionEnabled(config, "SystemTools.Shutdown"))
             items.Add(new ActionMenuTreeItem("SystemTools.Shutdown", "计时关机", "\uE4C4"));
-        if (config.IsActionEnabled("SystemTools.AdvancedShutdown"))
+        if (IsActionEnabled(config, "SystemTools.AdvancedShutdown"))
             items.Add(new ActionMenuTreeItem("SystemTools.AdvancedShutdown", "高级计时关机", "\uE4D2"));
-        if (config.IsActionEnabled("SystemTools.CancelShutdown"))
+        if (IsActionEnabled(config, "SystemTools.CancelShutdown"))
             items.Add(new ActionMenuTreeItem("SystemTools.CancelShutdown", "取消关机计划", "\uE4CC"));
-        if (config.IsActionEnabled("SystemTools.LockScreen"))
+        if (IsActionEnabled(config, "SystemTools.LockScreen"))
             items.Add(new ActionMenuTreeItem("SystemTools.LockScreen", "锁定屏幕", "\uEAF0"));
-        if (config.IsActionEnabled("SystemTools.ImmediateRestart"))
+        if (IsActionEnabled(config, "SystemTools.ImmediateRestart"))
             items.Add(new ActionMenuTreeItem("SystemTools.ImmediateRestart", "立即重启", "\uE0BD"));
-        if (config.IsActionEnabled("SystemTools.ImmediateShutdown"))
+        if (IsActionEnabled(config, "SystemTools.ImmediateShutdown"))
             items.Add(new ActionMenuTreeItem("SystemTools.ImmediateShutdown", "立即关机", "\uEDE9"));
-        if (config.IsActionEnabled("SystemTools.Sleep"))
+        if (IsActionEnabled(config, "SystemTools.Sleep"))
             items.Add(new ActionMenuTreeItem("SystemTools.Sleep", "睡眠", "\uF44B"));
 
         if (items.Count > 0)
@@ -849,11 +866,11 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.IsActionEnabled("SystemTools.Copy"))
+        if (IsActionEnabled(config, "SystemTools.Copy"))
             items.Add(new ActionMenuTreeItem("SystemTools.Copy", "复制", "\uE6AB"));
-        if (config.IsActionEnabled("SystemTools.Move"))
+        if (IsActionEnabled(config, "SystemTools.Move"))
             items.Add(new ActionMenuTreeItem("SystemTools.Move", "移动", "\uE6E7"));
-        if (config.IsActionEnabled("SystemTools.Delete"))
+        if (IsActionEnabled(config, "SystemTools.Delete"))
             items.Add(new ActionMenuTreeItem("SystemTools.Delete", "删除", "\uE61D"));
 
         if (items.Count > 0)
@@ -866,11 +883,11 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.IsActionEnabled("SystemTools.ChangeWallpaper"))
+        if (IsActionEnabled(config, "SystemTools.ChangeWallpaper"))
             items.Add(new ActionMenuTreeItem("SystemTools.ChangeWallpaper", "切换壁纸", "\uE9BC"));
-        if (config.IsActionEnabled("SystemTools.SwitchTheme"))
+        if (IsActionEnabled(config, "SystemTools.SwitchTheme"))
             items.Add(new ActionMenuTreeItem("SystemTools.SwitchTheme", "切换主题色", "\uF42F"));
-        if (config.IsActionEnabled("SystemTools.SwitchSystemAccentColor"))
+        if (IsActionEnabled(config, "SystemTools.SwitchSystemAccentColor"))
             items.Add(new ActionMenuTreeItem("SystemTools.SwitchSystemAccentColor", "切换系统强调色", "\uE523"));
 
         if (items.Count > 0)
@@ -883,15 +900,15 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.IsActionEnabled("SystemTools.KillProcess"))
+        if (IsActionEnabled(config, "SystemTools.KillProcess"))
             items.Add(new ActionMenuTreeItem("SystemTools.KillProcess", "退出进程", "\uE0DE"));
-        if (config.IsActionEnabled("SystemTools.ScreenShot"))
+        if (IsActionEnabled(config, "SystemTools.ScreenShot"))
             items.Add(new ActionMenuTreeItem("SystemTools.ScreenShot", "屏幕截图", "\uEEE7"));
-        if (config.IsActionEnabled("SystemTools.ShowToast"))
+        if (IsActionEnabled(config, "SystemTools.ShowToast"))
             items.Add(new ActionMenuTreeItem("SystemTools.ShowToast", "拉起自定义Windows通知", "\uE3E4"));
-        if (config.IsActionEnabled("SystemTools.DisableDevice"))
+        if (IsActionEnabled(config, "SystemTools.DisableDevice"))
             items.Add(new ActionMenuTreeItem("SystemTools.DisableDevice", "禁用硬件设备", "\uE09F"));
-        if (config.IsActionEnabled("SystemTools.EnableDevice"))
+        if (IsActionEnabled(config, "SystemTools.EnableDevice"))
             items.Add(new ActionMenuTreeItem("SystemTools.EnableDevice", "启用硬件设备", "\uE0AD"));
 
         if (items.Count > 0)
@@ -903,9 +920,9 @@ public partial class Plugin : PluginBase
     private void BuildMediaToolsMenu(MainConfigData config)
     {
         var items = new List<ActionMenuTreeItem>();
-        if (config.IsActionEnabled("SystemTools.BackgroundPlayAudio"))
+        if (IsActionEnabled(config, "SystemTools.BackgroundPlayAudio"))
             items.Add(new ActionMenuTreeItem("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uEBCC"));
-        if (config.IsActionEnabled("SystemTools.SetVolume"))
+        if (IsActionEnabled(config, "SystemTools.SetVolume"))
             items.Add(new ActionMenuTreeItem("SystemTools.SetVolume", "设置系统音量", "\uF013"));
 
         if (items.Count > 0)
@@ -919,13 +936,13 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ShowFloatingWindow"))
+        if (config.EnableFloatingWindowFeature && IsActionEnabled(config, "SystemTools.ShowFloatingWindow"))
             items.Add(new ActionMenuTreeItem("SystemTools.ShowFloatingWindow", "显示悬浮窗", "\uEA37"));
-        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ToggleFloatingWindowLayer"))
+        if (config.EnableFloatingWindowFeature && IsActionEnabled(config, "SystemTools.ToggleFloatingWindowLayer"))
             items.Add(new ActionMenuTreeItem("SystemTools.ToggleFloatingWindowLayer", "切换悬浮窗层级", "\uE9A8"));
-        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.ToggleFloatingWindowProfile"))
+        if (config.EnableFloatingWindowFeature && IsActionEnabled(config, "SystemTools.ToggleFloatingWindowProfile"))
             items.Add(new ActionMenuTreeItem("SystemTools.ToggleFloatingWindowProfile", "切换悬浮窗配置方案", "\uE9A8"));
-        if (config.EnableFloatingWindowFeature && config.IsActionEnabled("SystemTools.SwitchFloatingWindowTheme"))
+        if (config.EnableFloatingWindowFeature && IsActionEnabled(config, "SystemTools.SwitchFloatingWindowTheme"))
             items.Add(new ActionMenuTreeItem("SystemTools.SwitchFloatingWindowTheme", "切换悬浮窗主题", "\uE790"));
 
         if (items.Count > 0)
@@ -936,7 +953,7 @@ public partial class Plugin : PluginBase
 
     private void BuildOtherMenu(MainConfigData config)
     {
-        if (config.IsActionEnabled("SystemTools.FullscreenClock"))
+        if (IsActionEnabled(config, "SystemTools.FullscreenClock"))
         {
             IActionService.ActionMenuTree["SystemTools 行动"]["其他工具…"].Add(
                 new ActionMenuTreeItem("SystemTools.FullscreenClock", "沉浸式时钟", "\uE4D2"));
@@ -947,11 +964,11 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.IsActionEnabled("SystemTools.AutoSwitchClassIslandTheme"))
+        if (IsActionEnabled(config, "SystemTools.AutoSwitchClassIslandTheme"))
             items.Add(new ActionMenuTreeItem("SystemTools.AutoSwitchClassIslandTheme", "自动切换 ClassIsland 主题", "\uE5CB"));
-        if (config.IsActionEnabled("SystemTools.AutoHideMainWindowWhenOccluded"))
+        if (IsActionEnabled(config, "SystemTools.AutoHideMainWindowWhenOccluded"))
             items.Add(new ActionMenuTreeItem("SystemTools.AutoHideMainWindowWhenOccluded", "遮挡文字时隐藏主界面", "\uEEE3"));
-        if (config.IsActionEnabled("SystemTools.AutoOpenUsbDriveOnInsert"))
+        if (IsActionEnabled(config, "SystemTools.AutoOpenUsbDriveOnInsert"))
             items.Add(new ActionMenuTreeItem("SystemTools.AutoOpenUsbDriveOnInsert", "自动播放", "\uEE81"));
 
         if (items.Count > 0)
@@ -964,11 +981,11 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.IsActionEnabled("SystemTools.ActionFlowExecutionConfirmation"))
+        if (IsActionEnabled(config, "SystemTools.ActionFlowExecutionConfirmation"))
             items.Add(new ActionMenuTreeItem("SystemTools.ActionFlowExecutionConfirmation", "行动流执行确认", "\uE01D"));
-        if (config.IsActionEnabled("SystemTools.TriggerCustomTrigger"))
+        if (IsActionEnabled(config, "SystemTools.TriggerCustomTrigger"))
             items.Add(new ActionMenuTreeItem("SystemTools.TriggerCustomTrigger", "触发指定触发器", "\uEAB7"));
-        if (config.IsActionEnabled("SystemTools.ToggleWorkflow"))
+        if (IsActionEnabled(config, "SystemTools.ToggleWorkflow"))
             items.Add(new ActionMenuTreeItem("SystemTools.ToggleWorkflow", "开关自动化", "\uE051"));
 
         if (items.Count > 0)
@@ -981,11 +998,11 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.EnableAiService && config.IsActionEnabled("SystemTools.EnableVoiceWakeAi"))
+        if (config.EnableAiService && IsActionEnabled(config, "SystemTools.EnableVoiceWakeAi"))
             items.Add(new ActionMenuTreeItem("SystemTools.EnableVoiceWakeAi", "启用语音唤醒 AI", "\uED53"));
-        if (config.EnableAiService && config.IsActionEnabled("SystemTools.WakeUpVoiceConversationAi"))
+        if (config.EnableAiService && IsActionEnabled(config, "SystemTools.WakeUpVoiceConversationAi"))
             items.Add(new ActionMenuTreeItem("SystemTools.WakeUpVoiceConversationAi", "唤醒语音对话 AI", "\uEFF9"));
-        if (config.EnableAiService && config.IsActionEnabled("SystemTools.ShowAiChatDialog"))
+        if (config.EnableAiService && IsActionEnabled(config, "SystemTools.ShowAiChatDialog"))
             items.Add(new ActionMenuTreeItem("SystemTools.ShowAiChatDialog", "显示AI对话框", "\uE8C3"));
 
         if (items.Count > 0)
@@ -998,17 +1015,17 @@ public partial class Plugin : PluginBase
     {
         var items = new List<ActionMenuTreeItem>();
 
-        if (config.IsActionEnabled("SystemTools.ClearAllNotifications"))
+        if (IsActionEnabled(config, "SystemTools.ClearAllNotifications"))
             items.Add(new ActionMenuTreeItem("SystemTools.ClearAllNotifications", "清除全部提醒", "\uE029"));
-        if (config.IsActionEnabled("SystemTools.RestartAsAdmin"))
+        if (IsActionEnabled(config, "SystemTools.RestartAsAdmin"))
             items.Add(new ActionMenuTreeItem("SystemTools.RestartAsAdmin", "重启应用为管理员身份", "\uEF53"));
-        if (config.IsActionEnabled("SystemTools.LoadTemporaryClassPlan"))
+        if (IsActionEnabled(config, "SystemTools.LoadTemporaryClassPlan"))
             items.Add(new ActionMenuTreeItem("SystemTools.LoadTemporaryClassPlan", "加载临时课表", "\uE6A1"));
-        if (config.IsActionEnabled("SystemTools.OpenAppSettings"))
+        if (IsActionEnabled(config, "SystemTools.OpenAppSettings"))
             items.Add(new ActionMenuTreeItem("SystemTools.OpenAppSettings", "打开应用设置", "\uEF27"));
-        if (config.IsActionEnabled("SystemTools.OpenProfileEditor"))
+        if (IsActionEnabled(config, "SystemTools.OpenProfileEditor"))
             items.Add(new ActionMenuTreeItem("SystemTools.OpenProfileEditor", "打开档案编辑", "\uE699"));
-        if (config.IsActionEnabled("SystemTools.OpenClassSwapWindow"))
+        if (IsActionEnabled(config, "SystemTools.OpenClassSwapWindow"))
             items.Add(new ActionMenuTreeItem("SystemTools.OpenClassSwapWindow", "打开换课窗口", "\uE13B"));
 
 

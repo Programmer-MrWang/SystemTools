@@ -7,6 +7,8 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
+using ClassIsland.Core.Abstractions.Automation;
+using ClassIsland.Shared.Models.Automation;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Services.Registry;
 using ClassIsland.Shared;
@@ -38,10 +40,12 @@ internal static class WindowsAcceptance
             var main = GlobalConstants.MainConfig!;
             var keyBefore = JsonSerializer.Serialize(main.Data).Length;
             main.Save();
+            var fileActions = stage < 3 || await CheckFileActionsAsync(provider);
             var result = new
             {
-                passed = constructed.Length >= 5 && themes.Length == 3 && assets,
+                passed = constructed.Length >= 5 && themes.Length == 3 && assets && fileActions,
                 stage, pages = constructed, themes, legacyImageUris = assets,
+                fileActions,
                 actions = IActionService.ActionInfos.Keys.Where(key => key.StartsWith("SystemTools.")).OrderBy(key => key).ToArray(),
                 configSaved = File.Exists(Path.Combine(GlobalConstants.PluginConfigFolder!, "Main.json")),
                 configSerializedLength = keyBefore,
@@ -54,6 +58,34 @@ internal static class WindowsAcceptance
             File.WriteAllText(destination, JsonSerializer.Serialize(new { passed = false, stage, error = exception.ToString() },
                 new JsonSerializerOptions { WriteIndented = true }));
         }
+    }
+
+    private static async Task<bool> CheckFileActionsAsync(IServiceProvider provider)
+    {
+        var root = Path.Combine(GlobalConstants.PluginConfigFolder!, "M2-file-tests");
+        Directory.CreateDirectory(root);
+        var source = Path.Combine(root, "source.txt");
+        var copied = Path.Combine(root, "copied.txt");
+        var moved = Path.Combine(root, "moved.txt");
+        File.WriteAllText(source, "M2 file lifecycle");
+        async Task Run(string id, object settings)
+        {
+            var action = provider.GetRequiredKeyedService<ActionBase>(id);
+            var item = new ActionItem { Id = id, Settings = settings };
+            var set = new ActionSet();
+            set.ActionItems.Add(item);
+            set.SetStartRunning(true);
+            try { await action.InvokeAsync(item, set); }
+            finally { set.SetEndRunning(true); }
+            if (!item.IsCompleted || item.Exception != null)
+                throw new InvalidOperationException("File action did not complete: " + id);
+        }
+        await Run("SystemTools.Copy", new Settings.CopySettings { SourcePath = source, DestinationPath = copied });
+        if (File.ReadAllText(copied) != File.ReadAllText(source)) return false;
+        await Run("SystemTools.Move", new Settings.MoveSettings { SourcePath = copied, DestinationPath = moved });
+        if (File.Exists(copied) || !File.Exists(moved)) return false;
+        await Run("SystemTools.Delete", new Settings.DeleteSettings { TargetPath = moved });
+        return !File.Exists(moved) && File.Exists(source);
     }
 }
 

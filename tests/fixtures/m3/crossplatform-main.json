@@ -1,0 +1,7 @@
+{
+  "enableExperimentalFeatures": true,
+  "aiApiKey": "dpapi-current-user:v1:REDACTED-INACCESSIBLE",
+  "futurePlatform": { "nested": { "keep": 43 } },
+  "actionEnabledStates": { "SystemTools.CrossPlatform.Copy": true },
+  "userText": "SystemTools.CrossPlatform.Copy is ordinary text"
+}

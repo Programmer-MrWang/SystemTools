@@ -55,3 +55,18 @@ if (OperatingSystem.IsMacOS())
     try { await screen.CapturePngAsync(Path.Combine(Path.GetTempPath(), "must-not-create.png"), stop.Token); throw new Exception("取消失败"); }
     catch (OperationCanceledException) { Check(true, "取消截图不进入系统采集"); }
 }
+
+var arrivals = new SystemTools.Common.Automation.UsbArrivalState();
+Check(arrivals.Sample([new("existing", true, ["/existing"])], true).Count == 0, "启动不触发已有 USB");
+Check(arrivals.Sample([new("existing", true, ["/existing"]), new("new", true, [])], true).Count == 0, "USB 等待卷就绪");
+Check(arrivals.Sample([new("new", true, ["/one", "/two"])], true).Count == 1, "同一物理 USB 多分区只触发一次");
+Check(arrivals.Sample([new("new", true, ["/one"])], true).Count == 0, "持续挂载不重复触发");
+arrivals.Sample([], true);
+Check(arrivals.Sample([new("new", true, ["/one"])], true).Count == 1, "拔出后重新插入可触发");
+if (OperatingSystem.IsMacOS())
+{
+    var usb = new SystemTools.Platforms.MacOS.UsbDevicesService();
+    Check(usb.Probe().CanExecute, "IOKit 与挂载卷只读查询可用");
+    var snapshot = await usb.SnapshotAsync(default);
+    Check(snapshot.Select(x => x.Id).Distinct().Count() == snapshot.Count, "真实 USB 快照无重复物理身份");
+}

@@ -92,7 +92,9 @@
     "Controls/SetVolumeSettingsControl.cs",
     "Config/LongIdleTriggerConfig.cs",
     "Settings/ScreenShotSettings.cs",
-    "Controls/ScreenShotSettingsControl.cs"
+    "Controls/ScreenShotSettingsControl.cs",
+    "Config/UsbDeviceTriggerConfig.cs",
+    "Settings/AutoOpenUsbDriveOnInsertActionSettings.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

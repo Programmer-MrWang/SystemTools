@@ -39,9 +39,18 @@ public static class NativeHostRegistration
             Bind(catalog, "SystemTools.ScreenShot", native.ScreenCapture);
             if (catalog.CanCreate("SystemTools.ScreenShot")) services.AddAction<NativeScreenShotAction, ScreenShotSettingsControl>();
         }
+        if (native.UsbDevices is not null)
+        {
+            services.AddSingleton(native.UsbDevices);
+            catalog.BindForRegistration("SystemTools.UsbDeviceTrigger", () => GlobalConstants.MainConfig!.Data.IsTriggerEnabled("SystemTools.UsbDeviceTrigger") ? native.UsbDevices.Probe() : new(CapabilityState.Disabled, "用户已关闭。"));
+            if (catalog.CanCreate("SystemTools.UsbDeviceTrigger")) services.AddTrigger<NativeUsbTrigger, NativeUsbSettingsControl>();
+            Bind(catalog, "SystemTools.AutoOpenUsbDriveOnInsert", native.UsbDevices);
+            if (catalog.CanCreate("SystemTools.AutoOpenUsbDriveOnInsert")) services.AddAction<NativeUsbAutoPlayAction, NativeUsbAutoPlaySettingsControl>();
+            services.AddHostedService<NativeUsbAutoPlayService>();
+        }
         var group = new ActionMenuTreeGroup("系统原生功能", "\uE079");
         foreach (var status in catalog.Snapshot().Where(x => x.Feature.Kind == "action" && x.Capability.CanExecute &&
-                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot"))
+                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot" or "SystemTools.AutoOpenUsbDriveOnInsert"))
             group.Children.Add(new ActionMenuTreeItem(status.Feature.Id, status.Feature.Name, "\uE079"));
         if (group.Children.Count > 0) IActionService.ActionMenuTree.Add(group);
     }

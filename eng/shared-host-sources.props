@@ -111,5 +111,7 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/LongIdleTriggerConfig.cs" Link="Config/LongIdleTriggerConfig.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ScreenShotSettings.cs" Link="Settings/ScreenShotSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ScreenShotSettingsControl.cs" Link="Controls/ScreenShotSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/UsbDeviceTriggerConfig.cs" Link="Config/UsbDeviceTriggerConfig.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/AutoOpenUsbDriveOnInsertActionSettings.cs" Link="Settings/AutoOpenUsbDriveOnInsertActionSettings.cs" />
   </ItemGroup>
 </Project>

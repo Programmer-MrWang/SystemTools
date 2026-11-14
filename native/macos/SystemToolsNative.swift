@@ -1,6 +1,8 @@
 import AppKit
 import ScreenCaptureKit
 import Foundation
+import IOKit
+import DiskArbitration
 
 struct NativeFailure: Error {
     let state: String
@@ -60,9 +62,63 @@ func captureScreen(_ path: String) throws {
     if let error = error { throw error }
 }
 
+func usbAncestor(_ entry: io_registry_entry_t) -> UInt64? {
+    var current = entry
+    IOObjectRetain(current)
+    while current != 0 {
+        if IOObjectConformsTo(current, "IOUSBHostDevice") != 0 || IOObjectConformsTo(current, "IOUSBDevice") != 0 {
+            var identity: UInt64 = 0
+            let status = IORegistryEntryGetRegistryEntryID(current, &identity)
+            IOObjectRelease(current)
+            return status == KERN_SUCCESS ? identity : nil
+        }
+        var parent: io_registry_entry_t = 0
+        let status = IORegistryEntryGetParentEntry(current, kIOServicePlane, &parent)
+        IOObjectRelease(current)
+        if status != KERN_SUCCESS { return nil }
+        current = parent
+    }
+    return nil
+}
+
+func usbSnapshot() throws -> [[String: Any]] {
+    var iterator: io_iterator_t = 0
+    guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IOUSBHostDevice"), &iterator) == KERN_SUCCESS else {
+        throw NativeFailure(state: "MissingDependency", message: "系统 USB 服务暂不可用。")
+    }
+    defer { IOObjectRelease(iterator) }
+    var devices: [UInt64: [String: Any]] = [:]
+    var entry = IOIteratorNext(iterator)
+    while entry != 0 {
+        var identity: UInt64 = 0
+        if IORegistryEntryGetRegistryEntryID(entry, &identity) == KERN_SUCCESS {
+            devices[identity] = ["id": String(identity), "storage": false, "mounts": [String]()]
+        }
+        IOObjectRelease(entry); entry = IOIteratorNext(iterator)
+    }
+    guard let session = DASessionCreate(kCFAllocatorDefault) else { return Array(devices.values) }
+    let volumes = FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: [.volumeIsBrowsableKey], options: [.skipHiddenVolumes]) ?? []
+    for volume in volumes {
+        guard let disk = DADiskCreateFromVolumePath(kCFAllocatorDefault, session, volume as CFURL) else { continue }
+        let media = DADiskCopyIOMedia(disk)
+        if media == 0 { continue }
+        defer { IOObjectRelease(media) }
+        guard let identity = usbAncestor(media), var device = devices[identity] else { continue }
+        var mounts = device["mounts"] as? [String] ?? []
+        if FileManager.default.isReadableFile(atPath: volume.path) { mounts.append(volume.path) }
+        device["mounts"] = mounts
+        device["storage"] = true
+        devices[identity] = device
+    }
+    return Array(devices.values)
+}
+
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
     switch operation {
+    case "usb.probe":
+        _ = try usbSnapshot(); return ["state": "Available"]
+    case "usb.snapshot": return ["state": "Available", "devices": try usbSnapshot()]
     case "screen.probe": return screenCapability()
     case "screen.request":
         _ = mainThread { CGRequestScreenCaptureAccess() }

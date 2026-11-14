@@ -19,11 +19,18 @@ public static class NativeHostRegistration
 {
     public static void Initialize(IServiceCollection services, FeatureCatalog catalog, NativeDesktopServices native)
     {
+        services.AddSingleton(native);
         if (native.Volume is not null)
         {
             services.AddSingleton(native.Volume);
             Bind(catalog, "SystemTools.SetVolume", native.Volume);
             if (catalog.CanCreate("SystemTools.SetVolume")) services.AddAction<NativeSetVolumeAction, SetVolumeSettingsControl>();
+        }
+        if (native.Idle is not null)
+        {
+            services.AddSingleton(native.Idle);
+            catalog.BindForRegistration("SystemTools.LongIdleTrigger", () => GlobalConstants.MainConfig!.Data.IsTriggerEnabled("SystemTools.LongIdleTrigger") ? native.Idle.Probe() : new(CapabilityState.Disabled, "用户已关闭。"));
+            if (catalog.CanCreate("SystemTools.LongIdleTrigger")) services.AddTrigger<NativeIdleTrigger, NativeIdleSettingsControl>();
         }
         var group = new ActionMenuTreeGroup("系统原生功能", "\uE079");
         foreach (var status in catalog.Snapshot().Where(x => x.Feature.Kind == "action" && x.Capability.CanExecute &&

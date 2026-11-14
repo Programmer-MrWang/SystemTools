@@ -36,3 +36,11 @@ if (OperatingSystem.IsMacOS())
     }
 }
 Console.WriteLine($"M4 checks: {checks}; OS={System.Runtime.InteropServices.RuntimeInformation.OSDescription}");
+
+var state = new SystemTools.Common.Automation.IdleTriggerState();
+Check(state.Sample(TimeSpan.FromSeconds(59), TimeSpan.FromMinutes(1)) == SystemTools.Common.Automation.IdleTransition.None, "空闲阈值前不触发");
+Check(state.Sample(TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1)) == SystemTools.Common.Automation.IdleTransition.Trigger, "空闲阈值只触发一次");
+Check(state.Sample(TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(1)) == SystemTools.Common.Automation.IdleTransition.None, "持续空闲不重复触发");
+Check(state.Sample(TimeSpan.Zero, TimeSpan.FromMinutes(1)) == SystemTools.Common.Automation.IdleTransition.Revert, "重新操作后恢复");
+Check(state.Sample(TimeSpan.Zero, TimeSpan.FromMinutes(1)) == SystemTools.Common.Automation.IdleTransition.None, "恢复不重复执行");
+if (OperatingSystem.IsMacOS()) Check(new SystemTools.Platforms.MacOS.UserIdleService().Read() >= TimeSpan.Zero, "读取真实 Quartz 空闲时长");

@@ -27,11 +27,14 @@ public sealed class NativeDesktopServices : IDisposable
 {
     public ISystemVolume? Volume { get; init; }
     public IUserIdle? Idle { get; init; }
+    private readonly CancellationTokenSource _stop = new();
+    public CancellationToken Stopping => _stop.Token;
     private int _disposed;
 
     public void Dispose()
     {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+        _stop.Cancel();
         List<Exception> failures = [];
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
         foreach (var resource in new object?[] { Volume, Idle }.OfType<IDisposable>())

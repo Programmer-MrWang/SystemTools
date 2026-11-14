@@ -108,5 +108,6 @@
     <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Themes/NotchStyle/Styles.axaml" Link="Themes/NotchStyle/Styles.axaml" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/SetVolumeSettings.cs" Link="Settings/SetVolumeSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/SetVolumeSettingsControl.cs" Link="Controls/SetVolumeSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/LongIdleTriggerConfig.cs" Link="Config/LongIdleTriggerConfig.cs" />
   </ItemGroup>
 </Project>

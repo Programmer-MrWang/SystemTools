@@ -180,7 +180,7 @@ def extract(package_path, destination):
         archive.extractall(destination)
     return manifest
 
-def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', experimental=False):
+def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', experimental=False, graceful_stop=False):
     if m1.native_rid() != 'win-x64':
         raise RuntimeError('Windows M2 desktop acceptance must run on Windows x64.')
     host, source = Path(host).resolve(), Path(source).resolve()
@@ -221,6 +221,10 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
     environment = os.environ.copy()
     environment['ClassIsland_PackageRoot'] = str(sandbox)
     environment['SystemTools_M2_Acceptance'] = '1'
+    if graceful_stop and case != 'missing-backend':
+        environment['SystemTools_M3_GracefulStop'] = '1'
+    else:
+        environment.pop('SystemTools_M3_GracefulStop', None)
     for name in ('SystemTools_M1_SmokeTest', 'ClassIsland_WaitDebuggers',
                  'ClassIsland_DebugForceMonoPluginLoadBehavior',
                  'ClassIsland_DebugSuppressMacOSPluginLoadBehavior'):
@@ -249,6 +253,8 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
                 if process.poll() is not None:
                     break
                 time.sleep(.2)
+            if graceful_stop and case != 'missing-backend' and proof and proof.get('passed'):
+                process.wait(timeout=15)
         finally:
             if process.poll() is None:
                 process.terminate()
@@ -264,12 +270,15 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
                         and 'SystemTools.Platforms.Windows' in proof.get('error', ''))
     else:
         expected = bool(proof and proof.get('passed'))
-    result = dict(m1.identity(), passed=expected and preserved and before == after,
+    shutdown_path = config / 'M3.Shutdown.json'
+    shutdown = json.loads(shutdown_path.read_text(encoding='utf-8')) if shutdown_path.is_file() else None
+    graceful_passed = (not graceful_stop or case == 'missing-backend' or bool(shutdown and shutdown.get('passed') and process.returncode == 0))
+    result = dict(m1.identity(), passed=expected and preserved and before == after and graceful_passed,
                   case=case, proof=proof, host=str(host), hostSha256=m1.sha(host),
                   source=str(source), packageSha256=m1.sha(source) if source.is_file() else None,
                   globalUnchanged=before == after, configContractPreserved=preserved,
                   run=str(run), hostExitCode=process.returncode,
-                  missingDependenciesRequested=missing_dependencies, experimental=experimental)
+                  missingDependenciesRequested=missing_dependencies, experimental=experimental, shutdown=shutdown, gracefulStopRequested=graceful_stop)
     m1.write_json(run / 'result.json', result)
     print(json.dumps(result, ensure_ascii=False, indent=2), flush=True)
     if not result['passed']:

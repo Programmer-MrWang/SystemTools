@@ -5,6 +5,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Runtime.Loader;
 using Avalonia.Markup.Xaml;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Controls;
@@ -61,6 +63,7 @@ internal static class WindowsAcceptance
             var encrypted = dpapi.Protect("M3-fixture-secret");
             var credentials = dpapi.TryUnprotect(encrypted, out var decrypted) && decrypted == "M3-fixture-secret" && !dpapi.TryUnprotect("dpapi-current-user:v1:REDACTED", out _);
             var sharedDirectory = typeof(global::SystemTools.SharedHostRegistration).Assembly.Location;
+            var migrationInteraction = await CheckMigrationInteractionAsync(provider);
 
             var context = AssemblyLoadContext.GetLoadContext(typeof(Backend).Assembly)!;
             var isolated = context.Assemblies.Count(assembly =>
@@ -71,9 +74,9 @@ internal static class WindowsAcceptance
                     assembly.GetName().Name is "WinRT.Runtime" or "Microsoft.Windows.SDK.NET");
             var result = new
             {
-                passed = constructed.Length == 8 && themes.Length == 3 && registrations && credentials && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
+                passed = constructed.Length == 8 && themes.Length == 3 && registrations && credentials && migrationInteraction && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
                 stage, pages = constructed, themes, legacyImageUris = assets,
-                fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries, registrations, credentials, sharedDirectory,
+                fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries, registrations, credentials, migrationInteraction, sharedDirectory,
                 directoryValidation = _directoryValidation,
                 isolated, loadedAssemblies = context.Assemblies.Select(assembly => assembly.GetName().Name).OrderBy(name => name).ToArray(),
                 components = ComponentRegistryService.Registered
@@ -88,12 +91,57 @@ internal static class WindowsAcceptance
                 backendAssembly = typeof(Backend).Assembly.Location
             };
             File.WriteAllText(destination, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+            if (Environment.GetEnvironmentVariable("SystemTools_M3_GracefulStop") == "1")
+                await Dispatcher.UIThread.InvokeAsync(() => ClassIsland.Core.AppBase.Current.Stop());
         }
         catch (Exception exception)
         {
             File.WriteAllText(destination, JsonSerializer.Serialize(new { passed = false, stage, error = exception.ToString() },
                 new JsonSerializerOptions { WriteIndented = true }));
         }
+    }
+
+    private static async Task<bool> CheckMigrationInteractionAsync(IServiceProvider provider)
+    {
+        var root = GlobalConstants.PluginConfigFolder!;
+        var legacy = Path.Combine(root, "M3-import-fixture");
+        Directory.CreateDirectory(legacy);
+        var source = Path.Combine(legacy, "M3-imported-fixture.json");
+        var target = Path.Combine(root, "M3-imported-fixture.json");
+        File.WriteAllText(source, "{\"enabledActions\":{\"SystemTools.CrossPlatform.Copy\":true},\"text\":\"SystemTools.CrossPlatform.Copy\"}");
+        File.WriteAllText(target, "{\"keepBeforeMigration\":true}");
+        TextBlock? output = null;
+        var prepared = await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            var page = provider.GetRequiredKeyedService<SettingsPageBase>("SystemTools.Migration");
+            var panel = (StackPanel)((ScrollViewer)page.Content!).Content!;
+            panel.Children.OfType<TextBox>().Single().Text = legacy;
+            var buttons = panel.Children.OfType<Button>().ToArray();
+            buttons[0].RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            var rows = panel.Children.OfType<StackPanel>().Single();
+            var row = rows.Children.OfType<StackPanel>().Single();
+            var choice = row.Children.OfType<ComboBox>().Single();
+            if (choice.SelectedIndex != 0 || !buttons[1].IsEnabled) return false;
+            choice.SelectedIndex = 1;
+            output = panel.Children.OfType<TextBlock>().Last();
+            buttons[1].RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            return true;
+        });
+        if (!prepared) return false;
+        for (var i = 0; i < 100; i++)
+        {
+            if (await Dispatcher.UIThread.InvokeAsync(() => output!.Text?.StartsWith("导入完成", StringComparison.Ordinal) == true))
+            {
+                using var document = JsonDocument.Parse(File.ReadAllText(target));
+                var imported = document.RootElement.GetProperty("enabledActions").GetProperty("SystemTools.Copy").GetBoolean() &&
+                    document.RootElement.GetProperty("text").GetString() == "SystemTools.CrossPlatform.Copy";
+                var journal = Directory.EnumerateFiles(Path.Combine(root, ".migrations"), "journal.json", SearchOption.AllDirectories).Single();
+                SystemTools.Common.Migration.IdentityMigration.Rollback(journal);
+                return imported && File.ReadAllText(target) == "{\"keepBeforeMigration\":true}" && File.Exists(source);
+            }
+            await Task.Delay(50);
+        }
+        return false;
     }
 
     private static bool CheckNativeLibraries()

@@ -57,7 +57,7 @@ def smoke(host):
         raise ValueError('M3 desktop acceptance requires --host-bin.')
     results = []
     for case in ('normal', 'foreign-corrupt', 'missing-backend'):
-        results.append(m2.smoke(host, PACKAGE, missing_dependencies=True, experimental=True, case=case))
+        results.append(m2.smoke(host, PACKAGE, missing_dependencies=True, experimental=True, case=case, graceful_stop=True))
     m1.write_json(ARTIFACTS / 'windows-desktop.json', dict(m1.identity(), passed=all(x['passed'] for x in results),
                   packageSha256=m1.sha(PACKAGE), scenarios=results))
 

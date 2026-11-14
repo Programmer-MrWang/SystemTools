@@ -1052,10 +1052,11 @@ public partial class Plugin : PluginBase
         if (System.Threading.Interlocked.Exchange(ref _stopped, 1) != 0) return;
         AppBase.Current.AppStopping -= OnAppStopping;
         foreach (var error in _lifetime.Close()) _logger?.LogWarning("[SystemTools]取消事件订阅失败：{Type}", error.GetType().Name);
+        var cleanupFailures = 0;
         void Cleanup(Action action)
         {
             try { action(); }
-            catch (Exception error) { _logger?.LogWarning("[SystemTools]资源清理失败，其余清理继续：{Type}", error.GetType().Name); }
+            catch (Exception error) { cleanupFailures++; _logger?.LogWarning("[SystemTools]资源清理失败，其余清理继续：{Type}", error.GetType().Name); }
         }
 
         var systemShutdownMonitor = _systemShutdownMonitor ?? IAppHost.GetService<SystemShutdownMonitor>();
@@ -1097,6 +1098,11 @@ public partial class Plugin : PluginBase
         Cleanup(UnregisterFloatingWindowTrayMenu);
         Cleanup(() => GlobalConstants.MainConfig?.Save());
         GlobalConstants.MainConfig?.Dispose();
+        if (Environment.GetEnvironmentVariable("SystemTools_M3_GracefulStop") == "1")
+            File.WriteAllText(Path.Combine(GlobalConstants.PluginConfigFolder!, "M3.Shutdown.json"),
+                System.Text.Json.JsonSerializer.Serialize(new { passed = cleanupFailures == 0, cleanupFailures, isSessionEnding,
+                    shutdownPlanHandled = appStoppingHandled, ordinaryShutdownAbortPreserved = !isSessionEnding && appStoppingHandled,
+                    eventSubscriptionsRemoved = true, singleStop = _stopped == 1 }));
     }
 
     private void RegisterShutdownRequestedHandler()

@@ -33,7 +33,7 @@ using SystemTools.Shared;
 namespace SystemTools.M3.DesktopProbe;
 
 [PluginEntrance]
-public sealed class Plugin : PluginBase
+public sealed partial class Plugin : PluginBase
 {
     private readonly List<string> _checks = [];
     private readonly List<string> _failures = [];
@@ -46,7 +46,7 @@ public sealed class Plugin : PluginBase
     public override void Initialize(HostBuilderContext context, IServiceCollection services)
     {
         AssemblyLoadContext.GetLoadContext(typeof(Plugin).Assembly)!.Resolving += (_, name) =>
-            name.Name?.StartsWith("NPOI.", StringComparison.Ordinal) == true
+            name.Name is { } dependency && (dependency.StartsWith("NPOI.", StringComparison.Ordinal) || dependency.StartsWith("SixLabors.", StringComparison.Ordinal))
                 ? AssemblyLoadContext.GetLoadContext(typeof(SharedHostRegistration).Assembly)!.LoadFromAssemblyName(name)
                 : null;
         _root = Environment.GetEnvironmentVariable("SystemTools_M3_ProbeRoot")
@@ -140,11 +140,12 @@ public sealed class Plugin : PluginBase
         Check(new[] { "上课.png", "无课程.png", "课间休息.png" }.All(name => AssetLoader.Exists(new Uri("avares://SystemTools/Themes/ClassWidgets/" + name))), "旧图像 URI 可解析");
         var actions = IActionService.ActionInfos.Keys.Where(x => x.StartsWith("SystemTools.")).ToArray();
         foreach (var id in actions) Check(_provider.GetRequiredKeyedService<ActionBase>(id) is not null, id + " 行动工厂可解析");
+        var m4 = Environment.GetEnvironmentVariable("SystemTools_M4_Acceptance") == "1";
         Check(IRulesetService.Rules.Keys.Count(x => x.StartsWith("SystemTools.")) == 4 &&
-              !IAutomationService.RegisteredTriggers.Any(x => x.Id.StartsWith("SystemTools.")), "共享规则齐全且未捏造原生触发器");
+              (m4 || !IAutomationService.RegisteredTriggers.Any(x => x.Id.StartsWith("SystemTools."))), "共享规则齐全且触发器符合阶段契约");
         foreach (var rule in IRulesetService.Rules.Where(x => x.Key.StartsWith("SystemTools.")))
             Check(rule.Value.Handle is not null && rule.Value.SettingsType is not null, rule.Key + " 处理器及设置契约已接入");
-        Check(!catalog.Get("SystemTools.CameraCapture").CanExecute && !catalog.Get("SystemTools.SetVolume").CanExecute, "未实现的原生能力没有开放");
+        Check(!catalog.Get("SystemTools.CameraCapture").CanExecute && (m4 || !catalog.Get("SystemTools.SetVolume").CanExecute), "未实现的原生能力没有开放");
         Check(SharedRuleHandlers.HandleProcessRunningRule(new ProcessRunningRuleSettings { ProcessName = System.Diagnostics.Process.GetCurrentProcess().ProcessName }), "进程规则识别真实宿主进程");
         Check(SharedRuleHandlers.HandleInTimePeriodRule(new InTimePeriodRuleSettings { StartTime = "00:00:00", EndTime = "23:59:59" }), "时间规则读取真实宿主时间");
         Check(!SharedRuleHandlers.HandleUsingClassPlanRule(new UsingClassPlanRuleSettings { ClassPlanId = Guid.NewGuid().ToString() }) &&
@@ -175,6 +176,7 @@ public sealed class Plugin : PluginBase
         using (var smoke = JsonDocument.Parse(File.ReadAllText(Path.Combine(GlobalConstants.PluginConfigFolder!, "M1.HostSmoke.json"))))
             Check(smoke.RootElement.GetProperty("passed").GetBoolean(), "原诊断行动入口符合 M3 共享依赖契约");
         File.WriteAllText(Path.Combine(_root, "assemblies.json"), JsonSerializer.Serialize(context.Assemblies.Select(x => new { name = x.GetName().Name, path = x.Location }), Options));
+        if (m4) await RunM4Async();
     }
 
     private async Task CheckFileActionsAsync()
@@ -262,6 +264,15 @@ public sealed class Plugin : PluginBase
                 {
                     var cancellation = (CancellationTokenSource)typeof(ClassIslandActionAiService).GetField("_lifetime", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_aiService)!;
                     Check(cancellation.IsCancellationRequested, "共享 AI 后台任务在正常退出时取消");
+                }
+                if (_native is not null)
+                {
+                    Check(_native.Stopping.IsCancellationRequested, "M4 原生停止令牌已取消");
+                    var floating = _provider.GetRequiredService<NativeFloatingWindowService>();
+                    Check(floating.EntriesCount == 0 && typeof(NativeFloatingWindowService).GetField("_window", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(floating) is null,
+                        "M4 浮窗关闭且触发器已卸载");
+                    try { _native.Hotkeys!.Register("F12", 11, () => { }); throw new Exception("Disposed hotkeys accepted registration"); }
+                    catch (ObjectDisposedException) { Check(true, "M4 停止后不能重新注册原生热键"); }
                 }
             }
         }

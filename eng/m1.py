@@ -60,6 +60,8 @@ def identity():
                       and (p.suffix.lower() in {'.cs', '.csproj', '.axaml', '.sksl', '.png', '.resx'}
                            or p.name.endswith('.axaml.txt'))
                       and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
+    if (ROOT / 'native').is_dir():
+        paths += [path for path in (ROOT / 'native').rglob('*') if path.is_file() and path.suffix in {'.swift', '.c', '.h', '.m'}]
     digest = hashlib.sha256()
     # Preserve the original POSIX component order; Windows Path ordering folds case.
     for path in sorted((path for path in paths if path.is_file()), key=lambda value: value.relative_to(ROOT).parts):

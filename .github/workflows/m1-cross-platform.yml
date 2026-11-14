@@ -1,4 +1,4 @@
-name: M3 shared checks and Windows preview
+name: M4 native builds and package aggregation
 
 on:
   workflow_dispatch:
@@ -36,39 +36,53 @@ jobs:
         run: python -c "import sys; sys.path.insert(0, 'eng'); import m1; assert m1.native_rid() == '${{ matrix.rid }}'"
       - name: Native clean restore and build
         run: python eng/m1.py build --clean
-      - name: Shared configuration migration and host contract checks
-        run: python eng/m3.py check
-      - name: Package boundary tests
-        run: |
-          python eng/test_m1_packaging.py
-          python eng/test_m2_packaging.py
+      - name: Shared and M4 regression without desktop mutation
+        run: python eng/m4.py check
       - name: Verify same-OS reproducible paths
         if: runner.os != 'Linux'
         run: python eng/check_reproducible.py
-      - name: Guard host accessibility regression
-        if: runner.os == 'macOS'
-        run: dotnet run --project tests/SystemTools.HostCompatibility.Tests -c Release
-      - name: Managed loader checks
-        if: runner.os != 'Linux'
-        run: python eng/m1.py test
-      # Linux M1 is build-only at the user's request; there is no desktop/X11 runtime claim.
-      - name: Build self-contained Windows speech worker
-        if: runner.os == 'Windows'
-        run: dotnet build VoskWorker/SystemTools.VoskWorker.csproj -c Release --nologo
-      - name: Stage and package Windows preview against SDK contracts
-        if: runner.os == 'Windows'
-        run: |
-          python eng/m3.py package
+      # CI builds and pure contracts do not assert real X11, TCC or USB device acceptance.
+      - name: Stage M4 native outputs and private dependencies
+        run: python eng/m4.py stage --target ${{ matrix.rid }}
       - uses: actions/upload-artifact@v4
         with:
-          name: m3-build-${{ matrix.rid }}
-          path: artifacts/m1/${{ matrix.rid }}
+          name: m4-stage-${{ matrix.rid }}
+          path: artifacts/m4/stages/${{ matrix.rid }}
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
-        if: runner.os == 'Windows'
+        if: always()
         with:
-          name: SystemTools-M3-Windows-build-only-preview
+          name: m4-checks-${{ matrix.rid }}
           path: |
-            artifacts/m3/SystemTools.M3.cipx
-            artifacts/m3/SystemTools.M3.cipx.sha256
+            artifacts/m4/*.json
+            artifacts/m4/*.log
+            artifacts/m3/*.log
+          if-no-files-found: ignore
+
+  aggregate:
+    needs: native-build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: m4-stage-*
+          path: artifacts/m4/downloads
+      - name: Require matching source, SDK, shared binaries and native provenance
+        run: >-
+          python eng/m4.py aggregate
+          --input artifacts/m4/downloads/m4-stage-win-x64
+          artifacts/m4/downloads/m4-stage-linux-x64
+          artifacts/m4/downloads/m4-stage-osx-arm64
+          --output artifacts/m4/SystemTools.M4.Native.cipx
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SystemTools-M4-native-build-aggregate
+          path: |
+            artifacts/m4/SystemTools.M4.Native.cipx
+            artifacts/m4/SystemTools.M4.Native.cipx.sha256
+            artifacts/m4/aggregate-native/m2-package.json
           if-no-files-found: error

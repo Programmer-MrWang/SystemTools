@@ -10,7 +10,7 @@ def main():
         'SystemTools.slnx', 'icon.png', 'Plugin.cs', 'DlibExtensions.cs', 'DriveUtils.cs',
         'NativeMethods.txt', 'eng/shared-host-sources.props', 'eng/shared-host-sources.json', 'Actions', 'Config', 'ConfigHandlers', 'Controls', 'Converters',
         'Helpers', 'Models', 'Properties', 'Rules', 'Services', 'Settings', 'SettingsPage',
-        'Shared', 'Themes', 'ThirdParty', 'Triggers', 'Version', 'Views', 'VoskWorker'], cwd=m1.ROOT).decode()
+        'Shared', 'Themes', 'ThirdParty', 'Triggers', 'Version', 'Views', 'VoskWorker', 'native'], cwd=m1.ROOT).decode()
     if dirty:
         raise RuntimeError('Commit build inputs before reproducibility verification:\n' + dirty)
     m1.build()
@@ -21,6 +21,8 @@ def main():
         subprocess.run(['git', 'remote', 'set-url', 'origin', remote], cwd=clone, check=True)
         subprocess.run(['dotnet', 'build', 'SystemTools.slnx', '-c', 'Release', '--nologo', '-v', 'minimal'], cwd=clone, check=True)
         names = m1.COMMON + [m1.module_name(m1.native_rid())]
+        if m1.native_rid() == 'osx-arm64':
+            names.append('platforms/osx-arm64/libSystemToolsNative.dylib')
         hashes = {}
         for name in names:
             first = m1.ROOT / 'src/SystemTools/bin/Release/net10.0' / name

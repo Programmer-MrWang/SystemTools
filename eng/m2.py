@@ -17,6 +17,7 @@ ARTIFACTS = ROOT / 'artifacts/m2'
 TFM = 'net10.0-windows10.0.19041.0'
 PRIVATE = 'platforms/win-x64'
 SHARED_PRIVATE = 'platforms/shared'
+MAC_NATIVE = 'platforms/osx-arm64/libSystemToolsNative.dylib'
 EXTRAS = ['black.html', 'title.png', 'version.json', 'README-1.md', 'README-2.md',
           'Lyricify Lite - README.md', 'huifu.bat', 'huifu.ps1',
           'jinyongshubiao.bat', 'jinyongshubiao.ps1']
@@ -24,8 +25,8 @@ MODULES = [m1.module_name(rid) for rid in m1.MODULES]
 HOST_PREFIXES = ('classisland.', 'avalonia', 'microsoft.extensions.', 'fluentavalonia',
                  'winrt.', 'microsoft.windows.sdk.')
 
-def sdk_shared_assemblies():
-    assets = json.loads((ROOT / 'src/SystemTools.Platforms.Windows/obj/project.assets.json').read_text(encoding='utf-8'))
+def sdk_shared_assemblies(assets_path=None):
+    assets = json.loads((assets_path or (ROOT / 'src/SystemTools.Platforms.Windows/obj/project.assets.json')).read_text(encoding='utf-8'))
     target = next(iter(assets['targets'].values()))
     packages = {key.rsplit('/', 1)[0].casefold(): value for key, value in target.items()}
     pending = ['classisland.pluginsdk', 'avalonia', 'microsoft.extensions.dependencyinjection']
@@ -74,7 +75,7 @@ def verify_files(names, manifest, read):
         if '/' not in name:
             if name not in set(m1.COMMON + MODULES + EXTRAS):
                 raise RuntimeError('Unexpected root file: ' + name)
-        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/'):
+        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/') and name != MAC_NATIVE:
             raise RuntimeError('Unexpected platform asset: ' + name)
     if not set(m1.COMMON + MODULES).issubset(names):
         raise RuntimeError('Missing entry, contract or platform module.')

@@ -73,6 +73,10 @@ def native_package(base, output):
     for path in (built / 'platforms/shared').glob('*.dll'):
         if path.name.casefold() not in manifest['hostSharedAssemblies']:
             shutil.copy2(path, stage / 'platforms/shared' / path.name)
+    native = built / m2.MAC_NATIVE
+    if native.is_file():
+        (stage / m2.MAC_NATIVE).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(native, stage / m2.MAC_NATIVE)
     manifest['nativeMacPreview'] = dict(m1.identity(), basePackageSha256=m1.sha(base),
         executionOS='darwin', runtimeId='osx-arm64',
         scope='Native Mac shared/entry/backend outputs with unchanged foreign assets; not a new three-OS release acceptance.')

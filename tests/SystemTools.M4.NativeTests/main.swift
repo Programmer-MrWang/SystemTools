@@ -19,4 +19,10 @@ check(wallpaperFillComponents(pattern) == [0, 0, 0], "不可转换的图案色�
 _ = NSApplication.shared
 let rows = try wallpaperRows()
 check(!rows.isEmpty && rows.allSatisfy { ($0["fill"] as? [Double])?.count == 3 }, "真实桌面壁纸快照只读查询不崩溃")
+do {
+    try wallpaperWriteConfirmed(rows)
+    preconditionFailure("主线程壁纸等待被接受")
+} catch let error as NativeFailure {
+    check(error.state == "Unsupported", "壁纸确认拒绝阻塞 AppKit 主线程且不执行写入")
+}
 print("Native M4 checks: \(checks)")

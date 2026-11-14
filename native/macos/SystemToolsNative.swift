@@ -342,10 +342,12 @@ func wallpaperRows() throws -> [[String: Any]] {
     }
 }
 
-func wallpaperSnapshot() throws -> String {
-    let data = try JSONSerialization.data(withJSONObject: wallpaperRows(), options: [.sortedKeys])
+func wallpaperSnapshot(_ rows: [[String: Any]]) throws -> String {
+    let data = try JSONSerialization.data(withJSONObject: rows, options: [.sortedKeys])
     return String(data: data, encoding: .utf8)!
 }
+
+func wallpaperSnapshot() throws -> String { try wallpaperSnapshot(wallpaperRows()) }
 
 func wallpaperWrite(_ rows: [[String: Any]]) throws {
     try mainThread {
@@ -365,18 +367,43 @@ func wallpaperWrite(_ rows: [[String: Any]]) throws {
     }
 }
 
+func wallpaperWriteConfirmed(_ rows: [[String: Any]]) throws {
+    guard !Thread.isMainThread else { throw NativeFailure(state: "Unsupported", message: "壁纸写入确认必须在后台执行。") }
+    let expected = try wallpaperSnapshot(rows)
+    try wallpaperWrite(rows)
+    let deadline = ProcessInfo.processInfo.systemUptime + 3
+    // NSWorkspace 写入返回时桌面服务可能尚未更新；只在后台等待实际读回，不能阻塞 AppKit 主线程。
+    repeat {
+        if try wallpaperSnapshot() == expected { return }
+        Thread.sleep(forTimeInterval: 0.05)
+    } while ProcessInfo.processInfo.systemUptime < deadline
+    throw NativeFailure(state: "Unsupported", message: "系统没有确认新的壁纸图片或布局。")
+}
+
+func wallpaperRollback(_ original: [[String: Any]], _ written: [[String: Any]]) throws {
+    let current = try wallpaperRows()
+    var changed = false
+    let rows = try current.map { row -> [String: Any] in
+        guard let applied = written.first(where: { ($0["id"] as? UInt32) == (row["id"] as? UInt32) }),
+              let saved = original.first(where: { ($0["id"] as? UInt32) == (row["id"] as? UInt32) }),
+              try wallpaperSnapshot([row]) == wallpaperSnapshot([applied]) else { return row }
+        changed = true
+        return saved
+    }
+    if changed { try wallpaperWriteConfirmed(rows) }
+}
+
 func handleWallpaper(_ request: [String: Any], operation: String) throws -> [String: Any] {
     if operation == "wallpaper.probe" { return ["state": "Available"] }
     if operation == "wallpaper.read" {
-        let snapshot = try wallpaperSnapshot()
         let rows = try wallpaperRows()
-        return ["state": "Available", "snapshot": snapshot, "path": rows.first?["path"] as? String ?? ""]
+        return ["state": "Available", "snapshot": try wallpaperSnapshot(rows), "path": rows.first?["path"] as? String ?? ""]
     }
     if operation == "wallpaper.restore" {
         guard request["expected"] as? String == (try wallpaperSnapshot()) else { throw NativeFailure(state: "Unsupported", message: "壁纸已被用户或其他应用修改，已保留当前壁纸。") }
         guard let original = request["original"] as? String,
               let rows = try JSONSerialization.jsonObject(with: Data(original.utf8)) as? [[String: Any]] else { throw NativeFailure(state: "Unsupported", message: "壁纸恢复记录无效。") }
-        try wallpaperWrite(rows)
+        try wallpaperWriteConfirmed(rows)
         return ["state": "Available"]
     }
     guard let path = request["path"] as? String, FileManager.default.isReadableFile(atPath: path),
@@ -391,9 +418,8 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
         return row
     }
     do {
-        try wallpaperWrite(rows)
-        guard try wallpaperRows().allSatisfy({ ($0["path"] as? String) == path }) else { throw NativeFailure(state: "Unsupported", message: "系统没有确认新的壁纸图片。") }
-    } catch { try? wallpaperWrite(original); throw error }
+        try wallpaperWriteConfirmed(rows)
+    } catch { try? wallpaperRollback(original, rows); throw error }
     return ["state": "Available"]
 }
 

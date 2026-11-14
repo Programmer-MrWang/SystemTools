@@ -1,0 +1,308 @@
+{
+  "date": "2026-11-14",
+  "timezone": "Asia/Shanghai",
+  "scope": "M3 Mac native closeout; not three-OS release acceptance",
+  "passed": true,
+  "source": {
+    "commit": "cf8d1baa5ae559b4d74664ca48c5533b0518c13e",
+    "sourceHash": "39f24ad62d0c44a95095236e597c6ff5e722c37500d1b23b4d84c41f681a1639"
+  },
+  "environment": {
+    "os": "macOS 26.6 (25G72)",
+    "architecture": "arm64",
+    "dotnetSdk": "10.0.403",
+    "dotnetRuntime": "10.0.14",
+    "macosWorkload": "27.0.10742",
+    "xcode": "27.2 (27B52)",
+    "python": "3.9.6"
+  },
+  "hostBuild": {
+    "command": [
+      "dotnet",
+      "build",
+      "ClassIsland.Desktop/ClassIsland.Desktop.csproj",
+      "-c",
+      "Debug",
+      "--nologo",
+      "-v",
+      "minimal",
+      "-p:DirectoryBuildTargetsPath=/Library/root directory/My github project/stwork/SystemTools/artifacts/m3/mac/host-local.targets",
+      "-p:ValidateXcodeVersion=false"
+    ],
+    "source": "/Library/root directory/My github project/ClassIsland",
+    "commit": "1d532ce6755dc1396b48beb9f045b1acbdf2b6fa",
+    "targetVersion": "27.0",
+    "minimumVersion": "14.0",
+    "xcodeVersionCheckSkipped": true,
+    "passed": true,
+    "scope": "Local acceptance override only; no host source edits or distribution compatibility claim."
+  },
+  "automatedChecks": {
+    "passed": true,
+    "executionOS": "darwin",
+    "groups": [
+      {
+        "name": "core",
+        "passed": true,
+        "checks": 55
+      },
+      {
+        "name": "shared-linux-contract",
+        "passed": true,
+        "checks": 19
+      },
+      {
+        "name": "shared-macos-contract",
+        "passed": true,
+        "checks": 19
+      },
+      {
+        "name": "host-accessibility",
+        "passed": true,
+        "checks": 7
+      },
+      {
+        "name": "m1-package",
+        "passed": true,
+        "checks": 10
+      },
+      {
+        "name": "m2-package",
+        "passed": true,
+        "checks": 11
+      }
+    ],
+    "loaderChecks": 19,
+    "total": 140
+  },
+  "reproducibleBuild": {
+    "commit": "cf8d1baa5ae559b4d74664ca48c5533b0518c13e",
+    "sourceHash": "39f24ad62d0c44a95095236e597c6ff5e722c37500d1b23b4d84c41f681a1639",
+    "passed": true,
+    "nativeRuntime": "osx-arm64",
+    "differentCheckoutPaths": true,
+    "sameOrigin": true,
+    "files": {
+      "SystemTools.dll": "75d5ffe999bd2a74c929e27d22eda6e0ac22a1c6e49893a71986bc8c19894362",
+      "SystemTools.Contracts.dll": "c0b9cd369f771dc5f6dbf9802f1d1245cffb74213605f89f1ee4c8fca307a421",
+      "SystemTools.Common.dll": "7b1029d6d7684a570994f0074f00aaa97162edbdf105020857469cfcef06092f",
+      "SystemTools.SharedHost.dll": "315045968233113c5c4e5a488debd8f39f46616008fc9ef4da2a5e11e0bb02cb",
+      "SystemTools.deps.json": "ae14be08cb11e142810610551445f3a74013baa79338c9bf81ac335193151699",
+      "manifest.yml": "d3acf15a31ce76913d3366ba60356802bff4a67ea40107bad732de575ff43461",
+      "README.md": "1d155882185a78d39e1dba831f3bbe66a0336a37392512821194701b726118c7",
+      "icon.png": "0d3c81fd2c704d9ce9520e91fcb4e6e12b102797a99337207536d2c735743ff8",
+      "SystemTools.Platforms.MacOS.dll": "21906305c9347e126e0fb51c10ada2dc1eeabb5dd4ef300349b5ae3be16b2c79"
+    },
+    "scope": "Same OS only. Cross-OS common hash comparison remains enforced by package aggregation."
+  },
+  "transferredPackage": {
+    "passed": false,
+    "knownFailures": [
+      "Notch runtime XAML cannot resolve controls in plugin AssemblyLoadContext",
+      "Shared AI background task is not cancelled at AppStopping"
+    ],
+    "scenarios": [
+      {
+        "case": "normal",
+        "label": "transferred",
+        "passed": false,
+        "commit": "041aa9d60b663a5d6fb990d25574e4c2ac4afccd",
+        "sourceHash": "9825afa445f169d0c76eb9d949d4a75b135cb497a94b6f6eb08f47a5037c3296",
+        "packageSha256": "981a57e717ce7498086e109a008247afaa5705cd4137d4d06fc9976e22cc9386",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "exitCode": 0,
+        "timedOut": false,
+        "executionOS": "darwin",
+        "nativeRuntime": "osx-arm64",
+        "plugins": [
+          "SystemTools",
+          "SystemTools.M3.DesktopProbe"
+        ],
+        "globalStorageBefore": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "globalStorageAfter": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "checks": {
+          "acceptance": {
+            "passed": false,
+            "checks": 98,
+            "failures": 1
+          },
+          "shutdown": {
+            "passed": false,
+            "checks": 100,
+            "failures": 2
+          }
+        }
+      },
+      {
+        "case": "foreign-corrupt",
+        "label": "transferred",
+        "passed": false,
+        "commit": "041aa9d60b663a5d6fb990d25574e4c2ac4afccd",
+        "sourceHash": "9825afa445f169d0c76eb9d949d4a75b135cb497a94b6f6eb08f47a5037c3296",
+        "packageSha256": "981a57e717ce7498086e109a008247afaa5705cd4137d4d06fc9976e22cc9386",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "exitCode": 0,
+        "timedOut": false,
+        "executionOS": "darwin",
+        "nativeRuntime": "osx-arm64",
+        "plugins": [
+          "SystemTools",
+          "SystemTools.M3.DesktopProbe"
+        ],
+        "globalStorageBefore": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "globalStorageAfter": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "checks": {
+          "acceptance": {
+            "passed": false,
+            "checks": 98,
+            "failures": 1
+          },
+          "shutdown": {
+            "passed": false,
+            "checks": 100,
+            "failures": 2
+          }
+        }
+      },
+      {
+        "case": "missing-backend",
+        "label": "transferred",
+        "passed": true,
+        "commit": "041aa9d60b663a5d6fb990d25574e4c2ac4afccd",
+        "sourceHash": "9825afa445f169d0c76eb9d949d4a75b135cb497a94b6f6eb08f47a5037c3296",
+        "packageSha256": "981a57e717ce7498086e109a008247afaa5705cd4137d4d06fc9976e22cc9386",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "exitCode": 0,
+        "timedOut": false,
+        "executionOS": "darwin",
+        "nativeRuntime": "osx-arm64",
+        "plugins": [
+          "SystemTools",
+          "SystemTools.M3.DesktopProbe"
+        ],
+        "globalStorageBefore": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "globalStorageAfter": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "checks": {
+          "acceptance": {
+            "passed": true,
+            "checks": 1,
+            "failures": 0
+          },
+          "shutdown": {
+            "passed": true,
+            "checks": 1,
+            "failures": 0
+          }
+        }
+      }
+    ]
+  },
+  "nativePackage": {
+    "path": "artifacts/m3/mac/SystemTools.M3.Mac.cipx",
+    "sha256": "c10181a3f020f0e0c1ca94266991d339d0d2d7103053436f9b76187d12991659",
+    "scenarios": [
+      {
+        "case": "normal",
+        "label": "native",
+        "passed": true,
+        "commit": "cf8d1baa5ae559b4d74664ca48c5533b0518c13e",
+        "sourceHash": "39f24ad62d0c44a95095236e597c6ff5e722c37500d1b23b4d84c41f681a1639",
+        "packageSha256": "c10181a3f020f0e0c1ca94266991d339d0d2d7103053436f9b76187d12991659",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "exitCode": 0,
+        "timedOut": false,
+        "executionOS": "darwin",
+        "nativeRuntime": "osx-arm64",
+        "plugins": [
+          "SystemTools",
+          "SystemTools.M3.DesktopProbe"
+        ],
+        "globalStorageBefore": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "globalStorageAfter": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "checks": {
+          "acceptance": {
+            "passed": true,
+            "checks": 109,
+            "failures": 0
+          },
+          "shutdown": {
+            "passed": true,
+            "checks": 112,
+            "failures": 0
+          }
+        }
+      },
+      {
+        "case": "foreign-corrupt",
+        "label": "native",
+        "passed": true,
+        "commit": "cf8d1baa5ae559b4d74664ca48c5533b0518c13e",
+        "sourceHash": "39f24ad62d0c44a95095236e597c6ff5e722c37500d1b23b4d84c41f681a1639",
+        "packageSha256": "c10181a3f020f0e0c1ca94266991d339d0d2d7103053436f9b76187d12991659",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "exitCode": 0,
+        "timedOut": false,
+        "executionOS": "darwin",
+        "nativeRuntime": "osx-arm64",
+        "plugins": [
+          "SystemTools",
+          "SystemTools.M3.DesktopProbe"
+        ],
+        "globalStorageBefore": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "globalStorageAfter": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "checks": {
+          "acceptance": {
+            "passed": true,
+            "checks": 109,
+            "failures": 0
+          },
+          "shutdown": {
+            "passed": true,
+            "checks": 112,
+            "failures": 0
+          }
+        }
+      },
+      {
+        "case": "missing-backend",
+        "label": "native",
+        "passed": true,
+        "commit": "cf8d1baa5ae559b4d74664ca48c5533b0518c13e",
+        "sourceHash": "39f24ad62d0c44a95095236e597c6ff5e722c37500d1b23b4d84c41f681a1639",
+        "packageSha256": "c10181a3f020f0e0c1ca94266991d339d0d2d7103053436f9b76187d12991659",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "exitCode": 0,
+        "timedOut": false,
+        "executionOS": "darwin",
+        "nativeRuntime": "osx-arm64",
+        "plugins": [
+          "SystemTools",
+          "SystemTools.M3.DesktopProbe"
+        ],
+        "globalStorageBefore": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "globalStorageAfter": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+        "checks": {
+          "acceptance": {
+            "passed": true,
+            "checks": 1,
+            "failures": 0
+          },
+          "shutdown": {
+            "passed": true,
+            "checks": 1,
+            "failures": 0
+          }
+        }
+      }
+    ]
+  },
+  "manualVisualReview": {
+    "completed": false,
+    "reason": "macOS screen locked; native UI thread, visual tree and button events verified programmatically"
+  },
+  "linuxRuntimeVerified": false,
+  "windowsRuntimeReverifiedAfterSharedFixes": false,
+  "remoteCiRun": false,
+  "pushed": false,
+  "published": false
+}

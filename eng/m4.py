@@ -158,8 +158,10 @@ def check(desktop_read=False):
                      'tests/SystemTools.M4.NativeTests/main.swift', '-o', str(executable)]),
                      ('native-regression', [str(executable)] + ([] if desktop_read else ['--headless']))]
     results = []
+    environment = dict(os.environ, PYTHONUTF8='1', PYTHONIOENCODING='utf-8')
     for name, arguments in commands:
-        completed = subprocess.run(arguments, cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        completed = subprocess.run(arguments, cwd=ROOT, encoding='utf-8', errors='replace',
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=environment)
         (ARTIFACTS / (name + '.log')).write_text(completed.stdout, encoding='utf-8')
         count = len(re.findall(r'^PASS \d+:', completed.stdout, re.MULTILINE))
         if name == 'shared-regression' and completed.returncode == 0:

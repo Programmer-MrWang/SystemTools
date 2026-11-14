@@ -1,3 +1,3 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup><ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" /></ItemGroup>
+  <ItemGroup><ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" /><ProjectReference Include="../SystemTools.Common/SystemTools.Common.csproj" /></ItemGroup>
 </Project>

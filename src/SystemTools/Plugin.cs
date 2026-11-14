@@ -40,6 +40,12 @@ public sealed class Plugin : PluginBase
         else
         {
             SharedHostRegistration.Initialize(PluginConfigFolder, Info.PluginFolderPath, services, catalog, _lifetime);
+            if (backend is INativeDesktopBackend nativeBackend)
+            {
+                var native = nativeBackend.CreateServices();
+                _lifetime.Own(native.Dispose);
+                NativeHostRegistration.Initialize(services, catalog, native);
+            }
             EventHandler startShared = (_, _) => SystemTools.Services.SuperAutoIslandIntegration.Register();
             AppBase.Current.AppStarted += startShared;
             _lifetime.Own(() => AppBase.Current.AppStarted -= startShared);

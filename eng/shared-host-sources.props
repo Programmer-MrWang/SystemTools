@@ -106,5 +106,7 @@
     <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Themes/ClassWidgets/ClassWidgetsCard.axaml" Link="Themes/ClassWidgets/ClassWidgetsCard.axaml" />
     <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Themes/ClassWidgets/Styles.axaml" Link="Themes/ClassWidgets/Styles.axaml" />
     <SharedHostXaml Include="$(MSBuildThisFileDirectory)../Themes/NotchStyle/Styles.axaml" Link="Themes/NotchStyle/Styles.axaml" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/SetVolumeSettings.cs" Link="Settings/SetVolumeSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/SetVolumeSettingsControl.cs" Link="Controls/SetVolumeSettingsControl.cs" />
   </ItemGroup>
 </Project>

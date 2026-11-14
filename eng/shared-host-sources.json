@@ -87,7 +87,9 @@
     "Themes/NotchStyle/NotchFrameControl.cs",
     "Themes/NotchStyle/NotchMaterialControl.cs",
     "Themes/NotchStyle/NotchShapeGeometry.cs",
-    "Themes/NotchStyle/NotchStyleStyles.cs"
+    "Themes/NotchStyle/NotchStyleStyles.cs",
+    "Settings/SetVolumeSettings.cs",
+    "Controls/SetVolumeSettingsControl.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

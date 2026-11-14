@@ -4,6 +4,7 @@ using Avalonia.Styling;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace SystemTools.Themes.NotchStyle;
 
@@ -14,6 +15,9 @@ public sealed class NotchStyleStyles : Styles
 
     public NotchStyleStyles()
     {
+        // Runtime XAML resolves qualified control names through Assembly.Load.
+        // Keep those lookups inside the plugin's isolated load context.
+        using var reflection = AssemblyLoadContext.EnterContextualReflection(typeof(NotchStyleStyles).Assembly);
         using var stream = AssetLoader.Open(ThemeResourceUri);
         using var reader = new StreamReader(stream);
         if (AvaloniaRuntimeXamlLoader.Load(

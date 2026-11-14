@@ -113,12 +113,66 @@
     "passed": true
   },
   "finalDesktop": {
-    "passed": null,
-    "status": "pending-unlocked-mac",
-    "reason": "ScreenLocked=1; Avalonia render timer failed before plugin initialization. Failed runs retained."
+    "passed": true,
+    "status": "passed-unlocked-mac",
+    "executionOS": "darwin",
+    "nativeRuntime": "osx-arm64",
+    "validationCommit": "c186412eb7dab15ace073f1ccea95a4f6318f6bf",
+    "packageCommit": "3359948fe3c09dceb3f887f101c60c454bec8763",
+    "packageSha256": "693ad40a4e28df2250a1eeeb6df65181055ed88c7d7b141125ec119cbcbdc75c",
+    "sourceHash": "02dd16669e1e6cdce24c82b219725dfbc1b8272aac1b5bf900574dfd3051e995",
+    "date": "2026-11-15",
+    "timezone": "Asia/Shanghai",
+    "evidence": "artifacts/m4/desktop.json",
+    "evidenceSha256": "5034d472c7970c048b3b6a9aeed40aaa7493a6dd1dd654442109a9b0d4f7f87d",
+    "priorFailure": {
+      "date": "2026-11-15",
+      "reason": "ScreenLocked=1; Avalonia render timer failed before plugin initialization. Failed runs retained."
+    },
+    "cases": [
+      {
+        "case": "normal",
+        "passed": true,
+        "exitCode": 0,
+        "businessChecks": 145,
+        "shutdownChecks": 6,
+        "packageSha256": "693ad40a4e28df2250a1eeeb6df65181055ed88c7d7b141125ec119cbcbdc75c",
+        "globalStorageUnchanged": true,
+        "run": "artifacts/m4/mac/runs/20261115-021333-m4-normal",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "pending": [
+          "最小化实际成功：本机会话直接 AppKit performMiniaturize 也未改变状态；插件失败反馈已验收。"
+        ]
+      },
+      {
+        "case": "foreign-corrupt",
+        "passed": true,
+        "exitCode": 0,
+        "businessChecks": 145,
+        "shutdownChecks": 6,
+        "packageSha256": "693ad40a4e28df2250a1eeeb6df65181055ed88c7d7b141125ec119cbcbdc75c",
+        "globalStorageUnchanged": true,
+        "run": "artifacts/m4/mac/runs/20261115-021346-m4-foreign-corrupt",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "pending": [
+          "最小化实际成功：本机会话直接 AppKit performMiniaturize 也未改变状态；插件失败反馈已验收。"
+        ]
+      },
+      {
+        "case": "missing-backend",
+        "passed": true,
+        "exitCode": 0,
+        "businessChecks": 1,
+        "shutdownChecks": 0,
+        "packageSha256": "693ad40a4e28df2250a1eeeb6df65181055ed88c7d7b141125ec119cbcbdc75c",
+        "globalStorageUnchanged": true,
+        "run": "artifacts/m4/mac/runs/20261115-021357-m4-missing-backend",
+        "hostSha256": "b185b5d48d086f33e2e28d425ea5435884f7ad3c49e51e4e3e04a3af4a5aaabc",
+        "pending": []
+      }
+    ]
   },
   "pending": [
-    "Final native aggregate desktop rerun after unlocking Mac",
     "Mac minimization success with direct AppKit baseline",
     "Real USB insertion/removal, mounts and autoplay",
     "Idle threshold, lock/sleep/wake",

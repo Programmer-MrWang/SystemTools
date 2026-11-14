@@ -118,6 +118,24 @@ finally { Directory.Delete(colorFolder, true); }
 if (OperatingSystem.IsMacOS()) Check(new SystemTools.Platforms.MacOS.WallpaperService().Probe().CanExecute, "Mac 壁纸原生模块只读检测");
 Console.WriteLine($"FINAL WALLPAPER M4 checks: {checks}");
 
+var cleanupResource = new CleanupResource();
+var cleanupServices = new NativeDesktopServices { Idle = cleanupResource, UsbDevices = cleanupResource };
+cleanupServices.Stopping.Register(() => throw new IOException("synthetic cancellation callback failure"));
+try { cleanupServices.Dispose(); throw new Exception("Cleanup error swallowed"); }
+catch (AggregateException) { Check(cleanupResource.Disposals == 1, "停止回调失败仍释放资源且同一实例只释放一次"); }
+cleanupServices.Dispose();
+Check(cleanupServices.Stopping.IsCancellationRequested && cleanupResource.Disposals == 1, "失败后的重复停止仍保持幂等");
+Console.WriteLine($"FINAL M4 checks: {checks}");
+
+sealed class CleanupResource : IUserIdle, IUsbDevices, IDisposable
+{
+    public int Disposals { get; private set; }
+    public Capability Probe() => new(CapabilityState.Available);
+    public TimeSpan Read() => TimeSpan.Zero;
+    public Task<IReadOnlyList<UsbDevice>> SnapshotAsync(CancellationToken token) => Task.FromResult<IReadOnlyList<UsbDevice>>([]);
+    public void Dispose() => Disposals++;
+}
+
 sealed class FailingKeyboard : IKeyboardInput
 {
     public List<string> Released { get; } = [];

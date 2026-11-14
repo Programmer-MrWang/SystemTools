@@ -244,7 +244,8 @@ func handleHotkey(_ request: [String: Any], operation: String) throws -> [String
 
 func axValue(_ element: AXUIElement, _ attribute: String) throws -> CFTypeRef {
     var value: CFTypeRef?
-    guard AXUIElementCopyAttributeValue(element, attribute as CFString, &value) == .success, let value = value else {
+    let status = AXUIElementCopyAttributeValue(element, attribute as CFString, &value)
+    guard status == .success, let value = value else {
         throw NativeFailure(state: "Unsupported", message: "目标窗口没有提供此操作所需的辅助功能属性。")
     }
     return value
@@ -269,40 +270,58 @@ func applyWindowGeometry(_ window: AXUIElement, _ point: CGPoint, _ size: CGSize
     var position = point
     var dimensions = size
     guard let p = AXValueCreate(.cgPoint, &position), let z = AXValueCreate(.cgSize, &dimensions),
+          AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, p) == .success,
           AXUIElementSetAttributeValue(window, kAXSizeAttribute as CFString, z) == .success,
           AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, p) == .success else {
         throw NativeFailure(state: "Unsupported", message: "目标应用拒绝调整窗口位置或尺寸。")
     }
-    let (actualPoint, actualSize) = try windowGeometry(window)
-    if abs(actualPoint.x - point.x) > 4 || abs(actualPoint.y - point.y) > 4 ||
-       abs(actualSize.width - size.width) > 4 || abs(actualSize.height - size.height) > 4 {
-        throw NativeFailure(state: "Unsupported", message: "目标应用未采用请求的窗口尺寸，请检查最小尺寸限制。")
-    }
 }
 
 func windowExecute(_ action: String) throws {
+    guard !Thread.isMainThread else { throw NativeFailure(state: "Unsupported", message: "窗口状态确认必须在后台执行。") }
+    var geometry: (AXUIElement, CGPoint, CGSize)?
+    var minimized: (AXUIElement, Bool)?
+    var localMinimized: (NSWindow, Bool)?
+    var restoredIdentity: String?
     try mainThread {
         guard AXIsProcessTrusted(), let application = NSWorkspace.shared.frontmostApplication else {
             throw NativeFailure(state: "PermissionRequired", message: "请授予辅助功能权限并激活目标窗口。")
         }
         let app = AXUIElementCreateApplication(application.processIdentifier)
-        let focused = try axValue(app, kAXFocusedWindowAttribute)
+        // 最小化后部分应用暂时没有 focused window；只回退到系统明确标识的 main window。
+        let focused = try (try? axValue(app, kAXFocusedWindowAttribute)) ?? axValue(app, kAXMainWindowAttribute)
         guard CFGetTypeID(focused) == AXUIElementGetTypeID() else { throw NativeFailure(state: "MissingDevice", message: "没有可操作的活动窗口。") }
         let window = unsafeBitCast(focused, to: AXUIElement.self)
         let identity = "\(application.processIdentifier):\(CFHash(window))"
         switch action {
         case "最小化", "向下还原":
             let value = action == "最小化"
-            guard AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, value ? kCFBooleanTrue : kCFBooleanFalse) == .success else {
-                throw NativeFailure(state: "Unsupported", message: "目标应用拒绝更改最小化状态。")
+            if application.processIdentifier == getpid(), let local = NSApp.keyWindow {
+                guard local.styleMask.contains(.miniaturizable) else { throw NativeFailure(state: "Unsupported", message: "目标窗口不允许最小化。") }
+                if value { local.miniaturize(nil) } else { local.deminiaturize(nil) }
+                localMinimized = (local, value)
+            } else {
+                let result: AXError
+                if value {
+                    let button = try axValue(window, kAXMinimizeButtonAttribute)
+                    guard CFGetTypeID(button) == AXUIElementGetTypeID() else { throw NativeFailure(state: "Unsupported", message: "目标窗口没有提供最小化按钮。") }
+                    result = AXUIElementPerformAction(unsafeBitCast(button, to: AXUIElement.self), kAXPressAction as CFString)
+                } else {
+                    result = AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, kCFBooleanFalse!)
+                }
+                guard result == .success else {
+                    throw NativeFailure(state: "Unsupported", message: "目标应用拒绝更改最小化状态。")
+                }
+                minimized = (window, value)
             }
             if !value, let old = windowRestoreFrames[identity], CFEqual(old.0, window) {
                 try applyWindowGeometry(window, old.1, old.2)
-                windowRestoreFrames.removeValue(forKey: identity)
+                geometry = (window, old.1, old.2)
+                restoredIdentity = identity
             }
         case "关闭窗口":
             let button = try axValue(window, kAXCloseButtonAttribute)
-            guard AXUIElementPerformAction(unsafeBitCast(button, to: AXUIElement.self), kAXPressAction as CFString) == .success else {
+            guard CFGetTypeID(button) == AXUIElementGetTypeID(), AXUIElementPerformAction(unsafeBitCast(button, to: AXUIElement.self), kAXPressAction as CFString) == .success else {
                 throw NativeFailure(state: "Unsupported", message: "目标应用拒绝关闭窗口。")
             }
             windowRestoreFrames.removeValue(forKey: identity)
@@ -316,10 +335,29 @@ func windowExecute(_ action: String) throws {
                 if windowRestoreFrames.count >= 128 { throw NativeFailure(state: "Unsupported", message: "窗口恢复记录已满，请先恢复已有窗口或重启应用。") }
                 if windowRestoreFrames[identity] == nil { windowRestoreFrames[identity] = (window, point, size) }
                 try applyWindowGeometry(window, target, frame.size)
+                geometry = (window, target, frame.size)
             }
         default: throw NativeFailure(state: "Unsupported", message: "不支持此窗口操作。")
         }
     }
+    // AX 写入后由目标应用更新窗口；将确认移出主线程，使自身窗口也能处理布局事件。
+    let deadline = ProcessInfo.processInfo.systemUptime + 2
+    repeat {
+        let confirmed = try mainThread { () throws -> Bool in
+            if let (window, value) = localMinimized, window.isMiniaturized != value { return false }
+            if let (window, value) = minimized, (try axValue(window, kAXMinimizedAttribute) as? Bool) != value { return false }
+            if let (window, point, size) = geometry {
+                let (actualPoint, actualSize) = try windowGeometry(window)
+                if abs(actualPoint.x - point.x) > 4 || abs(actualPoint.y - point.y) > 4 ||
+                   abs(actualSize.width - size.width) > 4 || abs(actualSize.height - size.height) > 4 { return false }
+            }
+            if let identity = restoredIdentity { windowRestoreFrames.removeValue(forKey: identity) }
+            return true
+        }
+        if confirmed { return }
+        Thread.sleep(forTimeInterval: 0.025)
+    } while ProcessInfo.processInfo.systemUptime < deadline
+    throw NativeFailure(state: "Unsupported", message: "目标应用未确认请求的窗口状态，请检查尺寸限制和窗口权限。")
 }
 
 func wallpaperFillComponents(_ color: NSColor?) -> [Double] {

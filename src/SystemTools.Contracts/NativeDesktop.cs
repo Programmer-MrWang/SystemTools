@@ -83,8 +83,8 @@ public sealed class NativeDesktopServices : IDisposable
     public void Dispose()
     {
         if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-        _stop.Cancel();
         List<Exception> failures = [];
+        try { _stop.Cancel(); } catch (Exception error) { failures.Add(error); }
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
         foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices, Keyboard, Hotkeys, Windows, Wallpaper }.OfType<IDisposable>())
             if (seen.Add(resource))

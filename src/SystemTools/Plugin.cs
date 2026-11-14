@@ -39,7 +39,7 @@ public sealed class Plugin : PluginBase
             platformPlugin.Initialize(this, context, services);
         else
         {
-            SharedHostRegistration.Initialize(PluginConfigFolder, Info.PluginFolderPath, services, catalog);
+            SharedHostRegistration.Initialize(PluginConfigFolder, Info.PluginFolderPath, services, catalog, _lifetime);
             EventHandler startShared = (_, _) => SystemTools.Services.SuperAutoIslandIntegration.Register();
             AppBase.Current.AppStarted += startShared;
             _lifetime.Own(() => AppBase.Current.AppStarted -= startShared);

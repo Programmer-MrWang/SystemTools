@@ -6,6 +6,7 @@ using ClassIsland.Core.Models.XamlTheme;
 using Microsoft.Extensions.DependencyInjection;
 using SystemTools.Actions;
 using SystemTools.Common.Files;
+using SystemTools.Common.Lifecycle;
 using SystemTools.ConfigHandlers;
 using SystemTools.Contracts;
 using SystemTools.Controls;
@@ -20,6 +21,9 @@ namespace SystemTools;
 public static class SharedHostRegistration
 {
     public static void Initialize(string configFolder, string pluginFolder, IServiceCollection services, FeatureCatalog catalog)
+        => Initialize(configFolder, pluginFolder, services, catalog, null);
+
+    public static void Initialize(string configFolder, string pluginFolder, IServiceCollection services, FeatureCatalog catalog, LifetimeScope? lifetime)
     {
         GlobalConstants.IsUnifiedBuild = true;
         GlobalConstants.PluginConfigFolder = configFolder;
@@ -36,7 +40,12 @@ public static class SharedHostRegistration
         services.AddSingleton<AiConversationStore>();
         services.AddSingleton<AiChatOperationGate>();
         services.AddSingleton<AiPromptService>();
-        services.AddSingleton<ClassIslandActionAiService>();
+        services.AddSingleton(provider =>
+        {
+            var service = ActivatorUtilities.CreateInstance<ClassIslandActionAiService>(provider);
+            lifetime?.Own(service.Dispose);
+            return service;
+        });
         services.AddSingleton<ClassIslandProfileAiService>();
         services.AddNotificationProvider<SystemToolsNotificationProvider>();
         var hosted = services.Single(x => x.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService) && x.ImplementationType == typeof(SystemToolsNotificationProvider));

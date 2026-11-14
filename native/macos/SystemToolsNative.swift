@@ -322,8 +322,79 @@ func windowExecute(_ action: String) throws {
     }
 }
 
+func wallpaperRows() throws -> [[String: Any]] {
+    return try mainThread {
+        try NSScreen.screens.map { screen in
+            guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
+                  let url = NSWorkspace.shared.desktopImageURL(for: screen) else { throw NativeFailure(state: "MissingDevice", message: "无法读取显示器壁纸。") }
+            let options = NSWorkspace.shared.desktopImageOptions(for: screen) ?? [:]
+            let color = (options[.fillColor] as? NSColor)?.usingColorSpace(.sRGB) ?? .black
+            return ["id": number.uint32Value, "path": url.path,
+                    "scale": (options[.imageScaling] as? NSNumber)?.intValue ?? Int(NSImageScaling.scaleProportionallyUpOrDown.rawValue),
+                    "clip": (options[.allowClipping] as? NSNumber)?.boolValue ?? true,
+                    "fill": [Double(color.redComponent), Double(color.greenComponent), Double(color.blueComponent)]]
+        }.sorted { ($0["id"] as! UInt32) < ($1["id"] as! UInt32) }
+    }
+}
+
+func wallpaperSnapshot() throws -> String {
+    let data = try JSONSerialization.data(withJSONObject: wallpaperRows(), options: [.sortedKeys])
+    return String(data: data, encoding: .utf8)!
+}
+
+func wallpaperWrite(_ rows: [[String: Any]]) throws {
+    try mainThread {
+        let screens = NSScreen.screens
+        guard screens.count == rows.count else { throw NativeFailure(state: "MissingDevice", message: "显示器已变化，已保留当前壁纸。") }
+        for row in rows {
+            guard let identity = row["id"] as? UInt32,
+                  let screen = screens.first(where: { ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == identity }),
+                  let path = row["path"] as? String else { throw NativeFailure(state: "MissingDevice", message: "原显示器已断开。") }
+            let fill = row["fill"] as? [Double] ?? [0, 0, 0]
+            let options: [NSWorkspace.DesktopImageOptionKey: Any] = [
+                .imageScaling: row["scale"] as? Int ?? Int(NSImageScaling.scaleProportionallyUpOrDown.rawValue),
+                .allowClipping: row["clip"] as? Bool ?? true,
+                .fillColor: NSColor(srgbRed: fill[0], green: fill[1], blue: fill[2], alpha: 1)]
+            try NSWorkspace.shared.setDesktopImageURL(URL(fileURLWithPath: path), for: screen, options: options)
+        }
+    }
+}
+
+func handleWallpaper(_ request: [String: Any], operation: String) throws -> [String: Any] {
+    if operation == "wallpaper.probe" { return ["state": "Available"] }
+    if operation == "wallpaper.read" {
+        let snapshot = try wallpaperSnapshot()
+        let rows = try wallpaperRows()
+        return ["state": "Available", "snapshot": snapshot, "path": rows.first?["path"] as? String ?? ""]
+    }
+    if operation == "wallpaper.restore" {
+        guard request["expected"] as? String == (try wallpaperSnapshot()) else { throw NativeFailure(state: "Unsupported", message: "壁纸已被用户或其他应用修改，已保留当前壁纸。") }
+        guard let original = request["original"] as? String,
+              let rows = try JSONSerialization.jsonObject(with: Data(original.utf8)) as? [[String: Any]] else { throw NativeFailure(state: "Unsupported", message: "壁纸恢复记录无效。") }
+        try wallpaperWrite(rows)
+        return ["state": "Available"]
+    }
+    guard let path = request["path"] as? String, FileManager.default.isReadableFile(atPath: path),
+          let fit = request["fitStyle"] as? Int else { throw NativeFailure(state: "Unsupported", message: "请选择可读取的壁纸图片。") }
+    guard (1...4).contains(fit) else { throw NativeFailure(state: "Unsupported", message: "Mac 暂不支持平铺或跨屏拼接，请选择居中、拉伸、填充或适应。") }
+    let original = try wallpaperRows()
+    let rows = original.map { value -> [String: Any] in
+        var row = value
+        row["path"] = path
+        row["scale"] = Int((fit == 1 ? NSImageScaling.scaleNone : fit == 2 ? .scaleAxesIndependently : .scaleProportionallyUpOrDown).rawValue)
+        row["clip"] = fit == 3
+        return row
+    }
+    do {
+        try wallpaperWrite(rows)
+        guard try wallpaperRows().allSatisfy({ ($0["path"] as? String) == path }) else { throw NativeFailure(state: "Unsupported", message: "系统没有确认新的壁纸图片。") }
+    } catch { try? wallpaperWrite(original); throw error }
+    return ["state": "Available"]
+}
+
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
+    if operation.hasPrefix("wallpaper.") { return try handleWallpaper(request, operation: operation) }
     if operation.hasPrefix("input.") { return try handleInput(request, operation: operation) }
     if operation.hasPrefix("hotkey.") { return try handleHotkey(request, operation: operation) }
     switch operation {

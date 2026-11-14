@@ -58,6 +58,14 @@ public interface IWindowOperations : INativeCapability
     Task SetBottommostAsync(nint handle, bool enabled, CancellationToken token);
 }
 
+public sealed record WallpaperState(string Identity, string Snapshot, string? ImagePath);
+public interface IDesktopWallpaper : INativeCapability
+{
+    Task<WallpaperState> ReadAsync(CancellationToken token);
+    Task<WallpaperState> ApplyAsync(string imagePath, int fitStyle, CancellationToken token);
+    Task RestoreAsync(WallpaperState expected, WallpaperState original, CancellationToken token);
+}
+
 public sealed class NativeDesktopServices : IDisposable
 {
     public ISystemVolume? Volume { get; init; }
@@ -67,6 +75,7 @@ public sealed class NativeDesktopServices : IDisposable
     public IKeyboardInput? Keyboard { get; init; }
     public IGlobalHotkeys? Hotkeys { get; init; }
     public IWindowOperations? Windows { get; init; }
+    public IDesktopWallpaper? Wallpaper { get; init; }
     private readonly CancellationTokenSource _stop = new();
     public CancellationToken Stopping => _stop.Token;
     private int _disposed;
@@ -77,7 +86,7 @@ public sealed class NativeDesktopServices : IDisposable
         _stop.Cancel();
         List<Exception> failures = [];
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices, Keyboard, Hotkeys, Windows }.OfType<IDisposable>())
+        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices, Keyboard, Hotkeys, Windows, Wallpaper }.OfType<IDisposable>())
             if (seen.Add(resource))
                 try { resource.Dispose(); } catch (Exception error) { failures.Add(error); }
         if (failures.Count != 0) throw new AggregateException("部分平台资源清理失败。", failures);

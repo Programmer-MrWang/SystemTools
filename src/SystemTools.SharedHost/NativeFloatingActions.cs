@@ -59,8 +59,8 @@ public sealed class NativeFloatingThemeAction(NativeFloatingWindowService servic
     protected override int Read() => GlobalConstants.MainConfig!.Data.FloatingWindowTheme;
     protected override int Target()
     {
-        var value = Settings.TargetTheme < 0 ? (Read() + 1) % 3 : Settings.TargetTheme;
-        if (value is < 0 or > 2) throw new NativeFeatureException(CapabilityState.Unsupported, "自适应背景主题需接入壁纸取色，请先选择跟随、浅色或深色。");
+        var value = Settings.TargetTheme < 0 ? (Read() + 1) % 4 : Settings.TargetTheme;
+        if (value is < 0 or > 3) throw new NativeFeatureException(CapabilityState.Unsupported, "请选择有效的浮窗主题。");
         return value;
     }
     protected override void Write(int value) => GlobalConstants.MainConfig!.Data.FloatingWindowTheme = value;

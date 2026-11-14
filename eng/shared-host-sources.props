@@ -125,5 +125,7 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ToggleFloatingWindowLayerSettings.cs" Link="Settings/ToggleFloatingWindowLayerSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ToggleFloatingWindowProfileSettings.cs" Link="Settings/ToggleFloatingWindowProfileSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/SwitchFloatingWindowThemeSettings.cs" Link="Settings/SwitchFloatingWindowThemeSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/WallpaperSettings.cs" Link="Settings/WallpaperSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/ClassIslandSettingsService.cs" Link="Services/ClassIslandSettingsService.cs" />
   </ItemGroup>
 </Project>

@@ -19,6 +19,7 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
         Add("键盘输入", services.Keyboard);
         Add("全局热键", services.Hotkeys);
         Add("窗口操作", services.Windows);
+        Add("桌面壁纸", services.Wallpaper);
         Content = new ScrollViewer { Content = panel };
         void Add(string name, INativeCapability? capability)
         {

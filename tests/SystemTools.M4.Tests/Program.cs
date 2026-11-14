@@ -101,6 +101,23 @@ Check(!snapshots.TryRestore(group, firstOwner, out _), "浮窗同组较早行动
 Check(snapshots.TryRestore(group, secondOwner, out var originalTheme) && originalTheme == 0, "浮窗最后持有者恢复原始主题");
 Console.WriteLine($"FINAL WINDOW M4 checks: {checks}");
 
+var colorFolder = Path.Combine(Path.GetTempPath(), "systemtools-wallpaper-color-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(colorFolder);
+try
+{
+    var path = Path.Combine(colorFolder, "sample.png");
+    using (var image = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(8, 8, new SixLabors.ImageSharp.PixelFormats.Rgba32(20, 40, 60)))
+        SixLabors.ImageSharp.ImageExtensions.SaveAsPng(image, path);
+    var color = SystemTools.NativeDesktopAppearance.ReadColor(path);
+    Check(color.R == 20 && color.G == 40 && color.B == 60, "共享壁纸取色读取实际 PNG");
+    File.WriteAllText(Path.Combine(colorFolder, "broken.png"), "invalid image");
+    try { SystemTools.NativeDesktopAppearance.ReadColor(Path.Combine(colorFolder, "broken.png")); throw new Exception("Broken image accepted"); }
+    catch (Exception error) when (error is IOException or SixLabors.ImageSharp.UnknownImageFormatException) { Check(true, "损坏壁纸在更改系统前拒绝"); }
+}
+finally { Directory.Delete(colorFolder, true); }
+if (OperatingSystem.IsMacOS()) Check(new SystemTools.Platforms.MacOS.WallpaperService().Probe().CanExecute, "Mac 壁纸原生模块只读检测");
+Console.WriteLine($"FINAL WALLPAPER M4 checks: {checks}");
+
 sealed class FailingKeyboard : IKeyboardInput
 {
     public List<string> Released { get; } = [];

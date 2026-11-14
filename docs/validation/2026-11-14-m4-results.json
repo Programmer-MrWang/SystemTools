@@ -1,0 +1,175 @@
+{
+  "milestone": "M4",
+  "developmentComplete": true,
+  "fullDesktopAndHardwareAcceptanceComplete": false,
+  "codeCommit": "3359948fe3c09dceb3f887f101c60c454bec8763",
+  "sourceHash": "02dd16669e1e6cdce24c82b219725dfbc1b8272aac1b5bf900574dfd3051e995",
+  "sdk": "10.0.403",
+  "package": {
+    "path": "artifacts/m4/SystemTools.M4.Native.cipx",
+    "sha256": "693ad40a4e28df2250a1eeeb6df65181055ed88c7d7b141125ec119cbcbdc75c",
+    "files": 307,
+    "kind": "native-build-aggregate",
+    "nativeStages": [
+      {
+        "runtimeId": "linux-x64",
+        "kind": "native",
+        "buildRuntime": "linux-x64",
+        "entranceIdentity": {
+          "algorithm": "sha256-content-derived-mvid-and-coff-timestamp-v1",
+          "rawSha256": "a0cd96655acbaf54e8890b21bb5e10436a03e5ecc9470f198b3fee8033d6c81d",
+          "packagedSha256": "d611e3bdea5a8ad774170b88ba929333209dc5e36ff2e14ff38e25bbed02f50e"
+        }
+      },
+      {
+        "runtimeId": "osx-arm64",
+        "kind": "native",
+        "buildRuntime": "osx-arm64",
+        "entranceIdentity": {
+          "algorithm": "sha256-content-derived-mvid-and-coff-timestamp-v1",
+          "rawSha256": "a0cd96655acbaf54e8890b21bb5e10436a03e5ecc9470f198b3fee8033d6c81d",
+          "packagedSha256": "d611e3bdea5a8ad774170b88ba929333209dc5e36ff2e14ff38e25bbed02f50e"
+        }
+      },
+      {
+        "runtimeId": "win-x64",
+        "kind": "native",
+        "buildRuntime": "win-x64",
+        "entranceIdentity": {
+          "algorithm": "sha256-content-derived-mvid-and-coff-timestamp-v1",
+          "rawSha256": "589551bd455de93a4c952b1c89b234d47f68bb58176b630d0e28770670db5247",
+          "packagedSha256": "d611e3bdea5a8ad774170b88ba929333209dc5e36ff2e14ff38e25bbed02f50e"
+        }
+      }
+    ]
+  },
+  "nativeCi": {
+    "id": 43622065640,
+    "sha": "3359948fe3c09dceb3f887f101c60c454bec8763",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "native-build (windows-2025, win-x64)",
+        "status": "completed",
+        "conclusion": "success",
+        "id": 132529721137,
+        "failedSteps": []
+      },
+      {
+        "name": "native-build (ubuntu-24.04, linux-x64)",
+        "status": "completed",
+        "conclusion": "success",
+        "id": 132529721207,
+        "failedSteps": []
+      },
+      {
+        "name": "native-build (macos-15, osx-arm64)",
+        "status": "completed",
+        "conclusion": "success",
+        "id": 132529721217,
+        "failedSteps": []
+      },
+      {
+        "name": "aggregate",
+        "status": "completed",
+        "conclusion": "success",
+        "id": 132530527259,
+        "failedSteps": []
+      }
+    ]
+  },
+  "reproducible": {
+    "passed": true,
+    "files": 10,
+    "scope": "Same OS only. Cross-OS common hash comparison remains enforced by package aggregation."
+  },
+  "finalPackageLoader": {
+    "passed": true,
+    "checks": 20,
+    "nativeRuntime": "osx-arm64",
+    "scope": "Managed loader isolation and foreign descriptor only, not target OS desktop acceptance."
+  },
+  "finalNativeBridge": {
+    "passed": true,
+    "checks": 4,
+    "operations": [
+      "screen.probe",
+      "input.probe",
+      "hotkey.probe",
+      "wallpaper.probe"
+    ],
+    "scope": "Load and read-only probes, no desktop mutation."
+  },
+  "previousDesktop": {
+    "packageSha256": "4aff2cb75c67f688f515b73e9e5551c2017f98216985287648b9308aac298232",
+    "normalChecks": 145,
+    "shutdownChecks": 6,
+    "runs": [
+      "artifacts/m4/mac/runs/20261114-225044-m4-normal",
+      "artifacts/m4/mac/runs/20261114-225057-m4-foreign-corrupt",
+      "artifacts/m4/mac/runs/20261114-225109-m4-missing-backend"
+    ],
+    "passed": true
+  },
+  "finalDesktop": {
+    "passed": null,
+    "status": "pending-unlocked-mac",
+    "reason": "ScreenLocked=1; Avalonia render timer failed before plugin initialization. Failed runs retained."
+  },
+  "pending": [
+    "Final native aggregate desktop rerun after unlocking Mac",
+    "Mac minimization success with direct AppKit baseline",
+    "Real USB insertion/removal, mounts and autoplay",
+    "Idle threshold, lock/sleep/wake",
+    "Hotkey callback, keyboard layout, cancellation and permission revocation",
+    "Multi-monitor, Spaces and wallpaper/theme interactions",
+    "Windows desktop, upgrade/uninstall and Linux native X11 GNOME/KDE runtime acceptance"
+  ],
+  "globalStorageSha256": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
+  "checks": {
+    "commit": "3359948fe3c09dceb3f887f101c60c454bec8763",
+    "sourceHash": "02dd16669e1e6cdce24c82b219725dfbc1b8272aac1b5bf900574dfd3051e995",
+    "passed": true,
+    "executionOS": "darwin",
+    "desktopRead": true,
+    "checks": [
+      {
+        "name": "shared-regression",
+        "passed": true,
+        "checks": 121
+      },
+      {
+        "name": "loader",
+        "passed": true,
+        "checks": 19
+      },
+      {
+        "name": "m4-contracts",
+        "passed": true,
+        "checks": 41
+      },
+      {
+        "name": "m4-package",
+        "passed": true,
+        "checks": 12
+      },
+      {
+        "name": "entrance-identity",
+        "passed": true,
+        "checks": 1
+      },
+      {
+        "name": "native-compile",
+        "passed": true,
+        "checks": 0
+      },
+      {
+        "name": "native-regression",
+        "passed": true,
+        "checks": 9
+      }
+    ],
+    "note": "Native permissions, USB hardware and other OS desktop behavior require separate acceptance."
+  }
+}

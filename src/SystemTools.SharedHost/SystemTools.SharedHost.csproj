@@ -3,8 +3,6 @@
     <RootNamespace>SystemTools</RootNamespace>
     <EnableDefaultAvaloniaItems>false</EnableDefaultAvaloniaItems>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <!-- 引用最终经过 XAML 编译的公共实现，避免中间引用程序集的 MVID 随宿主系统变化。 -->
-    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" ExcludeAssets="runtime;native" />

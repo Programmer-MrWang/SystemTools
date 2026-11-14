@@ -62,6 +62,7 @@ def identity():
                       and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
     if (ROOT / 'native').is_dir():
         paths += [path for path in (ROOT / 'native').rglob('*') if path.is_file() and path.suffix in {'.swift', '.c', '.h', '.m'}]
+    paths += [path for path in (ROOT / 'eng/SystemTools.BuildIdentity').glob('*') if path.suffix in {'.cs', '.csproj'}]
     digest = hashlib.sha256()
     # Preserve the original POSIX component order; Windows Path ordering folds case.
     for path in sorted((path for path in paths if path.is_file()), key=lambda value: value.relative_to(ROOT).parts):

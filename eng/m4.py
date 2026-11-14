@@ -68,6 +68,8 @@ def stage(target=None):
     # SDK 输出 deps.json 使用宿主系统换行；内容相同的公共元数据统一为 LF 再比较。
     dependencies = destination / 'SystemTools.deps.json'
     dependencies.write_bytes(dependencies.read_bytes().replace(b'\r\n', b'\n'))
+    raw_entrance = m1.sha(destination / 'SystemTools.dll')
+    m1.command('dotnet', 'run', '--project', 'eng/SystemTools.BuildIdentity', '-c', 'Release', '--', destination / 'SystemTools.dll')
     shared_output = ROOT / 'src/SystemTools.SharedHost/bin/Release/net10.0'
     private = {path.name for path in shared_output.glob('*.dll')
                if path.name not in m1.COMMON and path.name.casefold() not in shared
@@ -103,6 +105,8 @@ def stage(target=None):
                     kind='native' if actual == target else 'cross-compiled', buildRuntime=actual,
                     sdk=subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip(),
                     hostSharedAssemblies=sorted(shared), files=files, runtimeVerified=False)
+    manifest['entranceIdentity'] = dict(algorithm='sha256-content-derived-mvid-and-coff-timestamp-v1',
+                                       rawSha256=raw_entrance, packagedSha256=files['SystemTools.dll'])
     m1.write_json(destination / 'm4-stage.json', manifest)
     verify_stage(destination)
     print('M4 STAGE:', destination, 'KIND:', manifest['kind'], flush=True)
@@ -140,7 +144,8 @@ def aggregate(stages, output, preview=False):
                     schemaVersion=1, milestone='M4', kind='cross-compiled-development-preview' if preview else 'native-build-aggregate',
                     hostSharedAssemblies=build['hostSharedAssemblies'],
                     files={name: m1.sha(path) for name, path in sorted(merged.items())},
-                    nativeStages=[dict(runtimeId=manifest['runtimeId'], kind=manifest['kind'], buildRuntime=manifest['buildRuntime']) for _, manifest in pairs],
+                    nativeStages=[dict(runtimeId=manifest['runtimeId'], kind=manifest['kind'], buildRuntime=manifest['buildRuntime'],
+                                       entranceIdentity=manifest.get('entranceIdentity')) for _, manifest in pairs],
                     runtimeValidation='Build provenance only; per-OS desktop and device validation is recorded separately.')
     m1.write_json(destination / 'm2-package.json', metadata)
     result = m2.package(destination, output)
@@ -153,6 +158,8 @@ def check(desktop_read=False):
     commands = [('shared-regression', [sys.executable, 'eng/m3.py', 'check']),
                 ('m4-contracts', ['dotnet', 'run', '--project', 'tests/SystemTools.M4.Tests', '-c', 'Release']),
                 ('m4-package', [sys.executable, 'eng/test_m4_packaging.py'])]
+    commands.append(('entrance-identity', ['dotnet', 'run', '--project', 'eng/SystemTools.BuildIdentity', '-c', 'Release', '--',
+                                         '--verify', str(ROOT / 'src/SystemTools/bin/Release/net10.0/SystemTools.dll')]))
     if m1.native_rid() != 'linux-x64' or desktop_read:
         commands.insert(1, ('loader', [sys.executable, 'eng/m1.py', 'test']))
     if m1.native_rid() == 'osx-arm64':

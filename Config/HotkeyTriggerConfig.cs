@@ -6,6 +6,12 @@ namespace SystemTools.Triggers;
 
 public partial class HotkeyTriggerConfig : ObservableRecipient
 {
+    [ObservableProperty]
+    [property: JsonIgnore]
+    private string _registrationStatus = string.Empty;
+
+    [ObservableProperty] private string _logicalKey = string.Empty;
+
     [JsonIgnore] public DateTime LastTriggered { get; set; } = DateTime.MinValue;
 
     /// <summary>

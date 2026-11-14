@@ -16,6 +16,8 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
         Add("空闲检测", services.Idle);
         Add("屏幕截图", services.ScreenCapture);
         Add("USB 设备", services.UsbDevices);
+        Add("键盘输入", services.Keyboard);
+        Add("全局热键", services.Hotkeys);
         Content = new ScrollViewer { Content = panel };
         void Add(string name, INativeCapability? capability)
         {

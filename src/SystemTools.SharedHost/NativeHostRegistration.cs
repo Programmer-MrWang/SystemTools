@@ -48,9 +48,25 @@ public static class NativeHostRegistration
             if (catalog.CanCreate("SystemTools.AutoOpenUsbDriveOnInsert")) services.AddAction<NativeUsbAutoPlayAction, NativeUsbAutoPlaySettingsControl>();
             services.AddHostedService<NativeUsbAutoPlayService>();
         }
+        if (native.Keyboard is not null)
+        {
+            services.AddSingleton(native.Keyboard);
+            foreach (var id in new[] { "SimulateKeyboard", "SimulateKeyCombination", "EnterKey", "EscKey", "F11Key" }) Bind(catalog, "SystemTools." + id, native.Keyboard);
+            if (catalog.CanCreate("SystemTools.SimulateKeyboard")) services.AddAction<NativeKeyboardAction, NativeKeyboardSettingsControl>();
+            if (catalog.CanCreate("SystemTools.SimulateKeyCombination")) services.AddAction<NativeCombinationAction, NativeCombinationSettingsControl>();
+            if (catalog.CanCreate("SystemTools.EnterKey")) services.AddAction<NativeEnterAction, ShortcutKeyNotificationSettingsControl>();
+            if (catalog.CanCreate("SystemTools.EscKey")) services.AddAction<NativeEscapeAction, ShortcutKeyNotificationSettingsControl>();
+            if (catalog.CanCreate("SystemTools.F11Key")) services.AddAction<NativeF11Action, ShortcutKeyNotificationSettingsControl>();
+        }
+        if (native.Hotkeys is not null)
+        {
+            services.AddSingleton(native.Hotkeys);
+            catalog.BindForRegistration("SystemTools.HotkeyTrigger", () => GlobalConstants.MainConfig!.Data.IsTriggerEnabled("SystemTools.HotkeyTrigger") ? native.Hotkeys.Probe() : new(CapabilityState.Disabled, "用户已关闭。"));
+            if (catalog.CanCreate("SystemTools.HotkeyTrigger")) services.AddTrigger<NativeHotkeyTrigger, NativeHotkeySettingsControl>();
+        }
         var group = new ActionMenuTreeGroup("系统原生功能", "\uE079");
         foreach (var status in catalog.Snapshot().Where(x => x.Feature.Kind == "action" && x.Capability.CanExecute &&
-                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot" or "SystemTools.AutoOpenUsbDriveOnInsert"))
+                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot" or "SystemTools.AutoOpenUsbDriveOnInsert" or "SystemTools.SimulateKeyboard" or "SystemTools.SimulateKeyCombination" or "SystemTools.EnterKey" or "SystemTools.EscKey" or "SystemTools.F11Key"))
             group.Children.Add(new ActionMenuTreeItem(status.Feature.Id, status.Feature.Name, "\uE079"));
         if (group.Children.Count > 0) IActionService.ActionMenuTree.Add(group);
     }

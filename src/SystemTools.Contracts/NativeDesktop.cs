@@ -39,12 +39,26 @@ public interface IUsbDevices : INativeCapability
     Task<IReadOnlyList<UsbDevice>> SnapshotAsync(CancellationToken token);
 }
 
+public interface IKeyboardInput : INativeCapability
+{
+    string CaptureTarget();
+    Task KeyAsync(string key, bool down, string target, CancellationToken token);
+    Task TextAsync(string text, string target, CancellationToken token);
+}
+
+public interface IGlobalHotkeys : INativeCapability
+{
+    IDisposable Register(string key, int modifiers, Action pressed);
+}
+
 public sealed class NativeDesktopServices : IDisposable
 {
     public ISystemVolume? Volume { get; init; }
     public IUserIdle? Idle { get; init; }
     public IScreenCapture? ScreenCapture { get; init; }
     public IUsbDevices? UsbDevices { get; init; }
+    public IKeyboardInput? Keyboard { get; init; }
+    public IGlobalHotkeys? Hotkeys { get; init; }
     private readonly CancellationTokenSource _stop = new();
     public CancellationToken Stopping => _stop.Token;
     private int _disposed;
@@ -55,7 +69,7 @@ public sealed class NativeDesktopServices : IDisposable
         _stop.Cancel();
         List<Exception> failures = [];
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices }.OfType<IDisposable>())
+        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices, Keyboard, Hotkeys }.OfType<IDisposable>())
             if (seen.Add(resource))
                 try { resource.Dispose(); } catch (Exception error) { failures.Add(error); }
         if (failures.Count != 0) throw new AggregateException("部分平台资源清理失败。", failures);

@@ -94,7 +94,11 @@
     "Settings/ScreenShotSettings.cs",
     "Controls/ScreenShotSettingsControl.cs",
     "Config/UsbDeviceTriggerConfig.cs",
-    "Settings/AutoOpenUsbDriveOnInsertActionSettings.cs"
+    "Settings/AutoOpenUsbDriveOnInsertActionSettings.cs",
+    "Settings/KeyboardInputSettings.cs",
+    "Settings/KeyCombinationSettings.cs",
+    "Config/HotkeyTriggerConfig.cs",
+    "Controls/HotkeyRecorderControl.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

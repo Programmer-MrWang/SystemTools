@@ -8,6 +8,8 @@ public class KeyboardInputSettings
     [JsonPropertyName("notifyOnExecute")]
     public bool NotifyOnExecute { get; set; } = false;
 
+    [JsonPropertyName("text")] public string Text { get; set; } = string.Empty;
+
     [JsonPropertyName("keys")] public List<string> Keys { get; set; } = [];
 
     [JsonPropertyName("actions")] public List<KeyboardAction> Actions { get; set; } = [];
@@ -23,6 +25,8 @@ public class KeyboardAction
     }
 
     [JsonPropertyName("type")] public ActionType Type { get; set; } = ActionType.Press;
+
+    [JsonPropertyName("logicalKey")] public string LogicalKey { get; set; } = string.Empty;
 
     [JsonPropertyName("keyCode")] public byte KeyCode { get; set; }
 

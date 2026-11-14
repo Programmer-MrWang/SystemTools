@@ -14,6 +14,8 @@ public class KeyCombinationSettings
 
 public class KeyCombinationKey
 {
+    [JsonPropertyName("logicalKey")] public string LogicalKey { get; set; } = string.Empty;
+
     [JsonPropertyName("keyCode")]
     public byte? KeyCode { get; set; }
 

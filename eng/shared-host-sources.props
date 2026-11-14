@@ -113,5 +113,9 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ScreenShotSettingsControl.cs" Link="Controls/ScreenShotSettingsControl.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/UsbDeviceTriggerConfig.cs" Link="Config/UsbDeviceTriggerConfig.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/AutoOpenUsbDriveOnInsertActionSettings.cs" Link="Settings/AutoOpenUsbDriveOnInsertActionSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/KeyboardInputSettings.cs" Link="Settings/KeyboardInputSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/KeyCombinationSettings.cs" Link="Settings/KeyCombinationSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/HotkeyTriggerConfig.cs" Link="Config/HotkeyTriggerConfig.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/HotkeyRecorderControl.cs" Link="Controls/HotkeyRecorderControl.cs" />
   </ItemGroup>
 </Project>

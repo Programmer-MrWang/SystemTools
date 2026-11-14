@@ -70,3 +70,31 @@ if (OperatingSystem.IsMacOS())
     var snapshot = await usb.SnapshotAsync(default);
     Check(snapshot.Select(x => x.Id).Distinct().Count() == snapshot.Count, "真实 USB 快照无重复物理身份");
 }
+
+Check(SystemTools.Common.Automation.PortableKeyboard.FromWindowsKey(0x0d) == "Return" && SystemTools.Common.Automation.PortableKeyboard.FromWindowsKey(0x7a) == "F11", "Windows 按键按明确映射转换");
+try { SystemTools.Common.Automation.PortableKeyboard.FromWindowsKey(0xff); throw new Exception("Unknown VK accepted"); }
+catch (NativeFeatureException) { Check(true, "未知 Windows 按键拒绝猜测"); }
+var fakeKeyboard = new FailingKeyboard();
+try { await SystemTools.Common.Automation.PortableKeyboard.ExecuteAsync(fakeKeyboard, [("Control", 1, 0), ("A", 1, 0)], "", default); throw new Exception("Failure swallowed"); }
+catch (IOException) { Check(fakeKeyboard.Released.SequenceEqual(new[] { "A", "Control" }), "输入失败后逆序释放全部已按下的键"); }
+if (OperatingSystem.IsMacOS())
+{
+    var keyboard = new SystemTools.Platforms.MacOS.KeyboardService();
+    Check(keyboard.Probe().State is CapabilityState.Available or CapabilityState.PermissionRequired, "输入权限只读检测");
+    Check(new SystemTools.Platforms.MacOS.HotkeysService().Probe().CanExecute, "原生热键模块只读检测");
+}
+Console.WriteLine($"FINAL M4 checks: {checks}");
+
+sealed class FailingKeyboard : IKeyboardInput
+{
+    public List<string> Released { get; } = [];
+    public Capability Probe() => new(CapabilityState.Available);
+    public string CaptureTarget() => "test-target";
+    public Task TextAsync(string text, string target, CancellationToken token) => Task.CompletedTask;
+    public Task KeyAsync(string key, bool down, string target, CancellationToken token)
+    {
+        if (down && key == "A") throw new IOException("synthetic failure");
+        if (!down) Released.Add(key);
+        return Task.CompletedTask;
+    }
+}

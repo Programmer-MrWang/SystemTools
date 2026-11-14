@@ -6,11 +6,13 @@ using SystemTools.Settings;
 namespace SystemTools;
 
 [ActionInfo("SystemTools.ScreenShot", "屏幕截图", "\uEEE7", false)]
-public sealed class NativeScreenShotAction(IScreenCapture capture, FeatureCatalog catalog) : ActionBase<ScreenShotSettings>
+public sealed class NativeScreenShotAction(IScreenCapture capture, FeatureCatalog catalog, NativeDesktopServices native) : ActionBase<ScreenShotSettings>
 {
     protected override async Task OnInvoke()
     {
         catalog.EnsureExecutable(ActionItem.Id);
+        using var stop = CancellationTokenSource.CreateLinkedTokenSource(InterruptCancellationToken, native.Stopping);
+        stop.Token.ThrowIfCancellationRequested();
         if (string.IsNullOrWhiteSpace(Settings.SaveFolder)) throw new InvalidOperationException("请选择截图保存目录。");
         var directory = Path.GetFullPath(Settings.SaveFolder);
         Directory.CreateDirectory(directory);
@@ -18,8 +20,8 @@ public sealed class NativeScreenShotAction(IScreenCapture capture, FeatureCatalo
         var temporary = target + ".tmp";
         try
         {
-            await capture.CapturePngAsync(temporary, InterruptCancellationToken);
-            InterruptCancellationToken.ThrowIfCancellationRequested();
+            await capture.CapturePngAsync(temporary, stop.Token);
+            stop.Token.ThrowIfCancellationRequested();
             using (var input = File.OpenRead(temporary))
             {
                 Span<byte> signature = stackalloc byte[8];

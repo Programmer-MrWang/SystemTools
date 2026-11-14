@@ -104,12 +104,14 @@ public static class NativeHostRegistration
 }
 
 [ActionInfo("SystemTools.SetVolume", "设置系统音量", "\uF013", false)]
-public sealed class NativeSetVolumeAction(ISystemVolume volume, FeatureCatalog catalog) : ActionBase<SetVolumeSettings>
+public sealed class NativeSetVolumeAction(ISystemVolume volume, FeatureCatalog catalog, NativeDesktopServices native) : ActionBase<SetVolumeSettings>
 {
     protected override async Task OnInvoke()
     {
         catalog.EnsureExecutable(ActionItem.Id);
-        var result = await volume.SetAsync(Settings.VolumePercent, InterruptCancellationToken);
+        using var stop = CancellationTokenSource.CreateLinkedTokenSource(InterruptCancellationToken, native.Stopping);
+        stop.Token.ThrowIfCancellationRequested();
+        var result = await volume.SetAsync(Settings.VolumePercent, stop.Token);
         if (Math.Abs(result.Percent - Settings.VolumePercent) > 2)
             throw new InvalidOperationException("音量调整后的读回值不符，设备可能已切换，请重试。");
         NativeActionFeedback.Notify(Settings.NotifyOnExecute, "已调整系统音量");

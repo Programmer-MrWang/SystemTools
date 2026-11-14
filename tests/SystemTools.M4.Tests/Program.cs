@@ -127,6 +127,38 @@ cleanupServices.Dispose();
 Check(cleanupServices.Stopping.IsCancellationRequested && cleanupResource.Disposals == 1, "失败后的重复停止仍保持幂等");
 Console.WriteLine($"FINAL M4 checks: {checks}");
 
+var stoppedNative = new NativeDesktopServices();
+stoppedNative.Dispose();
+var stoppedCatalog = new FeatureCatalog("osx-arm64");
+stoppedCatalog.Bind("SystemTools.SetVolume", () => new(CapabilityState.Available));
+stoppedCatalog.Bind("SystemTools.ScreenShot", () => new(CapabilityState.Available));
+var stoppedDevices = new StoppedDevices();
+foreach (var (id, action, settings) in new (string, ClassIsland.Core.Abstractions.Automation.ActionBase, object)[]
+{
+    ("SystemTools.SetVolume", new SystemTools.NativeSetVolumeAction(stoppedDevices, stoppedCatalog, stoppedNative), new SystemTools.Actions.SetVolumeSettings()),
+    ("SystemTools.ScreenShot", new SystemTools.NativeScreenShotAction(stoppedDevices, stoppedCatalog, stoppedNative), new SystemTools.Settings.ScreenShotSettings { SaveFolder = Path.Combine(Path.GetTempPath(), "must-not-create-" + Guid.NewGuid().ToString("N")) })
+})
+{
+    var item = new ClassIsland.Shared.Models.Automation.ActionItem { Id = id, Settings = settings };
+    var set = new ClassIsland.Shared.Models.Automation.ActionSet(); set.ActionItems.Add(item); set.SetStartRunning(true);
+    try
+    {
+        try { await action.InvokeAsync(item, set, false); throw new Exception("Stopped action executed"); }
+        catch (OperationCanceledException) { Check(stoppedDevices.Writes == 0, "宿主停止后行动不进入原生写入：" + id); }
+    }
+    finally { set.SetEndRunning(true); }
+}
+Console.WriteLine($"FINAL STOP M4 checks: {checks}");
+
+sealed class StoppedDevices : ISystemVolume, IScreenCapture
+{
+    public int Writes { get; private set; }
+    public Capability Probe() => new(CapabilityState.Available);
+    public Task<SystemVolume> ReadAsync(CancellationToken token) => Task.FromResult(new SystemVolume("fake", 20));
+    public Task<SystemVolume> SetAsync(double percent, CancellationToken token) { Writes++; return Task.FromResult(new SystemVolume("fake", percent)); }
+    public Task CapturePngAsync(string destination, CancellationToken token) { Writes++; return Task.CompletedTask; }
+}
+
 sealed class CleanupResource : IUserIdle, IUsbDevices, IDisposable
 {
     public int Disposals { get; private set; }

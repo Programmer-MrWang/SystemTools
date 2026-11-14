@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/SystemTools/SystemTools.csproj" Private="false" />
+    <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Avalonia" Version="12.1.4" ExcludeAssets="runtime;native" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" ExcludeAssets="runtime;native" />
+    <PackageReference Include="NPOI" Version="2.7.2" ExcludeAssets="runtime;native" />
+    <None Include="manifest.yml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

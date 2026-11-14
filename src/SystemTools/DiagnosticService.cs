@@ -21,7 +21,7 @@ public sealed class DiagnosticService(IPlatformBackend backend, string configDir
         var context = AssemblyLoadContext.GetLoadContext(typeof(Plugin).Assembly)!;
         var report = new
         {
-            schemaVersion = 1, milestone = "M1-preview", source,
+            schemaVersion = 1, milestone = "M3-shared-preview", source,
             runtimeId = backend.Describe().RuntimeId,
             os = RuntimeInformation.OSDescription,
             architecture = RuntimeInformation.ProcessArchitecture.ToString(),
@@ -55,8 +55,9 @@ public sealed class DiagnosticService(IPlatformBackend backend, string configDir
             var modules = context.Assemblies.Where(a => a.GetName().Name!.StartsWith("SystemTools.Platforms.")).ToArray();
             if (modules.Length != 1 || modules[0] != backend.GetType().Assembly)
                 throw new InvalidOperationException("加载了错误或重复的平台模块。");
-            if (context.Assemblies.Any(a => a.GetName().Name is "System.Windows.Forms" or "System.Speech" or "OpenCvSharp" or "DlibDotNet" or "SuperAutoIsland.Interface"))
-                throw new InvalidOperationException("M1 意外加载了可选/Windows 依赖。");
+            if (backend.Describe().RuntimeId != "win-x64" && context.Assemblies.Any(a =>
+                    a.GetName().Name is "System.Windows.Forms" or "System.Speech" or "System.Management" or "OpenCvSharp" or "DlibDotNet"))
+                throw new InvalidOperationException("共享业务意外加载了 Windows 依赖。");
             Save("M1.HostSmoke.json", new { passed = true, runtimeId = backend.Describe().RuntimeId, page = page.GetType().FullName, action = action.GetType().FullName, item.IsCompleted, diagnostics = Capture("host-smoke-complete") });
         }
         catch (Exception ex)

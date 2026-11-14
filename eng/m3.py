@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import m1
 import m2
 
@@ -16,6 +17,11 @@ PACKAGE = ARTIFACTS / 'SystemTools.M3.cipx'
 
 def check():
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
+    environment = os.environ.copy()
+    if sys.platform == 'darwin':
+        # macOS exposes its temporary directory through /var -> /private/var.
+        # Keep migration's link rejection intact by using the real test root.
+        environment['TMPDIR'] = str(Path(tempfile.gettempdir()).resolve())
     commands = [
         ('core', ['dotnet', 'run', '--project', 'tests/SystemTools.M3.Tests', '-c', 'Release']),
         ('shared-linux-contract', ['dotnet', 'run', '--project', 'tests/SystemTools.M3.Host.Tests', '-c', 'Release', '--', 'linux-x64']),
@@ -27,7 +33,8 @@ def check():
     results = []
     for name, arguments in commands:
         completed = subprocess.run(arguments, cwd=m1.ROOT, stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT, encoding='utf-8', errors='replace')
+                                   stderr=subprocess.STDOUT, encoding='utf-8', errors='replace',
+                                   env=environment)
         (ARTIFACTS / (name + '.log')).write_text(completed.stdout, encoding='utf-8')
         count = len(re.findall(r'^PASS(?: |:)', completed.stdout, re.MULTILINE))
         if match := re.search(r'Ran (\d+) tests', completed.stdout):

@@ -1,0 +1,11 @@
+id: SystemTools.M3.DesktopProbe
+name: M3 隔离宿主验收
+entranceAssembly: SystemTools.M3.DesktopProbe.dll
+version: 1.0.0.0
+apiVersion: 2.2.0.0
+author: SystemTools
+supportedOSPlatforms:
+- macOS
+dependencies:
+- id: SystemTools
+  isRequired: false

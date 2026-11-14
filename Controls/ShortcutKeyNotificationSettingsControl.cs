@@ -14,7 +14,7 @@ public class ShortcutKeyNotificationSettingsControl : ActionSettingsControlBase<
 
         _notifyCheckBox = new CheckBox
         {
-            Content = "当执行时发出提醒"
+            Content = "褰撴墽琛屾椂鍙戝嚭鎻愰啋"
         };
         _notifyCheckBox.IsCheckedChanged += (s, e) =>
         {

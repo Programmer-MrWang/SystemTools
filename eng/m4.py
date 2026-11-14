@@ -65,6 +65,9 @@ def stage(target=None):
     shared = m2.sdk_shared_assemblies(ROOT / 'src/SystemTools.SharedHost/obj/project.assets.json')
     for name in m1.COMMON + [m1.module_name(target)]:
         shutil.copy2(entry / name, destination / name)
+    # SDK 输出 deps.json 使用宿主系统换行；内容相同的公共元数据统一为 LF 再比较。
+    dependencies = destination / 'SystemTools.deps.json'
+    dependencies.write_bytes(dependencies.read_bytes().replace(b'\r\n', b'\n'))
     shared_output = ROOT / 'src/SystemTools.SharedHost/bin/Release/net10.0'
     private = {path.name for path in shared_output.glob('*.dll')
                if path.name not in m1.COMMON and path.name.casefold() not in shared

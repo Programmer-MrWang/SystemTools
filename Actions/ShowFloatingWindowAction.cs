@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using SystemTools.Common.Automation;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
@@ -19,7 +19,7 @@ public class ShowFloatingWindowAction(
 {
     private readonly ILogger<ShowFloatingWindowAction> _logger = logger;
     private readonly FloatingWindowService _floatingWindowService = floatingWindowService;
-    private static readonly ConcurrentDictionary<Guid, bool> PreviousStates = new();
+    private static readonly ActionRestoreStore<bool> PreviousStates = new();
 
     protected override async Task OnInvoke()
     {
@@ -39,7 +39,7 @@ public class ShowFloatingWindowAction(
 
             if (IsRevertable && config != null)
             {
-                PreviousStates[ActionSet.Guid] = config.ShowFloatingWindow;
+                PreviousStates.Capture(ActionSet.Guid, ActionItem, "visibility", config.ShowFloatingWindow);
             }
 
             if (config != null)
@@ -72,7 +72,7 @@ public class ShowFloatingWindowAction(
     {
         await base.OnRevert();
 
-        if (!PreviousStates.TryRemove(ActionSet.Guid, out var previousState))
+        if (!PreviousStates.TryRestore(ActionSet.Guid, ActionItem, out var previousState))
         {
             _logger.LogInformation("未找到恢复快照，跳过悬浮窗恢复。ActionSet={ActionSetGuid}", ActionSet.Guid);
             return;

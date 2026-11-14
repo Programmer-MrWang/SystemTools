@@ -139,6 +139,12 @@ try
     snapshots.Capture(groupB, ownerB, "target", true);
     Check(!snapshots.TryRestore(groupA, ownerA, out _), "先恢复较早组不覆盖后续组状态");
     Check(snapshots.TryRestore(groupB, ownerB, out var originalState) && !originalState, "后续组恢复到最初状态");
+    var firstOwner = new object(); var secondOwner = new object();
+    snapshots.Capture(groupA, firstOwner, "shared-target", false);
+    snapshots.Capture(groupA, secondOwner, "shared-target", true);
+    snapshots.Capture(groupA, firstOwner, "shared-target", true);
+    Check(!snapshots.TryRestore(groupA, firstOwner, out _), "同组多行动恢复时保留其他持有者");
+    Check(snapshots.TryRestore(groupA, secondOwner, out var groupOriginal) && !groupOriginal, "同组重复执行保留首次触发状态");
     var idA = Guid.NewGuid(); var idB = Guid.NewGuid();
     var workflows = new[] { new TestWorkflow(idB, "same"), new TestWorkflow(idA, "same") };
     Check(SystemTools.Common.Automation.WorkflowTargetResolver.Resolve(workflows, idA, "same", 0, x => x.Id, x => x.Name)?.Id == idA, "工作流重排仍按稳定身份解析");

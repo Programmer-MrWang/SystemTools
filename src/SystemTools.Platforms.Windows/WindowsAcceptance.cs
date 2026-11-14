@@ -64,6 +64,7 @@ internal static class WindowsAcceptance
             var credentials = dpapi.TryUnprotect(encrypted, out var decrypted) && decrypted == "M3-fixture-secret" && !dpapi.TryUnprotect("dpapi-current-user:v1:REDACTED", out _);
             var sharedDirectory = typeof(global::SystemTools.SharedHostRegistration).Assembly.Location;
             var migrationInteraction = await CheckMigrationInteractionAsync(provider);
+            var floatingSnapshots = await CheckFloatingSnapshotsAsync(provider);
 
             var context = AssemblyLoadContext.GetLoadContext(typeof(Backend).Assembly)!;
             var isolated = context.Assemblies.Count(assembly =>
@@ -74,9 +75,9 @@ internal static class WindowsAcceptance
                     assembly.GetName().Name is "WinRT.Runtime" or "Microsoft.Windows.SDK.NET");
             var result = new
             {
-                passed = constructed.Length == 8 && themes.Length == 3 && registrations && credentials && migrationInteraction && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
+                passed = constructed.Length == 8 && themes.Length == 3 && registrations && credentials && migrationInteraction && floatingSnapshots && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
                 stage, pages = constructed, themes, legacyImageUris = assets,
-                fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries, registrations, credentials, migrationInteraction, sharedDirectory,
+                fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries, registrations, credentials, migrationInteraction, floatingSnapshots, sharedDirectory,
                 directoryValidation = _directoryValidation,
                 isolated, loadedAssemblies = context.Assemblies.Select(assembly => assembly.GetName().Name).OrderBy(name => name).ToArray(),
                 components = ComponentRegistryService.Registered
@@ -99,6 +100,29 @@ internal static class WindowsAcceptance
             File.WriteAllText(destination, JsonSerializer.Serialize(new { passed = false, stage, error = exception.ToString() },
                 new JsonSerializerOptions { WriteIndented = true }));
         }
+    }
+
+    private static async Task<bool> CheckFloatingSnapshotsAsync(IServiceProvider provider)
+    {
+        return await Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            var action = provider.GetRequiredKeyedService<ActionBase>("SystemTools.SwitchFloatingWindowTheme");
+            var config = GlobalConstants.MainConfig!.Data;
+            var original = config.FloatingWindowTheme;
+            var first = new ActionItem { Id = "SystemTools.SwitchFloatingWindowTheme", Settings = new Settings.SwitchFloatingWindowThemeSettings { TargetTheme = 2 } };
+            var second = new ActionItem { Id = first.Id, Settings = new Settings.SwitchFloatingWindowThemeSettings { TargetTheme = 1 } };
+            var set = new ActionSet(); set.ActionItems.Add(first); set.ActionItems.Add(second); set.SetStartRunning(true);
+            try
+            {
+                await action.InvokeAsync(first, set, isRevertable: true);
+                await action.InvokeAsync(second, set, isRevertable: true);
+                await action.RevertAsync(first, set);
+                if (config.FloatingWindowTheme != 1) return false;
+                await action.RevertAsync(second, set);
+                return config.FloatingWindowTheme == original;
+            }
+            finally { set.SetEndRunning(true); config.FloatingWindowTheme = original; }
+        });
     }
 
     private static async Task<bool> CheckMigrationInteractionAsync(IServiceProvider provider)

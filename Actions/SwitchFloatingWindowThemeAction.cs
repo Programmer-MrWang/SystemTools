@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using SystemTools.Common.Automation;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
@@ -16,7 +16,7 @@ namespace SystemTools.Actions;
 public class SwitchFloatingWindowThemeAction(ILogger<SwitchFloatingWindowThemeAction> logger) : ActionBase<SwitchFloatingWindowThemeSettings>
 {
     private readonly ILogger<SwitchFloatingWindowThemeAction> _logger = logger;
-    private static readonly ConcurrentDictionary<Guid, int> PreviousThemes = new();
+    private static readonly ActionRestoreStore<int> PreviousThemes = new();
 
     protected override async Task OnInvoke()
     {
@@ -31,7 +31,7 @@ public class SwitchFloatingWindowThemeAction(ILogger<SwitchFloatingWindowThemeAc
             {
                 if (IsRevertable && config != null)
                 {
-                    PreviousThemes[ActionSet.Guid] = config.FloatingWindowTheme;
+                    PreviousThemes.Capture(ActionSet.Guid, ActionItem, "theme", config.FloatingWindowTheme);
                 }
 
                 service.SetWindowTheme(Settings.TargetTheme);
@@ -41,7 +41,7 @@ public class SwitchFloatingWindowThemeAction(ILogger<SwitchFloatingWindowThemeAc
             {
                 if (IsRevertable && config != null)
                 {
-                    PreviousThemes[ActionSet.Guid] = config.FloatingWindowTheme;
+                    PreviousThemes.Capture(ActionSet.Guid, ActionItem, "theme", config.FloatingWindowTheme);
                 }
 
                 service.ToggleWindowTheme();
@@ -68,7 +68,7 @@ public class SwitchFloatingWindowThemeAction(ILogger<SwitchFloatingWindowThemeAc
     {
         await base.OnRevert();
 
-        if (!PreviousThemes.TryRemove(ActionSet.Guid, out var previousTheme))
+        if (!PreviousThemes.TryRestore(ActionSet.Guid, ActionItem, out var previousTheme))
         {
             _logger.LogInformation("未找到主题恢复快照，跳过悬浮窗主题恢复。ActionSet={ActionSetGuid}", ActionSet.Guid);
             return;

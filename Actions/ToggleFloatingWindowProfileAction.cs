@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Concurrent;
+using SystemTools.Common.Automation;
 using System.Threading.Tasks;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
@@ -18,7 +18,7 @@ namespace SystemTools.Actions;
 public class ToggleFloatingWindowProfileAction(ILogger<ToggleFloatingWindowProfileAction> logger) : ActionBase<ToggleFloatingWindowProfileSettings>
 {
     private readonly ILogger<ToggleFloatingWindowProfileAction> _logger = logger;
-    private static readonly ConcurrentDictionary<Guid, string> PreviousProfiles = new();
+    private static readonly ActionRestoreStore<string> PreviousProfiles = new();
 
     protected override async Task OnInvoke()
     {
@@ -35,7 +35,7 @@ public class ToggleFloatingWindowProfileAction(ILogger<ToggleFloatingWindowProfi
             {
                 if (IsRevertable)
                 {
-                    PreviousProfiles[ActionSet.Guid] = currentProfileName;
+                    PreviousProfiles.Capture(ActionSet.Guid, ActionItem, "profile", currentProfileName);
                 }
 
                 service.SwitchToProfile(Settings.TargetProfileName);
@@ -45,7 +45,7 @@ public class ToggleFloatingWindowProfileAction(ILogger<ToggleFloatingWindowProfi
             {
                 if (IsRevertable)
                 {
-                    PreviousProfiles[ActionSet.Guid] = currentProfileName;
+                    PreviousProfiles.Capture(ActionSet.Guid, ActionItem, "profile", currentProfileName);
                 }
 
                 service.ToggleWindowProfile();
@@ -72,7 +72,7 @@ public class ToggleFloatingWindowProfileAction(ILogger<ToggleFloatingWindowProfi
     {
         await base.OnRevert();
 
-        if (!PreviousProfiles.TryRemove(ActionSet.Guid, out var previousProfile))
+        if (!PreviousProfiles.TryRestore(ActionSet.Guid, ActionItem, out var previousProfile))
         {
             _logger.LogInformation("未找到配置方案恢复快照，跳过悬浮窗配置方案恢复。ActionSet={ActionSetGuid}", ActionSet.Guid);
             return;

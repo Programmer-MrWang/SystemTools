@@ -322,17 +322,22 @@ func windowExecute(_ action: String) throws {
     }
 }
 
+func wallpaperFillComponents(_ color: NSColor?) -> [Double] {
+    // 缺省色和无法转换的颜色直接使用数值，避免对灰阶 NSColor 读取 RGB 分量而抛出 Objective-C 异常。
+    guard let rgb = color?.usingColorSpace(.sRGB) else { return [0, 0, 0] }
+    return [Double(rgb.redComponent), Double(rgb.greenComponent), Double(rgb.blueComponent)]
+}
+
 func wallpaperRows() throws -> [[String: Any]] {
     return try mainThread {
         try NSScreen.screens.map { screen in
             guard let number = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber,
                   let url = NSWorkspace.shared.desktopImageURL(for: screen) else { throw NativeFailure(state: "MissingDevice", message: "无法读取显示器壁纸。") }
             let options = NSWorkspace.shared.desktopImageOptions(for: screen) ?? [:]
-            let color = (options[.fillColor] as? NSColor)?.usingColorSpace(.sRGB) ?? .black
             return ["id": number.uint32Value, "path": url.path,
                     "scale": (options[.imageScaling] as? NSNumber)?.intValue ?? Int(NSImageScaling.scaleProportionallyUpOrDown.rawValue),
                     "clip": (options[.allowClipping] as? NSNumber)?.boolValue ?? true,
-                    "fill": [Double(color.redComponent), Double(color.greenComponent), Double(color.blueComponent)]]
+                    "fill": wallpaperFillComponents(options[.fillColor] as? NSColor)]
         }.sorted { ($0["id"] as! UInt32) < ($1["id"] as! UInt32) }
     }
 }

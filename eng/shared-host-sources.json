@@ -90,7 +90,9 @@
     "Themes/NotchStyle/NotchStyleStyles.cs",
     "Settings/SetVolumeSettings.cs",
     "Controls/SetVolumeSettingsControl.cs",
-    "Config/LongIdleTriggerConfig.cs"
+    "Config/LongIdleTriggerConfig.cs",
+    "Settings/ScreenShotSettings.cs",
+    "Controls/ScreenShotSettingsControl.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

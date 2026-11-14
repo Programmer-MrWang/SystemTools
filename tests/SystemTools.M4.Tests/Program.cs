@@ -44,3 +44,14 @@ Check(state.Sample(TimeSpan.FromMinutes(2), TimeSpan.FromMinutes(1)) == SystemTo
 Check(state.Sample(TimeSpan.Zero, TimeSpan.FromMinutes(1)) == SystemTools.Common.Automation.IdleTransition.Revert, "重新操作后恢复");
 Check(state.Sample(TimeSpan.Zero, TimeSpan.FromMinutes(1)) == SystemTools.Common.Automation.IdleTransition.None, "恢复不重复执行");
 if (OperatingSystem.IsMacOS()) Check(new SystemTools.Platforms.MacOS.UserIdleService().Read() >= TimeSpan.Zero, "读取真实 Quartz 空闲时长");
+
+if (OperatingSystem.IsMacOS())
+{
+    var screen = new SystemTools.Platforms.MacOS.ScreenCaptureService();
+    var screenState = screen.Probe();
+    Check(screenState.State is CapabilityState.Available or CapabilityState.PermissionRequired, "原生截图模块只读检测权限");
+    Console.WriteLine($"Screenshot: {screenState.State}: {screenState.Reason}");
+    using var stop = new CancellationTokenSource(); stop.Cancel();
+    try { await screen.CapturePngAsync(Path.Combine(Path.GetTempPath(), "must-not-create.png"), stop.Token); throw new Exception("取消失败"); }
+    catch (OperationCanceledException) { Check(true, "取消截图不进入系统采集"); }
+}

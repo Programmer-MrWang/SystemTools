@@ -32,9 +32,16 @@ public static class NativeHostRegistration
             catalog.BindForRegistration("SystemTools.LongIdleTrigger", () => GlobalConstants.MainConfig!.Data.IsTriggerEnabled("SystemTools.LongIdleTrigger") ? native.Idle.Probe() : new(CapabilityState.Disabled, "用户已关闭。"));
             if (catalog.CanCreate("SystemTools.LongIdleTrigger")) services.AddTrigger<NativeIdleTrigger, NativeIdleSettingsControl>();
         }
+        services.AddSettingsPage<NativePermissionSettingsPage>();
+        if (native.ScreenCapture is not null)
+        {
+            services.AddSingleton(native.ScreenCapture);
+            Bind(catalog, "SystemTools.ScreenShot", native.ScreenCapture);
+            if (catalog.CanCreate("SystemTools.ScreenShot")) services.AddAction<NativeScreenShotAction, ScreenShotSettingsControl>();
+        }
         var group = new ActionMenuTreeGroup("系统原生功能", "\uE079");
         foreach (var status in catalog.Snapshot().Where(x => x.Feature.Kind == "action" && x.Capability.CanExecute &&
-                     x.Feature.Id == "SystemTools.SetVolume"))
+                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot"))
             group.Children.Add(new ActionMenuTreeItem(status.Feature.Id, status.Feature.Name, "\uE079"));
         if (group.Children.Count > 0) IActionService.ActionMenuTree.Add(group);
     }

@@ -5,4 +5,7 @@
     <ProjectReference Include="../../src/SystemTools.Platforms.MacOS/SystemTools.Platforms.MacOS.csproj" />
     <ProjectReference Include="../../src/SystemTools.Platforms.Linux/SystemTools.Platforms.Linux.csproj" />
   </ItemGroup>
+  <Target Name="CopyMacNative" AfterTargets="Build" Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <Copy SourceFiles="../../src/SystemTools.Platforms.MacOS/bin/$(Configuration)/net10.0/libSystemToolsNative.dylib" DestinationFolder="$(TargetDir)" />
+  </Target>
 </Project>

@@ -1,3 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup><ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" /></ItemGroup>
+  <Target Name="BuildMacNativeBridge" BeforeTargets="Build" Condition="$([MSBuild]::IsOSPlatform('OSX'))" Inputs="$(MSBuildProjectFullPath);$(MSBuildProjectDirectory)/../../native/macos/SystemToolsNative.swift" Outputs="$(TargetDir)libSystemToolsNative.dylib">
+    <MakeDir Directories="$(TargetDir)" />
+    <Exec Command="xcrun swiftc -swift-version 5 -emit-library -O -target arm64-apple-macos12.0 -module-name SystemToolsNative -Xlinker -install_name -Xlinker @rpath/libSystemToolsNative.dylib -Xlinker -reproducible &quot;$(MSBuildProjectDirectory)/../../native/macos/SystemToolsNative.swift&quot; -o &quot;$(TargetDir)libSystemToolsNative.dylib&quot;" />
+  </Target>
 </Project>

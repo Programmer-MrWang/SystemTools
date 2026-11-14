@@ -23,10 +23,21 @@ public interface IUserIdle : INativeCapability
     TimeSpan Read();
 }
 
+public interface IPermissionRequest
+{
+    Capability RequestAccess();
+}
+
+public interface IScreenCapture : INativeCapability
+{
+    Task CapturePngAsync(string destination, CancellationToken token);
+}
+
 public sealed class NativeDesktopServices : IDisposable
 {
     public ISystemVolume? Volume { get; init; }
     public IUserIdle? Idle { get; init; }
+    public IScreenCapture? ScreenCapture { get; init; }
     private readonly CancellationTokenSource _stop = new();
     public CancellationToken Stopping => _stop.Token;
     private int _disposed;
@@ -37,7 +48,7 @@ public sealed class NativeDesktopServices : IDisposable
         _stop.Cancel();
         List<Exception> failures = [];
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        foreach (var resource in new object?[] { Volume, Idle }.OfType<IDisposable>())
+        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture }.OfType<IDisposable>())
             if (seen.Add(resource))
                 try { resource.Dispose(); } catch (Exception error) { failures.Add(error); }
         if (failures.Count != 0) throw new AggregateException("部分平台资源清理失败。", failures);

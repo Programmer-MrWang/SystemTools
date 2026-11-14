@@ -117,5 +117,13 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/KeyCombinationSettings.cs" Link="Settings/KeyCombinationSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/HotkeyTriggerConfig.cs" Link="Config/HotkeyTriggerConfig.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/HotkeyRecorderControl.cs" Link="Controls/HotkeyRecorderControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/WindowOperationSettings.cs" Link="Settings/WindowOperationSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/WindowOperationSettingsControl.cs" Link="Controls/WindowOperationSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Triggers/FloatingWindowTriggerConfig.cs" Link="Triggers/FloatingWindowTriggerConfig.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/FloatingWindowIconProvider.cs" Link="Services/FloatingWindowIconProvider.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ShowFloatingWindowSettings.cs" Link="Settings/ShowFloatingWindowSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ToggleFloatingWindowLayerSettings.cs" Link="Settings/ToggleFloatingWindowLayerSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ToggleFloatingWindowProfileSettings.cs" Link="Settings/ToggleFloatingWindowProfileSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/SwitchFloatingWindowThemeSettings.cs" Link="Settings/SwitchFloatingWindowThemeSettings.cs" />
   </ItemGroup>
 </Project>

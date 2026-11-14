@@ -18,6 +18,7 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
         Add("USB 设备", services.UsbDevices);
         Add("键盘输入", services.Keyboard);
         Add("全局热键", services.Hotkeys);
+        Add("窗口操作", services.Windows);
         Content = new ScrollViewer { Content = panel };
         void Add(string name, INativeCapability? capability)
         {

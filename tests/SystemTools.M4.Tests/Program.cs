@@ -85,6 +85,22 @@ if (OperatingSystem.IsMacOS())
 }
 Console.WriteLine($"FINAL M4 checks: {checks}");
 
+if (OperatingSystem.IsMacOS())
+{
+    var windows = new SystemTools.Platforms.MacOS.WindowOperationsService();
+    Check(windows.Probe().State is CapabilityState.Available or CapabilityState.PermissionRequired, "窗口辅助功能权限只读检测");
+    Check(!windows.ProbeBottommost().CanExecute, "Mac 不把普通层级冒充置底");
+    try { await windows.SetBottommostAsync(1, true, default); throw new Exception("Bottommost fabricated"); }
+    catch (NativeFeatureException) { Check(true, "Mac 置底请求明确失败"); }
+}
+var snapshots = new SystemTools.Common.Automation.ActionRestoreStore<int>();
+var group = Guid.NewGuid(); var firstOwner = new object(); var secondOwner = new object();
+snapshots.Capture(group, firstOwner, "floating-theme", 0);
+snapshots.Capture(group, secondOwner, "floating-theme", 1);
+Check(!snapshots.TryRestore(group, firstOwner, out _), "浮窗同组较早行动不覆盖后续持有者");
+Check(snapshots.TryRestore(group, secondOwner, out var originalTheme) && originalTheme == 0, "浮窗最后持有者恢复原始主题");
+Console.WriteLine($"FINAL WINDOW M4 checks: {checks}");
+
 sealed class FailingKeyboard : IKeyboardInput
 {
     public List<string> Released { get; } = [];

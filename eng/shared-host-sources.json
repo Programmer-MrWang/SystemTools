@@ -98,7 +98,15 @@
     "Settings/KeyboardInputSettings.cs",
     "Settings/KeyCombinationSettings.cs",
     "Config/HotkeyTriggerConfig.cs",
-    "Controls/HotkeyRecorderControl.cs"
+    "Controls/HotkeyRecorderControl.cs",
+    "Settings/WindowOperationSettings.cs",
+    "Controls/WindowOperationSettingsControl.cs",
+    "Triggers/FloatingWindowTriggerConfig.cs",
+    "Services/FloatingWindowIconProvider.cs",
+    "Settings/ShowFloatingWindowSettings.cs",
+    "Settings/ToggleFloatingWindowLayerSettings.cs",
+    "Settings/ToggleFloatingWindowProfileSettings.cs",
+    "Settings/SwitchFloatingWindowThemeSettings.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

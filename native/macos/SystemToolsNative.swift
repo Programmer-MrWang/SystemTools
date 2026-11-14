@@ -242,11 +242,95 @@ func handleHotkey(_ request: [String: Any], operation: String) throws -> [String
     }
 }
 
+func axValue(_ element: AXUIElement, _ attribute: String) throws -> CFTypeRef {
+    var value: CFTypeRef?
+    guard AXUIElementCopyAttributeValue(element, attribute as CFString, &value) == .success, let value = value else {
+        throw NativeFailure(state: "Unsupported", message: "目标窗口没有提供此操作所需的辅助功能属性。")
+    }
+    return value
+}
+
+var windowRestoreFrames: [String: (AXUIElement, CGPoint, CGSize)] = [:]
+
+func windowGeometry(_ window: AXUIElement) throws -> (CGPoint, CGSize) {
+    var point = CGPoint.zero
+    var size = CGSize.zero
+    let positionValue = try axValue(window, kAXPositionAttribute)
+    let sizeValue = try axValue(window, kAXSizeAttribute)
+    guard CFGetTypeID(positionValue) == AXValueGetTypeID(), CFGetTypeID(sizeValue) == AXValueGetTypeID(),
+          AXValueGetValue(unsafeBitCast(positionValue, to: AXValue.self), .cgPoint, &point),
+          AXValueGetValue(unsafeBitCast(sizeValue, to: AXValue.self), .cgSize, &size) else {
+        throw NativeFailure(state: "Unsupported", message: "目标窗口不支持读取位置和尺寸。")
+    }
+    return (point, size)
+}
+
+func applyWindowGeometry(_ window: AXUIElement, _ point: CGPoint, _ size: CGSize) throws {
+    var position = point
+    var dimensions = size
+    guard let p = AXValueCreate(.cgPoint, &position), let z = AXValueCreate(.cgSize, &dimensions),
+          AXUIElementSetAttributeValue(window, kAXSizeAttribute as CFString, z) == .success,
+          AXUIElementSetAttributeValue(window, kAXPositionAttribute as CFString, p) == .success else {
+        throw NativeFailure(state: "Unsupported", message: "目标应用拒绝调整窗口位置或尺寸。")
+    }
+    let (actualPoint, actualSize) = try windowGeometry(window)
+    if abs(actualPoint.x - point.x) > 4 || abs(actualPoint.y - point.y) > 4 ||
+       abs(actualSize.width - size.width) > 4 || abs(actualSize.height - size.height) > 4 {
+        throw NativeFailure(state: "Unsupported", message: "目标应用未采用请求的窗口尺寸，请检查最小尺寸限制。")
+    }
+}
+
+func windowExecute(_ action: String) throws {
+    try mainThread {
+        guard AXIsProcessTrusted(), let application = NSWorkspace.shared.frontmostApplication else {
+            throw NativeFailure(state: "PermissionRequired", message: "请授予辅助功能权限并激活目标窗口。")
+        }
+        let app = AXUIElementCreateApplication(application.processIdentifier)
+        let focused = try axValue(app, kAXFocusedWindowAttribute)
+        guard CFGetTypeID(focused) == AXUIElementGetTypeID() else { throw NativeFailure(state: "MissingDevice", message: "没有可操作的活动窗口。") }
+        let window = unsafeBitCast(focused, to: AXUIElement.self)
+        let identity = "\(application.processIdentifier):\(CFHash(window))"
+        switch action {
+        case "最小化", "向下还原":
+            let value = action == "最小化"
+            guard AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, value ? kCFBooleanTrue : kCFBooleanFalse) == .success else {
+                throw NativeFailure(state: "Unsupported", message: "目标应用拒绝更改最小化状态。")
+            }
+            if !value, let old = windowRestoreFrames[identity], CFEqual(old.0, window) {
+                try applyWindowGeometry(window, old.1, old.2)
+                windowRestoreFrames.removeValue(forKey: identity)
+            }
+        case "关闭窗口":
+            let button = try axValue(window, kAXCloseButtonAttribute)
+            guard AXUIElementPerformAction(unsafeBitCast(button, to: AXUIElement.self), kAXPressAction as CFString) == .success else {
+                throw NativeFailure(state: "Unsupported", message: "目标应用拒绝关闭窗口。")
+            }
+            windowRestoreFrames.removeValue(forKey: identity)
+        case "最大化":
+            let (point, size) = try windowGeometry(window)
+            let mainHeight = NSScreen.screens.first?.frame.height ?? 0
+            let screen = NSScreen.screens.first(where: { $0.frame.contains(CGPoint(x: point.x + size.width / 2, y: mainHeight - point.y - size.height / 2)) }) ?? NSScreen.main
+            guard let frame = screen?.visibleFrame else { throw NativeFailure(state: "MissingDevice", message: "没有可用的目标显示器。") }
+            let target = CGPoint(x: frame.minX, y: mainHeight - frame.maxY)
+            if abs(size.width - frame.width) > 4 || abs(size.height - frame.height) > 4 {
+                if windowRestoreFrames.count >= 128 { throw NativeFailure(state: "Unsupported", message: "窗口恢复记录已满，请先恢复已有窗口或重启应用。") }
+                if windowRestoreFrames[identity] == nil { windowRestoreFrames[identity] = (window, point, size) }
+                try applyWindowGeometry(window, target, frame.size)
+            }
+        default: throw NativeFailure(state: "Unsupported", message: "不支持此窗口操作。")
+        }
+    }
+}
+
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
     if operation.hasPrefix("input.") { return try handleInput(request, operation: operation) }
     if operation.hasPrefix("hotkey.") { return try handleHotkey(request, operation: operation) }
     switch operation {
+    case "window.clear":
+        mainThread { windowRestoreFrames.removeAll() }; return ["state": "Available"]
+    case "window.execute":
+        try windowExecute(request["action"] as? String ?? ""); return ["state": "Available"]
     case "usb.probe":
         _ = try usbSnapshot(); return ["state": "Available"]
     case "usb.snapshot": return ["state": "Available", "devices": try usbSnapshot()]

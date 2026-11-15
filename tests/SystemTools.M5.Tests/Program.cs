@@ -1,0 +1,48 @@
+using SystemTools.Common.Media;
+using SystemTools.Contracts;
+
+var checks = 0;
+void Check(bool value, string name) { if (!value) throw new Exception(name); Console.WriteLine($"PASS {++checks}: {name}"); }
+var devices = new DeviceReservation();
+var lease = devices.Acquire("microphone", default);
+try { devices.Acquire("microphone", default); throw new Exception("Busy device reopened"); }
+catch (NativeFeatureException) { Check(true, "同一麦克风拒绝并发占用"); }
+using (devices.Acquire("camera", default)) Check(true, "相机与麦克风所有权相互独立");
+lease.Dispose(); lease.Dispose();
+using (devices.Acquire("microphone", default)) Check(true, "重复释放幂等且设备可重新获取");
+using var cancelled = new CancellationTokenSource(); cancelled.Cancel();
+try { devices.Acquire("microphone", cancelled.Token); throw new Exception("Cancelled owner acquired"); }
+catch (OperationCanceledException) { Check(true, "预取消不会占有设备"); }
+using (devices.Acquire("microphone", default)) Check(true, "取消未泄漏设备所有权");
+var disposed = new ProbeResource();
+using (var media = new PlatformMediaServices { Camera = disposed, Speech = disposed, Authentication = disposed, Media = disposed })
+{
+    media.Stopping.Register(() => throw new IOException("synthetic stop callback failure"));
+    try { media.Dispose(); } catch (AggregateException) { }
+    Check(disposed.Disposals == 1, "停止回调失败仍释放各项媒体服务且同一实例只释放一次");
+    media.Dispose();
+}
+Check(disposed.Disposals == 1, "重复媒体停止幂等");
+var temporary = Path.Combine(Path.GetTempPath(), "systemtools-m5-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(temporary);
+try
+{
+    var camera = new ProbeResource();
+    try { await MediaFiles.CaptureAsync(camera, "test", temporary, default); throw new Exception("Broken image accepted"); }
+    catch (EndOfStreamException) { Check(!Directory.EnumerateFiles(temporary).Any(), "坏图片不提交且临时文件被清理"); }
+    Check(MediaFiles.FindExecutable("missing", Path.Combine(temporary, "missing")) is null, "显式错误依赖路径不偷偷回退到其他可执行文件");
+}
+finally { Directory.Delete(temporary, recursive: true); }
+Console.WriteLine($"M5 checks: {checks}");
+
+sealed class ProbeResource : ICameraCapture, ISpeechRecognition, ISystemAuthentication, IMediaSessions, IDisposable
+{
+    public int Disposals;
+    public Capability Probe() => new(CapabilityState.Available);
+    public Task<IReadOnlyList<CaptureDevice>> ListDevicesAsync(CancellationToken token) => Task.FromResult<IReadOnlyList<CaptureDevice>>([]);
+    public Task CapturePngAsync(string id, string destination, CancellationToken token) { File.WriteAllText(destination, "broken"); return Task.CompletedTask; }
+    public async IAsyncEnumerable<SpeechSegment> RecognizeAsync([System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken token) { await Task.CompletedTask; yield break; }
+    public Task<AuthenticationResult> VerifyAsync(string reason, nint handle, CancellationToken token) => Task.FromResult(new AuthenticationResult(false, "synthetic"));
+    public Task<IReadOnlyList<MediaSession>> ReadAsync(CancellationToken token) => Task.FromResult<IReadOnlyList<MediaSession>>([]);
+    public void Dispose() => Disposals++;
+}

@@ -122,7 +122,19 @@
     "Settings/BackgroundPlayAudioSettings.cs",
     "Config/ActionInProgressTriggerConfig.cs",
     "Config/MainWindowClickTriggerConfig.cs",
-    "Settings/ActionInProgressTriggerSettings.cs"
+    "Settings/ActionInProgressTriggerSettings.cs",
+    "Settings/TypeContentSettings.cs",
+    "Controls/TypeContentSettingsControl.cs",
+    "Settings/MouseInputSettings.cs",
+    "Settings/KillProcessSettings.cs",
+    "Controls/KillProcessSettingsControl.cs",
+    "Settings/ShutdownSettings.cs",
+    "Controls/ShutdownSettingsControl.cs",
+    "Settings/AdvancedShutdownSettings.cs",
+    "Controls/AdvancedShutdownSettingsControl.cs",
+    "Settings/ThemeSettings.cs",
+    "Controls/ThemeSettingsControl.cs",
+    "Settings/AccentColorSettings.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

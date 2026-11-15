@@ -54,6 +54,31 @@ try
         fake.Delete(reference);
     }
     CredentialProtection.Provider = previous;
+    using(var schedule = new SystemTools.Common.Automation.ScheduledOperation())
+    {
+        var executions=0;
+        schedule.Schedule(TimeSpan.FromMilliseconds(100),_=> { Interlocked.Increment(ref executions);return Task.CompletedTask; },default);
+        schedule.Cancel();await schedule.Completion;Check(executions==0,"计时关机取消后不派发系统操作");
+        schedule.Schedule(TimeSpan.Zero,_=> { Interlocked.Increment(ref executions);return Task.CompletedTask; },default);
+        await schedule.Completion;Check(executions==1,"到期计划只派发一次");
+        using var stopped=new CancellationTokenSource();
+        schedule.Schedule(TimeSpan.FromHours(1),_=> { Interlocked.Increment(ref executions);return Task.CompletedTask; },stopped.Token);
+        stopped.Cancel();await schedule.Completion;Check(executions==1,"宿主停止取消未执行计划");
+        schedule.Schedule(TimeSpan.Zero,_=>Task.FromException(new IOException("denied")),default);
+        await schedule.Completion;Check(schedule.LastError is IOException,"系统拒绝在计划状态中可观察");
+    }
+    var pointer=new FixturePointer();
+    using(var stop=new CancellationTokenSource())
+    {
+        pointer.Pressed=()=>stop.Cancel();
+        try { await SystemTools.Common.Automation.PortablePointer.ExecuteAsync(pointer,[new(4,20,30,0,0,false),new(4,30,40,0,100,false)],stop.Token); }
+        catch(OperationCanceledException) { }
+        Check(pointer.Events.Last()=="up:1","拖动取消始终释放已按下的鼠标键");
+    }
+    pointer=new FixturePointer { Fail=true };
+    try { await SystemTools.Common.Automation.PortablePointer.ExecuteAsync(pointer,[new(0,20,30,0,0,false)],default); }
+    catch(IOException) { }
+    Check(pointer.Events.Last()=="up:1","鼠标按下调用部分失败仍尝试释放");
     if (args.Contains("--native-credentials"))
     {
         IStoredCredentialProtector store = OperatingSystem.IsMacOS() ? new SystemTools.Platforms.MacOS.KeychainProtector() : new SystemTools.Platforms.Linux.SecretServiceProtector();
@@ -89,4 +114,20 @@ public sealed class FixtureStore : IStoredCredentialProtector
     public string Protect(string plaintext) { if(Reject)throw new CryptographicException("fixture denied"); var reference=Scheme+Guid.NewGuid().ToString("N");Values[reference]=plaintext;return reference; }
     public bool TryUnprotect(string reference,out string plaintext)=>Values.TryGetValue(reference,out plaintext!);
     public bool Delete(string reference)=>Values.Remove(reference);
+}
+
+
+public sealed class FixturePointer : IPointerInput
+{
+    public List<string> Events=[];
+    public Action? Pressed;
+    public bool Fail;
+    public Capability Probe()=>new(CapabilityState.Available);
+    public string CaptureTarget()=>"fixture";
+    public Task SendAsync(string operation,int x,int y,int value,string target,CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();Events.Add(operation+":"+value);
+        if(operation=="down") { Pressed?.Invoke();if(Fail)throw new IOException("partial"); }
+        return Task.CompletedTask;
+    }
 }

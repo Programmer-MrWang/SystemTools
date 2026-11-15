@@ -20,6 +20,7 @@ public static class NativeHostRegistration
     public static void Initialize(IServiceCollection services, FeatureCatalog catalog, NativeDesktopServices native)
     {
         SystemTools.Common.Layout.PlatformFeaturePolicy.BindWindowsBoundaries(catalog);
+        PortableExtendedActions.Register(services, catalog, native);
         services.AddSingleton(native);
         services.AddSingleton<NativeWindowMaterial>();
         if (native.Volume is not null)

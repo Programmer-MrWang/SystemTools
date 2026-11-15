@@ -2,17 +2,31 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleExecutable</key><string>SystemToolsCompanion</string>
-    <key>CFBundleIdentifier</key><string>io.github.programmer-mrwang.systemtools.companion</string>
-    <key>CFBundleName</key><string>SystemTools Companion</string>
-    <key>CFBundleDisplayName</key><string>SystemTools 采集助手</string>
-    <key>CFBundlePackageType</key><string>APPL</string>
-    <key>CFBundleShortVersionString</key><string>3.0.0</string>
-    <key>CFBundleVersion</key><string>1</string>
-    <key>LSMinimumSystemVersion</key><string>12.0</string>
-    <key>LSUIElement</key><true/>
-    <key>NSCameraUsageDescription</key><string>按您的操作拍摄照片，并将图片通过本机连接交给 SystemTools 插件。</string>
-    <key>NSMicrophoneUsageDescription</key><string>为您启用的听写、关键词和语音对话采集音频，通过本机连接交给 SystemTools 插件。</string>
-    <key>NSHighResolutionCapable</key><true/>
+	<key>CFBundleExecutable</key>
+	<string>SystemToolsCompanion</string>
+	<key>CFBundleIdentifier</key>
+	<string>io.github.programmer-mrwang.systemtools.companion</string>
+	<key>CFBundleName</key>
+	<string>SystemTools Companion</string>
+	<key>CFBundleDisplayName</key>
+	<string>SystemTools 采集助手</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>3.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>12.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>按您的操作拍摄照片，并将图片通过本机连接交给 SystemTools 插件。</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>为您启用的听写、关键词和语音对话采集音频，通过本机连接交给 SystemTools 插件。</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>按您明确执行的行动请求系统外观和会话操作。</string>
 </dict>
 </plist>

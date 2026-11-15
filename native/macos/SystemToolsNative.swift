@@ -1,5 +1,6 @@
 import AppKit
 import Security
+import LocalAuthentication
 import Vision
 import ImageIO
 import ScreenCaptureKit
@@ -515,6 +516,41 @@ func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     if operation.hasPrefix("credentials.") { return try handleCredentials(request, operation: operation) }
     if operation.hasPrefix("authentication.") { return try handleAuthentication(request, operation: operation) }
     if operation.hasPrefix("wallpaper.") { return try handleWallpaper(request, operation: operation) }
+    if operation == "pointer.event" {
+        let kind = request["kind"] as? String ?? ""
+        if kind != "up" {
+            guard inputCapability()["state"] as? String == "Available", request["target"] as? String == (try inputTarget()) else {
+                throw NativeFailure(state: "PermissionRequired", message: "鼠标目标改变或辅助功能授权不可用。")
+            }
+        }
+        let point = CGPoint(x: request["x"] as? Int ?? 0, y: request["y"] as? Int ?? 0)
+        let value = request["value"] as? Int ?? 0
+        if kind != "up" {
+            let mainHeight = mainThread { NSScreen.screens.first?.frame.height ?? 0 }
+            guard mainThread({ NSScreen.screens.contains { $0.frame.contains(CGPoint(x: point.x, y: mainHeight - point.y)) } }) else {
+                throw NativeFailure(state: "MissingDevice", message: "鼠标坐标不在当前显示器内，请在本机重新录制。")
+            }
+        }
+        let event: CGEvent?
+        if kind == "scroll" {
+            guard (-100...100).contains(value) else { throw NativeFailure(state: "Unsupported", message: "滚轮数据越界。") }
+            event = CGEvent(scrollWheelEvent2Source: nil, units: .line, wheelCount: 1, wheel1: Int32(value), wheel2: 0, wheel3: 0)
+        } else {
+            let button: CGMouseButton = value == 3 ? .right : value == 2 ? .center : .left
+            let type: CGEventType
+            switch kind {
+            case "move": type = .mouseMoved
+            case "drag": type = .leftMouseDragged
+            case "down": type = button == .left ? .leftMouseDown : button == .right ? .rightMouseDown : .otherMouseDown
+            case "up": type = button == .left ? .leftMouseUp : button == .right ? .rightMouseUp : .otherMouseUp
+            default: throw NativeFailure(state: "Unsupported", message: "鼠标操作无效。")
+            }
+            event = CGEvent(mouseEventSource: nil, mouseType: type, mouseCursorPosition: point, mouseButton: button)
+        }
+        guard let event = event else { throw NativeFailure(state: "MissingDevice", message: "无法创建鼠标事件。") }
+        event.post(tap: .cghidEventTap)
+        return ["state": "Available"]
+    }
     if operation.hasPrefix("input.") { return try handleInput(request, operation: operation) }
     if operation.hasPrefix("hotkey.") { return try handleHotkey(request, operation: operation) }
     switch operation {
@@ -876,7 +912,8 @@ func handleCredentials(_ request: [String: Any], operation: String) throws -> [S
     } else if operation == "credentials.read" {
         query[kSecReturnData as String] = true
         query[kSecMatchLimit as String] = kSecMatchLimitOne
-        query[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIFail
+        let context = LAContext(); context.interactionNotAllowed = true
+        query[kSecUseAuthenticationContext as String] = context
         var value: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &value)
         guard status == errSecSuccess, let data = value as? Data, let secret = String(data: data, encoding: .utf8) else {

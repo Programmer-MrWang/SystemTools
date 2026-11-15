@@ -189,6 +189,10 @@ final class CompanionApp: NSObject, NSApplicationDelegate {
         }
         let allowed = ["camera.probe", "camera.request", "camera.devices", "camera.prepare", "camera.capture", "camera.cancel", "camera.release",
                        "microphone.probe", "microphone.request", "microphone.prepare", "microphone.start", "microphone.poll", "microphone.stop", "microphone.release"]
+        if operation == "system.execute" {
+            guard !lock.withLock({ stopping }) else { throw NativeFailure(state: "Disabled", message: "助手已停止。") }
+            return try executeSystem(request)
+        }
         guard allowed.contains(operation) else { throw NativeFailure(state: "Unsupported", message: "采集操作不受支持。") }
         if !operation.hasSuffix(".probe") && !operation.hasSuffix(".request") && operation != "camera.devices" {
             guard let id = request["id"] as? String, UUID(uuidString: id) != nil else {
@@ -269,3 +273,28 @@ let delegate = CompanionApp()
 application.delegate = delegate
 application.setActivationPolicy(.accessory)
 application.run()
+
+
+func executeSystem(_ request: [String: Any]) throws -> [String: Any] {
+    let action = request["action"] as? String ?? ""
+    let source: String
+    switch action {
+    case "shutdown": source = "tell application \"System Events\" to shut down"
+    case "restart": source = "tell application \"System Events\" to restart"
+    case "sleep": source = "tell application \"System Events\" to sleep"
+    case "lock": source = "tell application \"System Events\" to keystroke \"q\" using {command down, control down}"
+    case "theme.read": source = "tell application \"System Events\" to tell appearance preferences to get dark mode"
+    case "theme.set":
+        guard let value = request["value"] as? String, value == "dark" || value == "light" else {
+            throw NativeFailure(state: "Unsupported", message: "主题值无效。")
+        }
+        source = "tell application \"System Events\" to tell appearance preferences to set dark mode to " + (value == "dark" ? "true" : "false")
+    default: throw NativeFailure(state: "Unsupported", message: "系统操作不受支持。")
+    }
+    return try mainThread {
+        var error: NSDictionary?
+        let reply = NSAppleScript(source: source)!.executeAndReturnError(&error)
+        guard error == nil else { throw NativeFailure(state: "PermissionRequired", message: "系统未允许助手自动化 System Events；请在隐私与安全性中检查自动化权限。") }
+        return ["state": "Available", "value": action == "theme.read" ? (reply.booleanValue ? "dark" : "light") : ""]
+    }
+}

@@ -72,6 +72,8 @@ public sealed class NativeDesktopServices : IDisposable
     public IUserIdle? Idle { get; init; }
     public IScreenCapture? ScreenCapture { get; init; }
     public IUsbDevices? UsbDevices { get; init; }
+    public IPointerInput? Pointer { get; init; }
+    public IDesktopSession? Session { get; init; }
     public IKeyboardInput? Keyboard { get; init; }
     public IGlobalHotkeys? Hotkeys { get; init; }
     public IWindowOperations? Windows { get; init; }
@@ -88,7 +90,7 @@ public sealed class NativeDesktopServices : IDisposable
         List<Exception> failures = [];
         try { _stop.Cancel(); } catch (Exception error) { failures.Add(error); }
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices, Keyboard, Hotkeys, Windows, Wallpaper, Camera, Advanced }.OfType<IDisposable>())
+        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices, Keyboard, Pointer, Session, Hotkeys, Windows, Wallpaper, Camera, Advanced }.OfType<IDisposable>())
             if (seen.Add(resource))
                 try { resource.Dispose(); } catch (Exception error) { failures.Add(error); }
         if (failures.Count != 0) throw new AggregateException("部分平台资源清理失败。", failures);

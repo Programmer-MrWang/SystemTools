@@ -6,22 +6,22 @@
 | --- | --- | --- | --- | --- |
 | SystemTools.ActionFlowExecutionConfirmation | 行动流执行确认 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.AdjustScreenBrightness | 调整屏幕亮度 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.AdvancedShutdown | 高级计时关机 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.AltF4 | 按下 Alt+F4 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.AltTab | 按下 Alt+Tab | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.AdvancedShutdown | 高级计时关机 | 保留实现；需设置与现场条件 | 插件计时；宿主退出取消；系统授权后执行 | 插件计时；宿主退出取消；系统授权后执行 |
+| SystemTools.AltF4 | 按下 Alt+F4 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 映射为 Command+W / Command+Tab / Command+Z 对应系统语义 |
+| SystemTools.AltTab | 按下 Alt+Tab | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 映射为 Command+W / Command+Tab / Command+Z 对应系统语义 |
 | SystemTools.AutoHideMainWindowWhenOccluded | 遮挡文字时隐藏主界面 | 保留实现；需设置与现场条件 | 不支持可靠排除自身捕获 | 原生接入；需权限/依赖/设备 |
 | SystemTools.AutoOpenUsbDriveOnInsert | 自动播放 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.AutoSwitchClassIslandTheme | 自动切换 ClassIsland 主题 | 保留实现；需设置与现场条件 | 不支持可靠排除自身捕获 | 原生接入；需权限/依赖/设备 |
 | SystemTools.BackgroundPlayAudio | 后台播放音频 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.BlackScreenHtml | 黑屏html | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.CameraCapture | 摄像头抓拍 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.CancelShutdown | 取消关机计划 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.CancelShutdown | 取消关机计划 | 保留实现；需设置与现场条件 | 插件计时；宿主退出取消；系统授权后执行 | 插件计时；宿主退出取消；系统授权后执行 |
 | SystemTools.ChangeWallpaper | 切换壁纸 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ClearAllNotifications | 清除全部提醒 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.ClickSimulation | 模拟点击 | 原未注册；不新增入口 | 原未注册；不新增入口 | 原未注册；不新增入口 |
 | SystemTools.CloneDisplay | 复制屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.Copy | 复制 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
-| SystemTools.CtrlZ | 按下 Ctrl+Z | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.CtrlZ | 按下 Ctrl+Z | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 映射为 Command+W / Command+Tab / Command+Z 对应系统语义 |
 | SystemTools.Delete | 删除 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.DisableDevice | 禁用硬件设备 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
 | SystemTools.DisableMouse | 禁用鼠标 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
@@ -34,12 +34,12 @@
 | SystemTools.ExternalDisplay | 仅第二屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 公共 API 不提供关闭单屏 |
 | SystemTools.F11Key | 按下 F11 键 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.FullscreenClock | 沉浸式时钟 | 产品移除 | 产品移除 | 产品移除 |
-| SystemTools.ImmediateRestart | 立即重启 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.ImmediateShutdown | 立即关机 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.ImmediateRestart | 立即重启 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
+| SystemTools.ImmediateShutdown | 立即关机 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.InternalDisplay | 仅电脑屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 公共 API 不提供关闭单屏 |
-| SystemTools.KillProcess | 退出进程 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.KillProcess | 退出进程 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.LoadTemporaryClassPlan | 加载临时课表 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
-| SystemTools.LockScreen | 锁定屏幕 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.LockScreen | 锁定屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.Move | 移动 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.OpenAppSettings | 打开应用设置 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.OpenClassSwapWindow | 打开换课窗口 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
@@ -48,22 +48,22 @@
 | SystemTools.ScreenShot | 屏幕截图 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.SetVolume | 设置系统音量 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ShowAiChatDialog | 显示AI对话框 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.ShowDesktop | 显示桌面 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.ShowDesktop | 显示桌面 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 无可靠通用公开接口 |
 | SystemTools.ShowFloatingWindow | 显示悬浮窗 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ShowToast | 拉起自定义Windows通知 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.Shutdown | 计时关机 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.Shutdown | 计时关机 | 保留实现；需设置与现场条件 | 插件计时；宿主退出取消；系统授权后执行 | 插件计时；宿主退出取消；系统授权后执行 |
 | SystemTools.SimulateKeyboard | 模拟键盘 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.SimulateKeyCombination | 模拟组合键 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.SimulateMouse | 模拟鼠标 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.Sleep | 睡眠 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.SimulateMouse | 模拟鼠标 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
+| SystemTools.Sleep | 睡眠 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.SwitchFloatingWindowTheme | 切换悬浮窗主题 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.SwitchSystemAccentColor | 切换系统强调色 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.SwitchTheme | 切换主题色 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.SwitchSystemAccentColor | 切换系统强调色 | 保留实现；需设置与现场条件 | GNOME 公开固定色板；其他桌面未开放 | 无任意系统强调色公开写入接口 |
+| SystemTools.SwitchTheme | 切换主题色 | 保留实现；需设置与现场条件 | GNOME 公开 color-scheme；其他桌面未开放 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ToggleFloatingWindowLayer | 切换悬浮窗层级 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ToggleFloatingWindowProfile | 切换悬浮窗配置方案 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ToggleWorkflow | 开关自动化 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.TriggerCustomTrigger | 触发指定触发器 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
-| SystemTools.TypeContent | 键入内容 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.TypeContent | 键入内容 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.WakeUpVoiceConversationAi | 唤醒语音对话 AI | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.WindowOperation | 窗口操作 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.BetterCarouselContainer | 更好的轮播容器 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |

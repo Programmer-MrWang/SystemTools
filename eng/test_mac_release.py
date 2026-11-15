@@ -21,7 +21,7 @@ class MacReleaseTests(unittest.TestCase):
         self.assertTrue(all('--timestamp' in row and 'runtime' in row for row in commands))
         self.assertIn('--entitlements', commands[-1]); self.assertNotIn('--deep', commands[-1])
         entitlements = plistlib.loads(release.ENTITLEMENTS.read_bytes())
-        self.assertEqual(set(entitlements), {'com.apple.security.device.camera', 'com.apple.security.device.audio-input'})
+        self.assertEqual(set(entitlements), {'com.apple.security.device.camera', 'com.apple.security.device.audio-input', 'com.apple.security.automation.apple-events'})
 
     def test_signature_team_runtime_and_notarization_are_independent(self):
         with tempfile.TemporaryDirectory() as temporary:

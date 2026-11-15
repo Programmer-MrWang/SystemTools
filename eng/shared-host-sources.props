@@ -141,5 +141,17 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/ActionInProgressTriggerConfig.cs" Link="Config/ActionInProgressTriggerConfig.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/MainWindowClickTriggerConfig.cs" Link="Config/MainWindowClickTriggerConfig.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ActionInProgressTriggerSettings.cs" Link="Settings/ActionInProgressTriggerSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/TypeContentSettings.cs" Link="Settings/TypeContentSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/TypeContentSettingsControl.cs" Link="Controls/TypeContentSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/MouseInputSettings.cs" Link="Settings/MouseInputSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/KillProcessSettings.cs" Link="Settings/KillProcessSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/KillProcessSettingsControl.cs" Link="Controls/KillProcessSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ShutdownSettings.cs" Link="Settings/ShutdownSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ShutdownSettingsControl.cs" Link="Controls/ShutdownSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/AdvancedShutdownSettings.cs" Link="Settings/AdvancedShutdownSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/AdvancedShutdownSettingsControl.cs" Link="Controls/AdvancedShutdownSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ThemeSettings.cs" Link="Settings/ThemeSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ThemeSettingsControl.cs" Link="Controls/ThemeSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/AccentColorSettings.cs" Link="Settings/AccentColorSettings.cs" />
   </ItemGroup>
 </Project>

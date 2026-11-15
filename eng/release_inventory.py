@@ -9,7 +9,7 @@ import m1
 
 POLICY = json.loads((m1.ROOT / 'eng/release-policy.json').read_text(encoding='utf-8'))
 SHARED = '''ActionFlowExecutionConfirmation BackgroundPlayAudio BlackScreenHtml ActionInProgressTrigger MainWindowClickTrigger Copy Move Delete ToggleWorkflow LoadTemporaryClassPlan ClearAllNotifications OpenAppSettings OpenProfileEditor OpenClassSwapWindow TriggerCustomTrigger ReadFile NetworkStatus ClipboardContent LocalQuote NextClassDisplay BetterCarouselContainer ScrollingText ProcessRunningRule UsingClassPlanRule UsingTimeLayoutRule InTimePeriodRule'''.split()
-NATIVE = '''SetVolume LongIdleTrigger CloneDisplay ExtendDisplay InternalDisplay ExternalDisplay AdjustScreenBrightness AutoSwitchClassIslandTheme AutoHideMainWindowWhenOccluded ScreenShot UsbDeviceTrigger AutoOpenUsbDriveOnInsert SimulateKeyboard SimulateKeyCombination EnterKey EscKey F11Key HotkeyTrigger WindowOperation ShowFloatingWindow ToggleFloatingWindowLayer SwitchFloatingWindowTheme ToggleFloatingWindowProfile FloatingWindowTrigger ChangeWallpaper CameraCapture MediaMusicPlayingRule LyricsDisplay KeywordTrigger ShowAiChatDialog WakeUpVoiceConversationAi EnableVoiceWakeAi'''.split()
+NATIVE = '''AltF4 AltTab CtrlZ TypeContent SimulateMouse KillProcess Shutdown AdvancedShutdown CancelShutdown ImmediateShutdown ImmediateRestart Sleep LockScreen ShowDesktop SwitchTheme SwitchSystemAccentColor SetVolume LongIdleTrigger CloneDisplay ExtendDisplay InternalDisplay ExternalDisplay AdjustScreenBrightness AutoSwitchClassIslandTheme AutoHideMainWindowWhenOccluded ScreenShot UsbDeviceTrigger AutoOpenUsbDriveOnInsert SimulateKeyboard SimulateKeyCombination EnterKey EscKey F11Key HotkeyTrigger WindowOperation ShowFloatingWindow ToggleFloatingWindowLayer SwitchFloatingWindowTheme ToggleFloatingWindowProfile FloatingWindowTrigger ChangeWallpaper CameraCapture MediaMusicPlayingRule LyricsDisplay KeywordTrigger ShowAiChatDialog WakeUpVoiceConversationAi EnableVoiceWakeAi'''.split()
 
 
 def capabilities():
@@ -26,6 +26,14 @@ def capabilities():
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '共享实现；需设置与现场条件'
         if suffix in NATIVE:
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '原生接入；需权限/依赖/设备'
+        if suffix in ('Shutdown', 'AdvancedShutdown', 'CancelShutdown'):
+            for rid in ('linux-x64', 'osx-arm64'): states[rid] = '插件计时；宿主退出取消；系统授权后执行'
+        if suffix == 'ShowDesktop': states['osx-arm64'] = '无可靠通用公开接口'
+        if suffix == 'SwitchSystemAccentColor':
+            states['osx-arm64'] = '无任意系统强调色公开写入接口'
+            states['linux-x64'] = 'GNOME 公开固定色板；其他桌面未开放'
+        if suffix == 'SwitchTheme': states['linux-x64'] = 'GNOME 公开 color-scheme；其他桌面未开放'
+        if suffix in ('AltF4','AltTab','CtrlZ'): states['osx-arm64'] = '映射为 Command+W / Command+Tab / Command+Z 对应系统语义'
         if suffix == 'MainWindowClickTrigger':
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '主界面实际点击；穿透模式不触发'
         if suffix in ('AutoSwitchClassIslandTheme', 'AutoHideMainWindowWhenOccluded'): states['linux-x64'] = '不支持可靠排除自身捕获'

@@ -45,9 +45,10 @@ public sealed class NativeVoiceService(PortableSpeechService input, PlatformMedi
         _wake = input.Input.RegisterKeyword(word, 0.8, () => Dispatcher.UIThread.Post(Open));
         LastError = null;
     }
-    public Task OpenAsync() => Dispatcher.UIThread.InvokeAsync(Open).GetTask();
+    public Task OpenAsync(bool listen = true) => Dispatcher.UIThread.InvokeAsync(() => Open(listen)).GetTask();
 
-    private void Open()
+    private void Open() => Open(true);
+    private void Open(bool listen)
     {
         if (_window is { } existing) { if (existing.IsVisible) existing.Activate(); return; }
         if (!config.Data.EnableAiService || media.Stopping.IsCancellationRequested) return;
@@ -55,10 +56,10 @@ public sealed class NativeVoiceService(PortableSpeechService input, PlatformMedi
         var turns = new ConversationTurns(session.Token);
         _session = session; _turns = turns;
         var panel = new StackPanel { Spacing = 12, Margin = new Avalonia.Thickness(18) };
-        var transcript = new TextBox { IsReadOnly = true, AcceptsReturn = true, MinHeight = 260, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
-        var status = new TextBlock { Text = "正在准备语音输入…", TextWrapping = Avalonia.Media.TextWrapping.Wrap };
-        var typed = new TextBox { PlaceholderText = "也可以输入文字" };
-        var send = new Button { Content = "发送" };
+        var transcript = new TextBox { Name = "ConversationTranscript", IsReadOnly = true, AcceptsReturn = true, MinHeight = 260, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        var status = new TextBlock { Text = listen ? "正在准备语音输入…" : "请输入消息。", TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+        var typed = new TextBox { Name = "MessageInput", PlaceholderText = "也可以输入文字" };
+        var send = new Button { Name = "SendMessage", Content = "发送" };
         var interrupt = new Button { Content = "打断回复与朗读" };
         var end = new Button { Content = "结束对话" };
         panel.Children.Add(transcript); panel.Children.Add(status); panel.Children.Add(typed);
@@ -79,6 +80,7 @@ public sealed class NativeVoiceService(PortableSpeechService input, PlatformMedi
             var described = new HashSet<string>(StringComparer.Ordinal);
             var settings = new HashSet<string>(StringComparer.Ordinal);
             var tools = actions.Tools.Concat(profiles.Tools).ToArray();
+            var approvalDenied = false;
             for (var round = 0; round < 8; round++)
             {
                 token.ThrowIfCancellationRequested();
@@ -101,7 +103,10 @@ public sealed class NativeVoiceService(PortableSpeechService input, PlatformMedi
                 {
                     token.ThrowIfCancellationRequested();
                     string result;
-                    if (actions.Tools.Any(tool => tool.Name == call.Name))
+                    if (approvalDenied && (call.Name == ClassIslandActionAiService.ExecuteActionsToolName ||
+                        call.Name == ClassIslandProfileAiService.PatchProfileToolName))
+                        result = "{\"status\":\"denied\",\"message\":\"本轮操作已被用户拒绝。\"}";
+                    else if (actions.Tools.Any(tool => tool.Name == call.Name))
                     {
                         result = await actions.ExecuteToolAsync(call, preview => ConfirmAsync(window, preview.Summary,
                             string.Join(Environment.NewLine, preview.Items.Select(item => item.Name + Environment.NewLine + item.SettingsJson)), token),
@@ -111,6 +116,8 @@ public sealed class NativeVoiceService(PortableSpeechService input, PlatformMedi
                     else
                         result = await profiles.ExecuteToolAsync(call, preview => ConfirmAsync(window, preview.Summary,
                             string.Join(Environment.NewLine, preview.Operations.Select(item => item.Path + ": " + item.Before + " → " + item.After)), token), token).ConfigureAwait(false);
+                    using (var response = JsonDocument.Parse(result))
+                        if (response.RootElement.TryGetProperty("status", out var outcome) && outcome.GetString() == "denied") approvalDenied = true;
                     messages.Add(new("tool", result) { ToolCallId = call.Id });
                 }
             }
@@ -149,7 +156,7 @@ public sealed class NativeVoiceService(PortableSpeechService input, PlatformMedi
             finally { session.Dispose(); if (ReferenceEquals(_window, window)) { _window = null; _session = null; _turns = null; } }
         };
         window.Show();
-        _listening = Listen();
+        _listening = listen ? Listen() : Task.CompletedTask;
         async Task Listen()
         {
             try

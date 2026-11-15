@@ -8,7 +8,7 @@ namespace SystemTools;
 [ActionInfo("SystemTools.ShowAiChatDialog", "显示AI对话框", "", false)]
 public sealed class NativeShowAiChatAction(NativeVoiceService voice) : ActionBase
 {
-    protected override Task OnInvoke() => voice.OpenAsync();
+    protected override Task OnInvoke() => voice.OpenAsync(listen: false);
 }
 
 [ActionInfo("SystemTools.WakeUpVoiceConversationAi", "唤醒语音对话 AI", "\uEFF9", false)]

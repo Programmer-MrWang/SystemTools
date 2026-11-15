@@ -40,6 +40,7 @@
     <Compile Include="WindowsDependencies.cs" />
     <Compile Include="WindowsAcceptance.cs" />
     <Compile Include="WindowsM5Acceptance.cs" />
+    <Compile Include="WindowsM5ConversationAcceptance.cs" />
     <Compile Include="WindowsSpeechRecognition.cs" />
     <Compile Include="WindowsMediaServices.cs" />
     <Compile Include="UnavailableCameraAction.cs" />

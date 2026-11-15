@@ -34,3 +34,31 @@ do {
     check(error.state == "Unsupported", "窗口确认拒绝阻塞 AppKit 主线程且不调整窗口")
 }
 print("Native M4 checks: \(checks)")
+
+let cameraID = UUID().uuidString
+_ = try handleCamera(["id": cameraID], operation: "camera.prepare")
+_ = try handleCamera(["id": cameraID], operation: "camera.cancel")
+check(cameraJobsLock.withLock { cameraJobs[cameraID]?.cancelled == true }, "相机任务取消状态保存且未打开设备")
+_ = try handleCamera(["id": cameraID], operation: "camera.release")
+check(cameraJobsLock.withLock { cameraJobs[cameraID] == nil }, "相机任务释放后移除")
+let microphoneID = UUID().uuidString
+_ = try handleMicrophone(["id": microphoneID], operation: "microphone.prepare")
+_ = try handleMicrophone(["id": microphoneID], operation: "microphone.stop")
+let microphone = microphoneQueue.sync { microphoneJobs[microphoneID]! }
+do {
+    try microphoneQueue.sync { try microphone.start() }
+    preconditionFailure("已取消麦克风任务重新开始")
+} catch let error as NativeFailure {
+    check(error.state == "Disabled" && microphone.engine == nil, "已停止麦克风任务不创建音频引擎")
+}
+_ = try handleMicrophone(["id": microphoneID], operation: "microphone.release")
+check(microphoneQueue.sync { microphoneJobs[microphoneID] == nil }, "麦克风任务释放后移除")
+let authenticationID = UUID().uuidString
+_ = try handleAuthentication(["id": authenticationID], operation: "authentication.prepare")
+let authentication = authenticationJobsLock.withLock { authenticationJobs[authenticationID]! }
+authentication.verified = true
+_ = try handleAuthentication(["id": authenticationID], operation: "authentication.cancel")
+check(authentication.lock.withLock { authentication.cancelled && !authentication.verified }, "取消系统认证清除成功状态并使上下文失效")
+_ = try handleAuthentication(["id": authenticationID], operation: "authentication.release")
+check(authenticationJobsLock.withLock { authenticationJobs[authenticationID] == nil }, "认证任务释放后移除")
+print("Native M5 lifecycle checks complete: \(checks)")

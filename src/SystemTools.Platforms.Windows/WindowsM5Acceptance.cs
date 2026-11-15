@@ -97,6 +97,7 @@ internal static class WindowsM5Acceptance
                 await WaitMediaAsync(media.Media, "Paused", token);
                 Check(true, "真实媒体会话播放到暂停的状态迁移");
             }
+            await WindowsM5ConversationAcceptance.RunAsync(provider, Check, token);
             result = new(true, checks, null, details);
         }
         catch (Exception error) { result = new(false, checks, error.ToString(), details); }

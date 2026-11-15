@@ -43,6 +43,11 @@ Check(outputs.Count == 2 && outputs[0].BuiltIn && outputs[1].X == 1920, "解析�
 Check(SystemTools.Common.Layout.XrandrLayout.ApplyArguments(outputs, DisplayLayout.ExternalOnly).Contains("--off"), "单外屏明确关闭内屏");
 Check(SystemTools.Common.Layout.XrandrLayout.RestoreArguments(outputs).Contains("60.00"), "显示恢复保留刷新率");
 
+Reject(() => SystemTools.Common.Layout.HardwareBrightnessPolicy.Validate(double.NaN), "拒绝 NaN 硬件亮度");
+Reject(() => SystemTools.Common.Layout.HardwareBrightnessPolicy.Validate(101), "拒绝越界硬件亮度");
+Check(SystemTools.Common.Layout.HardwareBrightnessPolicy.ToRaw(50, 255) == 128, "硬件亮度按设备量程换算");
+Check(Math.Abs(SystemTools.Common.Layout.HardwareBrightnessPolicy.ToPercent(128, 256) - 50) < .001, "硬件亮度读回按真实量程解释");
+
 sealed class Resource : IBackgroundCapture, ITextRecognition, IDisposable
 {
     public int Disposals; public bool Fails;

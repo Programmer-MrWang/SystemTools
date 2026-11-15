@@ -4,6 +4,7 @@ import ImageIO
 import ScreenCaptureKit
 import Foundation
 import IOKit
+import IOKit.graphics
 import DiskArbitration
 import Carbon
 import ApplicationServices
@@ -465,6 +466,7 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
 
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
+    if operation.hasPrefix("brightness.") { return try handleBrightness(request, operation: operation) }
     if operation.hasPrefix("display.") { return try handleDisplay(request, operation: operation) }
     if operation.hasPrefix("material.") { return try mainThread { try handleMaterial(request, operation: operation) } }
     if operation == "ocr.probe" { return ["state": "Available"] }
@@ -804,4 +806,48 @@ func handleDisplay(_ request: [String: Any], operation: String) throws -> [Strin
         }
         throw error
     }
+}
+
+func handleBrightness(_ request: [String: Any], operation: String) throws -> [String: Any] {
+    var iterator: io_iterator_t = 0
+    guard IOServiceGetMatchingServices(kIOMainPortDefault, IOServiceMatching("IODisplayConnect"), &iterator) == KERN_SUCCESS else {
+        throw NativeFailure(state: "MissingDevice", message: "无法连接系统背光服务。")
+    }
+    defer { IOObjectRelease(iterator) }
+    var devices = [[String: Any]]()
+    var service = IOIteratorNext(iterator)
+    while service != 0 {
+        defer { IOObjectRelease(service); service = IOIteratorNext(iterator) }
+        guard let unmanaged = IODisplayCreateInfoDictionary(service, 0), let info = unmanaged.takeRetainedValue() as? [String: Any],
+              let vendor = info["DisplayVendorID"] as? UInt32, let model = info["DisplayProductID"] as? UInt32 else { continue }
+        let matches = try displayRows().compactMap { row -> UInt32? in
+            guard row["builtIn"] as? Bool == true, let id = UInt32(row["id"] as? String ?? ""),
+                  CGDisplayVendorNumber(id) == vendor, CGDisplayModelNumber(id) == model else { return nil }
+            return id
+        }
+        guard matches.count == 1 else { continue }
+        var registry: UInt64 = 0
+        guard IORegistryEntryGetRegistryEntryID(service, &registry) == KERN_SUCCESS else { continue }
+        let id = "iokit:" + String(registry)
+        var value: Float = 0
+        guard IODisplayGetFloatParameter(service, 0, kIODisplayBrightnessKey as CFString, &value) == KERN_SUCCESS,
+              value.isFinite, value >= 0, value <= 1 else { continue }
+        if operation == "brightness.set", request["id"] as? String == id {
+            guard let percent = request["percent"] as? Double, percent.isFinite, (0...100).contains(percent) else {
+                throw NativeFailure(state: "Unsupported", message: "亮度必须为 0 到 100。")
+            }
+            guard IODisplaySetFloatParameter(service, 0, kIODisplayBrightnessKey as CFString, Float(percent / 100)) == KERN_SUCCESS else {
+                throw NativeFailure(state: "PermissionRequired", message: "系统拒绝调整内置背光。")
+            }
+            var current: Float = 0
+            guard IODisplayGetFloatParameter(service, 0, kIODisplayBrightnessKey as CFString, &current) == KERN_SUCCESS,
+                  abs(Double(current) * 100 - percent) <= 3 else {
+                throw NativeFailure(state: "MissingDevice", message: "内置背光未确认请求值，请检查系统亮度。")
+            }
+            return ["state": "Available", "percent": Double(current) * 100]
+        }
+        devices.append(["id": id, "percent": Double(value) * 100])
+    }
+    if operation == "brightness.set" { throw NativeFailure(state: "Unsupported", message: "所选设备没有公开可用的 IOKit 背光接口。") }
+    return ["state": "Available", "devices": devices]
 }

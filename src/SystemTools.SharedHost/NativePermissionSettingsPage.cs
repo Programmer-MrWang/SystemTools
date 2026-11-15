@@ -47,6 +47,7 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
                 button.Click += async (_, _) => { button.IsEnabled = false; try { await NativeDisplayConfirmation.ApplyAsync(displays, layout, services.Stopping); } catch (Exception error) { button.Content = error.Message; } finally { button.IsEnabled = displays.ProbeLayout(layout).CanExecute; } };
                 panel.Children.Add(button);
             }
+        Add("硬件亮度（内置背光/外屏 DDC）", services.Advanced.Brightness);
         Content = new ScrollViewer { Content = panel };
         void Add(string name, INativeCapability? capability)
         {

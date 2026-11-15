@@ -42,6 +42,11 @@ public static class NativeHostRegistration
             if (catalog.CanCreate("SystemTools.InternalDisplay")) services.AddAction<NativeInternalDisplayAction, ShortcutKeyNotificationSettingsControl>();
             if (catalog.CanCreate("SystemTools.ExternalDisplay")) services.AddAction<NativeExternalDisplayAction, ShortcutKeyNotificationSettingsControl>();
         }
+        if (native.Advanced.Brightness is { } brightness)
+        {
+            Bind(catalog, "SystemTools.AdjustScreenBrightness", brightness);
+            if (catalog.CanCreate("SystemTools.AdjustScreenBrightness")) services.AddAction<NativeBrightnessAction, NativeBrightnessSettingsControl>();
+        }
         services.AddSettingsPage<NativePermissionSettingsPage>();
         services.AddSingleton<NativeBackgroundAppearance>();
         services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService>(provider => provider.GetRequiredService<NativeBackgroundAppearance>());
@@ -114,7 +119,7 @@ public static class NativeHostRegistration
         }
         var group = new ActionMenuTreeGroup("系统原生功能", "\uE079");
         foreach (var status in catalog.Snapshot().Where(x => x.Feature.Kind == "action" && x.Capability.CanExecute &&
-                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot" or "SystemTools.AutoOpenUsbDriveOnInsert" or "SystemTools.SimulateKeyboard" or "SystemTools.SimulateKeyCombination" or "SystemTools.EnterKey" or "SystemTools.EscKey" or "SystemTools.F11Key" or "SystemTools.WindowOperation" or "SystemTools.ShowFloatingWindow" or "SystemTools.ToggleFloatingWindowLayer" or "SystemTools.SwitchFloatingWindowTheme" or "SystemTools.ToggleFloatingWindowProfile" or "SystemTools.ChangeWallpaper" or "SystemTools.AutoSwitchClassIslandTheme" or "SystemTools.AutoHideMainWindowWhenOccluded" or "SystemTools.CloneDisplay" or "SystemTools.ExtendDisplay" or "SystemTools.InternalDisplay" or "SystemTools.ExternalDisplay"))
+                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot" or "SystemTools.AutoOpenUsbDriveOnInsert" or "SystemTools.SimulateKeyboard" or "SystemTools.SimulateKeyCombination" or "SystemTools.EnterKey" or "SystemTools.EscKey" or "SystemTools.F11Key" or "SystemTools.WindowOperation" or "SystemTools.ShowFloatingWindow" or "SystemTools.ToggleFloatingWindowLayer" or "SystemTools.SwitchFloatingWindowTheme" or "SystemTools.ToggleFloatingWindowProfile" or "SystemTools.ChangeWallpaper" or "SystemTools.AutoSwitchClassIslandTheme" or "SystemTools.AutoHideMainWindowWhenOccluded" or "SystemTools.CloneDisplay" or "SystemTools.ExtendDisplay" or "SystemTools.InternalDisplay" or "SystemTools.ExternalDisplay" or "SystemTools.AdjustScreenBrightness"))
             group.Children.Add(new ActionMenuTreeItem(status.Feature.Id, status.Feature.Name, "\uE079"));
         if (group.Children.Count > 0) IActionService.ActionMenuTree.Add(group);
     }

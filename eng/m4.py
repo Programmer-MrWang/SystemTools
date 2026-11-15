@@ -24,7 +24,7 @@ def verify_stage(stage):
     stage = Path(stage).resolve()
     manifest = json.loads((stage / 'm4-stage.json').read_text(encoding='utf-8'))
     target = manifest.get('runtimeId')
-    if (manifest.get('schemaVersion') != 1 or manifest.get('milestone') != 'M4'
+    if (manifest.get('schemaVersion') != 1 or manifest.get('milestone') not in ('M4', 'M5')
             or target not in m1.MODULES or manifest.get('buildRuntime') not in m1.MODULES
             or manifest.get('kind') not in ('native', 'cross-compiled')
             or (manifest['kind'] == 'native') != (target == manifest['buildRuntime'])
@@ -34,6 +34,8 @@ def verify_stage(stage):
     required = set(m1.COMMON + [m1.module_name(target)])
     if target == 'osx-arm64': required.add(m2.MAC_NATIVE)
     if target == 'win-x64': required.update(WINDOWS_REQUIRED)
+    if manifest.get('milestone') == 'M5' and target in m2.MEDIA_NATIVE:
+        required.add(m2.MEDIA_NATIVE[target])
     if not required.issubset(manifest['files']):
         raise RuntimeError('Missing required stage assets.')
     names = [path.relative_to(stage).as_posix() for path in stage.rglob('*') if path.is_file()]
@@ -47,7 +49,7 @@ def verify_stage(stage):
     return manifest
 
 
-def stage(target=None):
+def stage(target=None, milestone='M4'):
     actual = m1.native_rid()
     target = target or actual
     platform = m1.MODULES[target]
@@ -84,6 +86,13 @@ def stage(target=None):
             raise RuntimeError('Mac stage requires the native Swift bridge, compiled on a Mac.')
         (destination / m2.MAC_NATIVE).parent.mkdir(parents=True)
         shutil.copy2(native, destination / m2.MAC_NATIVE)
+    if target in m2.MEDIA_NATIVE:
+        speech = entry / m2.MEDIA_NATIVE[target]
+        if milestone == 'M5' and not speech.is_file():
+            raise RuntimeError('M5 requires the current platform speech library.')
+        if speech.is_file():
+            (destination / m2.MEDIA_NATIVE[target]).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(speech, destination / m2.MEDIA_NATIVE[target])
     if target == 'win-x64':
         windows = ROOT / 'src/SystemTools.Platforms.Windows/bin/Release' / m2.TFM
         for path in windows.glob('*.dll'):
@@ -101,7 +110,7 @@ def stage(target=None):
         for name in m2.EXTRAS:
             shutil.copy2(ROOT / name, destination / name)
     files = {path.relative_to(destination).as_posix(): m1.sha(path) for path in sorted(destination.rglob('*')) if path.is_file()}
-    manifest = dict(m1.identity(), schemaVersion=1, milestone='M4', runtimeId=target,
+    manifest = dict(m1.identity(), schemaVersion=1, milestone=milestone, runtimeId=target,
                     kind='native' if actual == target else 'cross-compiled', buildRuntime=actual,
                     sdk=subprocess.check_output(['dotnet', '--version'], cwd=ROOT, text=True).strip(),
                     hostSharedAssemblies=sorted(shared), files=files, runtimeVerified=False)
@@ -117,7 +126,7 @@ def aggregate(stages, output, preview=False):
     pairs = sorted(((Path(path).resolve(), verify_stage(path)) for path in stages), key=lambda item: item[1]['runtimeId'])
     if len(pairs) != 3 or {manifest['runtimeId'] for _, manifest in pairs} != set(m1.MODULES):
         raise RuntimeError('Exactly one stage per supported runtime is required.')
-    if len({(manifest['commit'], manifest['sourceHash'], manifest['sdk']) for _, manifest in pairs}) != 1:
+    if len({(manifest['commit'], manifest['sourceHash'], manifest['sdk'], manifest['milestone']) for _, manifest in pairs}) != 1:
         raise RuntimeError('Stages have different commits, source hashes or SDK versions.')
     if not preview and any(manifest['kind'] != 'native' for _, manifest in pairs):
         raise RuntimeError('Native aggregate cannot consume cross-compiled stages. Use --preview for an explicitly labelled development package.')
@@ -141,7 +150,7 @@ def aggregate(stages, output, preview=False):
         shutil.copy2(path, target)
     build = pairs[0][1]
     metadata = dict(commit=build['commit'], sourceHash=build['sourceHash'], sdk=build['sdk'],
-                    schemaVersion=1, milestone='M4', kind='cross-compiled-development-preview' if preview else 'native-build-aggregate',
+                    schemaVersion=1, milestone=build['milestone'], kind='cross-compiled-development-preview' if preview else 'native-build-aggregate',
                     hostSharedAssemblies=build['hostSharedAssemblies'],
                     files={name: m1.sha(path) for name, path in sorted(merged.items())},
                     nativeStages=[dict(runtimeId=manifest['runtimeId'], kind=manifest['kind'], buildRuntime=manifest['buildRuntime'],
@@ -164,7 +173,7 @@ def check(desktop_read=False):
         commands.insert(1, ('loader', [sys.executable, 'eng/m1.py', 'test']))
     if m1.native_rid() == 'osx-arm64':
         executable = ARTIFACTS / 'native-tests'
-        commands += [('native-compile', ['xcrun', 'swiftc', '-swift-version', '5', '-O', 'native/macos/SystemToolsNative.swift', 'native/macos/SystemToolsMedia.swift',
+        commands += [('native-compile', ['xcrun', 'swiftc', '-swift-version', '5', '-O', 'native/macos/SystemToolsNative.swift', 'native/macos/SystemToolsMedia.swift', 'native/macos/SystemToolsAudio.swift', 'native/macos/SystemToolsAuthentication.swift',
                      'tests/SystemTools.M4.NativeTests/main.swift', '-o', str(executable)]),
                      ('native-regression', [str(executable)] + ([] if desktop_read else ['--headless']))]
     results = []

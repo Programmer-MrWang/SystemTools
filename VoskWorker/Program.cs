@@ -22,13 +22,14 @@ internal static class Program
     {
         try
         {
-            if (args.Length != 1 || !Directory.Exists(args[0]))
+            if (args.Length is < 1 or > 2 || !Directory.Exists(args[0]) ||
+                (args.Length == 2 && args[1] != "--explicit-local-vosk"))
             {
                 WriteMessage("error", message: "语音识别模型目录无效。");
                 return 2;
             }
 
-            _model = await Task.Run(() => SpeechRecognitionModelFactory.Load(args[0]));
+            _model = await Task.Run(() => SpeechRecognitionModelFactory.Load(args[0], args.Length == 2));
             WriteMessage("model_ready");
             await MonitorParentCommandsAsync();
             await StopCurrentCaptureAsync();

@@ -33,6 +33,7 @@ try
     Check(MediaFiles.FindExecutable("missing", Path.Combine(temporary, "missing")) is null, "显式错误依赖路径不偷偷回退到其他可执行文件");
 }
 finally { Directory.Delete(temporary, recursive: true); }
+await MediaConcurrencyTests.RunAsync(Check);
 Console.WriteLine($"M5 checks: {checks}");
 
 if (args.Contains("--camera"))
@@ -56,6 +57,27 @@ if (args.Contains("--camera"))
     try { await MediaFiles.CaptureAsync(camera, "ASUS FHD webcam", folder, stop.Token); throw new Exception("Cancelled camera captured"); }
     catch (OperationCanceledException) { Check(Directory.GetFiles(folder).Length == before, "预取消不进入真实摄像头"); }
     File.WriteAllText("artifacts/m5/camera.json", System.Text.Json.JsonSerializer.Serialize(new { passed = true, devices = available, images, checks }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+}
+
+if (args.Contains("--vosk"))
+{
+    string Option(string key) => args[Array.IndexOf(args, key) + 1];
+    using var decoder = new VoskDecoder(Option("--library"), Option("--model"));
+    var wave = File.ReadAllBytes(Option("--wave"));
+    var cursor = 12;
+    while (!wave.AsSpan(cursor, 4).SequenceEqual("data"u8))
+        cursor += 8 + System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(wave.AsSpan(cursor + 4, 4));
+    var bytes = System.Buffers.Binary.BinaryPrimitives.ReadInt32LittleEndian(wave.AsSpan(cursor + 4, 4));
+    var segments = new List<string>();
+    for (var position = cursor + 8; position < cursor + 8 + bytes; position += 3200)
+    {
+        var length = Math.Min(3200, cursor + 8 + bytes - position);
+        if (decoder.AcceptPcm16(wave.AsSpan(position, length).ToArray()) is { IsFinal: true } text) segments.Add(text.Text);
+    }
+    if (decoder.Finish() is { } last) segments.Add(last.Text);
+    var transcript = string.Join(" ", segments);
+    Check(transcript.Contains("zero", StringComparison.Ordinal) && transcript.Contains("one", StringComparison.Ordinal), "真实 Vosk 模型识别官方语音夹具的已知内容");
+    File.WriteAllText("artifacts/m5/vosk-file.json", System.Text.Json.JsonSerializer.Serialize(new { passed = true, transcript, segments }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
 }
 
 sealed class ProbeResource : ICameraCapture, ISpeechRecognition, ISystemAuthentication, IMediaSessions, IDisposable

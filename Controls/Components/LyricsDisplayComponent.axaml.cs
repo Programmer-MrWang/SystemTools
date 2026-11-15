@@ -45,7 +45,10 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
         get => _lyricsBitmap;
         set
         {
+            if (ReferenceEquals(_lyricsBitmap, value)) return;
+            var previous = _lyricsBitmap;
             _lyricsBitmap = value;
+            previous?.Dispose();
             OnPropertyChanged(nameof(LyricsBitmap));
         }
     }
@@ -88,6 +91,7 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
         _isBottomTimerRunning = false;
 
         Settings.PropertyChanged -= OnSettingsPropertyChanged;
+        LyricsBitmap = null;
     }
 
     private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -207,9 +211,7 @@ public partial class LyricsDisplayComponent : ComponentBase<LyricsDisplaySetting
                 using (Bitmap croppedBmp = originalBmp.Clone(cropArea, PixelFormat.Format32bppArgb))
                 {
                     ProcessBlackPixels(croppedBmp);
-                    var oldBitmap = _lyricsBitmap;
             LyricsBitmap = ConvertToAvaloniaBitmap(croppedBmp);
-            oldBitmap?.Dispose();
             _originalWidth = croppedBmp.Width;
             _originalHeight = croppedBmp.Height;
                 }

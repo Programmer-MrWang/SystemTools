@@ -11,6 +11,8 @@ public partial class Plugin
 
     private static bool HandleMediaMusicPlayingRule(object? settings)
     {
+        if (ClassIsland.Shared.IAppHost.TryGetService<global::SystemTools.MediaPlaybackMonitor>() is { } monitor)
+            return monitor.IsPlaying;
         if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17134))
         {
             return false;
@@ -41,7 +43,8 @@ public partial class Plugin
         catch
         {
             _lastMediaRuleCheckAt = now;
-            return _lastMediaRuleResult;
+            _lastMediaRuleResult = false;
+            return false;
         }
     }
 }

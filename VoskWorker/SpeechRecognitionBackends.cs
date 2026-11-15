@@ -26,8 +26,13 @@ internal static class SpeechRecognitionModelFactory
     private const string MarkerFileName = "copyright.txt";
     private const string MarkerPrefix = "Officially certified by SystemTools";
 
-    public static ISpeechRecognitionModel Load(string modelDirectory)
+    public static ISpeechRecognitionModel Load(string modelDirectory, bool explicitLocalModel = false)
     {
+        if (explicitLocalModel)
+        {
+            if (!LooksLikeVoskModel(modelDirectory)) throw new InvalidDataException("The explicitly selected local Vosk model is incomplete.");
+            return new VoskRecognitionModel(modelDirectory);
+        }
         var markerPath = Path.Combine(modelDirectory, MarkerFileName);
         if (!File.Exists(markerPath))
         {

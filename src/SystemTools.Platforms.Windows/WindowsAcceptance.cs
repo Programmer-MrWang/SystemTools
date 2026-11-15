@@ -65,6 +65,8 @@ internal static class WindowsAcceptance
             var sharedDirectory = typeof(global::SystemTools.SharedHostRegistration).Assembly.Location;
             var migrationInteraction = await CheckMigrationInteractionAsync(provider);
             var floatingSnapshots = await CheckFloatingSnapshotsAsync(provider);
+            var mediaAcceptance = Environment.GetEnvironmentVariable("SystemTools_M5_Acceptance") == "1"
+                ? await WindowsM5Acceptance.RunAsync(provider) : null;
 
             var context = AssemblyLoadContext.GetLoadContext(typeof(Backend).Assembly)!;
             var isolated = context.Assemblies.Count(assembly =>
@@ -75,10 +77,11 @@ internal static class WindowsAcceptance
                     assembly.GetName().Name is "WinRT.Runtime" or "Microsoft.Windows.SDK.NET");
             var result = new
             {
-                passed = constructed.Length == 9 && themes.Length == 3 && registrations && credentials && migrationInteraction && floatingSnapshots && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
+                passed = constructed.Length == 9 && themes.Length == 3 && registrations && credentials && migrationInteraction && floatingSnapshots && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated && (mediaAcceptance?.Passed ?? true),
                 stage, pages = constructed, themes, legacyImageUris = assets,
                 fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries, registrations, credentials, migrationInteraction, floatingSnapshots, sharedDirectory,
                 directoryValidation = _directoryValidation,
+                mediaAcceptance,
                 isolated, loadedAssemblies = context.Assemblies.Select(assembly => assembly.GetName().Name).OrderBy(name => name).ToArray(),
                 components = ComponentRegistryService.Registered
                     .Where(info => info.ComponentType?.Assembly == typeof(Backend).Assembly || info.ComponentType?.Assembly == typeof(global::SystemTools.SharedHostRegistration).Assembly)

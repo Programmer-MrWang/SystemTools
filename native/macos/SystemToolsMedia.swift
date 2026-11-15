@@ -13,6 +13,9 @@ func captureCapability(_ kind: AVMediaType, purpose: String) -> [String: Any] {
     if kind == .video && AVCaptureDevice.devices(for: .video).isEmpty {
         return ["state": "MissingDevice", "reason": "没有可用摄像头。"]
     }
+    if kind == .audio && AVCaptureDevice.default(for: .audio) == nil {
+        return ["state": "MissingDevice", "reason": "没有可用的默认麦克风。"]
+    }
     return ["state": "Available", "reason": "设备权限已就绪。"]
 }
 

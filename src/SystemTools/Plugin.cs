@@ -45,6 +45,13 @@ public sealed class Plugin : PluginBase
                 var native = nativeBackend.CreateServices();
                 _lifetime.Own(native.Dispose);
                 NativeHostRegistration.Initialize(services, catalog, native);
+                if (backend is IMediaPlatformBackend mediaBackend)
+                {
+                    var preferences = (MediaPreferencesStore)services.Last(item => item.ServiceType == typeof(MediaPreferencesStore)).ImplementationInstance!;
+                    var media = mediaBackend.CreateMediaServices(() => preferences.Current);
+                    _lifetime.Own(media.Dispose);
+                    MediaHostRegistration.RegisterMedia(services, catalog, media);
+                }
             }
             EventHandler startShared = (_, _) => SystemTools.Services.SuperAutoIslandIntegration.Register();
             AppBase.Current.AppStarted += startShared;

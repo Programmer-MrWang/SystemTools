@@ -7,12 +7,13 @@ public sealed class MediaPreferencesStore
 {
     private readonly AtomicJsonStore<MediaPreferences> _store;
     public MediaPreferences Current { get; }
+    public event EventHandler? Changed;
     public MediaPreferencesStore(string folder)
     {
         _store = new(Path.Combine(folder, "Media.json"));
         Current = _store.Load();
     }
-    public void Save() => _store.Save(Current);
+    public void Save() { _store.Save(Current); Changed?.Invoke(this, EventArgs.Empty); }
 }
 
 public sealed class CameraCaptureContext(ICameraCapture camera) : IDisposable

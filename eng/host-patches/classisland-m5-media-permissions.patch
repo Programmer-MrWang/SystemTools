@@ -1,0 +1,23 @@
+From e7d8f874930805258c4575d33094ec5ec9a988b3 Mon Sep 17 00:00:00 2001
+From: Wang Haoyu <WangHaoyu-geren@outlook.com>
+Date: Sun, 15 Nov 2026 17:29:15 +0800
+Subject: [PATCH] =?UTF-8?q?feat(platforms/macos):=20=E5=A3=B0=E6=98=8E?=
+ =?UTF-8?q?=E6=8F=92=E4=BB=B6=E7=9B=B8=E6=9C=BA=E4=B8=8E=E9=BA=A6=E5=85=8B?=
+ =?UTF-8?q?=E9=A3=8E=E7=94=A8=E9=80=94?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ ClassIsland.Desktop/Info.plist | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/ClassIsland.Desktop/Info.plist b/ClassIsland.Desktop/Info.plist
+index 34ed5c1b..23997881 100644
+--- a/ClassIsland.Desktop/Info.plist
++++ b/ClassIsland.Desktop/Info.plist
+@@ -42,0 +43,4 @@
++	<key>NSCameraUsageDescription</key>
++	<string>在你执行摄像头抓拍或相关设备功能时，ClassIsland 使用摄像头获取图像。未启用时不会采集。</string>
++	<key>NSMicrophoneUsageDescription</key>
++	<string>在你启用语音输入、关键词唤醒或语音对话时，ClassIsland 使用麦克风识别语音。结束操作后停止采集。</string>

@@ -27,6 +27,12 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
     };
 
     private readonly MainConfigHandler _configHandler;
+    private string? _sessionApiKey;
+    public string? SessionApiKey
+    {
+        get => Volatile.Read(ref _sessionApiKey);
+        set => Volatile.Write(ref _sessionApiKey, string.IsNullOrWhiteSpace(value) ? null : value.Trim());
+    }
     private readonly HttpClient _httpClient = new()
     {
         Timeout = TimeSpan.FromSeconds(100)
@@ -549,6 +555,7 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
 
     public void Dispose()
     {
+        Volatile.Write(ref _sessionApiKey, null);
         _httpClient.Dispose();
     }
 
@@ -802,7 +809,7 @@ public sealed class OpenAiCompatibleService : IOpenAiCompatibleService, IDisposa
         var request = new HttpRequestMessage(method, BuildEndpoint(relativePath));
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-        var apiKey = _configHandler.Data.AiApiKey.Trim();
+        var apiKey = (SessionApiKey ?? _configHandler.Data.AiApiKey).Trim();
         if (!string.IsNullOrEmpty(apiKey))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);

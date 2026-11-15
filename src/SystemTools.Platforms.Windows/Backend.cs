@@ -22,6 +22,11 @@ public sealed class Backend : IPlatformBackend, IPlatformPlugin
             return System.IO.File.Exists(installed) ? installed : MediaFiles.FindExecutable("ffmpeg");
         });
         global::SystemTools.MediaHostRegistration.RegisterCamera(services, Shared.GlobalConstants.Features!, camera, preferences);
+        global::SystemTools.MediaHostRegistration.RegisterMedia(services, Shared.GlobalConstants.Features!, new PlatformMediaServices
+        {
+            Camera = camera, Speech = new WindowsSpeechRecognition(() => preferences.Current),
+            Authentication = new WindowsSystemAuthentication(), Media = new WindowsMediaSessions()
+        });
         if (!ClassIsland.Core.Abstractions.Services.IActionService.ActionInfos.ContainsKey("SystemTools.CameraCapture") &&
             Shared.GlobalConstants.MainConfig!.Data.IsActionEnabled("SystemTools.CameraCapture"))
             services.AddAction<UnavailableCameraAction>();

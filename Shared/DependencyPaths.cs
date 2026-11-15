@@ -44,6 +44,9 @@ public static class DependencyPaths
 
     public static string? FindSpeechRecognitionModelDirectory()
     {
+        var configured = ReadConfiguredSpeechModel();
+        if (!string.IsNullOrWhiteSpace(configured))
+            return Directory.Exists(configured) && LooksLikeVoskModel(configured) ? Path.GetFullPath(configured) : null;
         var root = GetDependencyRoot();
         if (!Directory.Exists(root))
         {
@@ -180,6 +183,9 @@ public static class DependencyPaths
             return null;
         }
 
+        if (IsExplicitLocalSpeechModel(modelDirectory) && LooksLikeVoskModel(modelDirectory))
+            return new(Path.GetFullPath(modelDirectory), Path.GetFileName(modelDirectory), SpeechRecognitionModelKind.Vosk);
+
         var markerPath = Path.Combine(modelDirectory, SpeechModelMarkerFileName);
         if (!TryReadSpeechModelMarker(markerPath, out var markerContent))
         {
@@ -201,6 +207,23 @@ public static class DependencyPaths
 
     public static string? GetSpeechRecognitionModelName(string modelDirectory) =>
         GetSpeechRecognitionModelInfo(modelDirectory)?.Name;
+
+    public static bool IsExplicitLocalSpeechModel(string directory)
+    {
+        var configured = ReadConfiguredSpeechModel();
+        return !string.IsNullOrWhiteSpace(configured) &&
+            string.Equals(Path.GetFullPath(configured), Path.GetFullPath(directory), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? ReadConfiguredSpeechModel()
+    {
+        var folder = GlobalConstants.PluginConfigFolder;
+        if (string.IsNullOrWhiteSpace(folder)) return null;
+        var path = Path.Combine(folder, "Media.json");
+        if (!File.Exists(path)) return null;
+        using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+        return json.RootElement.TryGetProperty("SpeechModelPath", out var value) ? value.GetString() : null;
+    }
 
     public static string? FindVoskModelDirectory() => FindSpeechRecognitionModelDirectory();
 

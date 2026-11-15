@@ -1,4 +1,4 @@
-name: M4 native builds and package aggregation
+name: M5 native builds and package aggregation
 
 on:
   workflow_dispatch:
@@ -36,26 +36,26 @@ jobs:
         run: python -c "import sys; sys.path.insert(0, 'eng'); import m1; assert m1.native_rid() == '${{ matrix.rid }}'"
       - name: Native clean restore and build
         run: python eng/m1.py build --clean
-      - name: Shared and M4 regression without desktop mutation
-        run: python eng/m4.py check
+      - name: Shared and M5 regression without desktop mutation
+        run: python eng/m5.py check
       - name: Verify same-OS reproducible paths
         if: runner.os != 'Linux'
         run: python eng/check_reproducible.py
       # CI builds and pure contracts do not assert real X11, TCC or USB device acceptance.
-      - name: Stage M4 native outputs and private dependencies
-        run: python eng/m4.py stage --target ${{ matrix.rid }}
+      - name: Stage M5 native outputs and private dependencies
+        run: python eng/m5.py stage --target ${{ matrix.rid }}
       - uses: actions/upload-artifact@v4
         with:
-          name: m4-stage-${{ matrix.rid }}
-          path: artifacts/m4/stages/${{ matrix.rid }}
+          name: m5-stage-${{ matrix.rid }}
+          path: artifacts/m5/stages/${{ matrix.rid }}
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: m4-checks-${{ matrix.rid }}
+          name: m5-checks-${{ matrix.rid }}
           path: |
-            artifacts/m4/*.json
-            artifacts/m4/*.log
+            artifacts/m5/*.json
+            artifacts/m5/*.log
             artifacts/m3/*.log
           if-no-files-found: ignore
 
@@ -69,20 +69,20 @@ jobs:
           python-version: '3.12'
       - uses: actions/download-artifact@v4
         with:
-          pattern: m4-stage-*
-          path: artifacts/m4/downloads
+          pattern: m5-stage-*
+          path: artifacts/m5/downloads
       - name: Require matching source, SDK, shared binaries and native provenance
         run: >-
-          python eng/m4.py aggregate
-          --input artifacts/m4/downloads/m4-stage-win-x64
-          artifacts/m4/downloads/m4-stage-linux-x64
-          artifacts/m4/downloads/m4-stage-osx-arm64
-          --output artifacts/m4/SystemTools.M4.Native.cipx
+          python eng/m5.py aggregate
+          --input artifacts/m5/downloads/m5-stage-win-x64
+          artifacts/m5/downloads/m5-stage-linux-x64
+          artifacts/m5/downloads/m5-stage-osx-arm64
+          --output artifacts/m5/SystemTools.M5.Native.cipx
       - uses: actions/upload-artifact@v4
         with:
-          name: SystemTools-M4-native-build-aggregate
+          name: SystemTools-M5-native-build-aggregate
           path: |
-            artifacts/m4/SystemTools.M4.Native.cipx
-            artifacts/m4/SystemTools.M4.Native.cipx.sha256
-            artifacts/m4/aggregate-native/m2-package.json
+            artifacts/m5/SystemTools.M5.Native.cipx
+            artifacts/m5/SystemTools.M5.Native.cipx.sha256
+            artifacts/m5/aggregate-native/m2-package.json
           if-no-files-found: error

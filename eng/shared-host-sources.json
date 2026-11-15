@@ -111,7 +111,11 @@
     "Services/ClassIslandSettingsService.cs",
     "Actions/CameraCaptureAction.cs",
     "Settings/CameraCaptureSettings.cs",
-    "Controls/CameraCaptureSettingsControl.cs"
+    "Controls/CameraCaptureSettingsControl.cs",
+    "Config/KeywordTriggerConfig.cs",
+    "Settings/EnableVoiceWakeAiActionSettings.cs",
+    "Models/ComponentSettings/LyricsDisplaySettings.cs",
+    "Rules/MediaMusicPlayingRuleSettings.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

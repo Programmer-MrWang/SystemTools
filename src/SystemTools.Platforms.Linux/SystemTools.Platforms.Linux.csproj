@@ -1,3 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><PackageReference Include="Vosk" Version="0.3.38" GeneratePathProperty="true" ExcludeAssets="all" /></ItemGroup>
+  <Target Name="CopyVoskNative" AfterTargets="Build"><Copy SourceFiles="$(PkgVosk)/build/lib/linux-x64/libvosk.so" DestinationFolder="$(TargetDir)" /></Target>
   <ItemGroup><ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" /><ProjectReference Include="../SystemTools.Common/SystemTools.Common.csproj" /></ItemGroup>
 </Project>

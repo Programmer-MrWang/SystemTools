@@ -39,6 +39,9 @@
     <Compile Include="WindowsDeviceCatalog.cs" />
     <Compile Include="WindowsDependencies.cs" />
     <Compile Include="WindowsAcceptance.cs" />
+    <Compile Include="WindowsM5Acceptance.cs" />
+    <Compile Include="WindowsSpeechRecognition.cs" />
+    <Compile Include="WindowsMediaServices.cs" />
     <Compile Include="UnavailableCameraAction.cs" />
     <Compile Include="../../Plugin.cs;../../DlibExtensions.cs;../../DriveUtils.cs" Link="%(Filename)%(Extension)" />
     <Compile Include="../../Actions/**/*.cs" Exclude="../../Actions/**/obj/**;../../Actions/**/bin/**" Link="Actions/%(RecursiveDir)%(Filename)%(Extension)" />

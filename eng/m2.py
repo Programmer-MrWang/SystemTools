@@ -18,6 +18,8 @@ TFM = 'net10.0-windows10.0.19041.0'
 PRIVATE = 'platforms/win-x64'
 SHARED_PRIVATE = 'platforms/shared'
 MAC_NATIVE = 'platforms/osx-arm64/libSystemToolsNative.dylib'
+MEDIA_NATIVE = {'osx-arm64': 'platforms/osx-arm64/native/libvosk.dylib',
+                'linux-x64': 'platforms/linux-x64/native/libvosk.so'}
 EXTRAS = ['black.html', 'title.png', 'version.json', 'README-1.md', 'README-2.md',
           'Lyricify Lite - README.md', 'huifu.bat', 'huifu.ps1',
           'jinyongshubiao.bat', 'jinyongshubiao.ps1']
@@ -75,7 +77,7 @@ def verify_files(names, manifest, read):
         if '/' not in name:
             if name not in set(m1.COMMON + MODULES + EXTRAS):
                 raise RuntimeError('Unexpected root file: ' + name)
-        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/') and name != MAC_NATIVE:
+        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/') and name != MAC_NATIVE and name not in MEDIA_NATIVE.values():
             raise RuntimeError('Unexpected platform asset: ' + name)
     if not set(m1.COMMON + MODULES).issubset(names):
         raise RuntimeError('Missing entry, contract or platform module.')
@@ -182,7 +184,7 @@ def extract(package_path, destination):
     return manifest
 
 def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', experimental=False, graceful_stop=False,
-          rejection_probe=None):
+          rejection_probe=None, media_preferences=None):
     if m1.native_rid() != 'win-x64':
         raise RuntimeError('Windows M2 desktop acceptance must run on Windows x64.')
     host, source = Path(host).resolve(), Path(source).resolve()
@@ -227,9 +229,14 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
     if missing_dependencies:
         original.update(enableFfmpegFeatures=True, enableFaceRecognition=True)
     m1.write_json(config / 'Main.json', original)
+    if media_preferences is not None:
+        m1.write_json(config / 'Media.json', media_preferences)
     environment = os.environ.copy()
     environment['ClassIsland_PackageRoot'] = str(sandbox)
     environment['SystemTools_M2_Acceptance'] = '1'
+    environment.pop('SystemTools_M5_Acceptance', None)
+    if media_preferences is not None and case != 'missing-backend':
+        environment['SystemTools_M5_Acceptance'] = '1'
     environment.pop('SystemTools_M4_RejectionRoot', None)
     if rejection_probe is not None:
         environment['SystemTools_M4_RejectionRoot'] = str(config)

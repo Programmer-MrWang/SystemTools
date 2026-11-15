@@ -130,5 +130,9 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/CameraCaptureAction.cs" Link="Actions/CameraCaptureAction.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/CameraCaptureSettings.cs" Link="Settings/CameraCaptureSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/CameraCaptureSettingsControl.cs" Link="Controls/CameraCaptureSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/KeywordTriggerConfig.cs" Link="Config/KeywordTriggerConfig.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/EnableVoiceWakeAiActionSettings.cs" Link="Settings/EnableVoiceWakeAiActionSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/LyricsDisplaySettings.cs" Link="Models/ComponentSettings/LyricsDisplaySettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/MediaMusicPlayingRuleSettings.cs" Link="Rules/MediaMusicPlayingRuleSettings.cs" />
   </ItemGroup>
 </Project>

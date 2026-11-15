@@ -526,6 +526,7 @@ public sealed class VoskSpeechService(ILogger<VoskSpeechService> logger) : IDisp
             RedirectStandardError = true
         };
         startInfo.ArgumentList.Add(modelPath);
+        if (DependencyPaths.IsExplicitLocalSpeechModel(modelPath)) startInfo.ArgumentList.Add("--explicit-local-vosk");
 
         var process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
         var session = new WorkerSession { Process = process };

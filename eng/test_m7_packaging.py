@@ -19,6 +19,14 @@ class M7PackagingTests(unittest.TestCase):
         self.assertIn('SystemTools.CameraCapture', inventory.support_markdown(actual))
         self.assertTrue(all(not x['runtimeVerified'] for x in actual['features']))
 
+    def test_shared_json_is_written_as_utf8_lf_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / 'metadata.json'
+            m1.write_json(output, dict(name='中文能力'))
+            data=output.read_bytes()
+            self.assertNotIn(b'\r', data)
+            self.assertEqual(json.loads(data)['name'], '中文能力')
+
     def test_unsupported_features_do_not_become_available_in_docs(self):
         rows = {x['Id']:x for x in inventory.capabilities()['features']}
         self.assertIn('不支持', rows['SystemTools.AutoSwitchClassIslandTheme']['platforms']['linux-x64'])

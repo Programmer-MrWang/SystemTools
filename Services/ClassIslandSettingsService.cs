@@ -30,6 +30,16 @@ public sealed class ClassIslandSettingsService
     /// </summary>
     public event EventHandler<string>? SettingsPropertyChanged;
 
+    public int? GetMainWindowTheme() => GetProperty<int>(MainWindowThemePropertyName) ?? GetProperty<int>(ThemePropertyName);
+
+    public (int Theme, bool Override)? ReadMainWindowTheme() => GetMainWindowTheme() is { } theme ? (theme, GetProperty<bool>(MainWindowThemeOverridePropertyName) ?? false) : null;
+
+    public void RestoreMainWindowTheme((int Theme, bool Override) original)
+    {
+        EnsureProperty(GetProperty<int>(MainWindowThemePropertyName) is null ? ThemePropertyName : MainWindowThemePropertyName, original.Theme, out _);
+        if (GetProperty<bool>(MainWindowThemeOverridePropertyName) is not null) EnsureProperty(MainWindowThemeOverridePropertyName, original.Override, out _);
+    }
+
     public bool SetMainWindowTheme(int theme)
     {
         if (GetProperty<int>(MainWindowThemePropertyName) is null)

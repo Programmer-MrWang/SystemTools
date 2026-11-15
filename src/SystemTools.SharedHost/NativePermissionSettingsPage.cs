@@ -20,6 +20,11 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
         Add("全局热键", services.Hotkeys);
         Add("窗口操作", services.Windows);
         Add("桌面壁纸", services.Wallpaper);
+        Add("排除自身的背景捕获", services.Advanced.Background);
+        var theme = new CheckBox { Content = "根据主界面背后亮度调整主题", IsChecked = Shared.GlobalConstants.MainConfig!.Data.AutoSwitchClassIslandTheme };
+        theme.IsEnabled = services.Advanced.Background?.Probe().CanExecute == true;
+        theme.IsCheckedChanged += (_, _) => { Shared.GlobalConstants.MainConfig!.Data.AutoSwitchClassIslandTheme = theme.IsChecked == true; Shared.GlobalConstants.MainConfig.Save(); };
+        panel.Children.Add(theme);
         Content = new ScrollViewer { Content = panel };
         void Add(string name, INativeCapability? capability)
         {

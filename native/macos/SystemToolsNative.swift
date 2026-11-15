@@ -464,6 +464,15 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
     if operation == "background.probe" { return screenCapability() }
+    if operation == "background.region" {
+        return try mainThread {
+            let window = try materialWindow(request)
+            let frame = window.contentRect(forFrameRect: window.frame)
+            let top = NSScreen.screens.first?.frame.maxY ?? 0
+            return ["state": "Available", "x": frame.minX + (request["x"] as? Double ?? 0),
+                    "y": top - frame.maxY + (request["y"] as? Double ?? 0)]
+        }
+    }
     if operation == "background.capture" {
         guard #available(macOS 14.0, *), CGPreflightScreenCaptureAccess() else {
             throw NativeFailure(state: "PermissionRequired", message: "背景捕获需要 macOS 14 和屏幕录制权限。")
@@ -591,4 +600,14 @@ func captureBackground(_ request: [String: Any]) throws -> [String: Any] {
     if let error = lock.withLock({ failure }) { throw error }
     guard let reply = lock.withLock({ result }) else { throw NativeFailure(state: "MissingDevice", message: "背景没有返回画面。") }
     return reply
+}
+
+func materialWindow(_ request: [String: Any]) throws -> NSWindow {
+    guard let number = request["handle"] as? UInt64, number != 0, let pointer = UnsafeRawPointer(bitPattern: UInt(number)) else {
+        throw NativeFailure(state: "Unsupported", message: "缺少原生窗口句柄。")
+    }
+    let object = Unmanaged<AnyObject>.fromOpaque(pointer).takeUnretainedValue()
+    if let window = object as? NSWindow { return window }
+    if let view = object as? NSView, let window = view.window { return window }
+    throw NativeFailure(state: "Unsupported", message: "句柄不是原生窗口或视图。")
 }

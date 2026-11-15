@@ -33,6 +33,13 @@ public static class NativeHostRegistration
             if (catalog.CanCreate("SystemTools.LongIdleTrigger")) services.AddTrigger<NativeIdleTrigger, NativeIdleSettingsControl>();
         }
         services.AddSettingsPage<NativePermissionSettingsPage>();
+        services.AddSingleton<NativeBackgroundAppearance>();
+        services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService>(provider => provider.GetRequiredService<NativeBackgroundAppearance>());
+        if (native.Advanced.Background is { } background)
+        {
+            Bind(catalog, "SystemTools.AutoSwitchClassIslandTheme", background);
+            if (catalog.CanCreate("SystemTools.AutoSwitchClassIslandTheme")) services.AddAction<NativeBackgroundThemeAction, NativeBackgroundSettingsControl>();
+        }
         if (native.Camera is not null) MediaHostRegistration.RegisterCamera(services, catalog, native.Camera);
         if (native.ScreenCapture is not null)
         {

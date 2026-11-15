@@ -14,6 +14,12 @@ try { new AdvancedDesktopServices { Background = broken, TextRecognition = other
 Check(other.Disposals == 1, "一个资源失败仍释放其余资源");
 Check(BrightnessKind.BuiltInBacklight != BrightnessKind.SoftwareDimming && BrightnessKind.ExternalDdc != BrightnessKind.SoftwareDimming, "软件变暗与硬件亮度分离");
 
+var policy = new SystemTools.Common.Layout.BackgroundThemePolicy();
+Check(policy.Observe(0, 1) is null && policy.Observe(0, 1) == 2, "稳定两帧才切换主题");
+Check(policy.Observe(128, 2) is null && policy.Observe(130, 2) is null, "迟滞带保持主题");
+Check(policy.Observe(255, 2) is null && policy.Observe(0, 2) is null && policy.Observe(255, 2) is null, "交替噪声不会切换主题");
+Check(policy.Observe(double.NaN, 2) is null, "拒绝无效亮度");
+
 sealed class Resource : IBackgroundCapture, ITextRecognition, IDisposable
 {
     public int Disposals; public bool Fails;

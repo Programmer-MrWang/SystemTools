@@ -2,11 +2,18 @@ using SystemTools.Contracts;
 
 namespace SystemTools.Platforms.MacOS;
 
-public sealed class BackgroundCaptureService : IBackgroundCapture, IPermissionRequest
+public sealed class BackgroundCaptureService : IBackgroundCapture, IPermissionRequest, IWindowRegionProvider
 {
     private readonly SemaphoreSlim _gate = new(1, 1);
     public Capability Probe() => NativeBridge.Probe("background.probe");
     public Capability RequestAccess() => NativeBridge.Probe("screen.request");
+    public Task<ScreenRegion> WindowRegionAsync(nint handle, ScreenRegion localRegion, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested(); localRegion.Validate();
+        var value = NativeBridge.Require(new { operation = "background.region", handle = (long)handle,
+            x = localRegion.X, y = localRegion.Y, width = localRegion.Width, height = localRegion.Height });
+        return Task.FromResult(new ScreenRegion(value.GetProperty("x").GetDouble(), value.GetProperty("y").GetDouble(), localRegion.Width, localRegion.Height));
+    }
     public async Task<BackgroundFrame> CaptureAsync(ScreenRegion region, CancellationToken token)
     {
         region.Validate();

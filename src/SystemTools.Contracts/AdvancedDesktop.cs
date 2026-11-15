@@ -16,6 +16,10 @@ public interface IBackgroundCapture : INativeCapability
 {
     Task<BackgroundFrame> CaptureAsync(ScreenRegion region, CancellationToken token);
 }
+public interface IWindowRegionProvider
+{
+    Task<ScreenRegion> WindowRegionAsync(nint handle, ScreenRegion localRegion, CancellationToken token);
+}
 public sealed record RecognizedText(ScreenRegion Bounds, double Confidence);
 public interface ITextRecognition : INativeCapability
 {

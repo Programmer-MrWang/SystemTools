@@ -48,6 +48,14 @@ Reject(() => SystemTools.Common.Layout.HardwareBrightnessPolicy.Validate(101), "
 Check(SystemTools.Common.Layout.HardwareBrightnessPolicy.ToRaw(50, 255) == 128, "硬件亮度按设备量程换算");
 Check(Math.Abs(SystemTools.Common.Layout.HardwareBrightnessPolicy.ToPercent(128, 256) - 50) < .001, "硬件亮度读回按真实量程解释");
 
+var linuxCatalog = new FeatureCatalog("linux-x64");
+SystemTools.Common.Layout.PlatformFeaturePolicy.BindWindowsBoundaries(linuxCatalog);
+Check(SystemTools.Common.Layout.PlatformFeaturePolicy.WindowsExclusive.All(id => !linuxCatalog.CanCreate(id) && linuxCatalog.Get(id).Reason.Contains("Windows")), "非 Windows 明确拒绝专属设备和提权入口");
+var windowsCatalog = new FeatureCatalog("win-x64");
+windowsCatalog.Bind("SystemTools.EnableDevice", () => new(CapabilityState.Available));
+SystemTools.Common.Layout.PlatformFeaturePolicy.BindWindowsBoundaries(windowsCatalog);
+Check(windowsCatalog.CanCreate("SystemTools.EnableDevice"), "平台边界不覆盖 Windows 原有能力");
+
 sealed class Resource : IBackgroundCapture, ITextRecognition, IDisposable
 {
     public int Disposals; public bool Fails;

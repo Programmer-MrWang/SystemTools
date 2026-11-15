@@ -46,6 +46,7 @@ public class AdjustScreenBrightnessAction(ILogger<AdjustScreenBrightnessAction> 
                 else
                 {
                     _logger.LogWarning("设置屏幕亮度失败，可能是硬件不支持、WMI 调用失败或缺少管理员权限");
+                    throw new InvalidOperationException("没有显示器确认亮度调整，请检查硬件支持、驱动与权限。");
                 }
             }
             catch (Exception ex)

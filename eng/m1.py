@@ -13,6 +13,7 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 def write_json(path, value):
+    path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes((json.dumps(value, ensure_ascii=False, indent=2) + '\n').encode('utf-8'))
 

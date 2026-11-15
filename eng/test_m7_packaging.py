@@ -22,7 +22,7 @@ class M7PackagingTests(unittest.TestCase):
     def test_shared_json_is_written_as_utf8_lf_bytes(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / 'metadata.json'
-            m1.write_json(output, dict(name='中文能力'))
+            m1.write_json(str(output), dict(name='中文能力'))
             data=output.read_bytes()
             self.assertNotIn(b'\r', data)
             self.assertEqual(json.loads(data)['name'], '中文能力')

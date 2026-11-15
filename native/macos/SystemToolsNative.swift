@@ -130,6 +130,7 @@ let logicalKeys: [String: UInt16] = [
     "F9": 101, "F10": 109, "F11": 103, "F12": 111, "Delete": 117, "Left": 123, "Right": 124, "Down": 125, "Up": 126
 ]
 func keyCode(_ name: String) -> UInt16? {
+    if !Thread.isMainThread { return mainThread { keyCode(name) } }
     if name.count != 1 { return logicalKeys[name] }
     guard let source = TISCopyCurrentKeyboardLayoutInputSource()?.takeRetainedValue(),
           let raw = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData) else { return nil }
@@ -308,9 +309,14 @@ func windowExecute(_ action: String) throws {
             } else {
                 let result: AXError
                 if value {
-                    let button = try axValue(window, kAXMinimizeButtonAttribute)
-                    guard CFGetTypeID(button) == AXUIElementGetTypeID() else { throw NativeFailure(state: "Unsupported", message: "目标窗口没有提供最小化按钮。") }
-                    result = AXUIElementPerformAction(unsafeBitCast(button, to: AXUIElement.self), kAXPressAction as CFString)
+                    var settable = DarwinBoolean(false)
+                    if AXUIElementIsAttributeSettable(window, kAXMinimizedAttribute as CFString, &settable) == .success && settable.boolValue {
+                        result = AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, kCFBooleanTrue!)
+                    } else {
+                        let button = try axValue(window, kAXMinimizeButtonAttribute)
+                        guard CFGetTypeID(button) == AXUIElementGetTypeID() else { throw NativeFailure(state: "Unsupported", message: "目标窗口没有提供最小化按钮。") }
+                        result = AXUIElementPerformAction(unsafeBitCast(button, to: AXUIElement.self), kAXPressAction as CFString)
+                    }
                 } else {
                     result = AXUIElementSetAttributeValue(window, kAXMinimizedAttribute as CFString, kCFBooleanFalse!)
                 }

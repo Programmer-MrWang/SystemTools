@@ -43,12 +43,12 @@ def check():
         if completed.returncode: raise RuntimeError(completed.stdout)
 
 
-def stage(target=None):
+def stage(target=None, milestone="M7"):
     if target and target != m1.native_rid(): raise RuntimeError('M7 候选阶段只接收对应系统原生构建。')
     import build_npoi
     build_npoi.build()
     target = target or m1.native_rid(); m4.ARTIFACTS = ARTIFACTS
-    destination = m4.stage(target, milestone='M7')
+    destination = m4.stage(target, milestone=milestone)
     metadata = m4.verify_stage(destination)
     release_inventory.generate(destination, target)
     audit_dependencies.audit(destination / ('release/dependency-audit-' + target + '.json'))
@@ -80,7 +80,7 @@ def native_architecture(data, expected):
 def audit(package, output=None):
     with tempfile.TemporaryDirectory(prefix='systemtools-m7-audit-') as temporary:
         root = Path(temporary); metadata = m2.extract(package, root)
-        if metadata.get('milestone') != 'M7' or metadata.get('kind') != 'native-build-aggregate': raise RuntimeError('M7 发行只接收同源原生三端聚合。')
+        if metadata.get('milestone') not in ('M7','M8') or metadata.get('kind') != 'native-build-aggregate': raise RuntimeError('M7 发行只接收同源原生三端聚合。')
         if metadata.get('sdk') != POLICY['sdk']: raise RuntimeError('SDK 锁不匹配。')
         if (len(metadata.get('nativeStages', [])) != 3 or any(item.get('kind') != 'native' or item.get('buildRuntime') != item.get('runtimeId') for item in metadata.get('nativeStages', []))
                 or {item.get('runtimeId') for item in metadata.get('nativeStages', [])} != set(POLICY['runtimeIds'])): raise RuntimeError('缺少原生阶段。')

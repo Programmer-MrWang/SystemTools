@@ -72,7 +72,7 @@ def smoke(host_app, package, case='normal', click=False, timeout=100):
     m1.write_json(sandbox / 'data/Config/Plugins/SystemTools/Main.json', dict(enableAiService=False, autoSwitchClassIslandTheme=False, autoHideMainWindowWhenOccluded=False, futurePlatform=dict(keep=7)))
     validated = run / 'validated'
     metadata = m2.extract(package, validated)
-    if metadata.get('milestone') not in ('M6', 'M7'): raise RuntimeError('Provide an explicit M6 or M7 package.')
+    if metadata.get('milestone') not in ('M6', 'M7', 'M8'): raise RuntimeError('Provide an explicit M6 or M7 package.')
     if case == 'normal':
         cache = sandbox / 'data/Cache/PluginPackages'
         cache.mkdir(parents=True)

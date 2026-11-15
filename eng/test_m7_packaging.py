@@ -40,7 +40,7 @@ class M7PackagingTests(unittest.TestCase):
         for rid in m7.POLICY['runtimeIds']: self.assertIn(rid, workflow)
         self.assertNotIn('arm74', workflow)
         self.assertIn(m7.POLICY['sdk'], workflow)
-        self.assertIn('python eng/m7.py aggregate', workflow)
+        self.assertTrue('python eng/m7.py aggregate' in workflow or 'python eng/m8.py aggregate' in workflow)
 
     def test_metadata_allowlist_never_allows_extra_executable(self):
         self.assertTrue(m2.release_asset('release/capabilities.json'))

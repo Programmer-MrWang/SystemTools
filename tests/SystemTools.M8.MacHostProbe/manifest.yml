@@ -1,0 +1,11 @@
+id: SystemTools.M8.MacHostProbe
+name: M8 本机交互隔离验收
+entranceAssembly: SystemTools.M8.MacHostProbe.dll
+version: 1.0.0.0
+apiVersion: 2.2.0.0
+author: SystemTools
+supportedOSPlatforms:
+- macOS
+dependencies:
+- id: SystemTools
+  isRequired: false

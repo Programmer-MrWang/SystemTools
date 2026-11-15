@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Compare this OS's outputs from two checkout paths; not a cross-OS claim."""
 from pathlib import Path
-import json, subprocess, tempfile
+import json, shutil, subprocess, tempfile
 import m1
 
 def main():
@@ -28,6 +28,13 @@ def main():
             first = m1.ROOT / 'src/SystemTools/bin/Release/net10.0' / name
             second = clone / 'src/SystemTools/bin/Release/net10.0' / name
             if m1.sha(first) != m1.sha(second):
+                diagnostic = m1.ARTIFACTS / 'reproducibility-failure'
+                diagnostic.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(first, diagnostic / ('first-' + first.name))
+                shutil.copy2(second, diagnostic / ('second-' + second.name))
+                m1.write_json(diagnostic / 'comparison.json', dict(file=name,
+                    firstSha256=m1.sha(first), secondSha256=m1.sha(second),
+                    firstBytes=first.stat().st_size, secondBytes=second.stat().st_size))
                 raise RuntimeError('Non-reproducible output: ' + name)
             hashes[name] = m1.sha(first)
     report = dict(m1.identity(), passed=True, nativeRuntime=m1.native_rid(), differentCheckoutPaths=True, sameOrigin=True, files=hashes, scope='Same OS only. Cross-OS common hash comparison remains enforced by package aggregation.')

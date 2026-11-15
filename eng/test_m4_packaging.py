@@ -122,6 +122,25 @@ class M4PackagingTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.aggregate()
 
+    def test_m5_requires_platform_speech_native_assets(self):
+        for stage, rid in zip(self.stages, m1.MODULES):
+            if rid in m2.MEDIA_NATIVE:
+                path = stage / m2.MEDIA_NATIVE[rid]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('native speech fixture')
+            self.manifest(stage, rid, milestone='M5')
+        self.assertTrue(self.aggregate().is_file())
+        target = self.stages[1] / m2.MEDIA_NATIVE['linux-x64']
+        target.unlink()
+        self.manifest(self.stages[1], 'linux-x64', milestone='M5')
+        with self.assertRaisesRegex(RuntimeError, 'Missing required'):
+            self.aggregate()
+
+    def test_m4_and_m5_stages_cannot_be_mixed(self):
+        self.manifest(self.stages[0], 'win-x64', milestone='M5')
+        with self.assertRaisesRegex(RuntimeError, 'different commits'):
+            self.aggregate()
+
 
 if __name__ == '__main__':
     unittest.main()

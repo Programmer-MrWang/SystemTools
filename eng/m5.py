@@ -11,6 +11,9 @@ import m1
 import m2
 import m4
 
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
+
 ROOT = m1.ROOT
 ARTIFACTS = ROOT / 'artifacts/m5'
 

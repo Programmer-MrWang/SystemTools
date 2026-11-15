@@ -57,6 +57,7 @@ jobs:
             artifacts/m5/*.json
             artifacts/m5/*.log
             artifacts/m3/*.log
+            artifacts/m1/reproducibility-failure/**
           if-no-files-found: ignore
 
   aggregate:

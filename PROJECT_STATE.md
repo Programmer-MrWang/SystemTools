@@ -2,6 +2,18 @@
 
 更新：2026-11-15，Asia/Shanghai。正式开发：`C:\STWork-Windows\SystemTools`；宿主：`C:\STWork-Windows\ClassIsland`。本文件替代 M4 收尾状态，历史证据仍保留。
 
+## 最新进展：2026-11-16 M7 候选版与发行工具收尾
+
+本段优先于后文历史。按用户“暂时无 Apple Developer Program，先完成候选版与发行工具”范围，M7.0—M7.6 已完成开发、自审和本机可完成的验证。正式 Developer ID、公证、公开发行与完整跨平台实体设备验收仍为 false；没有修改 ClassIsland 源码或安装应用。
+
+最终业务/工具提交 ccfdeb072fd33e4bf62b2fcee80a32da68654c38，指纹 4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a；CI 43744617794 三端及严格 aggregate 全部成功，检查 Windows 288、Linux 285、Mac 343；Windows/Mac 跨路径可复现与自建 NPOI 包比较通过。本机 343 项回归通过。
+
+最终包 artifacts/m7/final-native/SystemTools.M7.Native.cipx，SHA-256 bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227，780 文件、82 项能力。按用户选择源码构建 Apache NPOI 并移除旧 ImageSharp；依赖公告审计、许可证/来源资料、升级前快照、迁移/备份/条件回退和 Mac 签名公证工具已交付。
+
+最终包 Mac 11 场景/72 项生命周期、正常/异平台损坏各 17 项及本机后端缺失 1 项通过，主动退出 0、无超时强停、日常配置不变。4290 项宿主文件和原 dirty 与基线相同；旧包实际 M6 -> M7 -> M6 回退保留原包/配置。完整报告 docs/validation/2026-11-16-m7-closeout.md 与 -results.json；操作入口 docs/distribution/。原 IDE、docs/reports/ 与迁移纠正保留。
+
+稳定门禁实际拒绝。仍需本人配置 Developer ID/公证凭据与正式升级授权实测，并在 Windows/Linux 补实体设备和旧 Windows 2.x 升级生命周期；多屏、硬件亮度、外部 AI/中文语音等按原清单继续独立追踪。不自动发布。
+
 ## 最新进展：2026-11-16 M6 开发收尾
 
 本段优先于后文 M5 与迁移历史。M6.0—M6.8 开发已完成，已按批次自审、中文约定式提交并通过本机代理推送。仅开发自己的插件及原生模块，未修改 ClassIsland 源码或安装应用。

@@ -1,0 +1,965 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-16",
+  "scope": "M7 candidate and release tooling authorized by user; no public release",
+  "developmentComplete": true,
+  "candidateDelivered": true,
+  "formalDistributionComplete": false,
+  "fullPlatformAcceptance": false,
+  "ci": {
+    "id": 43744617794,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+    "html_url": "https://github.com/Programmer-MrWang/SystemTools/actions/runs/43744617794",
+    "created_at": "2026-11-15T18:04:06Z",
+    "updated_at": "2026-11-15T18:09:52Z",
+    "jobs": [
+      {
+        "id": 132905061167,
+        "name": "native-build (windows-2025, win-x64)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132905061299,
+        "name": "native-build (macos-15, osx-arm64)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132905061375,
+        "name": "native-build (ubuntu-24.04, linux-x64)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132906554044,
+        "name": "aggregate",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "artifactId": 14173403755,
+    "artifactDigest": "sha256:daf1664ff17689a501020f5931fcee6543edfa4405a8e7abb2a1a19ceaebfb95"
+  },
+  "package": {
+    "schemaVersion": 1,
+    "passed": true,
+    "packageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+    "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+    "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+    "sdk": "10.0.403",
+    "channel": "rc",
+    "files": 780,
+    "featureRows": 82,
+    "runtimeIds": [
+      "win-x64",
+      "linux-x64",
+      "osx-arm64"
+    ],
+    "nativeArchitectureVerified": true,
+    "hostAssembliesExcluded": true,
+    "dependencyAudit": true,
+    "fullPlatformAcceptance": false
+  },
+  "localChecks": {
+    "commit": "596acc7fedb9de2a018f0302a700a93c709dcccb",
+    "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+    "milestone": "M7",
+    "passed": true,
+    "executionOS": "darwin",
+    "checks": [
+      {
+        "name": "shared-regression",
+        "passed": true,
+        "checks": 121
+      },
+      {
+        "name": "loader",
+        "passed": true,
+        "checks": 19
+      },
+      {
+        "name": "m4-contracts",
+        "passed": true,
+        "checks": 41
+      },
+      {
+        "name": "m4-package",
+        "passed": true,
+        "checks": 18
+      },
+      {
+        "name": "entrance-identity",
+        "passed": true,
+        "checks": 1
+      },
+      {
+        "name": "native-compile",
+        "passed": true,
+        "checks": 0
+      },
+      {
+        "name": "native-regression",
+        "passed": true,
+        "checks": 14
+      },
+      {
+        "name": "m5-contracts",
+        "passed": true,
+        "checks": 22
+      },
+      {
+        "name": "m5-acceptance-tools",
+        "passed": true,
+        "checks": 2
+      },
+      {
+        "name": "companion-ipc",
+        "passed": true,
+        "checks": 17
+      },
+      {
+        "name": "m6-contracts",
+        "passed": true,
+        "checks": 26
+      },
+      {
+        "name": "m6-native-compile",
+        "passed": true,
+        "checks": 0
+      },
+      {
+        "name": "m6-native",
+        "passed": true,
+        "checks": 13
+      },
+      {
+        "name": "m7-contracts",
+        "passed": true,
+        "checks": 16
+      },
+      {
+        "name": "m7-lifecycle",
+        "passed": true,
+        "checks": 16
+      },
+      {
+        "name": "m7-migration",
+        "passed": true,
+        "checks": 3
+      },
+      {
+        "name": "m7-mac-release",
+        "passed": true,
+        "checks": 4
+      },
+      {
+        "name": "m7-package",
+        "passed": true,
+        "checks": 7
+      },
+      {
+        "name": "m7-dependency-audit",
+        "passed": true,
+        "checks": 3
+      }
+    ],
+    "fullPlatformAcceptance": false
+  },
+  "macLifecycle": {
+    "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+    "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+    "schemaVersion": 1,
+    "passed": true,
+    "packageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+    "previousPackageSha256": "29436a3a26154af86bb8eebd94dbe72b754a5ae744e61da7f79f2ead719df56a",
+    "runtimeIds": [
+      "osx-arm64"
+    ],
+    "finalCandidate": true,
+    "fullPlatformAcceptance": false,
+    "scenarios": [
+      {
+        "label": "fresh-install",
+        "expected": "Loaded",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-fresh-install-3f767768",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "restart",
+        "expected": "Loaded",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-restart-593ff648",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "disabled",
+        "expected": "Disabled",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-disabled-c6423bae",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Disabled，预期：Disabled",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Disabled",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "re-enabled",
+        "expected": "Loaded",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-re-enabled-7210fd87",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "uninstalled",
+        "expected": "Absent",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-uninstalled-a1496813",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "宿主卸载后不再发现 SystemTools 插件",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Absent",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "previous-m6",
+        "expected": "Loaded",
+        "packageKind": "M6",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-previous-m6-d8f843a0",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "upgraded-m7",
+        "expected": "Loaded",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-upgraded-m7-1649889f",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "upgrade-restart",
+        "expected": "Loaded",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-upgrade-restart-ae1190be",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "rolled-back-m6",
+        "expected": "Loaded",
+        "packageKind": "M6",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-rolled-back-m6-3dd41c45",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "synthetic-legacy-conflict",
+        "expected": "Error",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-synthetic-legacy-conflict-f3a909cd",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Error，预期：Error",
+            "旧预览身份冲突明确阻止正式插件重复注册",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Error",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "legacy-explicitly-disabled",
+        "expected": "Loaded",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m7/mac/20261116-021119-e5bcb8/run-legacy-explicitly-disabled-7b1e692d",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      }
+    ],
+    "assertions": [
+      "同版本重启保留原快照",
+      "宿主真实卸载保留配置、附件和恢复资料",
+      "真实 M6 包到 M7 同数字版本升级、回退逐字节恢复且旧包可重新加载",
+      "合成旧身份冲突在真实宿主阻止重复注册；显式停用旧包后加载恢复"
+    ],
+    "hostBoundary": {
+      "passed": true,
+      "files": 4290,
+      "baselineSha256": "85a98582aef9d2625d1f03cc839a137ada52b887f183c65555befd54c4e87432"
+    },
+    "scope": "Isolated Mac package lifecycle; M6 3.0.0.0 -> M7 3.0.0.0. Not Windows 2.x, formal signing, device/TCC or Linux acceptance."
+  },
+  "releaseGate": {
+    "schemaVersion": 1,
+    "passed": true,
+    "packageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+    "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+    "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+    "sdk": "10.0.403",
+    "channel": "rc",
+    "files": 780,
+    "featureRows": 82,
+    "runtimeIds": [
+      "win-x64",
+      "linux-x64",
+      "osx-arm64"
+    ],
+    "nativeArchitectureVerified": true,
+    "hostAssembliesExcluded": true,
+    "dependencyAudit": true,
+    "fullPlatformAcceptance": false,
+    "candidatePackageReady": true,
+    "localLifecycleValidated": true,
+    "stableAllowed": false,
+    "conditions": {
+      "nativeSameSourceAggregate": true,
+      "packageAudit": true,
+      "dependencyAudit": true,
+      "platformLifecycleEvidence": false,
+      "developerIdSignature": false,
+      "appleNotarization": false,
+      "explicitPublicationApproval": false
+    },
+    "blockedBy": [
+      "platformLifecycleEvidence",
+      "developerIdSignature",
+      "appleNotarization",
+      "explicitPublicationApproval"
+    ]
+  },
+  "nativeChecks": {
+    "m7-checks-linux-x64": {
+      "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+      "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+      "milestone": "M7",
+      "passed": true,
+      "executionOS": "linux",
+      "checks": [
+        {
+          "name": "shared-regression",
+          "passed": true,
+          "checks": 121
+        },
+        {
+          "name": "m4-contracts",
+          "passed": true,
+          "checks": 29
+        },
+        {
+          "name": "m4-package",
+          "passed": true,
+          "checks": 18
+        },
+        {
+          "name": "entrance-identity",
+          "passed": true,
+          "checks": 1
+        },
+        {
+          "name": "m5-contracts",
+          "passed": true,
+          "checks": 22
+        },
+        {
+          "name": "m5-acceptance-tools",
+          "passed": true,
+          "checks": 2
+        },
+        {
+          "name": "companion-ipc",
+          "passed": true,
+          "checks": 17
+        },
+        {
+          "name": "m6-contracts",
+          "passed": true,
+          "checks": 26
+        },
+        {
+          "name": "m7-contracts",
+          "passed": true,
+          "checks": 16
+        },
+        {
+          "name": "m7-lifecycle",
+          "passed": true,
+          "checks": 16
+        },
+        {
+          "name": "m7-migration",
+          "passed": true,
+          "checks": 3
+        },
+        {
+          "name": "m7-mac-release",
+          "passed": true,
+          "checks": 4
+        },
+        {
+          "name": "m7-package",
+          "passed": true,
+          "checks": 7
+        },
+        {
+          "name": "m7-dependency-audit",
+          "passed": true,
+          "checks": 3
+        }
+      ],
+      "fullPlatformAcceptance": false
+    },
+    "m7-checks-osx-arm64": {
+      "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+      "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+      "milestone": "M7",
+      "passed": true,
+      "executionOS": "darwin",
+      "checks": [
+        {
+          "name": "shared-regression",
+          "passed": true,
+          "checks": 121
+        },
+        {
+          "name": "loader",
+          "passed": true,
+          "checks": 19
+        },
+        {
+          "name": "m4-contracts",
+          "passed": true,
+          "checks": 41
+        },
+        {
+          "name": "m4-package",
+          "passed": true,
+          "checks": 18
+        },
+        {
+          "name": "entrance-identity",
+          "passed": true,
+          "checks": 1
+        },
+        {
+          "name": "native-compile",
+          "passed": true,
+          "checks": 0
+        },
+        {
+          "name": "native-regression",
+          "passed": true,
+          "checks": 14
+        },
+        {
+          "name": "m5-contracts",
+          "passed": true,
+          "checks": 22
+        },
+        {
+          "name": "m5-acceptance-tools",
+          "passed": true,
+          "checks": 2
+        },
+        {
+          "name": "companion-ipc",
+          "passed": true,
+          "checks": 17
+        },
+        {
+          "name": "m6-contracts",
+          "passed": true,
+          "checks": 26
+        },
+        {
+          "name": "m6-native-compile",
+          "passed": true,
+          "checks": 0
+        },
+        {
+          "name": "m6-native",
+          "passed": true,
+          "checks": 13
+        },
+        {
+          "name": "m7-contracts",
+          "passed": true,
+          "checks": 16
+        },
+        {
+          "name": "m7-lifecycle",
+          "passed": true,
+          "checks": 16
+        },
+        {
+          "name": "m7-migration",
+          "passed": true,
+          "checks": 3
+        },
+        {
+          "name": "m7-mac-release",
+          "passed": true,
+          "checks": 4
+        },
+        {
+          "name": "m7-package",
+          "passed": true,
+          "checks": 7
+        },
+        {
+          "name": "m7-dependency-audit",
+          "passed": true,
+          "checks": 3
+        }
+      ],
+      "fullPlatformAcceptance": false
+    },
+    "m7-checks-win-x64": {
+      "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+      "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+      "milestone": "M7",
+      "passed": true,
+      "executionOS": "win32",
+      "checks": [
+        {
+          "name": "shared-regression",
+          "passed": true,
+          "checks": 123
+        },
+        {
+          "name": "loader",
+          "passed": true,
+          "checks": 19
+        },
+        {
+          "name": "m4-contracts",
+          "passed": true,
+          "checks": 29
+        },
+        {
+          "name": "m4-package",
+          "passed": true,
+          "checks": 18
+        },
+        {
+          "name": "entrance-identity",
+          "passed": true,
+          "checks": 1
+        },
+        {
+          "name": "m5-contracts",
+          "passed": true,
+          "checks": 22
+        },
+        {
+          "name": "m5-acceptance-tools",
+          "passed": true,
+          "checks": 2
+        },
+        {
+          "name": "m6-contracts",
+          "passed": true,
+          "checks": 26
+        },
+        {
+          "name": "m7-contracts",
+          "passed": true,
+          "checks": 15
+        },
+        {
+          "name": "m7-lifecycle",
+          "passed": true,
+          "checks": 16
+        },
+        {
+          "name": "m7-migration",
+          "passed": true,
+          "checks": 3
+        },
+        {
+          "name": "m7-mac-release",
+          "passed": true,
+          "checks": 4
+        },
+        {
+          "name": "m7-package",
+          "passed": true,
+          "checks": 7
+        },
+        {
+          "name": "m7-dependency-audit",
+          "passed": true,
+          "checks": 3
+        }
+      ],
+      "fullPlatformAcceptance": false
+    }
+  },
+  "macAdvanced": {
+    "passed": true,
+    "packageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+    "scenarios": [
+      {
+        "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+        "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+        "case": "normal",
+        "packageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主加载 M6 插件",
+            "Mac 不注册 Windows 专属设备与提权入口",
+            "实际宿主创建全部原生能力设置页",
+            "读取实际显示器拓扑",
+            "Mac 不冒充公共 API 可关闭单屏",
+            "本机无可靠背光时明确不可用",
+            "真正背景捕获返回排除本进程的有效 PNG",
+            "绿色宿主遮挡层被排除，捕获到外部红色夹具：88.7506000000107",
+            "Avalonia 句柄转换为真实屏幕逻辑坐标",
+            "真实白色背景亮度可读：254.99970348258702",
+            "真实黑色背景亮度可读",
+            "Vision 从真实背景识别高置信度文本位置：[{\"Bounds\":{\"X\":300.0000031999999,\"Y\":539.99999984,\"Width\":319.99999999999994,\"Height\":35.999999999999986},\"Confidence\":1}]",
+            "真实背景文本触发稳定避让判定",
+            "无文字后恢复判定不会因已隐藏而停止",
+            "预取消不进行背景捕获",
+            "Avalonia 窗口实际接入原生系统材质：macOS 原生玻璃",
+            "材质切回经典表面并释放租约"
+          ],
+          "failures": [],
+          "pending": [
+            "本机未连接第二屏，镜像/扩展和热插拔待外屏验收"
+          ],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      },
+      {
+        "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+        "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+        "case": "foreign-corrupt",
+        "packageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主加载 M6 插件",
+            "Mac 不注册 Windows 专属设备与提权入口",
+            "实际宿主创建全部原生能力设置页",
+            "读取实际显示器拓扑",
+            "Mac 不冒充公共 API 可关闭单屏",
+            "本机无可靠背光时明确不可用",
+            "真正背景捕获返回排除本进程的有效 PNG",
+            "绿色宿主遮挡层被排除，捕获到外部红色夹具：88.7506000000107",
+            "Avalonia 句柄转换为真实屏幕逻辑坐标",
+            "真实白色背景亮度可读：254.99970348258702",
+            "真实黑色背景亮度可读",
+            "Vision 从真实背景识别高置信度文本位置：[{\"Bounds\":{\"X\":300.0000031999999,\"Y\":539.99999984,\"Width\":319.99999999999994,\"Height\":35.999999999999986},\"Confidence\":1}]",
+            "真实背景文本触发稳定避让判定",
+            "无文字后恢复判定不会因已隐藏而停止",
+            "预取消不进行背景捕获",
+            "Avalonia 窗口实际接入原生系统材质：macOS 原生玻璃",
+            "材质切回经典表面并释放租约"
+          ],
+          "failures": [],
+          "pending": [
+            "本机未连接第二屏，镜像/扩展和热插拔待外屏验收"
+          ],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      },
+      {
+        "commit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+        "sourceHash": "4dbaaab3bd7e4ab3a285d65833483be9471d3e8aedc9e2f6100cdcf4dc01d86a",
+        "case": "missing-backend",
+        "packageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "缺少本机模块时宿主明确拒绝插件"
+          ],
+          "failures": [],
+          "pending": [],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      }
+    ],
+    "fullPlatformAcceptance": false
+  },
+  "macCandidateSignatures": [
+    {
+      "path": "platforms/osx-arm64/native/libvosk.dylib",
+      "signature": "Executable=/private/var/folders/p9/jr4dkmc50fl7hyvn4_176wxm0000gn/T/systemtools-mac-distribution-a79a5tdt/payload/platforms/osx-arm64/native/libvosk.dylib\nIdentifier=libvosk-5555494405b5de4e1a0d3e8d814d763d590f7147\nFormat=Mach-O universal (x86_64 arm64)\nCodeDirectory v=20400 size=45417 flags=0x2(adhoc) hashes=1413+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=786688\nHash type=sha256 size=32\nCandidateCDHash sha1=2b7de1b85e26d42009133ee0869cc2e3adf91fa9\nCandidateCDHashFull sha1=2b7de1b85e26d42009133ee0869cc2e3adf91fa9\nCandidateCDHash sha256=08adb3421090980245429cf9917c91a397d42c67\nCandidateCDHashFull sha256=08adb3421090980245429cf9917c91a397d42c67f76610529f81260832651b22\nHash choices=sha1,sha256\nCMSDigest=89a0bb84586f284cb40b527dda7af115656f4104e4817530b9ce56b379440b9a\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=4620288\nExecutable Segment flags=0x0\nPage size=4096\nCDHash=08adb3421090980245429cf9917c91a397d42c67\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\n",
+      "candidateOnly": true
+    },
+    {
+      "path": "platforms/osx-arm64/libSystemToolsNative.dylib",
+      "signature": "Executable=/private/var/folders/p9/jr4dkmc50fl7hyvn4_176wxm0000gn/T/systemtools-mac-distribution-a79a5tdt/payload/platforms/osx-arm64/libSystemToolsNative.dylib\nIdentifier=libSystemToolsNative-55554944f612824075ca3de292a581c0b807a5f5\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=2646 flags=0x2(adhoc) hashes=76+2 location=embedded\nVersionPlatform=1\nVersionMin=786432\nVersionSDK=1704448\nHash type=sha256 size=32\nCandidateCDHash sha256=c190bbe2a61a91953d2eb2a847973d620b7109e7\nCandidateCDHashFull sha256=c190bbe2a61a91953d2eb2a847973d620b7109e7a3fa89d3e39df9dac2bd59c8\nHash choices=sha256\nCMSDigest=c190bbe2a61a91953d2eb2a847973d620b7109e7a3fa89d3e39df9dac2bd59c8\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=163840\nExecutable Segment flags=0x0\nPage size=4096\nCDHash=c190bbe2a61a91953d2eb2a847973d620b7109e7\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\n",
+      "candidateOnly": true
+    },
+    {
+      "path": "platforms/osx-arm64/SystemTools Companion.app",
+      "signature": "Executable=/private/var/folders/p9/jr4dkmc50fl7hyvn4_176wxm0000gn/T/systemtools-mac-distribution-a79a5tdt/payload/platforms/osx-arm64/SystemTools Companion.app/Contents/MacOS/SystemToolsCompanion\nIdentifier=io.github.programmer-mrwang.systemtools.companion\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=2026 flags=0x2(adhoc) hashes=56+3 location=embedded\nVersionPlatform=1\nVersionMin=786432\nVersionSDK=1704448\nHash type=sha256 size=32\nCandidateCDHash sha256=177f6a26a173cd2222e0a2f9a82327e790caac5d\nCandidateCDHashFull sha256=177f6a26a173cd2222e0a2f9a82327e790caac5d3e0f5d55a6742b385de2436e\nHash choices=sha256\nCMSDigest=177f6a26a173cd2222e0a2f9a82327e790caac5d3e0f5d55a6742b385de2436e\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=114688\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=177f6a26a173cd2222e0a2f9a82327e790caac5d\nSignature=adhoc\nInfo.plist entries=12\nTeamIdentifier=not set\nSealed Resources version=2 rules=13 files=0\nInternal requirements count=0 size=12\n",
+      "candidateOnly": true
+    }
+  ],
+  "macSigningPreflight": {
+    "schemaVersion": 1,
+    "packageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+    "packageCommit": "ccfdeb072fd33e4bf62b2fcee80a32da68654c38",
+    "passed": false,
+    "blockers": [
+      "未配置选定的 Developer ID Application 身份",
+      "正式签名需要 Developer ID Application 身份及明确的十位 Team ID。",
+      "未配置 notarytool Keychain profile"
+    ],
+    "changesOriginalPackage": false,
+    "operations": [
+      "verify source package",
+      "sign Vosk and native dylibs",
+      "sign companion with hardened runtime",
+      "submit ZIP using Keychain profile",
+      "require Accepted",
+      "staple companion",
+      "verify signatures and Gatekeeper",
+      "repack new CIPX"
+    ]
+  },
+  "pending": [
+    "Developer ID Application certificate and private key, notarization Keychain profile and real Accepted/stapled proof",
+    "Formal signed upgrade TCC stability and first Gatekeeper install on distribution machines",
+    "Actual Windows 2.x -> unified 3.0 upgrade/rollback and Windows Hello owner interaction",
+    "Final candidate Windows/Linux physical devices and desktop lifecycle",
+    "External AI endpoint, Chinese recognition quality, speaker echo, physical unplug, multi-monitor and hardware brightness",
+    "Explicit public publication approval"
+  ]
+}

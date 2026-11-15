@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-16",
+  "developmentComplete": true,
+  "fullPlatformAcceptance": false,
+  "hostSourceModified": false,
+  "installedHostModified": false,
+  "businessCommit": "d4c639f5a8fc250cd6fa6ac53f600e30a6655612",
+  "sourceHash": "8e659363ef45fa8272af5f8a59a6ee87339f22766f2aa32c487235a7327703b1",
+  "package": "artifacts/m6/final-native/SystemTools.M6.Native.cipx",
+  "packageSha256": "29436a3a26154af86bb8eebd94dbe72b754a5ae744e61da7f79f2ead719df56a",
+  "packageFiles": 312,
+  "nativeCI": {
+    "runId": 43732982600,
+    "windows": true,
+    "linux": true,
+    "macOS": true,
+    "aggregate": true
+  },
+  "checks": {
+    "mac": {
+      "passed": true,
+      "count": 294,
+      "sourceHash": "8e659363ef45fa8272af5f8a59a6ee87339f22766f2aa32c487235a7327703b1"
+    },
+    "windows": {
+      "passed": true,
+      "count": 240,
+      "sourceHash": "8e659363ef45fa8272af5f8a59a6ee87339f22766f2aa32c487235a7327703b1"
+    },
+    "linux": {
+      "passed": true,
+      "count": 236,
+      "sourceHash": "8e659363ef45fa8272af5f8a59a6ee87339f22766f2aa32c487235a7327703b1"
+    }
+  },
+  "desktop": {
+    "passed": true,
+    "cases": [
+      {
+        "commit": "d4c639f5a8fc250cd6fa6ac53f600e30a6655612",
+        "sourceHash": "8e659363ef45fa8272af5f8a59a6ee87339f22766f2aa32c487235a7327703b1",
+        "case": "normal",
+        "packageSha256": "29436a3a26154af86bb8eebd94dbe72b754a5ae744e61da7f79f2ead719df56a",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主加载 M6 插件",
+            "Mac 不注册 Windows 专属设备与提权入口",
+            "实际宿主创建全部原生能力设置页",
+            "读取实际显示器拓扑",
+            "Mac 不冒充公共 API 可关闭单屏",
+            "本机无可靠背光时明确不可用",
+            "真正背景捕获返回排除本进程的有效 PNG",
+            "绿色宿主遮挡层被排除，捕获到外部红色夹具：88.7506000000107",
+            "Avalonia 句柄转换为真实屏幕逻辑坐标",
+            "真实白色背景亮度可读：254.99970348258702",
+            "真实黑色背景亮度可读",
+            "Vision 从真实背景识别高置信度文本位置：[{\"Bounds\":{\"X\":300.0000031999999,\"Y\":539.99999984,\"Width\":319.99999999999994,\"Height\":35.999999999999986},\"Confidence\":1}]",
+            "真实背景文本触发稳定避让判定",
+            "无文字后恢复判定不会因已隐藏而停止",
+            "预取消不进行背景捕获",
+            "Avalonia 窗口实际接入原生系统材质：macOS 原生玻璃",
+            "材质切回经典表面并释放租约"
+          ],
+          "failures": [],
+          "pending": [
+            "本机未连接第二屏，镜像/扩展和热插拔待外屏验收"
+          ],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      },
+      {
+        "commit": "d4c639f5a8fc250cd6fa6ac53f600e30a6655612",
+        "sourceHash": "8e659363ef45fa8272af5f8a59a6ee87339f22766f2aa32c487235a7327703b1",
+        "case": "foreign-corrupt",
+        "packageSha256": "29436a3a26154af86bb8eebd94dbe72b754a5ae744e61da7f79f2ead719df56a",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主加载 M6 插件",
+            "Mac 不注册 Windows 专属设备与提权入口",
+            "实际宿主创建全部原生能力设置页",
+            "读取实际显示器拓扑",
+            "Mac 不冒充公共 API 可关闭单屏",
+            "本机无可靠背光时明确不可用",
+            "真正背景捕获返回排除本进程的有效 PNG",
+            "绿色宿主遮挡层被排除，捕获到外部红色夹具：88.7506000000107",
+            "Avalonia 句柄转换为真实屏幕逻辑坐标",
+            "真实白色背景亮度可读：254.99970348258702",
+            "真实黑色背景亮度可读",
+            "Vision 从真实背景识别高置信度文本位置：[{\"Bounds\":{\"X\":300.0000031999999,\"Y\":539.99999984,\"Width\":319.99999999999994,\"Height\":35.999999999999986},\"Confidence\":1}]",
+            "真实背景文本触发稳定避让判定",
+            "无文字后恢复判定不会因已隐藏而停止",
+            "预取消不进行背景捕获",
+            "Avalonia 窗口实际接入原生系统材质：macOS 原生玻璃",
+            "材质切回经典表面并释放租约"
+          ],
+          "failures": [],
+          "pending": [
+            "本机未连接第二屏，镜像/扩展和热插拔待外屏验收"
+          ],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      },
+      {
+        "commit": "d4c639f5a8fc250cd6fa6ac53f600e30a6655612",
+        "sourceHash": "8e659363ef45fa8272af5f8a59a6ee87339f22766f2aa32c487235a7327703b1",
+        "case": "missing-backend",
+        "packageSha256": "29436a3a26154af86bb8eebd94dbe72b754a5ae744e61da7f79f2ead719df56a",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "缺少本机模块时宿主明确拒绝插件"
+          ],
+          "failures": [],
+          "pending": [],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      }
+    ],
+    "fullPlatformAcceptance": false
+  },
+  "hostGuard": {
+    "passed": true,
+    "repositories": 2,
+    "trackedHostItems": 3842,
+    "installedAppFiles": 448,
+    "failures": []
+  },
+  "pending": [
+    "physical external displays and DDC",
+    "Windows/Linux physical desktop validation",
+    "older macOS appearance and accessibility visual checks",
+    "end-to-end timetable layouts and long-term performance"
+  ]
+}

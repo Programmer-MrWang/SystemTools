@@ -2,6 +2,19 @@
 
 更新：2026-11-15，Asia/Shanghai。正式开发：`C:\STWork-Windows\SystemTools`；宿主：`C:\STWork-Windows\ClassIsland`。本文件替代 M4 收尾状态，历史证据仍保留。
 
+## 最新进展：2026-11-16 M6 开发收尾
+
+本段优先于后文 M5 与迁移历史。M6.0—M6.8 开发已完成，已按批次自审、中文约定式提交并通过本机代理推送。仅开发自己的插件及原生模块，未修改 ClassIsland 源码或安装应用。
+
+三端原生 CI 43732982600 的 Windows、Linux、Mac 和严格 aggregate 全部成功，检查分别为 240、236、294 项；Windows/Mac 跨路径可复现通过。最终业务提交 d4c639f5a8fc250cd6fa6ac53f600e30a6655612，业务指纹 8e659363ef45fa8272af5f8a59a6ee87339f22766f2aa32c487235a7327703b1。
+
+最终包 artifacts/m6/final-native/SystemTools.M6.Native.cipx，SHA-256 29436a3a26154af86bb8eebd94dbe72b754a5ae744e61da7f79f2ead719df56a，312 个文件。原版 Mac 宿主正常/异平台损坏各 17 项、本机后端缺失 1 项通过，均主动退出 0、无超时、日常配置不变；实际材质为 macOS 原生玻璃。同业务指纹预览另有真实按钮点击证据。
+
+完整实体设备验收仍为 false：本机无第二屏、公共 IOKit 背光接口不可用且没有 m1ddc；双屏布局/热插拔、外屏 DDC、Windows/Linux 实体设备、旧版 Mac 外观和课表布局长期表现仍须对应环境。Linux 背景/OCR 无可靠排除自身链时明确不可用；Mac 单内/外屏关闭不冒充公共 API 支持。签名、公证与发行留在 M7，本轮未发布。
+
+收尾报告 docs/validation/2026-11-16-m6-closeout.md、机器结果 -results.json、平台边界 2026-11-16-m6-platform-checklist.md，逐批自审见 docs/roadmap/2026-11-15-m6-progress.md。SDK 10.0.403 锁、原 IDE 修改、docs/reports/ 和迁移纠正继续保留。
+
+
 ## 最新进展：2026-11-15 M5 开发收尾
 
 本段优先于后文迁移前说明。正式开发目录为本文件所在 Mac SystemTools 仓库；后文 Windows 路径和旧候选状态均为历史资料。

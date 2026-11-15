@@ -81,6 +81,34 @@ try
     foreach(var type in new[]{typeof(SystemTools.PortableUndoAction),typeof(SystemTools.PortableCloseKeyAction),typeof(SystemTools.PortableSwitchAppAction),
         typeof(SystemTools.PortableRestartAction),typeof(SystemTools.NativeEnterAction),typeof(SystemTools.NativeMirrorDisplayAction)})
         Check(type.BaseType!.GetGenericArguments().FirstOrDefault()==typeof(SystemTools.Settings.ShortcutKeyNotificationSettings),"宿主 JSON 行动工厂可识别设置类型："+type.Name);
+    var audioPath=Path.Combine(root,"后台音频.wav");File.WriteAllBytes(audioPath,[0,1,2,3]);
+    foreach(var wait in new[]{false,true})
+    {
+        var audio=System.Reflection.DispatchProxy.Create<ClassIsland.Core.Abstractions.Services.IAudioService,FixtureAudio>();
+        var fixture=(FixtureAudio)(object)audio;
+        var lifetime=new SystemTools.PortableSurfaceLifetime();
+        var action=new SystemTools.PortableAudioAction(lifetime,Microsoft.Extensions.Logging.Abstractions.NullLogger<SystemTools.PortableAudioAction>.Instance,audio);
+        var item=new ClassIsland.Shared.Models.Automation.ActionItem{Settings=new SystemTools.Settings.BackgroundPlayAudioSettings{AudioFilePath=audioPath,WaitForPlaybackCompleted=wait}};
+        var set=new ClassIsland.Shared.Models.Automation.ActionSet();set.ActionItems.Add(item);set.SetStartRunning(true);
+        var invocation=action.InvokeAsync(item,set,false);await fixture.Started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        if(!wait)
+        {
+            await invocation;set.SetEndRunning(true);await Task.Delay(50);
+            Check(!fixture.Stopped.Task.IsCompleted&&fixture.Stream!.CanRead,"后台音频跨越宿主正常结束行动组继续播放");
+            ((CancellationTokenSource)typeof(SystemTools.PortableSurfaceLifetime).GetField("_stop",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.GetValue(lifetime)!).Cancel();
+            await fixture.Stopped.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            Check(fixture.Token.IsCancellationRequested,"插件生命周期令牌取消后台音频");
+        }
+        else
+        {
+            Check(!invocation.IsCompleted,"等待模式保持行动运行直到音频结束");
+            var cts=(CancellationTokenSource)typeof(ClassIsland.Shared.Models.Automation.ActionSet).GetField("InterruptCts",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.GetValue(set)!;
+            await cts.CancelAsync();await invocation.WaitAsync(TimeSpan.FromSeconds(5));set.SetEndRunning(true);
+            Check(fixture.Token.IsCancellationRequested,"行动组人工中断取消等待模式音频");
+        }
+        for(var i=0;i<50&&fixture.Stream!.CanRead;i++)await Task.Delay(10);
+        Check(!fixture.Stream!.CanRead,"取消播放后释放音频文件流");
+    }
     using(var schedule = new SystemTools.Common.Automation.ScheduledOperation())
     {
         var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -146,6 +174,19 @@ try
 }
 finally { CredentialProtection.Provider=previous; Directory.Delete(root,true); }
 public sealed record CredentialState(string Reference,string Hash);
+public class FixtureAudio:System.Reflection.DispatchProxy
+{
+    public readonly TaskCompletionSource Started=new(TaskCreationOptions.RunContinuationsAsynchronously);
+    public readonly TaskCompletionSource Stopped=new(TaskCreationOptions.RunContinuationsAsynchronously);
+    public Stream? Stream;
+    public CancellationToken Token;
+    protected override object? Invoke(System.Reflection.MethodInfo? method,object?[]? args)
+    {
+        if(method?.Name!="PlayAudioAsync")throw new NotSupportedException(method?.Name);
+        Stream=(Stream)args![0]!;Token=(CancellationToken)args[2]!;Started.TrySetResult();return Play();
+    }
+    private async Task Play(){try{await Task.Delay(Timeout.Infinite,Token);}finally{Stopped.TrySetResult();}}
+}
 public sealed class FixtureStore : IStoredCredentialProtector
 {
     public string Scheme=>"keychain:v1:";

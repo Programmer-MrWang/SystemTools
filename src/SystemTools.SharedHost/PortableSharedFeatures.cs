@@ -65,7 +65,7 @@ public sealed class PortableSurfaceLifetime : IHostedService
 }
 
 [ActionInfo("SystemTools.BackgroundPlayAudio", "后台播放音频", "\uEBCC", false)]
-public sealed class PortableAudioAction(PortableSurfaceLifetime lifetime, ILogger<PortableAudioAction> logger) : ActionBase<BackgroundPlayAudioSettings>
+public sealed class PortableAudioAction(PortableSurfaceLifetime lifetime, ILogger<PortableAudioAction> logger, ClassIsland.Core.Abstractions.Services.IAudioService audio) : ActionBase<BackgroundPlayAudioSettings>
 {
     private CancellationTokenSource? _playback;
     private readonly object _gate = new();
@@ -74,14 +74,17 @@ public sealed class PortableAudioAction(PortableSurfaceLifetime lifetime, ILogge
         var path = Path.GetFullPath(Settings.AudioFilePath);
         if (!File.Exists(path)) throw new FileNotFoundException("请选择存在的音频文件。", path);
         lock (_gate) _playback?.Cancel();
-        var stop = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Stopping, InterruptCancellationToken);
+        // 宿主正常结束行动组也会取消其令牌；后台播放须独立存活至完成或插件停止。
+        var stop = Settings.WaitForPlaybackCompleted
+            ? CancellationTokenSource.CreateLinkedTokenSource(lifetime.Stopping, InterruptCancellationToken)
+            : CancellationTokenSource.CreateLinkedTokenSource(lifetime.Stopping);
         lock (_gate) _playback = stop;
         async Task Play()
         {
             try
             {
                 await using var stream = File.OpenRead(path);
-                await IAppHost.GetService<ClassIsland.Core.Abstractions.Services.IAudioService>().PlayAudioAsync(stream, 1, stop.Token);
+                await audio.PlayAudioAsync(stream, 1, stop.Token);
             }
             catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
             finally { lock (_gate) { if (ReferenceEquals(_playback, stop)) _playback = null; stop.Dispose(); } }

@@ -9,6 +9,6 @@ public sealed class Backend : INativeDesktopBackend, IMediaPlatformBackend
         Authentication = new SystemAuthenticationService(), Media = new SystemTools.Common.Media.UnsupportedMediaSessions(),
         Playback = new SystemTools.Common.Media.CommandTextSpeech("osx-arm64")
     };
-    public NativeDesktopServices CreateServices() => new() { Advanced = new() { Background = new BackgroundCaptureService(), TextRecognition = new TextRecognitionService(), Material = new WindowMaterialService() }, Volume = new SystemVolumeService(), Idle = new UserIdleService(), ScreenCapture = new ScreenCaptureService(), UsbDevices = new UsbDevicesService(), Keyboard = new KeyboardService(), Hotkeys = new HotkeysService(), Windows = new WindowOperationsService(), Wallpaper = new WallpaperService(), Camera = new CameraService(_companion) };
+    public NativeDesktopServices CreateServices() => new() { Advanced = new() { Background = new BackgroundCaptureService(), TextRecognition = new TextRecognitionService(), Material = new WindowMaterialService(), Displays = new DisplayConfigurationService() }, Volume = new SystemVolumeService(), Idle = new UserIdleService(), ScreenCapture = new ScreenCaptureService(), UsbDevices = new UsbDevicesService(), Keyboard = new KeyboardService(), Hotkeys = new HotkeysService(), Windows = new WindowOperationsService(), Wallpaper = new WallpaperService(), Camera = new CameraService(_companion) };
     public PlatformDescriptor Describe() => new("osx-arm64", "macOS / Apple Silicon", "M4 原生与共享业务；仅原生 ARM64");
 }

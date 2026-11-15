@@ -45,6 +45,7 @@ public interface IDisplayConfiguration : INativeCapability
 }
 public interface IDisplayChange : IAsyncDisposable
 {
+    Task Completion { get; }
     Task ConfirmAsync(CancellationToken token);
 }
 

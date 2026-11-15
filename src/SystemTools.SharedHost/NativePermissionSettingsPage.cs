@@ -38,6 +38,15 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
         chatGlass.IsEnabled = floatingGlass.IsEnabled;
         chatGlass.IsCheckedChanged += (_, _) => { Shared.GlobalConstants.MainConfig!.Data.AiConversationFloatingWindowStyle = chatGlass.IsChecked == true ? 1 : 0; Shared.GlobalConstants.MainConfig.Save(); };
         panel.Children.Add(floatingGlass); panel.Children.Add(chatGlass);
+        Add("显示器布局", services.Advanced.Displays);
+        if (services.Advanced.Displays is { } displays)
+            foreach (var layout in Enum.GetValues<DisplayLayout>())
+            {
+                var button = new Button { Content = layout switch { DisplayLayout.Mirror => "复制屏幕", DisplayLayout.Extend => "扩展屏幕", DisplayLayout.InternalOnly => "仅电脑屏幕", _ => "仅外部屏幕" } };
+                button.IsEnabled = displays.ProbeLayout(layout).CanExecute;
+                button.Click += async (_, _) => { button.IsEnabled = false; try { await NativeDisplayConfirmation.ApplyAsync(displays, layout, services.Stopping); } catch (Exception error) { button.Content = error.Message; } finally { button.IsEnabled = displays.ProbeLayout(layout).CanExecute; } };
+                panel.Children.Add(button);
+            }
         Content = new ScrollViewer { Content = panel };
         void Add(string name, INativeCapability? capability)
         {

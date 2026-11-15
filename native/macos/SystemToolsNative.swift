@@ -465,6 +465,7 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
 
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
+    if operation.hasPrefix("display.") { return try handleDisplay(request, operation: operation) }
     if operation.hasPrefix("material.") { return try mainThread { try handleMaterial(request, operation: operation) } }
     if operation == "ocr.probe" { return ["state": "Available"] }
     if operation == "ocr.recognize" { return try recognizeBackgroundText(request) }
@@ -717,4 +718,90 @@ func handleMaterial(_ request: [String: Any], operation: String) throws -> [Stri
     let lease = try MaterialLease(window: window, requested: material)
     materialLeases[id] = lease
     return ["state": "Available", "applied": lease.applied, "reason": lease.reason]
+}
+
+func displayRows() throws -> [[String: Any]] {
+    var ids = [CGDirectDisplayID](repeating: 0, count: 32)
+    var count: UInt32 = 0
+    guard CGGetOnlineDisplayList(32, &ids, &count) == .success, count > 0 else {
+        throw NativeFailure(state: "MissingDevice", message: "没有可读取的显示器。")
+    }
+    return ids.prefix(Int(count)).sorted().map { id in
+        let bounds = CGDisplayBounds(id)
+        return ["id": String(id), "name": "显示器 " + String(id), "builtIn": CGDisplayIsBuiltin(id) != 0,
+                "x": bounds.minX, "y": bounds.minY, "width": bounds.width, "height": bounds.height,
+                "mirror": String(CGDisplayMirrorsDisplay(id))]
+    }
+}
+func displaySnapshot(_ rows: [[String: Any]]) throws -> String {
+    return String(data: try JSONSerialization.data(withJSONObject: rows, options: [.sortedKeys]), encoding: .utf8)!
+}
+func configureDisplayRows(_ rows: [[String: Any]]) throws {
+    var configuration: CGDisplayConfigRef?
+    guard CGBeginDisplayConfiguration(&configuration) == .success, let config = configuration else {
+        throw NativeFailure(state: "PermissionRequired", message: "系统拒绝修改显示器配置。")
+    }
+    var committed = false
+    defer { if !committed { CGCancelDisplayConfiguration(config) } }
+    for row in rows {
+        guard let id = UInt32(row["id"] as? String ?? ""), let mirror = UInt32(row["mirror"] as? String ?? ""),
+              let x = row["x"] as? Double, let y = row["y"] as? Double,
+              CGConfigureDisplayMirrorOfDisplay(config, id, mirror) == .success else {
+            throw NativeFailure(state: "Unsupported", message: "显示器不支持所请求的镜像关系。")
+        }
+        if mirror == 0 && CGConfigureDisplayOrigin(config, id, Int32(x), Int32(y)) != .success {
+            throw NativeFailure(state: "Unsupported", message: "显示器不支持所请求的位置。")
+        }
+    }
+    guard CGCompleteDisplayConfiguration(config, .forSession) == .success else {
+        throw NativeFailure(state: "Unsupported", message: "系统未应用显示器配置。")
+    }
+    committed = true
+}
+func handleDisplay(_ request: [String: Any], operation: String) throws -> [String: Any] {
+    let rows = try displayRows()
+    let snapshot = try displaySnapshot(rows)
+    if operation == "display.read" { return ["state": "Available", "displays": rows, "snapshot": snapshot] }
+    if operation == "display.probe" {
+        return rows.count >= 2 ? ["state": "Available"] : ["state": "MissingDevice", "reason": "请连接第二台显示器后重新检查。"]
+    }
+    if operation == "display.restore" {
+        guard request["expected"] as? String == snapshot, let original = request["original"] as? String,
+              let data = original.data(using: .utf8), let saved = try JSONSerialization.jsonObject(with: data) as? [[String: Any]],
+              Set(saved.compactMap { $0["id"] as? String }) == Set(rows.compactMap { $0["id"] as? String }) else {
+            throw NativeFailure(state: "MissingDevice", message: "显示器已拔出或设置已由用户更改，已停止自动覆盖，请检查系统显示设置。")
+        }
+        try configureDisplayRows(saved)
+        guard try displaySnapshot(displayRows()) == original else { throw NativeFailure(state: "MissingDevice", message: "系统未确认完整恢复显示配置，请检查显示设置。") }
+        return ["state": "Available"]
+    }
+    guard operation == "display.apply", rows.count >= 2, let layout = request["layout"] as? String,
+          ["Mirror", "Extend"].contains(layout) else {
+        throw NativeFailure(state: "Unsupported", message: "此布局需要至少两台显示器；Mac 当前仅支持镜像与扩展。")
+    }
+    let main = CGMainDisplayID()
+    let mainBounds = CGDisplayBounds(main)
+    var right = mainBounds.maxX
+    let target = rows.map { value -> [String: Any] in
+        var row = value
+        let id = UInt32(row["id"] as! String)!
+        row["mirror"] = layout == "Mirror" && id != main ? String(main) : "0"
+        if id != main && layout == "Extend" { row["x"] = right; row["y"] = mainBounds.minY; right += row["width"] as? Double ?? 0 }
+        return row
+    }
+    do {
+        try configureDisplayRows(target)
+        let current = try displayRows()
+        let verified = current.allSatisfy { row in
+            let id = UInt32(row["id"] as! String)!
+            return row["mirror"] as? String == (layout == "Mirror" && id != main ? String(main) : "0")
+        }
+        guard verified else { throw NativeFailure(state: "Unsupported", message: "显示器未确认请求的布局。") }
+        return ["state": "Available", "original": snapshot, "snapshot": try displaySnapshot(current)]
+    } catch {
+        do { try configureDisplayRows(rows) } catch {
+            throw NativeFailure(state: "MissingDevice", message: "显示调整与回滚均未完成，请打开系统显示设置恢复。")
+        }
+        throw error
+    }
 }

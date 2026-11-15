@@ -28,6 +28,21 @@ Check(ocr.Observe(region, []) && ocr.Observe(region, []) && !ocr.Observe(region,
 Check(!ocr.Observe(region, [new(new(10, 10, 80, 20), .2)]) && !ocr.Observe(region, [new(new(220, 10, 80, 20), .99)]), "忽略低置信度和区域外文字");
 ocr.Observe(region, hits); ocr.Observe(region, hits); ocr.Reset(); Check(!ocr.Hidden, "故障与停用清除隐藏状态");
 
+var rollbacks = 0; var releases = 0;
+var transaction = new SystemTools.Common.Layout.TimedDisplayChange(() => Task.CompletedTask, () => { rollbacks++; return Task.CompletedTask; }, () => releases++, TimeSpan.FromMilliseconds(30));
+await transaction.Completion.WaitAsync(TimeSpan.FromSeconds(2)); await transaction.DisposeAsync();
+Check(rollbacks == 1 && releases == 1, "显示事务超时仅回滚和释放一次");
+var confirmed = new SystemTools.Common.Layout.TimedDisplayChange(() => Task.CompletedTask, () => { rollbacks++; return Task.CompletedTask; }, () => releases++);
+await confirmed.ConfirmAsync(default); await confirmed.DisposeAsync();
+Check(rollbacks == 1 && releases == 2, "显示确认后不回滚");
+var failed = new SystemTools.Common.Layout.TimedDisplayChange(() => Task.CompletedTask, () => throw new IOException("rollback"), () => releases++);
+try { await failed.DisposeAsync(); } catch (IOException) { }
+Check(failed.Completion.IsFaulted && releases == 3, "回滚失败可观察并仍释放互斥");
+var outputs = SystemTools.Common.Layout.XrandrLayout.Parse("eDP-1 connected primary 1920x1080+0+0 (normal left inverted right x axis y axis)\n   1920x1080 60.00*+\nHDMI-1 connected 1920x1080+1920+0 (normal left inverted right x axis y axis)\n   1920x1080 60.00*+\n");
+Check(outputs.Count == 2 && outputs[0].BuiltIn && outputs[1].X == 1920, "解析真实格式的 Xrandr 输出");
+Check(SystemTools.Common.Layout.XrandrLayout.ApplyArguments(outputs, DisplayLayout.ExternalOnly).Contains("--off"), "单外屏明确关闭内屏");
+Check(SystemTools.Common.Layout.XrandrLayout.RestoreArguments(outputs).Contains("60.00"), "显示恢复保留刷新率");
+
 sealed class Resource : IBackgroundCapture, ITextRecognition, IDisposable
 {
     public int Disposals; public bool Fails;

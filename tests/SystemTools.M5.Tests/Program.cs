@@ -35,6 +35,29 @@ try
 finally { Directory.Delete(temporary, recursive: true); }
 Console.WriteLine($"M5 checks: {checks}");
 
+if (args.Contains("--camera"))
+{
+    var camera = new FfmpegCamera("win-x64", () => MediaFiles.FindExecutable("ffmpeg"));
+    var available = await camera.ListDevicesAsync(default);
+    Check(available.Any(device => device.Id == "ASUS FHD webcam"), "真实 DirectShow 发现指定 ASUS 摄像头");
+    var folder = Path.GetFullPath("artifacts/m5/camera");
+    var images = new List<string>();
+    for (var i = 0; i < 2; i++)
+    {
+        var image = await MediaFiles.CaptureAsync(camera, "ASUS FHD webcam", folder, default);
+        MediaFiles.RequirePng(image);
+        images.Add(image);
+    }
+    Check(images.Distinct().Count() == 2, "真实抓拍重复进入且输出文件名不冲突");
+    var before = Directory.GetFiles(folder).Length;
+    try { await MediaFiles.CaptureAsync(camera, "SystemTools-Missing-Device", folder, default); throw new Exception("Unknown device captured"); }
+    catch (NativeFeatureException) { Check(Directory.GetFiles(folder).Length == before, "不存在设备明确失败且无半成品"); }
+    using var stop = new CancellationTokenSource(); stop.Cancel();
+    try { await MediaFiles.CaptureAsync(camera, "ASUS FHD webcam", folder, stop.Token); throw new Exception("Cancelled camera captured"); }
+    catch (OperationCanceledException) { Check(Directory.GetFiles(folder).Length == before, "预取消不进入真实摄像头"); }
+    File.WriteAllText("artifacts/m5/camera.json", System.Text.Json.JsonSerializer.Serialize(new { passed = true, devices = available, images, checks }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+}
+
 sealed class ProbeResource : ICameraCapture, ISpeechRecognition, ISystemAuthentication, IMediaSessions, IDisposable
 {
     public int Disposals;

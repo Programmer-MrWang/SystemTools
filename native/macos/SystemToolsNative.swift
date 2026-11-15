@@ -463,6 +463,7 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
 
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
+    if operation.hasPrefix("camera.") { return try handleCamera(request, operation: operation) }
     if operation.hasPrefix("wallpaper.") { return try handleWallpaper(request, operation: operation) }
     if operation.hasPrefix("input.") { return try handleInput(request, operation: operation) }
     if operation.hasPrefix("hotkey.") { return try handleHotkey(request, operation: operation) }

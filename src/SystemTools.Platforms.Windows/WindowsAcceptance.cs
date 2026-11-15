@@ -75,7 +75,7 @@ internal static class WindowsAcceptance
                     assembly.GetName().Name is "WinRT.Runtime" or "Microsoft.Windows.SDK.NET");
             var result = new
             {
-                passed = constructed.Length == 8 && themes.Length == 3 && registrations && credentials && migrationInteraction && floatingSnapshots && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
+                passed = constructed.Length == 9 && themes.Length == 3 && registrations && credentials && migrationInteraction && floatingSnapshots && assets && fileActions && screenshot && excel && unavailableCamera && nativeLibraries && isolated,
                 stage, pages = constructed, themes, legacyImageUris = assets,
                 fileActions, screenshot, actionFactories, excel, unavailableCamera, nativeLibraries, registrations, credentials, migrationInteraction, floatingSnapshots, sharedDirectory,
                 directoryValidation = _directoryValidation,

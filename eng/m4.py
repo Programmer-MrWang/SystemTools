@@ -164,7 +164,7 @@ def check(desktop_read=False):
         commands.insert(1, ('loader', [sys.executable, 'eng/m1.py', 'test']))
     if m1.native_rid() == 'osx-arm64':
         executable = ARTIFACTS / 'native-tests'
-        commands += [('native-compile', ['xcrun', 'swiftc', '-swift-version', '5', '-O', 'native/macos/SystemToolsNative.swift',
+        commands += [('native-compile', ['xcrun', 'swiftc', '-swift-version', '5', '-O', 'native/macos/SystemToolsNative.swift', 'native/macos/SystemToolsMedia.swift',
                      'tests/SystemTools.M4.NativeTests/main.swift', '-o', str(executable)]),
                      ('native-regression', [str(executable)] + ([] if desktop_read else ['--headless']))]
     results = []

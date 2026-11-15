@@ -127,5 +127,8 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/SwitchFloatingWindowThemeSettings.cs" Link="Settings/SwitchFloatingWindowThemeSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/WallpaperSettings.cs" Link="Settings/WallpaperSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Services/ClassIslandSettingsService.cs" Link="Services/ClassIslandSettingsService.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/CameraCaptureAction.cs" Link="Actions/CameraCaptureAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/CameraCaptureSettings.cs" Link="Settings/CameraCaptureSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/CameraCaptureSettingsControl.cs" Link="Controls/CameraCaptureSettingsControl.cs" />
   </ItemGroup>
 </Project>

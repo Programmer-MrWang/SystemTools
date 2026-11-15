@@ -33,6 +33,7 @@ public static class NativeHostRegistration
             if (catalog.CanCreate("SystemTools.LongIdleTrigger")) services.AddTrigger<NativeIdleTrigger, NativeIdleSettingsControl>();
         }
         services.AddSettingsPage<NativePermissionSettingsPage>();
+        if (native.Camera is not null) MediaHostRegistration.RegisterCamera(services, catalog, native.Camera);
         if (native.ScreenCapture is not null)
         {
             services.AddSingleton(native.ScreenCapture);

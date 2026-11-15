@@ -108,7 +108,10 @@
     "Settings/ToggleFloatingWindowProfileSettings.cs",
     "Settings/SwitchFloatingWindowThemeSettings.cs",
     "Settings/WallpaperSettings.cs",
-    "Services/ClassIslandSettingsService.cs"
+    "Services/ClassIslandSettingsService.cs",
+    "Actions/CameraCaptureAction.cs",
+    "Settings/CameraCaptureSettings.cs",
+    "Controls/CameraCaptureSettingsControl.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

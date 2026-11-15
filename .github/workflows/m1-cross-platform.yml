@@ -54,7 +54,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y libsecret-tools gnome-keyring dbus-x11
-          dbus-run-session -- bash -c 'printf "" | gnome-keyring-daemon --unlock --components=secrets; dotnet run --project tests/SystemTools.M8.Tests -c Release -- --native-credentials'
+          bash eng/test_secret_service.sh
       - name: Verify same-OS reproducible paths
         if: runner.os != 'Linux'
         run: python eng/check_reproducible.py

@@ -18,6 +18,10 @@ TFM = 'net10.0-windows10.0.19041.0'
 PRIVATE = 'platforms/win-x64'
 SHARED_PRIVATE = 'platforms/shared'
 MAC_NATIVE = 'platforms/osx-arm64/libSystemToolsNative.dylib'
+MAC_COMPANION = 'platforms/osx-arm64/SystemTools Companion.app'
+MAC_COMPANION_EXECUTABLE = MAC_COMPANION + '/Contents/MacOS/SystemToolsCompanion'
+MAC_COMPANION_FILES = [MAC_COMPANION + '/Contents/Info.plist', MAC_COMPANION_EXECUTABLE,
+                       MAC_COMPANION + '/Contents/_CodeSignature/CodeResources']
 MEDIA_NATIVE = {'osx-arm64': 'platforms/osx-arm64/native/libvosk.dylib',
                 'linux-x64': 'platforms/linux-x64/native/libvosk.so'}
 EXTRAS = ['black.html', 'title.png', 'version.json', 'README-1.md', 'README-2.md',
@@ -77,10 +81,12 @@ def verify_files(names, manifest, read):
         if '/' not in name:
             if name not in set(m1.COMMON + MODULES + EXTRAS):
                 raise RuntimeError('Unexpected root file: ' + name)
-        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/') and name != MAC_NATIVE and name not in MEDIA_NATIVE.values():
+        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/') and name != MAC_NATIVE and name not in MEDIA_NATIVE.values() and name not in MAC_COMPANION_FILES:
             raise RuntimeError('Unexpected platform asset: ' + name)
     if not set(m1.COMMON + MODULES).issubset(names):
         raise RuntimeError('Missing entry, contract or platform module.')
+    if manifest.get('milestone') == 'M5' and not set(MAC_COMPANION_FILES).issubset(names):
+        raise RuntimeError('M5 requires the independent Mac capture companion.')
 
 def validate(directory):
     directory = Path(directory)
@@ -165,6 +171,7 @@ def package(source, output):
         for name in sorted(list(manifest['files']) + ['m2-package.json']):
             info = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = (0o100755 if name == MAC_COMPANION_EXECUTABLE else 0o100644) << 16
             archive.writestr(info, (source / name).read_bytes())
     output.with_suffix(output.suffix + '.sha256').write_text(
         m1.sha(output) + '  ' + output.name + '\n', encoding='utf-8')
@@ -181,6 +188,8 @@ def extract(package_path, destination):
         if any(stat.S_ISLNK(item.external_attr >> 16) for item in archive.infolist()):
             raise RuntimeError('Package cannot contain symlinks.')
         archive.extractall(destination)
+        if os.name != 'nt' and MAC_COMPANION_EXECUTABLE in names:
+            (destination / MAC_COMPANION_EXECUTABLE).chmod(0o755)
     return manifest
 
 def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', experimental=False, graceful_stop=False,

@@ -15,6 +15,8 @@ public sealed class MediaSettingsPage : SettingsPageBase
     {
         var panel = new StackPanel { Spacing = 12, Margin = new Avalonia.Thickness(24) };
         panel.Children.Add(new TextBlock { Text = "相机、语音与媒体", FontSize = 24 });
+        if (GlobalConstants.Features?.RuntimeId == "osx-arm64")
+            panel.Children.Add(new TextBlock { Text = "Mac 相机和麦克风由 SystemTools 采集助手访问。首次使用请在下方申请权限；也可以从菜单栏的采集助手停止采集。", TextWrapping = Avalonia.Media.TextWrapping.Wrap });
         var ffmpeg = Field("FFmpeg 路径（留空时使用已安装的默认位置）", preferences.Current.FfmpegPath);
         var model = Field("离线语音模型文件夹", preferences.Current.SpeechModelPath);
         var microphone = Field("麦克风设备（default 为系统默认设备）", preferences.Current.MicrophoneDevice);
@@ -45,7 +47,7 @@ public sealed class MediaSettingsPage : SettingsPageBase
         }
         var status = new TextBlock { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
         var save = new Button { Content = "保存并重新检查" };
-        save.Click += (_, _) =>
+        save.Click += async (_, _) =>
         {
             try
             {
@@ -65,12 +67,14 @@ public sealed class MediaSettingsPage : SettingsPageBase
                     if (IAppHost.TryGetService<IOpenAiCompatibleService>() is OpenAiCompatibleService client)
                         client.SessionApiKey = sessionKey?.Text;
                 }
+                var value = camera.Camera is IAsyncCapabilityProbe probe ? await probe.ProbeAsync(camera.Stopping) : camera.Camera.Probe();
                 speech.Input.RefreshBackground();
-                var value = camera.Camera.Probe();
                 status.Text = "已保存。摄像头：" + (value.CanExecute ? "采集后端就绪，请选择设备。" : value.Reason) + " 功能菜单变化后请重启应用。";
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException)
             { status.Text = "设置未能保存，请检查文件权限或重新打开设置后重试。"; }
+            catch (OperationCanceledException) { status.Text = "检查已取消。"; }
+            catch (NativeFeatureException error) { status.Text = error.Message; }
         };
         panel.Children.Add(save);
         var list = new Button { Content = "检查摄像头设备" };
@@ -95,6 +99,7 @@ public sealed class MediaSettingsPage : SettingsPageBase
                 request.IsEnabled = false;
                 try { status.Text = (await permission.RequestAccessAsync(camera.Stopping)).Reason; }
                 catch (OperationCanceledException) { status.Text = "授权已取消。"; }
+                catch (Exception error) { status.Text = error.Message; }
                 finally { request.IsEnabled = true; }
             };
             panel.Children.Add(request);

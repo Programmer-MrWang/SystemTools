@@ -128,11 +128,26 @@ class M4PackagingTests(unittest.TestCase):
                 path = stage / m2.MEDIA_NATIVE[rid]
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text('native speech fixture')
+            if rid == 'osx-arm64':
+                for name in m2.MAC_COMPANION_FILES:
+                    path = stage / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text('companion fixture')
             self.manifest(stage, rid, milestone='M5')
         self.assertTrue(self.aggregate().is_file())
         target = self.stages[1] / m2.MEDIA_NATIVE['linux-x64']
         target.unlink()
         self.manifest(self.stages[1], 'linux-x64', milestone='M5')
+        with self.assertRaisesRegex(RuntimeError, 'Missing required'):
+            self.aggregate()
+
+    def test_m5_requires_independent_mac_companion(self):
+        for stage, rid in zip(self.stages, m1.MODULES):
+            if rid in m2.MEDIA_NATIVE:
+                path = stage / m2.MEDIA_NATIVE[rid]
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('native speech fixture')
+            self.manifest(stage, rid, milestone='M5')
         with self.assertRaisesRegex(RuntimeError, 'Missing required'):
             self.aggregate()
 

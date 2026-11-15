@@ -4,6 +4,14 @@
   <ItemGroup><ProjectReference Include="../SystemTools.Contracts/SystemTools.Contracts.csproj" /><ProjectReference Include="../SystemTools.Common/SystemTools.Common.csproj" /></ItemGroup>
   <Target Name="BuildMacNativeBridge" BeforeTargets="Build" Condition="$([MSBuild]::IsOSPlatform('OSX'))" Inputs="$(MSBuildProjectFullPath);$(MSBuildProjectDirectory)/../../native/macos/SystemToolsNative.swift;$(MSBuildProjectDirectory)/../../native/macos/SystemToolsMedia.swift;$(MSBuildProjectDirectory)/../../native/macos/SystemToolsAudio.swift;$(MSBuildProjectDirectory)/../../native/macos/SystemToolsAuthentication.swift" Outputs="$(TargetDir)libSystemToolsNative.dylib">
     <MakeDir Directories="$(TargetDir)" />
-    <Exec WorkingDirectory="$(MSBuildProjectDirectory)/../../native/macos" Command="xcrun swiftc -swift-version 5 -emit-library -O -whole-module-optimization -target arm64-apple-macos12.0 -module-name SystemToolsNative -Xlinker -install_name -Xlinker @rpath/libSystemToolsNative.dylib -Xlinker -reproducible SystemToolsNative.swift SystemToolsMedia.swift SystemToolsAudio.swift SystemToolsAuthentication.swift -o &quot;$(TargetDir)libSystemToolsNative.dylib&quot;" />
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)/../../native/macos" Command="xcrun swiftc -swift-version 5 -emit-library -O -whole-module-optimization -target arm64-apple-macos12.0 -module-name SystemToolsNative -Xlinker -install_name -Xlinker @rpath/libSystemToolsNative.dylib -Xlinker -reproducible SystemToolsNative.swift SystemToolsAuthentication.swift -o &quot;$(TargetDir)libSystemToolsNative.dylib&quot;" />
+  </Target>
+  <Target Name="BuildMacCompanion" BeforeTargets="Build" Condition="$([MSBuild]::IsOSPlatform('OSX'))"
+          Inputs="$(MSBuildProjectFullPath);$(MSBuildProjectDirectory)/../../native/macos/Companion/main.swift;$(MSBuildProjectDirectory)/../../native/macos/Companion/Info.plist;$(MSBuildProjectDirectory)/../../native/macos/SystemToolsMedia.swift;$(MSBuildProjectDirectory)/../../native/macos/SystemToolsAudio.swift"
+          Outputs="$(TargetDir)SystemTools Companion.app/Contents/_CodeSignature/CodeResources">
+    <MakeDir Directories="$(TargetDir)SystemTools Companion.app/Contents/MacOS" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/../../native/macos/Companion/Info.plist" DestinationFolder="$(TargetDir)SystemTools Companion.app/Contents" />
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)/../../native/macos" Command="xcrun swiftc -swift-version 5 -O -whole-module-optimization -target arm64-apple-macos12.0 -module-name SystemToolsCompanion -Xlinker -reproducible Companion/main.swift SystemToolsMedia.swift SystemToolsAudio.swift -o &quot;$(TargetDir)SystemTools Companion.app/Contents/MacOS/SystemToolsCompanion&quot;" />
+    <Exec Command="codesign --force --sign - --timestamp=none &quot;$(TargetDir)SystemTools Companion.app&quot;" />
   </Target>
 </Project>

@@ -35,9 +35,10 @@ public static class MediaHostRegistration
             if (catalog.CanCreate("SystemTools.LyricsDisplay")) services.AddComponent<NativeLyricsComponent, NativeLyricsSettingsControl>();
             if (preferences.Current.EnableSystemAuthentication && media.Authentication.Probe().CanExecute)
                 services.AddAuthorizeProvider<NativeSystemAuthorizer>();
-            catalog.BindForRegistration("SystemTools.KeywordTrigger", () => GlobalConstants.MainConfig!.Data.IsTriggerEnabled("SystemTools.KeywordTrigger")
+            BindMediaFeature("SystemTools.KeywordTrigger", () => GlobalConstants.MainConfig!.Data.IsTriggerEnabled("SystemTools.KeywordTrigger")
                 ? media.Speech.Probe() : new(CapabilityState.Disabled, "用户已关闭关键词触发。"));
-            if (catalog.CanCreate("SystemTools.KeywordTrigger")) services.AddTrigger<NativeKeywordTrigger, NativeKeywordSettingsControl>();
+            if ((catalog.RuntimeId == "osx-arm64" && GlobalConstants.MainConfig!.Data.IsTriggerEnabled("SystemTools.KeywordTrigger")) ||
+                catalog.CanCreate("SystemTools.KeywordTrigger")) services.AddTrigger<NativeKeywordTrigger, NativeKeywordSettingsControl>();
             if (GlobalConstants.MainConfig!.Data.EnableAiService)
             {
                 services.AddSingleton<NativeVoiceService>();
@@ -46,18 +47,26 @@ public static class MediaHostRegistration
                     ? new(CapabilityState.Available) : new(CapabilityState.Disabled, "用户已关闭。"));
                 if (catalog.CanCreate("SystemTools.ShowAiChatDialog")) services.AddAction<NativeShowAiChatAction>();
                 foreach (var id in new[] { "SystemTools.WakeUpVoiceConversationAi", "SystemTools.EnableVoiceWakeAi" })
-                    catalog.BindForRegistration(id, () => GlobalConstants.MainConfig.Data.IsActionEnabled(id) ? media.Speech.Probe() : new(CapabilityState.Disabled, "用户已关闭。"));
-                if (catalog.CanCreate("SystemTools.WakeUpVoiceConversationAi")) services.AddAction<NativeWakeConversationAction>();
-                if (catalog.CanCreate("SystemTools.EnableVoiceWakeAi")) services.AddAction<NativeEnableVoiceWakeAction>();
+                    BindMediaFeature(id, () => GlobalConstants.MainConfig.Data.IsActionEnabled(id) ? media.Speech.Probe() : new(CapabilityState.Disabled, "用户已关闭。"));
+                bool CanRegisterVoice(string id) => (catalog.RuntimeId == "osx-arm64" && GlobalConstants.MainConfig!.Data.IsActionEnabled(id)) || catalog.CanCreate(id);
+                if (CanRegisterVoice("SystemTools.WakeUpVoiceConversationAi")) services.AddAction<NativeWakeConversationAction>();
+                if (CanRegisterVoice("SystemTools.EnableVoiceWakeAi")) services.AddAction<NativeEnableVoiceWakeAction>();
                 var group = new ActionMenuTreeGroup("语音与对话", "\uED53");
                 foreach (var id in new[] { "SystemTools.ShowAiChatDialog", "SystemTools.WakeUpVoiceConversationAi", "SystemTools.EnableVoiceWakeAi" })
-                    if (catalog.CanCreate(id)) group.Children.Add(new ActionMenuTreeItem(id, catalog.Snapshot().Single(item => item.Feature.Id == id).Feature.Name, "\uED53"));
+                    if (CanRegisterVoice(id)) group.Children.Add(new ActionMenuTreeItem(id, catalog.Snapshot().Single(item => item.Feature.Id == id).Feature.Name, "\uED53"));
                 if (group.Children.Count > 0) IActionService.ActionMenuTree.Add(group);
             }
         }
         EventHandler? stopped = null;
         stopped = (_, _) => { AppBase.Current.AppStopping -= stopped; media.Dispose(); };
         AppBase.Current.AppStopping += stopped;
+        // The Mac helper connects asynchronously; register supported entry points before its first reply.
+        // Their live probes and device requests still enforce permission/model availability at invocation.
+        void BindMediaFeature(string id, Func<Capability> probe)
+        {
+            if (catalog.RuntimeId == "osx-arm64") catalog.Bind(id, probe);
+            else catalog.BindForRegistration(id, probe);
+        }
     }
     public static MediaPreferencesStore RegisterCamera(IServiceCollection services, FeatureCatalog catalog, ICameraCapture camera,
         MediaPreferencesStore? preferences = null)
@@ -71,11 +80,14 @@ public static class MediaHostRegistration
         stopped = (_, _) => { AppBase.Current.AppStopping -= stopped; context.Dispose(); };
         AppBase.Current.AppStopping += stopped;
         services.AddSettingsPage<MediaSettingsPage>();
-        catalog.BindForRegistration("SystemTools.CameraCapture", () =>
+        Func<Capability> probe = () =>
             !GlobalConstants.MainConfig!.Data.IsActionEnabled("SystemTools.CameraCapture") ||
             (catalog.RuntimeId == "win-x64" && !GlobalConstants.MainConfig.Data.EnableFfmpegFeatures)
-                ? new(CapabilityState.Disabled, "请启用摄像头行动及媒体功能。") : camera.Probe());
-        if (catalog.CanCreate("SystemTools.CameraCapture") && !IActionService.ActionInfos.ContainsKey("SystemTools.CameraCapture"))
+                ? new(CapabilityState.Disabled, "请启用摄像头行动及媒体功能。") : camera.Probe();
+        if (catalog.RuntimeId == "osx-arm64") catalog.Bind("SystemTools.CameraCapture", probe);
+        else catalog.BindForRegistration("SystemTools.CameraCapture", probe);
+        if (((catalog.RuntimeId == "osx-arm64" && GlobalConstants.MainConfig!.Data.IsActionEnabled("SystemTools.CameraCapture")) ||
+             catalog.CanCreate("SystemTools.CameraCapture")) && !IActionService.ActionInfos.ContainsKey("SystemTools.CameraCapture"))
         {
             services.AddAction<CameraCaptureAction, CameraCaptureSettingsControl>();
             var group = new ActionMenuTreeGroup("媒体功能", "\uE39E");

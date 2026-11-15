@@ -36,6 +36,8 @@ def verify_stage(stage):
     if target == 'win-x64': required.update(WINDOWS_REQUIRED)
     if manifest.get('milestone') == 'M5' and target in m2.MEDIA_NATIVE:
         required.add(m2.MEDIA_NATIVE[target])
+    if manifest.get('milestone') == 'M5' and target == 'osx-arm64':
+        required.update(m2.MAC_COMPANION_FILES)
     if not required.issubset(manifest['files']):
         raise RuntimeError('Missing required stage assets.')
     names = [path.relative_to(stage).as_posix() for path in stage.rglob('*') if path.is_file()]
@@ -86,6 +88,11 @@ def stage(target=None, milestone='M4'):
             raise RuntimeError('Mac stage requires the native Swift bridge, compiled on a Mac.')
         (destination / m2.MAC_NATIVE).parent.mkdir(parents=True)
         shutil.copy2(native, destination / m2.MAC_NATIVE)
+        if milestone == 'M5':
+            for name in m2.MAC_COMPANION_FILES:
+                output = destination / name
+                output.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(entry / name, output)
     if target in m2.MEDIA_NATIVE:
         speech = entry / m2.MEDIA_NATIVE[target]
         if milestone == 'M5' and not speech.is_file():

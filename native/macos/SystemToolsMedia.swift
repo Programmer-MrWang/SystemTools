@@ -5,10 +5,10 @@ import Foundation
 func captureCapability(_ kind: AVMediaType, purpose: String) -> [String: Any] {
     guard let description = Bundle.main.object(forInfoDictionaryKey: purpose) as? String,
           !description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-        return ["state": "MissingDependency", "reason": "当前宿主未声明此设备用途，请更新完整 ClassIsland 应用。"]
+        return ["state": "MissingDependency", "reason": "SystemTools 采集助手的设备用途声明缺失，请重新安装完整插件。"]
     }
     guard AVCaptureDevice.authorizationStatus(for: kind) == .authorized else {
-        return ["state": "PermissionRequired", "reason": "请通过此页申请权限，或在系统设置中允许 ClassIsland 访问设备。"]
+        return ["state": "PermissionRequired", "reason": "请申请设备权限，或在系统设置中允许 SystemTools 采集助手访问设备。"]
     }
     if kind == .video && AVCaptureDevice.devices(for: .video).isEmpty {
         return ["state": "MissingDevice", "reason": "没有可用摄像头。"]
@@ -33,8 +33,10 @@ func requestCaptureAccess(_ kind: AVMediaType, purpose: String) throws -> [Strin
 
 final class CameraJob: NSObject, AVCapturePhotoCaptureDelegate {
     let completed = DispatchSemaphore(value: 0)
+    let inFlight = DispatchGroup()
     let lock = NSLock()
     var cancelled = false
+    var started = false
     var failure: Error?
     var destination = ""
 
@@ -61,25 +63,50 @@ final class CameraJob: NSObject, AVCapturePhotoCaptureDelegate {
 
 let cameraJobsLock = NSLock()
 var cameraJobs: [String: CameraJob] = [:]
+let cameraDevice = DispatchSemaphore(value: 1)
 
 func handleCamera(_ request: [String: Any], operation: String) throws -> [String: Any] {
     if operation == "camera.probe" { return captureCapability(.video, purpose: "NSCameraUsageDescription") }
     if operation == "camera.request" { return try requestCaptureAccess(.video, purpose: "NSCameraUsageDescription") }
     if operation == "camera.devices" {
+        let state = captureCapability(.video, purpose: "NSCameraUsageDescription")
+        if state["state"] as? String != "Available" { return state }
         return ["state": "Available", "devices": AVCaptureDevice.devices(for: .video).map { ["id": $0.uniqueID, "name": $0.localizedName] }]
     }
     guard let id = request["id"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少采集会话。") }
     if operation == "camera.prepare" {
-        cameraJobsLock.withLock { cameraJobs[id] = CameraJob() }
+        try cameraJobsLock.withLock {
+            guard cameraJobs[id] == nil, cameraJobs.count < 16 else {
+                throw NativeFailure(state: "Disabled", message: "相机会话重复或数量过多。")
+            }
+            cameraJobs[id] = CameraJob()
+        }
         return ["state": "Available"]
     }
-    guard let job = cameraJobsLock.withLock({ cameraJobs[id] }) else { throw NativeFailure(state: "Unsupported", message: "采集会话已结束。") }
+    guard let job = cameraJobsLock.withLock({ cameraJobs[id] }) else {
+        if operation == "camera.release" || operation == "camera.cancel" { return ["state": "Available"] }
+        throw NativeFailure(state: "Unsupported", message: "采集会话已结束。")
+    }
     if operation == "camera.cancel" { job.cancel(); return ["state": "Available"] }
     if operation == "camera.release" {
+        job.cancel()
+        guard job.inFlight.wait(timeout: .now() + 22) == .success else {
+            throw NativeFailure(state: "MissingDevice", message: "相机未能完成停止，请关闭采集助手。")
+        }
         cameraJobsLock.withLock { _ = cameraJobs.removeValue(forKey: id) }
         return ["state": "Available"]
     }
     guard operation == "camera.capture", !Thread.isMainThread else { throw NativeFailure(state: "Unsupported", message: "摄像头采集必须在后台执行。") }
+    guard cameraDevice.wait(timeout: .now()) == .success else {
+        throw NativeFailure(state: "Disabled", message: "摄像头正在被另一项采集使用。")
+    }
+    defer { cameraDevice.signal() }
+    try job.lock.withLock {
+        if job.cancelled || job.started { throw NativeFailure(state: "Disabled", message: "采集已取消或已经执行。") }
+        job.started = true
+        job.inFlight.enter()
+    }
+    defer { job.inFlight.leave() }
     let capability = captureCapability(.video, purpose: "NSCameraUsageDescription")
     if capability["state"] as? String != "Available" { return capability }
     if job.lock.withLock({ job.cancelled }) { throw NativeFailure(state: "Disabled", message: "采集已取消。") }

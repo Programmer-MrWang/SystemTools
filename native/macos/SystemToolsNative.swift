@@ -463,8 +463,30 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
 
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
-    if operation.hasPrefix("camera.") { return try handleCamera(request, operation: operation) }
-    if operation.hasPrefix("microphone.") { return try handleMicrophone(request, operation: operation) }
+    if operation.hasPrefix("camera.") || operation.hasPrefix("microphone.") {
+        return ["state": "Unsupported", "reason": "相机和麦克风由 SystemTools 采集助手提供，请通过插件媒体设置连接。"]
+    }
+    if operation == "companion.launch" {
+        guard !Thread.isMainThread, let path = request["application"] as? String,
+              let session = request["session"] as? String else {
+            throw NativeFailure(state: "Unsupported", message: "采集助手必须在后台通过应用启动服务打开。")
+        }
+        let finished = DispatchSemaphore(value: 0)
+        let lock = NSLock()
+        var reply: [String: Any] = ["state": "MissingDependency", "reason": "无法打开 SystemTools 采集助手，请重新安装插件。"]
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.arguments = ["--session", session]
+        configuration.activates = false
+        configuration.createsNewApplicationInstance = true
+        NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: path), configuration: configuration) { app, error in
+            if let app = app, error == nil { lock.withLock { reply = ["state": "Available", "pid": app.processIdentifier] } }
+            finished.signal()
+        }
+        guard finished.wait(timeout: .now() + 10) == .success else {
+            throw NativeFailure(state: "MissingDependency", message: "采集助手启动超时，请重新检查。")
+        }
+        return lock.withLock { reply }
+    }
     if operation.hasPrefix("authentication.") { return try handleAuthentication(request, operation: operation) }
     if operation.hasPrefix("wallpaper.") { return try handleWallpaper(request, operation: operation) }
     if operation.hasPrefix("input.") { return try handleInput(request, operation: operation) }

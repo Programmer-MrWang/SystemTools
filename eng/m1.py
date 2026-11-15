@@ -61,7 +61,7 @@ def identity():
                            or p.name.endswith('.axaml.txt'))
                       and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
     if (ROOT / 'native').is_dir():
-        paths += [path for path in (ROOT / 'native').rglob('*') if path.is_file() and path.suffix in {'.swift', '.c', '.h', '.m'}]
+        paths += [path for path in (ROOT / 'native').rglob('*') if path.is_file() and path.suffix in {'.swift', '.c', '.h', '.m', '.plist'}]
     paths += [path for path in (ROOT / 'eng/SystemTools.BuildIdentity').glob('*') if path.suffix in {'.cs', '.csproj'}]
     digest = hashlib.sha256()
     # Preserve the original POSIX component order; Windows Path ordering folds case.

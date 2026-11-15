@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -21,13 +22,27 @@ ARTIFACTS = ROOT / 'artifacts/m5'
 def check():
     m4.ARTIFACTS = ARTIFACTS
     m4.check()
-    result = subprocess.run(['dotnet', 'run', '--project', 'tests/SystemTools.M5.Tests', '-c', 'Release'],
-        cwd=ROOT, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    (ARTIFACTS / 'm5-tests.log').write_text(result.stdout, encoding='utf-8')
-    print(result.stdout, end='')
-    if result.returncode:
-        raise RuntimeError('M5 tests failed.')
-    subprocess.run([sys.executable, '-B', 'eng/test_m5_acceptance.py'], cwd=ROOT, check=True)
+    report = json.loads((ARTIFACTS / 'checks.json').read_text())
+    report['milestone'] = 'M5'
+    report['targetPlatformRuntimeAcceptance'] = False
+    report['passed'] = False
+    m1.write_json(ARTIFACTS / 'checks.json', report)
+    commands = [('m5-contracts', ['dotnet', 'run', '--project', 'tests/SystemTools.M5.Tests', '-c', 'Release']),
+                ('m5-acceptance-tools', [sys.executable, '-B', 'eng/test_m5_acceptance.py'])]
+    if m1.native_rid() != 'win-x64':
+        commands.append(('companion-ipc', ['dotnet', 'run', '--project', 'tests/SystemTools.M5.Companion.Tests', '-c', 'Release']))
+    for name, command in commands:
+        result = subprocess.run(command, cwd=ROOT, encoding='utf-8', errors='replace', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        (ARTIFACTS / (name + '.log')).write_text(result.stdout, encoding='utf-8')
+        print(result.stdout, end='')
+        count = len(re.findall(r'^PASS \d+:', result.stdout, re.MULTILINE))
+        if match := re.search(r'Ran (\d+) tests', result.stdout): count = int(match[1])
+        report['checks'].append(dict(name=name, passed=result.returncode == 0, checks=count))
+        m1.write_json(ARTIFACTS / 'checks.json', report)
+        if result.returncode:
+            raise RuntimeError(name + ' failed.')
+    report['passed'] = True
+    m1.write_json(ARTIFACTS / 'checks.json', report)
 
 
 def smoke_windows(host, package, preferences, wave, device):

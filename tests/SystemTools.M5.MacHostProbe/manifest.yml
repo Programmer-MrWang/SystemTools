@@ -1,0 +1,11 @@
+id: SystemTools.M5.MacHostProbe
+name: M5 Mac 采集助手隔离验收
+entranceAssembly: SystemTools.M5.MacHostProbe.dll
+version: 1.0.0.0
+apiVersion: 2.2.0.0
+author: SystemTools
+supportedOSPlatforms:
+- macOS
+dependencies:
+- id: SystemTools
+  isRequired: false

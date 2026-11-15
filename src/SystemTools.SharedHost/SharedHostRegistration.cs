@@ -23,13 +23,13 @@ public static class SharedHostRegistration
     public static void Initialize(string configFolder, string pluginFolder, IServiceCollection services, FeatureCatalog catalog)
         => Initialize(configFolder, pluginFolder, services, catalog, null);
 
-    public static void Initialize(string configFolder, string pluginFolder, IServiceCollection services, FeatureCatalog catalog, LifetimeScope? lifetime)
+    public static void Initialize(string configFolder, string pluginFolder, IServiceCollection services, FeatureCatalog catalog, LifetimeScope? lifetime, ICredentialProtector? credentials = null)
     {
         GlobalConstants.IsUnifiedBuild = true;
         GlobalConstants.PluginConfigFolder = configFolder;
         GlobalConstants.Information.PluginFolder = pluginFolder;
         GlobalConstants.Features = catalog;
-        CredentialProtection.Provider = new UnavailableCredentialProtector("unavailable", "本平台系统凭据后端尚未接入。原密文与授权配置已保留。" );
+        CredentialProtection.Provider = credentials ?? new UnavailableCredentialProtector("unavailable", "本平台系统凭据后端尚未接入。原密文与授权配置已保留。" );
         var config = new MainConfigHandler(configFolder);
         GlobalConstants.MainConfig = config;
         services.AddSingleton(config);

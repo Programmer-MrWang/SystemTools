@@ -393,6 +393,54 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    [JsonIgnore]
+    public string SavedCredentialReference => _storedAiApiKey is { } value && CredentialProtection.IsProtected(value) ? value : "";
+
+    public void SaveApiKeySecurely(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("请输入要保存的 API 密钥。");
+        var reference = CredentialProtection.Protect(value.Trim());
+        var previous = (_storedAiApiKey, _aiApiKey, IsAiApiKeyUnavailable, RequiresCredentialMigration);
+        try
+        {
+            _storedAiApiKey = reference;
+            _aiApiKey = value.Trim();
+            IsAiApiKeyUnavailable = false;
+            RequiresCredentialMigration = false;
+            OnPropertyChanged(nameof(AiApiKey));
+        }
+        catch
+        {
+            (_storedAiApiKey, _aiApiKey, IsAiApiKeyUnavailable, RequiresCredentialMigration) = previous;
+            if (CredentialProtection.Provider is SystemTools.Contracts.IStoredCredentialProtector store)
+                try { store.Delete(reference); } catch { }
+            throw;
+        }
+        OnPropertyChanged(nameof(IsAiApiKeyUnavailable));
+    }
+
+    public void ClearSavedApiKey()
+    {
+        var previous = (_storedAiApiKey, _aiApiKey, IsAiApiKeyUnavailable, RequiresCredentialMigration);
+        try
+        {
+            _storedAiApiKey = "";
+            _aiApiKey = "";
+            IsAiApiKeyUnavailable = false;
+            RequiresCredentialMigration = false;
+            OnPropertyChanged(nameof(AiApiKey));
+        }
+        catch
+        {
+            (_storedAiApiKey, _aiApiKey, IsAiApiKeyUnavailable, RequiresCredentialMigration) = previous;
+            throw;
+        }
+        if (previous._storedAiApiKey is { Length: > 0 } reference && CredentialProtection.Provider is SystemTools.Contracts.IStoredCredentialProtector store
+            && reference.StartsWith(store.Scheme, StringComparison.Ordinal) && !store.Delete(reference))
+            throw new System.Security.Cryptography.CryptographicException("当前配置已清除；系统凭据项目尚未删除，请解锁系统凭据后清理。");
+        OnPropertyChanged(nameof(IsAiApiKeyUnavailable));
+    }
+
     // Preserve the JSON name for existing configurations, while keeping credentials
     // decrypted only in memory. Cache unreadable ciphertext so other setting changes
     // cannot erase a key belonging to another Windows account.

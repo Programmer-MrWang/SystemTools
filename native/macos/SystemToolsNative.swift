@@ -1,4 +1,5 @@
 import AppKit
+import Security
 import Vision
 import ImageIO
 import ScreenCaptureKit
@@ -511,6 +512,7 @@ func dispatch(_ request: [String: Any]) throws -> [String: Any] {
         }
         return lock.withLock { reply }
     }
+    if operation.hasPrefix("credentials.") { return try handleCredentials(request, operation: operation) }
     if operation.hasPrefix("authentication.") { return try handleAuthentication(request, operation: operation) }
     if operation.hasPrefix("wallpaper.") { return try handleWallpaper(request, operation: operation) }
     if operation.hasPrefix("input.") { return try handleInput(request, operation: operation) }
@@ -850,4 +852,40 @@ func handleBrightness(_ request: [String: Any], operation: String) throws -> [St
     }
     if operation == "brightness.set" { throw NativeFailure(state: "Unsupported", message: "所选设备没有公开可用的 IOKit 背光接口。") }
     return ["state": "Available", "devices": devices]
+}
+
+
+func handleCredentials(_ request: [String: Any], operation: String) throws -> [String: Any] {
+    if operation == "credentials.probe" {
+        var keychain: SecKeychain?
+        let status = SecKeychainCopyDefault(&keychain)
+        return status == errSecSuccess ? ["state": "Available"] : ["state": "MissingDependency", "reason": "当前用户没有可用默认钥匙串。"]
+    }
+    guard let id = request["id"] as? String, id.count == 32, UUID(uuidString: String(id.prefix(8)) + "-" + String(id.dropFirst(8).prefix(4)) + "-" + String(id.dropFirst(12).prefix(4)) + "-" + String(id.dropFirst(16).prefix(4)) + "-" + String(id.suffix(12))) != nil else {
+        throw NativeFailure(state: "Unsupported", message: "钥匙串引用无效。")
+    }
+    var query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+        kSecAttrService as String: "io.github.programmer-mrwang.systemtools.credentials", kSecAttrAccount as String: id,
+        kSecAttrSynchronizable as String: false]
+    if operation == "credentials.store" {
+        guard let secret = request["secret"] as? String, secret.utf8.count <= 131072 else { throw NativeFailure(state: "Unsupported", message: "凭据无效或过长。") }
+        query[kSecValueData as String] = Data(secret.utf8)
+        query[kSecAttrLabel as String] = "SystemTools API credential"
+        let status = SecItemAdd(query as CFDictionary, nil)
+        guard status == errSecSuccess else { throw NativeFailure(state: "PermissionRequired", message: "钥匙串保存被拒绝或未解锁。") }
+    } else if operation == "credentials.read" {
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+        query[kSecUseAuthenticationUI as String] = kSecUseAuthenticationUIFail
+        var value: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &value)
+        guard status == errSecSuccess, let data = value as? Data, let secret = String(data: data, encoding: .utf8) else {
+            throw NativeFailure(state: "PermissionRequired", message: "钥匙串项目不可读取，原引用已保留，请解锁或重新保存。")
+        }
+        return ["state": "Available", "secret": secret]
+    } else if operation == "credentials.delete" {
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else { throw NativeFailure(state: "PermissionRequired", message: "钥匙串删除被拒绝。") }
+    } else { throw NativeFailure(state: "Unsupported", message: "未知凭据操作。") }
+    return ["state": "Available"]
 }

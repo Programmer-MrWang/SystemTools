@@ -38,6 +38,43 @@ public sealed class MediaSettingsPage : SettingsPageBase
             sessionKey = Field("本次应用运行的 API 密钥（仅内存，不保存）", "");
             sessionKey.PasswordChar = '●';
             Unloaded += (_, _) => sessionKey.Text = "";
+            var credentialStatus = new TextBlock { TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+            void CredentialStatus() => credentialStatus.Text = GlobalConstants.MainConfig!.Data.IsAiApiKeyUnavailable
+                ? "原密钥当前无法读取，已保留原引用；请解锁系统凭据或显式重新保存。"
+                : GlobalConstants.MainConfig.Data.SavedCredentialReference.Length > 0 ? "已保存系统凭据；留空不会覆盖。" : "尚未保存系统凭据，可仅使用本次会话密钥。";
+            CredentialStatus(); panel.Children.Add(credentialStatus);
+            var persist = new Button { Content = "将输入的密钥保存到系统凭据" };
+            persist.Click += async (_, _) =>
+            {
+                persist.IsEnabled = false;
+                try
+                {
+                    var value = sessionKey.Text ?? "";
+                    await Task.Run(() => GlobalConstants.MainConfig!.Data.SaveApiKeySecurely(value));
+                    sessionKey.Text = "";
+                    if (IAppHost.TryGetService<IOpenAiCompatibleService>() is OpenAiCompatibleService client) client.SessionApiKey = null;
+                    CredentialStatus();
+                }
+                catch (Exception error) when (error is System.Security.Cryptography.CryptographicException or IOException or UnauthorizedAccessException or ArgumentException or PlatformNotSupportedException)
+                { credentialStatus.Text = "保存未完成；原配置保留。请检查系统凭据服务或解锁后重试。"; }
+                finally { persist.IsEnabled = true; }
+            };
+            var forget = new Button { Content = "移除当前已保存的密钥" };
+            forget.Click += async (_, _) =>
+            {
+                forget.IsEnabled = false;
+                try
+                {
+                    await Task.Run(() => GlobalConstants.MainConfig!.Data.ClearSavedApiKey());
+                    sessionKey.Text = "";
+                    if (IAppHost.TryGetService<IOpenAiCompatibleService>() is OpenAiCompatibleService client) client.SessionApiKey = null;
+                    CredentialStatus();
+                }
+                catch (Exception error) when (error is System.Security.Cryptography.CryptographicException or IOException or UnauthorizedAccessException)
+                { credentialStatus.Text = "移除未完成；请重新检查当前配置，解锁系统凭据后清理。"; }
+                finally { forget.IsEnabled = true; }
+            };
+            panel.Children.Add(persist); panel.Children.Add(forget);
             var open = new Button { Content = "打开语音与文字对话" };
             open.Click += async (_, _) =>
             {

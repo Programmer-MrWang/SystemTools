@@ -40,7 +40,7 @@ public sealed class Plugin : PluginBase
             platformPlugin.Initialize(this, context, services);
         else
         {
-            SharedHostRegistration.Initialize(PluginConfigFolder, Info.PluginFolderPath, services, catalog, _lifetime);
+            SharedHostRegistration.Initialize(PluginConfigFolder, Info.PluginFolderPath, services, catalog, _lifetime, (backend as ICredentialBackend)?.CreateCredentialProtector());
             if (backend is INativeDesktopBackend nativeBackend)
             {
                 var native = nativeBackend.CreateServices();

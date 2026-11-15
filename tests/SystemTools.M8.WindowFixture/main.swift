@@ -12,6 +12,10 @@ let menu = NSMenu()
 let applicationItem = NSMenuItem();menu.addItem(applicationItem)
 let applicationMenu = NSMenu();applicationMenu.addItem(withTitle:"退出夹具",action:#selector(NSApplication.terminate(_:)),keyEquivalent:"q")
 applicationItem.submenu=applicationMenu
+let fileItem=NSMenuItem();menu.addItem(fileItem)
+let fileMenu=NSMenu(title:"文件")
+fileMenu.addItem(withTitle:"关闭窗口",action:#selector(NSWindow.performClose(_:)),keyEquivalent:"w")
+fileItem.submenu=fileMenu
 let editItem=NSMenuItem();menu.addItem(editItem)
 let editMenu=NSMenu(title:"编辑")
 editMenu.addItem(withTitle:"撤销",action:Selector(("undo:")),keyEquivalent:"z")

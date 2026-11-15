@@ -34,7 +34,7 @@ public sealed class Plugin : PluginBase
                     {
                         Check(loaded!.Manifest.Version == "3.0.0.0", "正式插件身份与数字版本保持");
                         var mode = Environment.GetEnvironmentVariable("SystemTools_M7_PackageKind") ?? "M7";
-                        if (mode == "M7")
+                        if (mode is "M7" or "M8")
                         {
                             var type = Type.GetType("SystemTools.Contracts.FeatureCatalog, SystemTools.Contracts", throwOnError: true)!;
                             var catalog = ClassIsland.Shared.IAppHost.Host!.Services.GetService(type) ?? throw new Exception("未注册功能目录");

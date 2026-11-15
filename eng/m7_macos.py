@@ -4,10 +4,12 @@ from pathlib import Path
 import argparse
 import json
 import os
+import plistlib
 import shutil
 import subprocess
 import time
 import uuid
+import zipfile
 import m1
 import m2
 import m7
@@ -15,6 +17,12 @@ import release_lifecycle as lifecycle
 
 ARTIFACTS = m1.ROOT / 'artifacts/m7/mac'
 PROBE_ID = 'SystemTools.M7.MacHostProbe'
+
+def require_unlocked_desktop():
+    state = plistlib.loads(subprocess.check_output(['/usr/sbin/ioreg', '-a', '-d', '1', '-n', 'Root']))
+    if isinstance(state, list): state = state[0]
+    if state.get('IOConsoleLocked') or any(user.get('CGSSessionScreenIsLocked') for user in state.get('IOConsoleUsers', [])):
+        raise RuntimeError('Mac 桌面已锁定，请本人解锁后继续实际宿主验收。')
 
 
 def seed(root):
@@ -28,6 +36,7 @@ def seed(root):
 
 def run_host(host_app, root, label, expected='Loaded', kind='M7', timeout=55):
     lifecycle.stopped()
+    require_unlocked_desktop()
     run = root.parent / ('run-' + label + '-' + uuid.uuid4().hex[:8]); run.mkdir()
     probe = root / 'data/Plugins' / PROBE_ID; probe.mkdir(parents=True, exist_ok=True)
     source = m1.ROOT / 'tests' / PROBE_ID / 'bin/Release/net10.0'
@@ -81,52 +90,56 @@ def smoke(host_app, package, previous, baseline=None, audit_package=True):
     host_app = Path(host_app).absolute(); package = Path(package).absolute(); previous = Path(previous).absolute()
     lifecycle.stopped()
     if audit_package: m7.audit(package)
+    with zipfile.ZipFile(package) as archive:
+        current_milestone = json.loads(archive.read('m2-package.json'))['milestone']
+    with zipfile.ZipFile(previous) as archive:
+        previous_milestone = json.loads(archive.read('m2-package.json'))['milestone']
     if baseline: verify_boundary(baseline)
     m1.command('dotnet','build','tests/SystemTools.M7.MacHostProbe','-c','Release','--nologo','-v','minimal')
     session = ARTIFACTS / (time.strftime('%Y%m%d-%H%M%S') + '-' + uuid.uuid4().hex[:6]); session.mkdir(parents=True)
     cases = []; assertions = []
     fresh = session / 'fresh'; seed(fresh)
     fresh_journal = lifecycle.install(fresh, package)
-    cases.append(run_host(host_app, fresh, 'fresh-install'))
+    cases.append(run_host(host_app, fresh, 'fresh-install', kind=current_milestone))
     snapshot = fresh / 'data/Config/Plugins/SystemTools/.upgrade-snapshots/3.0.0.0/snapshot.json'
     snapshot_hash = m1.sha(snapshot)
-    cases.append(run_host(host_app, fresh, 'restart'))
+    cases.append(run_host(host_app, fresh, 'restart', kind=current_milestone))
     if m1.sha(snapshot) != snapshot_hash: raise RuntimeError('重启覆盖了升级前快照。')
     assertions.append('同版本重启保留原快照')
     lifecycle.mark(fresh, 'disable'); config_before = lifecycle.tree(fresh / 'data/Config')
-    cases.append(run_host(host_app, fresh, 'disabled', 'Disabled'))
+    cases.append(run_host(host_app, fresh, 'disabled', 'Disabled', kind=current_milestone))
     if lifecycle.tree(fresh / 'data/Config') != config_before: raise RuntimeError('停用状态改写配置。')
-    lifecycle.mark(fresh, 'enable'); cases.append(run_host(host_app, fresh, 're-enabled'))
+    lifecycle.mark(fresh, 'enable'); cases.append(run_host(host_app, fresh, 're-enabled', kind=current_milestone))
     lifecycle.mark(fresh, 'uninstall'); config_before = lifecycle.tree(fresh / 'data/Config')
-    cases.append(run_host(host_app, fresh, 'uninstalled', 'Absent'))
+    cases.append(run_host(host_app, fresh, 'uninstalled', 'Absent', kind=current_milestone))
     if (fresh / lifecycle.OWNED[0]).exists() or lifecycle.tree(fresh / 'data/Config') != config_before: raise RuntimeError('卸载未移除插件或损坏配置。')
     if not fresh_journal.exists(): raise RuntimeError('卸载删除了恢复资料。')
     assertions.append('宿主真实卸载保留配置、附件和恢复资料')
     upgrade = session / 'upgrade'; seed(upgrade)
     lifecycle.install(upgrade, previous)
-    cases.append(run_host(host_app, upgrade, 'previous-m6', kind='M6'))
+    cases.append(run_host(host_app, upgrade, 'previous-' + previous_milestone.lower(), kind=previous_milestone))
     old_plugin = lifecycle.tree(upgrade / lifecycle.OWNED[0]); old_config = lifecycle.tree(upgrade / 'data/Config')
     journal = lifecycle.install(upgrade, package)
-    cases.append(run_host(host_app, upgrade, 'upgraded-m7'))
-    cases.append(run_host(host_app, upgrade, 'upgrade-restart'))
+    cases.append(run_host(host_app, upgrade, 'upgraded-' + current_milestone.lower(), kind=current_milestone))
+    cases.append(run_host(host_app, upgrade, 'upgrade-restart', kind=current_milestone))
     lifecycle.seal(upgrade, journal); lifecycle.rollback(upgrade, journal)
     if lifecycle.tree(upgrade / lifecycle.OWNED[0]) != old_plugin or lifecycle.tree(upgrade / 'data/Config') != old_config:
         raise RuntimeError('回退未逐字节恢复实际旧包与旧配置。')
-    cases.append(run_host(host_app, upgrade, 'rolled-back-m6', kind='M6'))
-    assertions.append('真实 M6 包到 M7 同数字版本升级、回退逐字节恢复且旧包可重新加载')
+    cases.append(run_host(host_app, upgrade, 'rolled-back-' + previous_milestone.lower(), kind=previous_milestone))
+    assertions.append(f'真实 {previous_milestone} 包到 {current_milestone} 同数字版本升级、回退逐字节恢复且旧包可重新加载')
     m1.command('dotnet','build','tests/SystemTools.M7.LegacyStub','-c','Release','--nologo','-v','minimal')
     conflict = session / 'conflict'; seed(conflict); lifecycle.install(conflict, package)
     legacy = conflict / 'data/Plugins/SystemTools-Cross-platform'; legacy.mkdir()
     shutil.copy2(m1.ROOT / 'tests/SystemTools.M7.LegacyStub/bin/Release/net10.0/SystemTools.M7.LegacyStub.dll', legacy)
     (legacy / 'manifest.yml').write_text('id: SystemTools-Cross-platform\nname: M7 synthetic legacy identity fixture\nentranceAssembly: SystemTools.M7.LegacyStub.dll\nversion: 0.0.0.1\napiVersion: 2.2.0.0\nsupportedOSPlatforms: [macOS]\n', encoding='utf-8')
-    cases.append(run_host(host_app, conflict, 'synthetic-legacy-conflict', 'Error'))
+    cases.append(run_host(host_app, conflict, 'synthetic-legacy-conflict', 'Error', kind=current_milestone))
     lifecycle.install(conflict, package, disable_legacy=True)
-    cases.append(run_host(host_app, conflict, 'legacy-explicitly-disabled'))
+    cases.append(run_host(host_app, conflict, 'legacy-explicitly-disabled', kind=current_milestone))
     assertions.append('合成旧身份冲突在真实宿主阻止重复注册；显式停用旧包后加载恢复')
     boundary = verify_boundary(baseline) if baseline else None
     result = dict(m1.identity(), schemaVersion=1, passed=all(x['passed'] for x in cases), packageSha256=m1.sha(package), previousPackageSha256=m1.sha(previous),
                   runtimeIds=['osx-arm64'], finalCandidate=audit_package, fullPlatformAcceptance=False, scenarios=cases, assertions=assertions, hostBoundary=boundary,
-                  scope='Isolated Mac package lifecycle; M6 3.0.0.0 -> M7 3.0.0.0. Not Windows 2.x, formal signing, device/TCC or Linux acceptance.')
+                  scope=f'Isolated Mac package lifecycle; {previous_milestone} 3.0.0.0 -> {current_milestone} 3.0.0.0. Not Windows 2.x, formal signing, device/TCC or Linux acceptance.')
     m1.write_json(session / 'result.json', result); m1.write_json(ARTIFACTS.parent / 'mac-lifecycle.json', result)
     return result
 

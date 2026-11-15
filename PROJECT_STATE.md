@@ -2,15 +2,13 @@
 
 更新：2026-11-15，Asia/Shanghai。正式开发：`C:\STWork-Windows\SystemTools`；宿主：`C:\STWork-Windows\ClassIsland`。本文件替代 M4 收尾状态，历史证据仍保留。
 
-## 最新进展：2026-11-16 M8 开发与部分交互验收
+## 最新进展：2026-11-16 M8 开发与本机补充验收
 
-本段优先于后文。用户要求补齐可迁移功能、Mac 本机交互和 Mac/Linux 系统凭据。源码已实现并逐批自审/中文提交/代理推送；最后桌面复验与 7 项历史合成凭据清理受锁屏阻挡，allRequestedWorkComplete=false，不宣称全部关闭。
+本段优先于后文。可迁移功能与 Mac Keychain/Linux Secret Service 已实现，逐批自审、中文提交/代理推送。用户解锁后已完成旧候选包材质回退、实际 JSON 行动、凭据保存/重启读取/删除、7 项合成凭据清理、真实一分钟阈值触发及 11 场景/82 项生命周期与 17/17/1 项加载矩阵。音频修复后新包尚需解锁复验，不能宣称所有工作关闭。allRequestedWorkComplete=false，平台/硬件及发行门禁单列。
 
-业务提交 603eefd0c4f8dbe65519d5969ffaca6b6d608687，指纹 89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354；CI 43763132117 三端及严格合包通过，检查 Windows 312、Linux 309、Mac 367，Linux 实际隔离 Secret Service 增读删/跨进程重开成功。本机 367 项回归通过。包 artifacts/m8/final-native/SystemTools.M8.Native.cipx，SHA-256 c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e；文件/架构/依赖/许可证/自签审计和真实包离线 M7->M8->M7 回退通过。
+音频自审复现并修复宿主正常结束行动组导致后台播放提前取消，新增 6 项回归。当前业务提交 3f751a1fea6fdc88a4440ab0ceb655896aada114，指纹 342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc；CI 43768083962 全通过，Windows 318、Linux 315、Mac 373。包 artifacts/m8/final-native/SystemTools.M8.Native.cipx，SHA-256 45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427。新包文件/架构/依赖/许可证/自签及离线回退通过；新包后台音频/窗口快捷键和桌面矩阵仍待再次解锁复验，旧包实机证据不混用。
 
-Mac 预览已有真实输入/撤销/全选/取消释放、鼠标、用户物理热键、主界面点击、行动信号、受控进程、音频/黑屏/计时取消、宿主 Keychain 保存/重启读取/删除、系统外观切换/恢复、背景 OCR 隐藏/恢复和约两分钟运行证据。最终 CI 包的 JSON 行动路径、材质辅助功能切换和桌面生命周期仍待解锁复验。最小化本机基线不成功；外屏/USB/旧 macOS/长期与非本机实体环境继续 pending。六项 Windows 专属和可靠公共接口不足的能力保持边界。
-
-完整报告 docs/validation/2026-11-16-m8-development.md、-results.json；剩余 docs/validation/2026-11-16-m8-remaining.md。ClassIsland 源码/安装应用与 4290 项基线不变；原 IDE、docs/reports 与迁移纠正保留。正式签名/公证及公开发行未完成，不发布。
+报告 docs/validation/2026-11-16-m8-development.md、-results.json；剩余 -remaining.md。最小化本机基线未成功，外屏/USB/旧系统/数小时使用及非本机实体环境待验。ClassIsland 4290 项基线、日常配置与原 dirty 不变。正式签名、公证和公开发行未完成，不发布。
 
 ## 最新进展：2026-11-16 M7 候选版与发行工具收尾
 

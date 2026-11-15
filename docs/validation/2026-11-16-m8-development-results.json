@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "date": "2026-11-16",
   "timezone": "Asia/Shanghai",
   "userScope": "Portable feature gaps, available local Mac interaction validation, Mac/Linux system credential storage",
@@ -7,306 +7,18 @@
   "allRequestedWorkComplete": false,
   "finalDesktopAcceptanceComplete": false,
   "fullPlatformAcceptance": false,
-  "state": "Implemented and candidate built; final desktop validation and synthetic credential cleanup await unlocked Mac",
+  "state": "源码与新原生候选包完成；已补解锁后的旧候选包真实验收，新音频修复候选桌面复验受再次锁屏阻挡",
   "ci": {
-    "id": 43763132117,
+    "id": 43768083962,
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "603eefd0c4f8dbe65519d5969ffaca6b6d608687",
-    "html_url": "https://github.com/Programmer-MrWang/SystemTools/actions/runs/43763132117",
-    "created_at": "2026-11-15T21:20:25Z",
-    "updated_at": "2026-11-15T21:25:32Z",
+    "head_sha": "3f751a1fea6fdc88a4440ab0ceb655896aada114",
+    "html_url": "https://github.com/Programmer-MrWang/SystemTools/actions/runs/43768083962",
+    "created_at": "2026-11-15T22:13:27Z",
+    "updated_at": "2026-11-15T22:19:09Z",
     "jobs": [
       {
-        "id": 132962162242,
-        "name": "native-build (windows-2025, win-x64)",
-        "status": "completed",
-        "conclusion": "success",
-        "steps": [
-          {
-            "name": "Set up job",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 1,
-            "started_at": "2026-11-15T21:20:29Z",
-            "completed_at": "2026-11-15T21:20:30Z"
-          },
-          {
-            "name": "Run actions/checkout@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 2,
-            "started_at": "2026-11-15T21:20:30Z",
-            "completed_at": "2026-11-15T21:20:35Z"
-          },
-          {
-            "name": "Run actions/setup-dotnet@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 3,
-            "started_at": "2026-11-15T21:20:35Z",
-            "completed_at": "2026-11-15T21:20:38Z"
-          },
-          {
-            "name": "Run actions/setup-python@v5",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 4,
-            "started_at": "2026-11-15T21:20:38Z",
-            "completed_at": "2026-11-15T21:20:38Z"
-          },
-          {
-            "name": "Select Xcode with the macOS 26 glass SDK",
-            "status": "completed",
-            "conclusion": "skipped",
-            "number": 5,
-            "started_at": "2026-11-15T21:20:38Z",
-            "completed_at": "2026-11-15T21:20:38Z"
-          },
-          {
-            "name": "Assert actual build architecture",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 6,
-            "started_at": "2026-11-15T21:20:38Z",
-            "completed_at": "2026-11-15T21:20:40Z"
-          },
-          {
-            "name": "Native clean restore and build",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 7,
-            "started_at": "2026-11-15T21:20:40Z",
-            "completed_at": "2026-11-15T21:22:25Z"
-          },
-          {
-            "name": "Shared and M8 regression without desktop mutation",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 8,
-            "started_at": "2026-11-15T21:22:25Z",
-            "completed_at": "2026-11-15T21:23:22Z"
-          },
-          {
-            "name": "Exercise real Linux Secret Service in an isolated user bus",
-            "status": "completed",
-            "conclusion": "skipped",
-            "number": 9,
-            "started_at": "2026-11-15T21:23:22Z",
-            "completed_at": "2026-11-15T21:23:22Z"
-          },
-          {
-            "name": "Verify same-OS reproducible paths",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 10,
-            "started_at": "2026-11-15T21:23:22Z",
-            "completed_at": "2026-11-15T21:24:12Z"
-          },
-          {
-            "name": "Stage M8 native outputs and private dependencies",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 11,
-            "started_at": "2026-11-15T21:24:12Z",
-            "completed_at": "2026-11-15T21:24:35Z"
-          },
-          {
-            "name": "Run actions/upload-artifact@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 12,
-            "started_at": "2026-11-15T21:24:35Z",
-            "completed_at": "2026-11-15T21:24:45Z"
-          },
-          {
-            "name": "Run actions/upload-artifact@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 13,
-            "started_at": "2026-11-15T21:24:45Z",
-            "completed_at": "2026-11-15T21:24:47Z"
-          },
-          {
-            "name": "Post Run actions/setup-python@v5",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 24,
-            "started_at": "2026-11-15T21:24:47Z",
-            "completed_at": "2026-11-15T21:24:47Z"
-          },
-          {
-            "name": "Post Run actions/setup-dotnet@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 25,
-            "started_at": "2026-11-15T21:24:47Z",
-            "completed_at": "2026-11-15T21:24:47Z"
-          },
-          {
-            "name": "Post Run actions/checkout@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 26,
-            "started_at": "2026-11-15T21:24:47Z",
-            "completed_at": "2026-11-15T21:24:49Z"
-          },
-          {
-            "name": "Complete job",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 27,
-            "started_at": "2026-11-15T21:24:49Z",
-            "completed_at": "2026-11-15T21:24:49Z"
-          }
-        ]
-      },
-      {
-        "id": 132962162542,
-        "name": "native-build (ubuntu-24.04, linux-x64)",
-        "status": "completed",
-        "conclusion": "success",
-        "steps": [
-          {
-            "name": "Set up job",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 1,
-            "started_at": "2026-11-15T21:20:29Z",
-            "completed_at": "2026-11-15T21:20:31Z"
-          },
-          {
-            "name": "Run actions/checkout@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 2,
-            "started_at": "2026-11-15T21:20:31Z",
-            "completed_at": "2026-11-15T21:20:35Z"
-          },
-          {
-            "name": "Run actions/setup-dotnet@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 3,
-            "started_at": "2026-11-15T21:20:35Z",
-            "completed_at": "2026-11-15T21:20:41Z"
-          },
-          {
-            "name": "Run actions/setup-python@v5",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 4,
-            "started_at": "2026-11-15T21:20:41Z",
-            "completed_at": "2026-11-15T21:20:41Z"
-          },
-          {
-            "name": "Select Xcode with the macOS 26 glass SDK",
-            "status": "completed",
-            "conclusion": "skipped",
-            "number": 5,
-            "started_at": "2026-11-15T21:20:41Z",
-            "completed_at": "2026-11-15T21:20:41Z"
-          },
-          {
-            "name": "Assert actual build architecture",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 6,
-            "started_at": "2026-11-15T21:20:41Z",
-            "completed_at": "2026-11-15T21:20:43Z"
-          },
-          {
-            "name": "Native clean restore and build",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 7,
-            "started_at": "2026-11-15T21:20:43Z",
-            "completed_at": "2026-11-15T21:21:29Z"
-          },
-          {
-            "name": "Shared and M8 regression without desktop mutation",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 8,
-            "started_at": "2026-11-15T21:21:29Z",
-            "completed_at": "2026-11-15T21:22:13Z"
-          },
-          {
-            "name": "Exercise real Linux Secret Service in an isolated user bus",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 9,
-            "started_at": "2026-11-15T21:22:13Z",
-            "completed_at": "2026-11-15T21:22:37Z"
-          },
-          {
-            "name": "Verify same-OS reproducible paths",
-            "status": "completed",
-            "conclusion": "skipped",
-            "number": 10,
-            "started_at": "2026-11-15T21:22:37Z",
-            "completed_at": "2026-11-15T21:22:37Z"
-          },
-          {
-            "name": "Stage M8 native outputs and private dependencies",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 11,
-            "started_at": "2026-11-15T21:22:37Z",
-            "completed_at": "2026-11-15T21:22:43Z"
-          },
-          {
-            "name": "Run actions/upload-artifact@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 12,
-            "started_at": "2026-11-15T21:22:43Z",
-            "completed_at": "2026-11-15T21:22:45Z"
-          },
-          {
-            "name": "Run actions/upload-artifact@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 13,
-            "started_at": "2026-11-15T21:22:45Z",
-            "completed_at": "2026-11-15T21:22:46Z"
-          },
-          {
-            "name": "Post Run actions/setup-python@v5",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 24,
-            "started_at": "2026-11-15T21:22:46Z",
-            "completed_at": "2026-11-15T21:22:46Z"
-          },
-          {
-            "name": "Post Run actions/setup-dotnet@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 25,
-            "started_at": "2026-11-15T21:22:46Z",
-            "completed_at": "2026-11-15T21:22:46Z"
-          },
-          {
-            "name": "Post Run actions/checkout@v4",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 26,
-            "started_at": "2026-11-15T21:22:46Z",
-            "completed_at": "2026-11-15T21:22:46Z"
-          },
-          {
-            "name": "Complete job",
-            "status": "completed",
-            "conclusion": "success",
-            "number": 27,
-            "started_at": "2026-11-15T21:22:46Z",
-            "completed_at": "2026-11-15T21:22:46Z"
-          }
-        ]
-      },
-      {
-        "id": 132962162640,
+        "id": 132977584425,
         "name": "native-build (macos-15, osx-arm64)",
         "status": "completed",
         "conclusion": "success",
@@ -316,141 +28,429 @@
             "status": "completed",
             "conclusion": "success",
             "number": 1,
-            "started_at": "2026-11-15T21:20:29Z",
-            "completed_at": "2026-11-15T21:20:31Z"
+            "started_at": "2026-11-15T22:13:33Z",
+            "completed_at": "2026-11-15T22:13:34Z"
           },
           {
             "name": "Run actions/checkout@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 2,
-            "started_at": "2026-11-15T21:20:31Z",
-            "completed_at": "2026-11-15T21:20:33Z"
+            "started_at": "2026-11-15T22:13:34Z",
+            "completed_at": "2026-11-15T22:13:36Z"
           },
           {
             "name": "Run actions/setup-dotnet@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 3,
-            "started_at": "2026-11-15T21:20:33Z",
-            "completed_at": "2026-11-15T21:20:37Z"
+            "started_at": "2026-11-15T22:13:36Z",
+            "completed_at": "2026-11-15T22:13:39Z"
           },
           {
             "name": "Run actions/setup-python@v5",
             "status": "completed",
             "conclusion": "success",
             "number": 4,
-            "started_at": "2026-11-15T21:20:37Z",
-            "completed_at": "2026-11-15T21:20:38Z"
+            "started_at": "2026-11-15T22:13:39Z",
+            "completed_at": "2026-11-15T22:13:39Z"
           },
           {
             "name": "Select Xcode with the macOS 26 glass SDK",
             "status": "completed",
             "conclusion": "success",
             "number": 5,
-            "started_at": "2026-11-15T21:20:38Z",
-            "completed_at": "2026-11-15T21:20:38Z"
+            "started_at": "2026-11-15T22:13:39Z",
+            "completed_at": "2026-11-15T22:13:39Z"
           },
           {
             "name": "Assert actual build architecture",
             "status": "completed",
             "conclusion": "success",
             "number": 6,
-            "started_at": "2026-11-15T21:20:38Z",
-            "completed_at": "2026-11-15T21:20:38Z"
+            "started_at": "2026-11-15T22:13:39Z",
+            "completed_at": "2026-11-15T22:13:39Z"
           },
           {
             "name": "Native clean restore and build",
             "status": "completed",
             "conclusion": "success",
             "number": 7,
-            "started_at": "2026-11-15T21:20:38Z",
-            "completed_at": "2026-11-15T21:22:09Z"
+            "started_at": "2026-11-15T22:13:39Z",
+            "completed_at": "2026-11-15T22:15:12Z"
           },
           {
             "name": "Shared and M8 regression without desktop mutation",
             "status": "completed",
             "conclusion": "success",
             "number": 8,
-            "started_at": "2026-11-15T21:22:09Z",
-            "completed_at": "2026-11-15T21:23:31Z"
+            "started_at": "2026-11-15T22:15:12Z",
+            "completed_at": "2026-11-15T22:16:58Z"
           },
           {
             "name": "Exercise real Linux Secret Service in an isolated user bus",
             "status": "completed",
             "conclusion": "skipped",
             "number": 9,
-            "started_at": "2026-11-15T21:23:31Z",
-            "completed_at": "2026-11-15T21:23:31Z"
+            "started_at": "2026-11-15T22:16:58Z",
+            "completed_at": "2026-11-15T22:16:58Z"
           },
           {
             "name": "Verify same-OS reproducible paths",
             "status": "completed",
             "conclusion": "success",
             "number": 10,
-            "started_at": "2026-11-15T21:23:31Z",
-            "completed_at": "2026-11-15T21:24:06Z"
+            "started_at": "2026-11-15T22:16:58Z",
+            "completed_at": "2026-11-15T22:17:55Z"
           },
           {
             "name": "Stage M8 native outputs and private dependencies",
             "status": "completed",
             "conclusion": "success",
             "number": 11,
-            "started_at": "2026-11-15T21:24:06Z",
-            "completed_at": "2026-11-15T21:24:18Z"
+            "started_at": "2026-11-15T22:17:55Z",
+            "completed_at": "2026-11-15T22:18:10Z"
           },
           {
             "name": "Run actions/upload-artifact@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 12,
-            "started_at": "2026-11-15T21:24:18Z",
-            "completed_at": "2026-11-15T21:24:20Z"
+            "started_at": "2026-11-15T22:18:10Z",
+            "completed_at": "2026-11-15T22:18:13Z"
           },
           {
             "name": "Run actions/upload-artifact@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 13,
-            "started_at": "2026-11-15T21:24:20Z",
-            "completed_at": "2026-11-15T21:24:21Z"
+            "started_at": "2026-11-15T22:18:13Z",
+            "completed_at": "2026-11-15T22:18:15Z"
           },
           {
             "name": "Post Run actions/setup-python@v5",
             "status": "completed",
             "conclusion": "success",
             "number": 24,
-            "started_at": "2026-11-15T21:24:21Z",
-            "completed_at": "2026-11-15T21:24:21Z"
+            "started_at": "2026-11-15T22:18:15Z",
+            "completed_at": "2026-11-15T22:18:15Z"
           },
           {
             "name": "Post Run actions/setup-dotnet@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 25,
-            "started_at": "2026-11-15T21:24:21Z",
-            "completed_at": "2026-11-15T21:24:21Z"
+            "started_at": "2026-11-15T22:18:15Z",
+            "completed_at": "2026-11-15T22:18:15Z"
           },
           {
             "name": "Post Run actions/checkout@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 26,
-            "started_at": "2026-11-15T21:24:21Z",
-            "completed_at": "2026-11-15T21:24:22Z"
+            "started_at": "2026-11-15T22:18:15Z",
+            "completed_at": "2026-11-15T22:18:16Z"
           },
           {
             "name": "Complete job",
             "status": "completed",
             "conclusion": "success",
             "number": 27,
-            "started_at": "2026-11-15T21:24:22Z",
-            "completed_at": "2026-11-15T21:24:24Z"
+            "started_at": "2026-11-15T22:18:16Z",
+            "completed_at": "2026-11-15T22:18:18Z"
           }
         ]
       },
       {
-        "id": 132963463243,
+        "id": 132977584578,
+        "name": "native-build (windows-2025, win-x64)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-11-15T22:13:30Z",
+            "completed_at": "2026-11-15T22:13:31Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-11-15T22:13:31Z",
+            "completed_at": "2026-11-15T22:13:36Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-11-15T22:13:36Z",
+            "completed_at": "2026-11-15T22:13:40Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-11-15T22:13:40Z",
+            "completed_at": "2026-11-15T22:13:40Z"
+          },
+          {
+            "name": "Select Xcode with the macOS 26 glass SDK",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 5,
+            "started_at": "2026-11-15T22:13:40Z",
+            "completed_at": "2026-11-15T22:13:40Z"
+          },
+          {
+            "name": "Assert actual build architecture",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-11-15T22:13:40Z",
+            "completed_at": "2026-11-15T22:13:42Z"
+          },
+          {
+            "name": "Native clean restore and build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-11-15T22:13:42Z",
+            "completed_at": "2026-11-15T22:15:23Z"
+          },
+          {
+            "name": "Shared and M8 regression without desktop mutation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-11-15T22:15:23Z",
+            "completed_at": "2026-11-15T22:16:31Z"
+          },
+          {
+            "name": "Exercise real Linux Secret Service in an isolated user bus",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 9,
+            "started_at": "2026-11-15T22:16:31Z",
+            "completed_at": "2026-11-15T22:16:31Z"
+          },
+          {
+            "name": "Verify same-OS reproducible paths",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-11-15T22:16:31Z",
+            "completed_at": "2026-11-15T22:17:25Z"
+          },
+          {
+            "name": "Stage M8 native outputs and private dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-11-15T22:17:25Z",
+            "completed_at": "2026-11-15T22:17:51Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-11-15T22:17:51Z",
+            "completed_at": "2026-11-15T22:18:08Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-11-15T22:18:08Z",
+            "completed_at": "2026-11-15T22:18:09Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24,
+            "started_at": "2026-11-15T22:18:09Z",
+            "completed_at": "2026-11-15T22:18:10Z"
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25,
+            "started_at": "2026-11-15T22:18:10Z",
+            "completed_at": "2026-11-15T22:18:10Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26,
+            "started_at": "2026-11-15T22:18:10Z",
+            "completed_at": "2026-11-15T22:18:16Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27,
+            "started_at": "2026-11-15T22:18:16Z",
+            "completed_at": "2026-11-15T22:18:16Z"
+          }
+        ]
+      },
+      {
+        "id": 132977584758,
+        "name": "native-build (ubuntu-24.04, linux-x64)",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-11-15T22:13:31Z",
+            "completed_at": "2026-11-15T22:13:32Z"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-11-15T22:13:32Z",
+            "completed_at": "2026-11-15T22:13:33Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-11-15T22:13:33Z",
+            "completed_at": "2026-11-15T22:13:40Z"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-11-15T22:13:40Z",
+            "completed_at": "2026-11-15T22:13:41Z"
+          },
+          {
+            "name": "Select Xcode with the macOS 26 glass SDK",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 5,
+            "started_at": "2026-11-15T22:13:41Z",
+            "completed_at": "2026-11-15T22:13:41Z"
+          },
+          {
+            "name": "Assert actual build architecture",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-11-15T22:13:41Z",
+            "completed_at": "2026-11-15T22:13:41Z"
+          },
+          {
+            "name": "Native clean restore and build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-11-15T22:13:41Z",
+            "completed_at": "2026-11-15T22:14:41Z"
+          },
+          {
+            "name": "Shared and M8 regression without desktop mutation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-11-15T22:14:41Z",
+            "completed_at": "2026-11-15T22:15:33Z"
+          },
+          {
+            "name": "Exercise real Linux Secret Service in an isolated user bus",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-11-15T22:15:33Z",
+            "completed_at": "2026-11-15T22:15:48Z"
+          },
+          {
+            "name": "Verify same-OS reproducible paths",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 10,
+            "started_at": "2026-11-15T22:15:48Z",
+            "completed_at": "2026-11-15T22:15:48Z"
+          },
+          {
+            "name": "Stage M8 native outputs and private dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-11-15T22:15:48Z",
+            "completed_at": "2026-11-15T22:15:57Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-11-15T22:15:57Z",
+            "completed_at": "2026-11-15T22:16:00Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-11-15T22:16:00Z",
+            "completed_at": "2026-11-15T22:16:00Z"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24,
+            "started_at": "2026-11-15T22:16:00Z",
+            "completed_at": "2026-11-15T22:16:01Z"
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25,
+            "started_at": "2026-11-15T22:16:01Z",
+            "completed_at": "2026-11-15T22:16:01Z"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26,
+            "started_at": "2026-11-15T22:16:01Z",
+            "completed_at": "2026-11-15T22:16:01Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27,
+            "started_at": "2026-11-15T22:16:01Z",
+            "completed_at": "2026-11-15T22:16:01Z"
+          }
+        ]
+      },
+      {
+        "id": 132979001042,
         "name": "aggregate",
         "status": "completed",
         "conclusion": "success",
@@ -460,376 +460,96 @@
             "status": "completed",
             "conclusion": "success",
             "number": 1,
-            "started_at": "2026-11-15T21:24:54Z",
-            "completed_at": "2026-11-15T21:24:55Z"
+            "started_at": "2026-11-15T22:18:24Z",
+            "completed_at": "2026-11-15T22:18:26Z"
           },
           {
             "name": "Run actions/checkout@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 2,
-            "started_at": "2026-11-15T21:24:55Z",
-            "completed_at": "2026-11-15T21:24:57Z"
+            "started_at": "2026-11-15T22:18:26Z",
+            "completed_at": "2026-11-15T22:18:30Z"
           },
           {
             "name": "Run actions/setup-python@v5",
             "status": "completed",
             "conclusion": "success",
             "number": 3,
-            "started_at": "2026-11-15T21:24:57Z",
-            "completed_at": "2026-11-15T21:24:57Z"
+            "started_at": "2026-11-15T22:18:30Z",
+            "completed_at": "2026-11-15T22:18:30Z"
           },
           {
             "name": "Run actions/download-artifact@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 4,
-            "started_at": "2026-11-15T21:24:57Z",
-            "completed_at": "2026-11-15T21:25:02Z"
+            "started_at": "2026-11-15T22:18:30Z",
+            "completed_at": "2026-11-15T22:18:38Z"
           },
           {
             "name": "Require matching source, SDK, shared binaries and native provenance",
             "status": "completed",
             "conclusion": "success",
             "number": 5,
-            "started_at": "2026-11-15T21:25:02Z",
-            "completed_at": "2026-11-15T21:25:23Z"
+            "started_at": "2026-11-15T22:18:38Z",
+            "completed_at": "2026-11-15T22:19:00Z"
           },
           {
             "name": "Run actions/upload-artifact@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 6,
-            "started_at": "2026-11-15T21:25:23Z",
-            "completed_at": "2026-11-15T21:25:29Z"
+            "started_at": "2026-11-15T22:19:00Z",
+            "completed_at": "2026-11-15T22:19:05Z"
           },
           {
             "name": "Post Run actions/setup-python@v5",
             "status": "completed",
             "conclusion": "success",
             "number": 11,
-            "started_at": "2026-11-15T21:25:29Z",
-            "completed_at": "2026-11-15T21:25:29Z"
+            "started_at": "2026-11-15T22:19:05Z",
+            "completed_at": "2026-11-15T22:19:05Z"
           },
           {
             "name": "Post Run actions/checkout@v4",
             "status": "completed",
             "conclusion": "success",
             "number": 12,
-            "started_at": "2026-11-15T21:25:29Z",
-            "completed_at": "2026-11-15T21:25:29Z"
+            "started_at": "2026-11-15T22:19:05Z",
+            "completed_at": "2026-11-15T22:19:05Z"
           },
           {
             "name": "Complete job",
             "status": "completed",
             "conclusion": "success",
             "number": 13,
-            "started_at": "2026-11-15T21:25:29Z",
-            "completed_at": "2026-11-15T21:25:29Z"
+            "started_at": "2026-11-15T22:19:05Z",
+            "completed_at": "2026-11-15T22:19:05Z"
           }
         ]
       }
     ],
-    "artifactId": 14181321934,
-    "artifactDigest": "sha256:fc2bf02a79ab3af6837b3ecdb5d933adb58a4cca54fce2df55e6818a4154ca77"
+    "artifactId": 14182809324,
+    "artifactDigest": "sha256:150562525ca2f4e06b2a5be93c3466d6446c14c5e8b88b3d2f85d4e4d8547bed"
   },
   "nativeChecks": {
     "osx-arm64": {
       "passed": true,
-      "checks": 367,
-      "detail": {
-        "commit": "603eefd0c4f8dbe65519d5969ffaca6b6d608687",
-        "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
-        "milestone": "M8",
-        "passed": true,
-        "executionOS": "darwin",
-        "checks": [
-          {
-            "name": "shared-regression",
-            "passed": true,
-            "checks": 121
-          },
-          {
-            "name": "loader",
-            "passed": true,
-            "checks": 19
-          },
-          {
-            "name": "m4-contracts",
-            "passed": true,
-            "checks": 41
-          },
-          {
-            "name": "m4-package",
-            "passed": true,
-            "checks": 18
-          },
-          {
-            "name": "entrance-identity",
-            "passed": true,
-            "checks": 1
-          },
-          {
-            "name": "native-compile",
-            "passed": true,
-            "checks": 0
-          },
-          {
-            "name": "native-regression",
-            "passed": true,
-            "checks": 14
-          },
-          {
-            "name": "m5-contracts",
-            "passed": true,
-            "checks": 22
-          },
-          {
-            "name": "m5-acceptance-tools",
-            "passed": true,
-            "checks": 2
-          },
-          {
-            "name": "companion-ipc",
-            "passed": true,
-            "checks": 17
-          },
-          {
-            "name": "m6-contracts",
-            "passed": true,
-            "checks": 26
-          },
-          {
-            "name": "m6-native-compile",
-            "passed": true,
-            "checks": 0
-          },
-          {
-            "name": "m6-native",
-            "passed": true,
-            "checks": 13
-          },
-          {
-            "name": "m7-contracts",
-            "passed": true,
-            "checks": 16
-          },
-          {
-            "name": "m7-lifecycle",
-            "passed": true,
-            "checks": 16
-          },
-          {
-            "name": "m7-migration",
-            "passed": true,
-            "checks": 3
-          },
-          {
-            "name": "m7-mac-release",
-            "passed": true,
-            "checks": 4
-          },
-          {
-            "name": "m7-package",
-            "passed": true,
-            "checks": 7
-          },
-          {
-            "name": "m7-dependency-audit",
-            "passed": true,
-            "checks": 3
-          },
-          {
-            "name": "m8-contracts",
-            "passed": true,
-            "checks": 24
-          }
-        ],
-        "fullPlatformAcceptance": false
-      }
+      "checks": 373
     },
     "linux-x64": {
       "passed": true,
-      "checks": 309,
-      "detail": {
-        "commit": "603eefd0c4f8dbe65519d5969ffaca6b6d608687",
-        "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
-        "milestone": "M8",
-        "passed": true,
-        "executionOS": "linux",
-        "checks": [
-          {
-            "name": "shared-regression",
-            "passed": true,
-            "checks": 121
-          },
-          {
-            "name": "m4-contracts",
-            "passed": true,
-            "checks": 29
-          },
-          {
-            "name": "m4-package",
-            "passed": true,
-            "checks": 18
-          },
-          {
-            "name": "entrance-identity",
-            "passed": true,
-            "checks": 1
-          },
-          {
-            "name": "m5-contracts",
-            "passed": true,
-            "checks": 22
-          },
-          {
-            "name": "m5-acceptance-tools",
-            "passed": true,
-            "checks": 2
-          },
-          {
-            "name": "companion-ipc",
-            "passed": true,
-            "checks": 17
-          },
-          {
-            "name": "m6-contracts",
-            "passed": true,
-            "checks": 26
-          },
-          {
-            "name": "m7-contracts",
-            "passed": true,
-            "checks": 16
-          },
-          {
-            "name": "m7-lifecycle",
-            "passed": true,
-            "checks": 16
-          },
-          {
-            "name": "m7-migration",
-            "passed": true,
-            "checks": 3
-          },
-          {
-            "name": "m7-mac-release",
-            "passed": true,
-            "checks": 4
-          },
-          {
-            "name": "m7-package",
-            "passed": true,
-            "checks": 7
-          },
-          {
-            "name": "m7-dependency-audit",
-            "passed": true,
-            "checks": 3
-          },
-          {
-            "name": "m8-contracts",
-            "passed": true,
-            "checks": 24
-          }
-        ],
-        "fullPlatformAcceptance": false
-      }
+      "checks": 315
     },
     "win-x64": {
       "passed": true,
-      "checks": 312,
-      "detail": {
-        "commit": "603eefd0c4f8dbe65519d5969ffaca6b6d608687",
-        "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
-        "milestone": "M8",
-        "passed": true,
-        "executionOS": "win32",
-        "checks": [
-          {
-            "name": "shared-regression",
-            "passed": true,
-            "checks": 123
-          },
-          {
-            "name": "loader",
-            "passed": true,
-            "checks": 19
-          },
-          {
-            "name": "m4-contracts",
-            "passed": true,
-            "checks": 29
-          },
-          {
-            "name": "m4-package",
-            "passed": true,
-            "checks": 18
-          },
-          {
-            "name": "entrance-identity",
-            "passed": true,
-            "checks": 1
-          },
-          {
-            "name": "m5-contracts",
-            "passed": true,
-            "checks": 22
-          },
-          {
-            "name": "m5-acceptance-tools",
-            "passed": true,
-            "checks": 2
-          },
-          {
-            "name": "m6-contracts",
-            "passed": true,
-            "checks": 26
-          },
-          {
-            "name": "m7-contracts",
-            "passed": true,
-            "checks": 15
-          },
-          {
-            "name": "m7-lifecycle",
-            "passed": true,
-            "checks": 16
-          },
-          {
-            "name": "m7-migration",
-            "passed": true,
-            "checks": 3
-          },
-          {
-            "name": "m7-mac-release",
-            "passed": true,
-            "checks": 4
-          },
-          {
-            "name": "m7-package",
-            "passed": true,
-            "checks": 7
-          },
-          {
-            "name": "m7-dependency-audit",
-            "passed": true,
-            "checks": 3
-          },
-          {
-            "name": "m8-contracts",
-            "passed": true,
-            "checks": 24
-          }
-        ],
-        "fullPlatformAcceptance": false
-      }
+      "checks": 318
     }
   },
   "localChecks": {
-    "commit": "0c408e406711f1e50f74190147a0047e51002cb0",
-    "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+    "commit": "917cf96164b39855da11ecd59148d290ac590f75",
+    "sourceHash": "342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc",
     "milestone": "M8",
     "passed": true,
     "executionOS": "darwin",
@@ -932,7 +652,7 @@
       {
         "name": "m8-contracts",
         "passed": true,
-        "checks": 24
+        "checks": 30
       }
     ],
     "fullPlatformAcceptance": false
@@ -940,9 +660,9 @@
   "package": {
     "schemaVersion": 1,
     "passed": true,
-    "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
-    "commit": "603eefd0c4f8dbe65519d5969ffaca6b6d608687",
-    "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+    "packageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
+    "commit": "3f751a1fea6fdc88a4440ab0ceb655896aada114",
+    "sourceHash": "342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc",
     "sdk": "10.0.403",
     "channel": "rc",
     "files": 780,
@@ -960,9 +680,9 @@
   "releaseGate": {
     "schemaVersion": 1,
     "passed": true,
-    "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
-    "commit": "603eefd0c4f8dbe65519d5969ffaca6b6d608687",
-    "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+    "packageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
+    "commit": "3f751a1fea6fdc88a4440ab0ceb655896aada114",
+    "sourceHash": "342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc",
     "sdk": "10.0.403",
     "channel": "rc",
     "files": 780,
@@ -998,29 +718,32 @@
   "offlineActualPackageLifecycle": {
     "schemaVersion": 1,
     "passed": true,
-    "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
+    "packageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
     "previousPackageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
     "checks": [
       "M7 actual package -> M8 actual package keeps full config bytes",
-      "Actual package disable/enable markers are reversible",
-      "Actual package rollback restores M7 package/config byte-for-byte and is idempotent",
-      "Uninstall request keeps full config and recovery journal"
+      "Disable/enable markers reversible",
+      "Rollback restores old package/config byte-for-byte and is idempotent",
+      "Uninstall request preserves config and recovery journal"
     ],
-    "root": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/offline-final-0774138a",
-    "journal": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/offline-final-0774138a/data/SystemToolsRecovery/20261116-052822-b4db8fcb/journal.json",
-    "scope": "Real package offline install/rollback/markers only; no desktop host, device, permissions or actual host uninstall claim"
+    "root": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/offline-final-6afb370a",
+    "journal": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/offline-final-6afb370a/data/SystemToolsRecovery/20261116-062016-212d4ceb/journal.json",
+    "scope": "Offline package tools only"
   },
   "macCandidateSignatures": [
     {
       "path": "platforms/osx-arm64/native/libvosk.dylib",
+      "signature": "Executable=/private/var/folders/p9/jr4dkmc50fl7hyvn4_176wxm0000gn/T/systemtools-mac-distribution-8w50ucid/payload/platforms/osx-arm64/native/libvosk.dylib\nIdentifier=libvosk-5555494405b5de4e1a0d3e8d814d763d590f7147\nFormat=Mach-O universal (x86_64 arm64)\nCodeDirectory v=20400 size=45417 flags=0x2(adhoc) hashes=1413+2 location=embedded\nVersionPlatform=1\nVersionMin=720896\nVersionSDK=786688\nHash type=sha256 size=32\nCandidateCDHash sha1=2b7de1b85e26d42009133ee0869cc2e3adf91fa9\nCandidateCDHashFull sha1=2b7de1b85e26d42009133ee0869cc2e3adf91fa9\nCandidateCDHash sha256=08adb3421090980245429cf9917c91a397d42c67\nCandidateCDHashFull sha256=08adb3421090980245429cf9917c91a397d42c67f76610529f81260832651b22\nHash choices=sha1,sha256\nCMSDigest=89a0bb84586f284cb40b527dda7af115656f4104e4817530b9ce56b379440b9a\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=4620288\nExecutable Segment flags=0x0\nPage size=4096\nCDHash=08adb3421090980245429cf9917c91a397d42c67\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\n",
       "candidateOnly": true
     },
     {
       "path": "platforms/osx-arm64/libSystemToolsNative.dylib",
+      "signature": "Executable=/private/var/folders/p9/jr4dkmc50fl7hyvn4_176wxm0000gn/T/systemtools-mac-distribution-8w50ucid/payload/platforms/osx-arm64/libSystemToolsNative.dylib\nIdentifier=libSystemToolsNative-555549445462d09e44913736bc5376e34f854c02\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20400 size=2774 flags=0x2(adhoc) hashes=80+2 location=embedded\nVersionPlatform=1\nVersionMin=786432\nVersionSDK=1704448\nHash type=sha256 size=32\nCandidateCDHash sha256=414249ec92f25f9bdf1c49fd24a5b400a816eab8\nCandidateCDHashFull sha256=414249ec92f25f9bdf1c49fd24a5b400a816eab868edbd35f418e15ac8b26093\nHash choices=sha256\nCMSDigest=414249ec92f25f9bdf1c49fd24a5b400a816eab868edbd35f418e15ac8b26093\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=180224\nExecutable Segment flags=0x0\nPage size=4096\nCDHash=414249ec92f25f9bdf1c49fd24a5b400a816eab8\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nSealed Resources=none\nInternal requirements count=0 size=12\n",
       "candidateOnly": true
     },
     {
       "path": "platforms/osx-arm64/SystemTools Companion.app",
+      "signature": "Executable=/private/var/folders/p9/jr4dkmc50fl7hyvn4_176wxm0000gn/T/systemtools-mac-distribution-8w50ucid/payload/platforms/osx-arm64/SystemTools Companion.app/Contents/MacOS/SystemToolsCompanion\nIdentifier=io.github.programmer-mrwang.systemtools.companion\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=2026 flags=0x2(adhoc) hashes=56+3 location=embedded\nVersionPlatform=1\nVersionMin=786432\nVersionSDK=1704448\nHash type=sha256 size=32\nCandidateCDHash sha256=d1c5c9c38cbb613da4a3c9deb20892f35d73aa63\nCandidateCDHashFull sha256=d1c5c9c38cbb613da4a3c9deb20892f35d73aa634af77dbcf26f266d5a88e18d\nHash choices=sha256\nCMSDigest=d1c5c9c38cbb613da4a3c9deb20892f35d73aa634af77dbcf26f266d5a88e18d\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=114688\nExecutable Segment flags=0x1\nPage size=4096\nCDHash=d1c5c9c38cbb613da4a3c9deb20892f35d73aa63\nSignature=adhoc\nInfo.plist entries=13\nTeamIdentifier=not set\nSealed Resources version=2 rules=13 files=0\nInternal requirements count=0 size=12\n",
       "candidateOnly": true
     }
   ],
@@ -1281,28 +1004,654 @@
     "workingSetAfter": 411090944,
     "scope": "single local layout; not hours or all profiles"
   },
+  "validatedPreviousCandidate": {
+    "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
+    "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+    "interactions": [
+      {
+        "path": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/mac/20261116-053730-ddebe3/interaction-before-restart.json",
+        "report": {
+          "passed": true,
+          "checks": [
+            "真实系统空闲采样达到一分钟：435.3",
+            "实际空闲触发器达到阈值且持续空闲不重复触发",
+            "实际宿主注册：ActionFlowExecutionConfirmation",
+            "实际宿主注册：BackgroundPlayAudio",
+            "实际宿主注册：BlackScreenHtml",
+            "实际宿主注册：KillProcess",
+            "实际宿主注册：Shutdown",
+            "实际宿主注册：AdvancedShutdown",
+            "实际宿主注册：CancelShutdown",
+            "实际宿主注册：ImmediateShutdown",
+            "实际宿主注册：ImmediateRestart",
+            "实际宿主注册：Sleep",
+            "实际宿主注册：LockScreen",
+            "实际宿主注册：TypeContent",
+            "实际宿主注册：SimulateMouse",
+            "实际宿主注册：AltF4",
+            "实际宿主注册：AltTab",
+            "实际宿主注册：CtrlZ",
+            "实际宿主注册：SwitchTheme",
+            "实际宿主注册两项共享触发器",
+            "原版宿主删除本轮历史合成凭据：7",
+            "真实宿主写入 macOS Keychain 引用",
+            "真实宿主配置不包含新密钥明文",
+            "实际行动完成：SystemTools.ActionFlowExecutionConfirmation",
+            "实际行动完成：SystemTools.BlackScreenHtml",
+            "黑屏通过 Esc/点击退出且控制窗口恢复"
+          ],
+          "failures": [],
+          "pending": []
+        }
+      },
+      {
+        "path": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/mac/20261116-053730-ddebe3/interaction-after-restart.json",
+        "report": {
+          "passed": true,
+          "checks": [
+            "同一原版宿主重启后成功读取系统凭据",
+            "真实宿主删除合成凭据并清空引用",
+            "实际行动完成：SystemTools.BackgroundPlayAudio",
+            "宿主实际播放中文路径 WAV 并等待完成",
+            "实际行动完成：SystemTools.Shutdown",
+            "实际行动完成：SystemTools.CancelShutdown",
+            "真实宿主取消计划且不执行系统关机",
+            "实际行动完成：SystemTools.TypeContent",
+            "实际外部 AppKit 目标接收 Unicode 文本",
+            "实际行动完成：SystemTools.CtrlZ",
+            "Mac 撤销映射 Command+Z 实际生效",
+            "真实 Command+A 组合键与后续 Unicode 输入",
+            "取消后 Command 修饰键已释放且可继续输入",
+            "实际行动完成：SystemTools.SimulateMouse",
+            "真实 Quartz 鼠标点击抵达外部目标按钮",
+            "实际行动完成：SystemTools.TriggerCustomTrigger",
+            "实际行动信号由共享触发器消费且只触发一次",
+            "实际行动完成：SystemTools.KillProcess",
+            "退出进程行动只终止本轮受控夹具",
+            "真实 ClassIsland 主界面点击触发共享触发器",
+            "实际主界面区域背景 OCR 导致宿主隐藏",
+            "背景文字移除后实际宿主可见性恢复",
+            "两分钟实际背景捕获与 OCR 无错误且退出可停止",
+            "自有助手通过系统授权切换外观并读回",
+            "系统外观恢复原值"
+          ],
+          "failures": [],
+          "pending": [
+            "本机 AppKit 自身最小化基线与 AX 请求均未确认状态：目标应用未确认请求的窗口状态，请检查尺寸限制和窗口权限。"
+          ]
+        }
+      },
+      {
+        "path": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/mac/20261116-053730-ddebe3/interaction.json",
+        "report": {
+          "passed": true,
+          "checks": [
+            "真实系统空闲采样达到一分钟：110.0",
+            "实际空闲触发器在采样期间触发一次且持续空闲不重复触发",
+            "观察到实际空闲从一分钟以下跨越阈值后触发"
+          ],
+          "failures": [],
+          "pending": []
+        }
+      }
+    ],
+    "material": {
+      "originalSettings": {
+        "reduceTransparency": false,
+        "increaseContrast": false
+      },
+      "samples": [
+        {
+          "condition": "original",
+          "state": {
+            "state": "macOS 原生玻璃"
+          }
+        },
+        {
+          "condition": "reduceTransparencyOn",
+          "state": {
+            "state": "实色表面（尊重系统减少透明度与增强对比度设置）"
+          }
+        },
+        {
+          "condition": "reduceTransparencyOff",
+          "state": {
+            "state": "macOS 原生玻璃"
+          }
+        },
+        {
+          "condition": "increaseContrastOn",
+          "state": {
+            "state": "实色表面（尊重系统减少透明度与增强对比度设置）"
+          }
+        },
+        {
+          "condition": "originalRestored",
+          "state": {
+            "state": "macOS 原生玻璃"
+          }
+        }
+      ],
+      "restoredSettings": {
+        "reduceTransparency": false,
+        "increaseContrast": false
+      },
+      "passed": true
+    },
+    "idle": {
+      "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
+      "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+      "probe": "artifacts/m8/mac/20261116-053730-ddebe3",
+      "sampling": {
+        "initialSeconds": 44.9142308,
+        "minimumSeconds": 44.9142308,
+        "maximumSeconds": 109.9660713,
+        "eventIdleSeconds": [
+          60.918218
+        ],
+        "thresholdCrossingObserved": true
+      },
+      "interaction": {
+        "passed": true,
+        "checks": [
+          "真实系统空闲采样达到一分钟：110.0",
+          "实际空闲触发器在采样期间触发一次且持续空闲不重复触发",
+          "观察到实际空闲从一分钟以下跨越阈值后触发"
+        ],
+        "failures": [],
+        "pending": []
+      }
+    },
+    "performance": {
+      "seconds": 132.104008,
+      "cpuSeconds": 5.745723,
+      "workingSetBefore": 573816832,
+      "workingSetAfter": 591986688,
+      "scope": "single local layout; not hours or all profiles"
+    },
+    "lifecycle": {
+      "commit": "917cf96164b39855da11ecd59148d290ac590f75",
+      "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+      "schemaVersion": 1,
+      "passed": true,
+      "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
+      "previousPackageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+      "runtimeIds": [
+        "osx-arm64"
+      ],
+      "finalCandidate": true,
+      "fullPlatformAcceptance": false,
+      "scenarios": [
+        {
+          "label": "fresh-install",
+          "expected": "Loaded",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-fresh-install-03e2737c",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Loaded，预期：Loaded",
+              "正式插件身份与数字版本保持",
+              "最终候选包运行时功能台账 82 项",
+              "首次加载在写入配置前建立升级快照",
+              "真实宿主使用最终候选的 Skia PNG 编解码",
+              "真实宿主运行自建 NPOI 并写出 XLSX",
+              "最终插件未引入旧 ImageSharp 程序集",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Loaded",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "restart",
+          "expected": "Loaded",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-restart-ed91308b",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Loaded，预期：Loaded",
+              "正式插件身份与数字版本保持",
+              "最终候选包运行时功能台账 82 项",
+              "首次加载在写入配置前建立升级快照",
+              "真实宿主使用最终候选的 Skia PNG 编解码",
+              "真实宿主运行自建 NPOI 并写出 XLSX",
+              "最终插件未引入旧 ImageSharp 程序集",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Loaded",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "disabled",
+          "expected": "Disabled",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-disabled-feda7caa",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Disabled，预期：Disabled",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Disabled",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "re-enabled",
+          "expected": "Loaded",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-re-enabled-8e2eb03e",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Loaded，预期：Loaded",
+              "正式插件身份与数字版本保持",
+              "最终候选包运行时功能台账 82 项",
+              "首次加载在写入配置前建立升级快照",
+              "真实宿主使用最终候选的 Skia PNG 编解码",
+              "真实宿主运行自建 NPOI 并写出 XLSX",
+              "最终插件未引入旧 ImageSharp 程序集",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Loaded",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "uninstalled",
+          "expected": "Absent",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-uninstalled-20a84c7a",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "宿主卸载后不再发现 SystemTools 插件",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Absent",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "previous-m7",
+          "expected": "Loaded",
+          "packageKind": "M7",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-previous-m7-f5ad0edb",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Loaded，预期：Loaded",
+              "正式插件身份与数字版本保持",
+              "最终候选包运行时功能台账 82 项",
+              "首次加载在写入配置前建立升级快照",
+              "真实宿主使用最终候选的 Skia PNG 编解码",
+              "真实宿主运行自建 NPOI 并写出 XLSX",
+              "最终插件未引入旧 ImageSharp 程序集",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Loaded",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "upgraded-m8",
+          "expected": "Loaded",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-upgraded-m8-8d603d97",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Loaded，预期：Loaded",
+              "正式插件身份与数字版本保持",
+              "最终候选包运行时功能台账 82 项",
+              "首次加载在写入配置前建立升级快照",
+              "真实宿主使用最终候选的 Skia PNG 编解码",
+              "真实宿主运行自建 NPOI 并写出 XLSX",
+              "最终插件未引入旧 ImageSharp 程序集",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Loaded",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "upgrade-restart",
+          "expected": "Loaded",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-upgrade-restart-78344a5c",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Loaded，预期：Loaded",
+              "正式插件身份与数字版本保持",
+              "最终候选包运行时功能台账 82 项",
+              "首次加载在写入配置前建立升级快照",
+              "真实宿主使用最终候选的 Skia PNG 编解码",
+              "真实宿主运行自建 NPOI 并写出 XLSX",
+              "最终插件未引入旧 ImageSharp 程序集",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Loaded",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "rolled-back-m7",
+          "expected": "Loaded",
+          "packageKind": "M7",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-rolled-back-m7-c42987df",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Loaded，预期：Loaded",
+              "正式插件身份与数字版本保持",
+              "最终候选包运行时功能台账 82 项",
+              "首次加载在写入配置前建立升级快照",
+              "真实宿主使用最终候选的 Skia PNG 编解码",
+              "真实宿主运行自建 NPOI 并写出 XLSX",
+              "最终插件未引入旧 ImageSharp 程序集",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Loaded",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "synthetic-legacy-conflict",
+          "expected": "Error",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-synthetic-legacy-conflict-9887a5ba",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Error，预期：Error",
+              "旧预览身份冲突明确阻止正式插件重复注册",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Error",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        },
+        {
+          "label": "legacy-explicitly-disabled",
+          "expected": "Loaded",
+          "packageKind": "M8",
+          "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/final-lifecycle/mac/20261116-055901-7a087e/run-legacy-explicitly-disabled-da1d3083",
+          "exitCode": 0,
+          "timedOut": false,
+          "forcedStop": false,
+          "globalUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主插件状态：Loaded，预期：Loaded",
+              "正式插件身份与数字版本保持",
+              "最终候选包运行时功能台账 82 项",
+              "首次加载在写入配置前建立升级快照",
+              "真实宿主使用最终候选的 Skia PNG 编解码",
+              "真实宿主运行自建 NPOI 并写出 XLSX",
+              "最终插件未引入旧 ImageSharp 程序集",
+              "宿主启动后保留未知配置字段",
+              "宿主启动后不改写不属于本平台的密文"
+            ],
+            "failures": [],
+            "expected": "Loaded",
+            "fullPlatformAcceptance": false
+          },
+          "passed": true
+        }
+      ],
+      "assertions": [
+        "同版本重启保留原快照",
+        "宿主真实卸载保留配置、附件和恢复资料",
+        "真实 M7 包到 M8 同数字版本升级、回退逐字节恢复且旧包可重新加载",
+        "合成旧身份冲突在真实宿主阻止重复注册；显式停用旧包后加载恢复"
+      ],
+      "hostBoundary": {
+        "passed": true,
+        "files": 4290,
+        "baselineSha256": "85a98582aef9d2625d1f03cc839a137ada52b887f183c65555befd54c4e87432"
+      },
+      "scope": "Isolated Mac package lifecycle; M7 3.0.0.0 -> M8 3.0.0.0. Not Windows 2.x, formal signing, device/TCC or Linux acceptance."
+    },
+    "advanced": {
+      "passed": true,
+      "scenarios": [
+        {
+          "commit": "917cf96164b39855da11ecd59148d290ac590f75",
+          "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+          "case": "normal",
+          "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
+          "kind": "native-build-aggregate",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "timedOut": false,
+          "exitCode": 0,
+          "globalStorageUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主加载 M6 插件",
+              "Mac 不注册 Windows 专属设备与提权入口",
+              "实际宿主创建全部原生能力设置页",
+              "读取实际显示器拓扑",
+              "Mac 不冒充公共 API 可关闭单屏",
+              "本机无可靠背光时明确不可用",
+              "真正背景捕获返回排除本进程的有效 PNG",
+              "绿色宿主遮挡层被排除，捕获到外部红色夹具：88.7506000000107",
+              "Avalonia 句柄转换为真实屏幕逻辑坐标",
+              "真实白色背景亮度可读：254.99970348258702",
+              "真实黑色背景亮度可读",
+              "Vision 从真实背景识别高置信度文本位置：[{\"Bounds\":{\"X\":300.0000031999999,\"Y\":539.99999984,\"Width\":319.99999999999994,\"Height\":35.999999999999986},\"Confidence\":1}]",
+              "真实背景文本触发稳定避让判定",
+              "无文字后恢复判定不会因已隐藏而停止",
+              "预取消不进行背景捕获",
+              "Avalonia 窗口实际接入原生系统材质：macOS 原生玻璃",
+              "材质切回经典表面并释放租约"
+            ],
+            "failures": [],
+            "pending": [
+              "本机未连接第二屏，镜像/扩展和热插拔待外屏验收"
+            ],
+            "fullPlatformAcceptance": false
+          },
+          "fullPlatformAcceptance": false,
+          "passed": true
+        },
+        {
+          "commit": "917cf96164b39855da11ecd59148d290ac590f75",
+          "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+          "case": "foreign-corrupt",
+          "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
+          "kind": "native-build-aggregate",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "timedOut": false,
+          "exitCode": 0,
+          "globalStorageUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "原版宿主加载 M6 插件",
+              "Mac 不注册 Windows 专属设备与提权入口",
+              "实际宿主创建全部原生能力设置页",
+              "读取实际显示器拓扑",
+              "Mac 不冒充公共 API 可关闭单屏",
+              "本机无可靠背光时明确不可用",
+              "真正背景捕获返回排除本进程的有效 PNG",
+              "绿色宿主遮挡层被排除，捕获到外部红色夹具：88.7506000000107",
+              "Avalonia 句柄转换为真实屏幕逻辑坐标",
+              "真实白色背景亮度可读：254.99970348258702",
+              "真实黑色背景亮度可读",
+              "Vision 从真实背景识别高置信度文本位置：[{\"Bounds\":{\"X\":300.0000031999999,\"Y\":539.99999984,\"Width\":319.99999999999994,\"Height\":35.999999999999986},\"Confidence\":1}]",
+              "真实背景文本触发稳定避让判定",
+              "无文字后恢复判定不会因已隐藏而停止",
+              "预取消不进行背景捕获",
+              "Avalonia 窗口实际接入原生系统材质：macOS 原生玻璃",
+              "材质切回经典表面并释放租约"
+            ],
+            "failures": [],
+            "pending": [
+              "本机未连接第二屏，镜像/扩展和热插拔待外屏验收"
+            ],
+            "fullPlatformAcceptance": false
+          },
+          "fullPlatformAcceptance": false,
+          "passed": true
+        },
+        {
+          "commit": "917cf96164b39855da11ecd59148d290ac590f75",
+          "sourceHash": "89439b42ae73589bd6d26eebda764994332e2dedc635e3c22238fe8ad38f0354",
+          "case": "missing-backend",
+          "packageSha256": "c971c3896e7ab3a3857c76e29a2be6d0e99a7706c43938bf36f39c1fe10af30e",
+          "kind": "native-build-aggregate",
+          "host": "/Applications/ClassIsland.Desktop.app",
+          "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+          "timedOut": false,
+          "exitCode": 0,
+          "globalStorageUnchanged": true,
+          "acceptance": {
+            "passed": true,
+            "checks": [
+              "缺少本机模块时宿主明确拒绝插件"
+            ],
+            "failures": [],
+            "pending": [],
+            "fullPlatformAcceptance": false
+          },
+          "fullPlatformAcceptance": false,
+          "passed": true
+        }
+      ],
+      "hostBoundary": {
+        "passed": true,
+        "files": 4290,
+        "baselineSha256": "85a98582aef9d2625d1f03cc839a137ada52b887f183c65555befd54c4e87432"
+      }
+    }
+  },
+  "finalCandidateInteractions": [],
+  "finalCandidateLifecycle": null,
+  "finalCandidateAdvanced": null,
   "hostBoundary": {
     "passed": true,
     "files": 4290,
     "baselineSha256": "85a98582aef9d2625d1f03cc839a137ada52b887f183c65555befd54c4e87432"
   },
-  "macCredentialNativeChecksLog": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/credentials-native.log",
   "syntheticCredentialCleanup": {
     "references": 7,
-    "confirmedDeletedWhileLocked": 0,
-    "requiresUnlockedOriginalHost": true,
-    "manifest": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/synthetic-keychain-cleanup.json",
-    "containsRealUserCredentials": false
+    "deleted": 7,
+    "passed": true,
+    "containsRealUserCredentials": false,
+    "manifest": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/synthetic-keychain-cleanup.json"
+  },
+  "audioFix": {
+    "commit": "3f751a1fea6fdc88a4440ab0ceb655896aada114",
+    "reproducedFailure": "artifacts/m8/audio-before-fix.log",
+    "passingRegression": "artifacts/m8/audio-after-fix.log",
+    "newChecks": 6
   },
   "pending": [
-    "Unlock Mac to validate actual final candidate JSON action factory, material accessibility preference fallback and desktop lifecycle",
-    "Clean only the 7 historical synthetic Keychain references from owned lab sandboxes using the unlocked original host",
-    "Actual idle trigger threshold/recovery on the final package; prior one-minute read-only sample passed",
-    "Mac minimization never confirmed even in AppKit baseline/system button; keep explicit failure",
-    "External monitor/USB unavailable per user; multi-screen, DDC, physical unplug and older macOS cannot be substituted",
-    "Hours-long real use, complete timetable layouts, sleep/wake and permission revocation remain separate",
-    "Windows/Linux actual desktop and hardware; CI Secret Service live test is not full GNOME/KDE acceptance",
-    "Developer ID/notarization/public release remain previous separate gates"
+    "音频修复后新候选包的后台音频/取消、受控窗口快捷键和最终宿主矩阵待解锁复验；前一候选包证据按原哈希保留。",
+    "本机最小化从未确认成功，AppKit 自身、系统按钮和 AX 基线均失败；保留具体错误。",
+    "无外接显示器及 USB 存储设备；多屏/不同 DPI/热插拔、DDC 与旧 macOS 需要对应条件。",
+    "数小时真实使用、全部课表布局、睡眠/唤醒及 Windows/Linux 实体桌面与硬件继续待验。",
+    "Developer ID、公证与公开发行保留 M7 独立门禁。"
   ],
   "boundaries": [
     "Six Windows-exclusive actions remain exclusive",

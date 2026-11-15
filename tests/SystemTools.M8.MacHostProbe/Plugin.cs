@@ -91,6 +91,8 @@ public sealed class Plugin:PluginBase
                     window.Closed+=(_,_)=>{Check(true,"黑屏通过 Esc/点击退出且控制窗口恢复");_window.Activate();};
         });
         Button("播放测试音频",Play);
+        Button("验证后台音频持续播放与等待取消",AudioLifecycle);
+        Button("验证切换应用与关闭受控窗口",WindowShortcuts);
         Button("测试计时取消",async()=>
         {
             await Invoke("SystemTools.Shutdown",new ShutdownSettings{Seconds=3600});
@@ -156,16 +158,57 @@ public sealed class Plugin:PluginBase
     private async Task Play()
     {
         var file=Path.Combine(_root,"中文 音频.wav");
+        WriteAudio(file,1);
+        await Invoke("SystemTools.BackgroundPlayAudio",new BackgroundPlayAudioSettings{AudioFilePath=file,WaitForPlaybackCompleted=true});
+        Check(true,"宿主实际播放中文路径 WAV 并等待完成");
+    }
+    private static void WriteAudio(string file,int seconds)
+    {
         using(var stream=File.Create(file))
         using(var writer=new BinaryWriter(stream))
         {
-            var count=16000;writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));writer.Write(36+count*2);
+            var count=16000*seconds;writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));writer.Write(36+count*2);
             writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));writer.Write(16);writer.Write((short)1);writer.Write((short)1);
             writer.Write(16000);writer.Write(32000);writer.Write((short)2);writer.Write((short)16);writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));writer.Write(count*2);
             for(var i=0;i<count;i++)writer.Write((short)(Math.Sin(i*2*Math.PI*440/16000)*70));
         }
-        await Invoke("SystemTools.BackgroundPlayAudio",new BackgroundPlayAudioSettings{AudioFilePath=file,WaitForPlaybackCompleted=true});
-        Check(true,"宿主实际播放中文路径 WAV 并等待完成");
+    }
+    private async Task AudioLifecycle()
+    {
+        var file=Path.Combine(_root,"后台 连续音频.wav");WriteAudio(file,4);
+        var item=new ActionItem{Id="SystemTools.BackgroundPlayAudio",Settings=JsonSerializer.SerializeToElement(new BackgroundPlayAudioSettings{AudioFilePath=file})};
+        var action=ActionBase.GetInstance(item)!;var set=new ActionSet();set.ActionItems.Add(item);set.SetStartRunning(true);
+        try{await action.InvokeAsync(item,set,false);}finally{set.SetEndRunning(true);}
+        var playback=action.GetType().GetField("_playback",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!;
+        await Task.Delay(500);
+        Check(item.Exception is null&&playback.GetValue(action) is not null,"真实宿主正常结束行动组后后台音频仍在播放");
+        for(var i=0;i<80&&playback.GetValue(action) is not null;i++)await Task.Delay(100);
+        Check(playback.GetValue(action) is null,"真实后台音频自然完成并释放播放状态");
+        WriteAudio(file,20);
+        item=new ActionItem{Id="SystemTools.BackgroundPlayAudio",Settings=JsonSerializer.SerializeToElement(new BackgroundPlayAudioSettings{AudioFilePath=file,WaitForPlaybackCompleted=true})};
+        action=ActionBase.GetInstance(item)!;set=new ActionSet();set.ActionItems.Add(item);set.SetStartRunning(true);
+        var running=action.InvokeAsync(item,set,false);
+        try
+        {
+            await Task.Delay(500);Check(!running.IsCompleted,"真实等待模式保持行动运行");
+            var cts=(CancellationTokenSource)typeof(ActionSet).GetField("InterruptCts",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.GetValue(set)!;
+            await cts.CancelAsync();await running.WaitAsync(TimeSpan.FromSeconds(5));
+            Check(item.Exception is null&&playback.GetValue(action) is null,"真实行动中断取消音频并释放状态");
+        }
+        finally{set.SetEndRunning(true);}
+    }
+    private async Task WindowShortcuts()
+    {
+        await ActivateFixture();var fixture=_native.Keyboard!.CaptureTarget();
+        await Invoke("SystemTools.AltTab",new ShortcutKeyNotificationSettings());await Task.Delay(700);
+        Check(_native.Keyboard.CaptureTarget()!=fixture,"真实 Command+Tab 切换离开受控应用");
+        await ActivateFixture();
+        Check(_native.Keyboard.CaptureTarget()==fixture,"关闭前重新确认前台为本轮受控夹具");
+        var pid=Fixture.GetProperty("pid").GetInt32();
+        using var process=Process.GetProcessById(pid);
+        await Invoke("SystemTools.AltF4",new ShortcutKeyNotificationSettings());
+        await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(5));
+        Check(process.HasExited,"真实 Command+W 关闭受控窗口且夹具正常退出");
     }
     private async Task ActivateFixture()
     {
@@ -297,15 +340,19 @@ public sealed class Plugin:PluginBase
     private async Task Idle()
     {
         _status.Text="请保持不操作约 65 秒，正在读取真实系统空闲时长。";
-        var maximum=TimeSpan.Zero;var hits=0;
+        var initial=_native.Idle!.Read();var minimum=initial;var maximum=initial;var events=new List<double>();
         var trigger=ActivatorUtilities.CreateInstance<NativeIdleTrigger>(_services);
-        ConfigureTrigger(trigger,new SystemTools.Triggers.LongIdleTriggerConfig{IdleMinutes=1},(_,_)=>hits++);
+        ConfigureTrigger(trigger,new SystemTools.Triggers.LongIdleTriggerConfig{IdleMinutes=1},(_,_)=>events.Add(_native.Idle!.Read().TotalSeconds));
         try
         {
             trigger.Loaded();
-            for(var i=0;i<65;i++){await Task.Delay(1000);var sample=_native.Idle!.Read();if(sample>maximum)maximum=sample;}
+            for(var i=0;i<65;i++){await Task.Delay(1000);var sample=_native.Idle!.Read();if(sample>maximum)maximum=sample;if(sample<minimum)minimum=sample;}
+            var crossed=minimum<TimeSpan.FromMinutes(1)&&maximum>=TimeSpan.FromMinutes(1)&&events.Any(x=>x>=60);
+            File.WriteAllText(Path.Combine(_root,"idle-samples.json"),JsonSerializer.Serialize(new{initialSeconds=initial.TotalSeconds,minimumSeconds=minimum.TotalSeconds,maximumSeconds=maximum.TotalSeconds,eventIdleSeconds=events,thresholdCrossingObserved=crossed}));
             Check(maximum>=TimeSpan.FromMinutes(1),"真实系统空闲采样达到一分钟："+maximum.TotalSeconds.ToString("F1"));
-            Check(hits==1,"实际空闲触发器达到阈值且持续空闲不重复触发");
+            Check(events.Count==1,"实际空闲触发器在采样期间触发一次且持续空闲不重复触发");
+            if(crossed)Check(true,"观察到实际空闲从一分钟以下跨越阈值后触发");
+            else _pending.Add("本次开始时已空闲超过阈值，尚需物理输入后观察一分钟阈值跨越。");
             File.WriteAllText(Path.Combine(_root,"idle-completed"),"done");
         }
         finally{trigger.UnLoaded();}

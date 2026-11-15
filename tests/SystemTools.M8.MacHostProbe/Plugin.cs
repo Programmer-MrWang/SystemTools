@@ -46,8 +46,9 @@ public sealed class Plugin:PluginBase
     private void Write()=>File.WriteAllText(Path.Combine(_root,"interaction.json"),JsonSerializer.Serialize(new{passed=_failures.Count==0,checks=_checks,failures=_failures,pending=_pending},new JsonSerializerOptions{WriteIndented=true}));
     private async Task Invoke(string id,object settings)
     {
-        var action=_services.GetRequiredKeyedService<ActionBase>(id);
-        var item=new ActionItem{Id=id,Settings=settings};var set=new ActionSet();set.ActionItems.Add(item);set.SetStartRunning(true);
+        var item=new ActionItem{Id=id,Settings=JsonSerializer.SerializeToElement(settings)};
+        var action=ActionBase.GetInstance(item)??throw new Exception("宿主无法创建行动："+id);
+        var set=new ActionSet();set.ActionItems.Add(item);set.SetStartRunning(true);
         try {await action.InvokeAsync(item,set,false);}
         finally {set.SetEndRunning(true);}
         if(item.Exception is {} error)throw new Exception(error);
@@ -107,6 +108,15 @@ public sealed class Plugin:PluginBase
         });
         Button("准备真实主界面点击",MainClick);
         Button("验证背景隐藏恢复与两分钟运行",Background);
+        Button("显示系统玻璃测试窗口",()=>
+        {
+            var window=new Window{Title="SystemTools M8 系统材质",Width=460,Height=220,Content=new Button{Content="材质上的可交互按钮"}};
+            window.Show();var material=_services.GetRequiredService<NativeWindowMaterial>();material.Update(window,1);
+            var timer=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(300)};
+            timer.Tick+=(_,_)=>File.WriteAllText(Path.Combine(_root,"material-state.json"),JsonSerializer.Serialize(new{state=material.LastError}));
+            window.Closed+=(_,_)=>{timer.Stop();material.Update(window,0);};timer.Start();
+            return Task.CompletedTask;
+        });
         Button("注册真实热键（Control+Option+F9）",RegisterHotkey);
         Button("开始 65 秒真实空闲采样",Idle);
         Button("读取并切换系统主题后恢复",Theme);
@@ -244,6 +254,11 @@ public sealed class Plugin:PluginBase
             }
             config.Data.AutoHideMainWindowWhenOccluded=true;
             await Paint("text");
+            File.WriteAllText(Path.Combine(_root,"debug-region.json"),JsonSerializer.Serialize(global));
+            var debugFrame=await _native.Advanced.Background!.CaptureAsync(global,default);
+            File.WriteAllBytes(Path.Combine(_root,"debug-background.png"),debugFrame.Png);
+            var debugText=await _native.Advanced.TextRecognition!.RecognizeAsync(debugFrame,default);
+            File.WriteAllText(Path.Combine(_root,"debug-text.json"),JsonSerializer.Serialize(debugText));
             for(var i=0;i<6&&settings.GetMainWindowVisible()!=false;i++){await service.RefreshAsync(default);await Task.Delay(250);}
             Check(settings.GetMainWindowVisible()==false,"实际主界面区域背景 OCR 导致宿主隐藏");
             await Paint("clear");
@@ -272,10 +287,18 @@ public sealed class Plugin:PluginBase
     private async Task Idle()
     {
         _status.Text="请保持不操作约 65 秒，正在读取真实系统空闲时长。";
-        var maximum=TimeSpan.Zero;
-        for(var i=0;i<65;i++){await Task.Delay(1000);var sample=_native.Idle!.Read();if(sample>maximum)maximum=sample;}
-        Check(maximum>=TimeSpan.FromMinutes(1),"真实系统空闲采样达到一分钟："+maximum.TotalSeconds.ToString("F1"));
-        File.WriteAllText(Path.Combine(_root,"idle-completed"),"done");
+        var maximum=TimeSpan.Zero;var hits=0;
+        var trigger=ActivatorUtilities.CreateInstance<NativeIdleTrigger>(_services);
+        ConfigureTrigger(trigger,new SystemTools.Triggers.LongIdleTriggerConfig{IdleMinutes=1},(_,_)=>hits++);
+        try
+        {
+            trigger.Loaded();
+            for(var i=0;i<65;i++){await Task.Delay(1000);var sample=_native.Idle!.Read();if(sample>maximum)maximum=sample;}
+            Check(maximum>=TimeSpan.FromMinutes(1),"真实系统空闲采样达到一分钟："+maximum.TotalSeconds.ToString("F1"));
+            Check(hits==1,"实际空闲触发器达到阈值且持续空闲不重复触发");
+            File.WriteAllText(Path.Combine(_root,"idle-completed"),"done");
+        }
+        finally{trigger.UnLoaded();}
     }
     private async Task Theme()
     {

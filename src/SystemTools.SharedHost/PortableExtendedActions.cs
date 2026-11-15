@@ -69,7 +69,7 @@ public static class PortableExtendedActions
     }
 }
 
-public abstract class PortableShortcut(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : ActionBase<ShortcutKeyNotificationSettings>
+public abstract class PortableShortcut<TSettings>(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : ActionBase<TSettings> where TSettings : ShortcutKeyNotificationSettings
 {
     protected abstract string[] Keys { get; }
     protected string RuntimeId => catalog.RuntimeId;
@@ -82,13 +82,13 @@ public abstract class PortableShortcut(IKeyboardInput input, NativeDesktopServic
     }
 }
 [ActionInfo("SystemTools.AltF4","关闭当前窗口","\uEA0F",false)]
-public sealed class PortableCloseKeyAction(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : PortableShortcut(input,native,catalog)
+public sealed class PortableCloseKeyAction(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : PortableShortcut<ShortcutKeyNotificationSettings>(input,native,catalog)
 { protected override string[] Keys => RuntimeId == "osx-arm64" ? ["Meta","W"] : ["Alt","F4"]; }
 [ActionInfo("SystemTools.AltTab","切换应用","\uEA0F",false)]
-public sealed class PortableSwitchAppAction(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : PortableShortcut(input,native,catalog)
+public sealed class PortableSwitchAppAction(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : PortableShortcut<ShortcutKeyNotificationSettings>(input,native,catalog)
 { protected override string[] Keys => RuntimeId == "osx-arm64" ? ["Meta","Tab"] : ["Alt","Tab"]; }
 [ActionInfo("SystemTools.CtrlZ","撤销","\uEA0F",false)]
-public sealed class PortableUndoAction(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : PortableShortcut(input,native,catalog)
+public sealed class PortableUndoAction(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : PortableShortcut<ShortcutKeyNotificationSettings>(input,native,catalog)
 { protected override string[] Keys => RuntimeId == "osx-arm64" ? ["Meta","Z"] : ["Control","Z"]; }
 [ActionInfo("SystemTools.TypeContent","键入内容","\uE4BE",false)]
 public sealed class PortableTypeAction(IKeyboardInput input, NativeDesktopServices native, FeatureCatalog catalog) : ActionBase<TypeContentSettings>
@@ -134,7 +134,7 @@ public sealed class PortableKillAction : ActionBase<KillProcessSettings>
         NativeActionFeedback.Notify(Settings.NotifyOnExecute,"指定进程已退出");
     }
 }
-public abstract class PortableSessionAction(IDesktopSession session, NativeDesktopServices native, FeatureCatalog catalog,string operation) : ActionBase<ShortcutKeyNotificationSettings>
+public abstract class PortableSessionAction<TSettings>(IDesktopSession session, NativeDesktopServices native, FeatureCatalog catalog,string operation) : ActionBase<TSettings> where TSettings : ShortcutKeyNotificationSettings
 {
     protected override async Task OnInvoke()
     {
@@ -145,15 +145,15 @@ public abstract class PortableSessionAction(IDesktopSession session, NativeDeskt
     }
 }
 [ActionInfo("SystemTools.ImmediateShutdown","立即关机","\uE4C4",false)]
-public sealed class PortableShutdownNowAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction(session,native,catalog,"shutdown");
+public sealed class PortableShutdownNowAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction<ShortcutKeyNotificationSettings>(session,native,catalog,"shutdown");
 [ActionInfo("SystemTools.ImmediateRestart","立即重启","\uE4C4",false)]
-public sealed class PortableRestartAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction(session,native,catalog,"restart");
+public sealed class PortableRestartAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction<ShortcutKeyNotificationSettings>(session,native,catalog,"restart");
 [ActionInfo("SystemTools.Sleep","睡眠","\uE4C4",false)]
-public sealed class PortableSleepAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction(session,native,catalog,"sleep");
+public sealed class PortableSleepAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction<ShortcutKeyNotificationSettings>(session,native,catalog,"sleep");
 [ActionInfo("SystemTools.LockScreen","锁定屏幕","\uE4C4",false)]
-public sealed class PortableLockAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction(session,native,catalog,"lock");
+public sealed class PortableLockAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction<ShortcutKeyNotificationSettings>(session,native,catalog,"lock");
 [ActionInfo("SystemTools.ShowDesktop","显示桌面","\uE079",false)]
-public sealed class PortableDesktopAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction(session,native,catalog,"desktop");
+public sealed class PortableDesktopAction(IDesktopSession session,NativeDesktopServices native,FeatureCatalog catalog):PortableSessionAction<ShortcutKeyNotificationSettings>(session,native,catalog,"desktop");
 
 public sealed class PortableShutdownService(IDesktopSession session,NativeDesktopServices native,ILogger<PortableShutdownService> logger):IHostedService,IDisposable
 {

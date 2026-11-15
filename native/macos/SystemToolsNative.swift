@@ -755,6 +755,10 @@ func handleMaterial(_ request: [String: Any], operation: String) throws -> [Stri
     if operation == "material.release" {
         materialLeases.removeValue(forKey: id)?.restore(); return ["state": "Available"]
     }
+    if operation == "material.status" {
+        guard let lease = materialLeases[id] else { throw NativeFailure(state: "Disabled", message: "材质租约已结束。") }
+        return ["state": "Available", "applied": lease.applied, "reason": lease.reason]
+    }
     guard operation == "material.apply", let material = request["material"] as? String,
           ["Solid", "SystemMaterial", "SystemGlass"].contains(material), materialLeases[id] == nil else {
         throw NativeFailure(state: "Unsupported", message: "材质类型或租约无效。")

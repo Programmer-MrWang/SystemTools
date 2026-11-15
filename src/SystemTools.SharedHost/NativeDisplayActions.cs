@@ -33,7 +33,7 @@ public static class NativeDisplayConfirmation
     }
 }
 
-public abstract class NativeDisplayAction(NativeDesktopServices native, FeatureCatalog catalog, DisplayLayout layout) : ActionBase<ShortcutKeyNotificationSettings>
+public abstract class NativeDisplayAction<TSettings>(NativeDesktopServices native, FeatureCatalog catalog, DisplayLayout layout) : ActionBase<TSettings> where TSettings : ShortcutKeyNotificationSettings
 {
     protected override async Task OnInvoke()
     {
@@ -43,10 +43,10 @@ public abstract class NativeDisplayAction(NativeDesktopServices native, FeatureC
     }
 }
 [ActionInfo("SystemTools.CloneDisplay", "复制屏幕", "\uE714", false)]
-public sealed class NativeMirrorDisplayAction(NativeDesktopServices native, FeatureCatalog catalog) : NativeDisplayAction(native, catalog, DisplayLayout.Mirror);
+public sealed class NativeMirrorDisplayAction(NativeDesktopServices native, FeatureCatalog catalog) : NativeDisplayAction<ShortcutKeyNotificationSettings>(native, catalog, DisplayLayout.Mirror);
 [ActionInfo("SystemTools.ExtendDisplay", "扩展屏幕", "\uE714", false)]
-public sealed class NativeExtendDisplayAction(NativeDesktopServices native, FeatureCatalog catalog) : NativeDisplayAction(native, catalog, DisplayLayout.Extend);
+public sealed class NativeExtendDisplayAction(NativeDesktopServices native, FeatureCatalog catalog) : NativeDisplayAction<ShortcutKeyNotificationSettings>(native, catalog, DisplayLayout.Extend);
 [ActionInfo("SystemTools.InternalDisplay", "仅电脑屏幕", "\uE714", false)]
-public sealed class NativeInternalDisplayAction(NativeDesktopServices native, FeatureCatalog catalog) : NativeDisplayAction(native, catalog, DisplayLayout.InternalOnly);
+public sealed class NativeInternalDisplayAction(NativeDesktopServices native, FeatureCatalog catalog) : NativeDisplayAction<ShortcutKeyNotificationSettings>(native, catalog, DisplayLayout.InternalOnly);
 [ActionInfo("SystemTools.ExternalDisplay", "仅第二屏幕", "\uE714", false)]
-public sealed class NativeExternalDisplayAction(NativeDesktopServices native, FeatureCatalog catalog) : NativeDisplayAction(native, catalog, DisplayLayout.ExternalOnly);
+public sealed class NativeExternalDisplayAction(NativeDesktopServices native, FeatureCatalog catalog) : NativeDisplayAction<ShortcutKeyNotificationSettings>(native, catalog, DisplayLayout.ExternalOnly);

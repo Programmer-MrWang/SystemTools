@@ -67,6 +67,9 @@ try
         schedule.Schedule(TimeSpan.Zero,_=>Task.FromException(new IOException("denied")),default);
         await schedule.Completion;Check(schedule.LastError is IOException,"系统拒绝在计划状态中可观察");
     }
+    foreach(var type in new[]{typeof(SystemTools.PortableUndoAction),typeof(SystemTools.PortableCloseKeyAction),typeof(SystemTools.PortableSwitchAppAction),
+        typeof(SystemTools.PortableRestartAction),typeof(SystemTools.NativeEnterAction),typeof(SystemTools.NativeMirrorDisplayAction)})
+        Check(type.BaseType!.GetGenericArguments().FirstOrDefault()==typeof(SystemTools.Settings.ShortcutKeyNotificationSettings),"宿主 JSON 行动工厂可识别设置类型："+type.Name);
     var pointer=new FixturePointer();
     using(var stop=new CancellationTokenSource())
     {

@@ -27,6 +27,16 @@ let text=NSTextView(frame:scroll.bounds)
 text.isRichText=false;text.allowsUndo=true;text.font=NSFont.systemFont(ofSize:20)
 text.setAccessibilityIdentifier("M8Input")
 scroll.documentView=text
+final class BackgroundView:NSView {
+    var showText=false
+    override func draw(_ dirtyRect:NSRect) {
+        NSColor.white.setFill();bounds.fill()
+        if showText { ("BACKGROUND TEXT 12345" as NSString).draw(at:NSPoint(x:5,y:bounds.height-25),withAttributes:[.font:NSFont.boldSystemFont(ofSize:18),.foregroundColor:NSColor.black]) }
+    }
+}
+let normalContent=window.contentView!
+let backgroundView=BackgroundView(frame:normalContent.bounds)
+backgroundView.autoresizingMask=[.width,.height]
 let button=NSButton(title:"记录点击",target:nil,action:nil)
 button.frame=NSRect(x:20,y:20,width:180,height:36)
 var hits=0
@@ -48,6 +58,7 @@ Timer.scheduledTimer(withTimeInterval:0.2,repeats:true){_ in
     if let bytes=try? Data(contentsOf:background),let state=try? JSONSerialization.jsonObject(with:bytes) as? [String:Any] {
         try? FileManager.default.removeItem(at:background)
         if state["mode"] as? String == "restore" {
+            window.contentView=normalContent;window.level = .normal
             window.styleMask=[.titled,.closable,.resizable,.miniaturizable]
             window.setFrame(NSRect(x:220,y:220,width:600,height:380),display:true)
             text.string="";window.backgroundColor = .windowBackgroundColor
@@ -55,11 +66,11 @@ Timer.scheduledTimer(withTimeInterval:0.2,repeats:true){_ in
             let x=state["x"] as? Double ?? 100;let y=state["y"] as? Double ?? 100
             let width=state["width"] as? Double ?? 600;let height=state["height"] as? Double ?? 120
             window.styleMask=[.borderless];window.backgroundColor = .white
+            window.contentView=backgroundView;window.level = .floating
+            window.collectionBehavior=[.canJoinAllSpaces,.fullScreenAuxiliary];window.hidesOnDeactivate=false
             window.setFrame(NSRect(x:x,y:(NSScreen.screens.first?.frame.height ?? 0)-y-height,width:width,height:height),display:true)
-            scroll.frame=NSRect(x:0,y:0,width:width,height:height);text.frame=scroll.bounds
-            text.font=NSFont.boldSystemFont(ofSize:18);text.backgroundColor = .white;text.textColor = .black
-            text.string=state["mode"] as? String == "text" ? "BACKGROUND TEXT 12345" : ""
-            window.orderFront(nil)
+            backgroundView.showText=state["mode"] as? String == "text";backgroundView.needsDisplay=true;backgroundView.display()
+            window.orderFrontRegardless()
         }
     }
     let command=root.appendingPathComponent("fixture-command")

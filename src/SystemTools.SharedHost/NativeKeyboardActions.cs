@@ -43,7 +43,7 @@ public sealed class NativeCombinationAction(IKeyboardInput keyboard, NativeDeskt
     }
 }
 
-public abstract class NativeSingleKeyAction(IKeyboardInput keyboard, NativeDesktopServices native, FeatureCatalog catalog) : ActionBase<ShortcutKeyNotificationSettings>
+public abstract class NativeSingleKeyAction<TSettings>(IKeyboardInput keyboard, NativeDesktopServices native, FeatureCatalog catalog) : ActionBase<TSettings> where TSettings : ShortcutKeyNotificationSettings
 {
     protected abstract string Key { get; }
     protected override async Task OnInvoke()
@@ -55,8 +55,8 @@ public abstract class NativeSingleKeyAction(IKeyboardInput keyboard, NativeDeskt
     }
 }
 [ActionInfo("SystemTools.EnterKey", "按下 Enter 键", "\uEA0F", false)]
-public sealed class NativeEnterAction(IKeyboardInput keyboard, NativeDesktopServices native, FeatureCatalog catalog) : NativeSingleKeyAction(keyboard, native, catalog) { protected override string Key => "Return"; }
+public sealed class NativeEnterAction(IKeyboardInput keyboard, NativeDesktopServices native, FeatureCatalog catalog) : NativeSingleKeyAction<ShortcutKeyNotificationSettings>(keyboard, native, catalog) { protected override string Key => "Return"; }
 [ActionInfo("SystemTools.EscKey", "按下 Esc 键", "\uEA0F", false)]
-public sealed class NativeEscapeAction(IKeyboardInput keyboard, NativeDesktopServices native, FeatureCatalog catalog) : NativeSingleKeyAction(keyboard, native, catalog) { protected override string Key => "Escape"; }
+public sealed class NativeEscapeAction(IKeyboardInput keyboard, NativeDesktopServices native, FeatureCatalog catalog) : NativeSingleKeyAction<ShortcutKeyNotificationSettings>(keyboard, native, catalog) { protected override string Key => "Escape"; }
 [ActionInfo("SystemTools.F11Key", "按下 F11 键", "\uEA0F", false)]
-public sealed class NativeF11Action(IKeyboardInput keyboard, NativeDesktopServices native, FeatureCatalog catalog) : NativeSingleKeyAction(keyboard, native, catalog) { protected override string Key => "F11"; }
+public sealed class NativeF11Action(IKeyboardInput keyboard, NativeDesktopServices native, FeatureCatalog catalog) : NativeSingleKeyAction<ShortcutKeyNotificationSettings>(keyboard, native, catalog) { protected override string Key => "F11"; }

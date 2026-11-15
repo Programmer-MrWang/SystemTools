@@ -2,6 +2,22 @@
 
 更新：2026-11-15，Asia/Shanghai。正式开发：`C:\STWork-Windows\SystemTools`；宿主：`C:\STWork-Windows\ClassIsland`。本文件替代 M4 收尾状态，历史证据仍保留。
 
+## 最新进展：2026-11-15 M5 开发收尾
+
+本段优先于后文迁移前说明。正式开发目录为本文件所在 Mac SystemTools 仓库；后文 Windows 路径和旧候选状态均为历史资料。
+
+用户要求 ClassIsland 源码始终不改。本轮仅开发自己的插件及包内 SystemTools Companion.app，宿主两仓库 1946 个受跟踪项、HEAD/原 dirty 及已安装应用 448 个文件均与接手基线一致。恢复出的 e7d8f874 只留作历史，不应用宿主声明补丁。
+
+实现已提交并推送至 54a0debd9aa47ce1828504d285c52255912f5c64。三平台 CI 43724063356 的 Windows、Linux、Mac 与严格 aggregate 全部成功，检查分别为 211、207、252 项。业务源码指纹为 c40c13c50cfbc71148ba992195db0cb521deb93c4c6c5d7e7a96592b787d12d8。
+
+最终同源原生包 artifacts/m5/closeout/final-native/SystemTools.M5.Native.cipx 的 SHA-256 为 9fccb8e3febc29bfb8a65ad6b77d9b29906cfd2d047fee3f2390357650e2113e；替代本轮 Mac 开发预览。已用实际 CI 包在未改动的 ClassIsland 2.1.1.1 上完成正常、异平台损坏、本机后端缺失三场景，均主动退出 0、助手退出，日常 Global.json 不变。正常和损坏场景各完成 12 项实际抓拍/采音/正式识别检查。
+
+用户本人完成了 Mac 系统认证成功、人工取消拒绝、TCC 撤权和重新允许；恢复后真实 PNG/PCM 再次通过。后台真实采音/解码运行 60 秒及三轮前台互斥、取消恢复、停止释放也通过。13 个本机输出跨路径逐字节相同，Windows/Mac CI 可复现检查通过。
+
+M5 开发、三端构建合包及本台 Mac 可完成的验收已收尾；完整跨平台实体设备验收仍为 false。无法在本台代替完成的部分：新包 Windows/Linux 实体设备及 Windows Hello 本人交互、物理拔出内置设备、真实外部 AI 端点/凭据、中文识别质量和外放回声。正式 Developer ID 签名、公证及升级授权稳定性属于 M7，本机无可用签名身份。
+
+最终说明与机器结果见 docs/validation/2026-11-15-m5-closeout.md 和 -results.json。原有 IDE 修改、未跟踪 docs/reports/ 和迁移前 PROJECT_STATE.md 纠正继续保留，不夹入提交。不自动发布。
+
 ## 当前结论
 
 M0—M5 开发已完成。本轮完成 M5 摄像头、语音/关键词/对话与打断、系统认证、媒体与歌词后端、权限/资源边界和集成工具。本台 Windows 可自动完成的构建/回归/真实宿主最终包验收已完成。完整平台与硬件验收仍为 false；Windows Hello 本人交互、外部 AI 服务以及 Mac/Linux 实机项目继续独立待验。

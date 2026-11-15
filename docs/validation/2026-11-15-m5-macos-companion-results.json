@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "timezone": "Asia/Shanghai",
+  "commit": "b5752902646c3ea0e8f508bfffc95e25f233bc6b",
+  "sourceHash": "c40c13c50cfbc71148ba992195db0cb521deb93c4c6c5d7e7a96592b787d12d8",
+  "scope": "M5 plugin implementation and local ARM64 Mac media acceptance; full cross-platform acceptance remains incomplete.",
+  "codeAndMacMediaAcceptancePassed": true,
+  "fullM5Acceptance": false,
+  "hostUnchanged": {
+    "passed": true,
+    "sourceRepositoriesUnchanged": true,
+    "installedHostUnchanged": true,
+    "repositories": 2,
+    "trackedSourceFiles": 1946,
+    "installedHostFiles": 448
+  },
+  "originalDirtyFilesPreserved": [
+    ".idea/.idea.SystemTools/.idea/indexLayout.xml",
+    ".idea/.idea.SystemTools/.idea/projectSettingsUpdater.xml",
+    ".idea/.idea.SystemTools/.idea/vcs.xml",
+    ".idea/.idea.SystemTools/.idea/workspace.xml",
+    "docs/reports/2026-11-15-m0-m4-progress-report.md"
+  ],
+  "indexUnchanged": true,
+  "package": {
+    "path": "artifacts/m5/mac-companion/SystemTools.M5.MacPreview.cipx",
+    "sha256": "800a7d2edfbebec617e4493bb5b41a8de5570749aea585cb0362d90b25da99d7",
+    "kind": "mac-development-preview",
+    "newThreePlatformAggregate": false
+  },
+  "regression": {
+    "passed": true,
+    "checks": 252,
+    "evidence": "artifacts/m5/checks.json"
+  },
+  "nativeDevices": {
+    "passed": true,
+    "checks": 17,
+    "identity": {
+      "bundleId": "io.github.programmer-mrwang.systemtools.companion",
+      "pid": 54836,
+      "parentPid": 1,
+      "protocol": 1
+    },
+    "evidence": "artifacts/m5/mac-companion/native-devices.json"
+  },
+  "reproducible": {
+    "passed": true,
+    "files": 13,
+    "workingTreeSnapshot": true,
+    "evidence": "artifacts/m1/reproducible-build.json"
+  },
+  "scenarios": {
+    "normal": {
+      "passed": true,
+      "checks": 12,
+      "exitCode": 0,
+      "physicalDeviceAcceptance": true,
+      "evidence": "artifacts/m5/mac-companion/host-20261115-220905-normal/result.json"
+    },
+    "foreign-corrupt": {
+      "passed": true,
+      "checks": 12,
+      "exitCode": 0,
+      "physicalDeviceAcceptance": true,
+      "evidence": "artifacts/m5/mac-companion/host-20261115-220919-foreign-corrupt/result.json"
+    },
+    "missing-backend": {
+      "passed": true,
+      "checks": 1,
+      "exitCode": 0,
+      "physicalDeviceAcceptance": false,
+      "evidence": "artifacts/m5/mac-companion/host-20261115-220740-missing-backend/result.json"
+    }
+  },
+  "images": [
+    {
+      "path": "artifacts/m5/mac-companion/摄像头抓拍2026-11-15-21-56-12-811e69bc93cc49f4a97eb9557e84af6c.png",
+      "sha256": "a753c4d5d4dc72e51dc46cd155f44db49f32ec17d4dbfc46516a14251f756230",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "artifacts/m5/mac-companion/摄像头抓拍2026-11-15-21-56-13-b7645a02d50a4fecaa742210c28629c5.png",
+      "sha256": "13f338939f379e37541a73d25d253b2bd63e14334cb477c2c2f60151b48b100d",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "artifacts/m5/mac-companion/摄像头抓拍2026-11-15-22-01-18-a0ceb75c54e441dda485669cabdd450e.png",
+      "sha256": "f2f461a842e68f772ab36f924efde8e32725153af14d552dc4ce31f3b58d4ef9",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "path": "artifacts/m5/mac-companion/摄像头抓拍2026-11-15-22-01-19-0b3a11e5449b46d18cc9dfcf094122a5.png",
+      "sha256": "87236ce11e27c414ade24739a0bfaa7d7d29da7dba5edba35195f3c9fc9e33f9",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "pcm": {
+    "bytes": 38280,
+    "sha256": "06d6509dd176cdda93720b7f2f3fc147941ca5bc39a1cf3dc8ef50bb9ed2eba0",
+    "sampleRate": 16000,
+    "channels": 1,
+    "bits": 16
+  },
+  "pending": [
+    "New same-source three-platform native CI and aggregate",
+    "Developer ID signing, notarization and upgrade authorization stability",
+    "Physical disconnect and permission revocation/regrant",
+    "Long-duration wake/dictation/conversation and loudspeaker echo",
+    "Mac LocalAuthentication owner success/cancel",
+    "Chinese model quality and external AI service",
+    "Windows Hello owner interaction and Linux physical acceptance"
+  ]
+}

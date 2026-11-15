@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "timezone": "Asia/Shanghai",
+  "developmentClosed": true,
+  "completeCrossPlatformPhysicalAcceptance": false,
+  "hostSourceChanged": false,
+  "installedHostChanged": false,
+  "implementationCommit": "54a0debd9aa47ce1828504d285c52255912f5c64",
+  "sourceHash": "c40c13c50cfbc71148ba992195db0cb521deb93c4c6c5d7e7a96592b787d12d8",
+  "package": {
+    "path": "artifacts/m5/closeout/final-native/SystemTools.M5.Native.cipx",
+    "sha256": "9fccb8e3febc29bfb8a65ad6b77d9b29906cfd2d047fee3f2390357650e2113e",
+    "kind": "native-build-aggregate",
+    "nativePlatforms": [
+      "win-x64",
+      "linux-x64",
+      "osx-arm64"
+    ]
+  },
+  "ci": {
+    "runId": 43724063356,
+    "conclusion": "success",
+    "head": "54a0debd9aa47ce1828504d285c52255912f5c64",
+    "checks": {
+      "windows": {
+        "passed": true,
+        "checks": 211
+      },
+      "linux": {
+        "passed": true,
+        "checks": 207
+      },
+      "macos": {
+        "passed": true,
+        "checks": 252
+      }
+    }
+  },
+  "macScenarios": {
+    "missing-backend": {
+      "passed": true,
+      "checks": 1,
+      "physicalDeviceAcceptance": false,
+      "exitCode": 0,
+      "evidence": "artifacts/m5/mac-companion/host-20261115-223214-missing-backend/result.json"
+    },
+    "normal": {
+      "passed": true,
+      "checks": 12,
+      "physicalDeviceAcceptance": true,
+      "exitCode": 0,
+      "evidence": "artifacts/m5/mac-companion/host-20261115-223815-normal/result.json"
+    },
+    "foreign-corrupt": {
+      "passed": true,
+      "checks": 12,
+      "physicalDeviceAcceptance": true,
+      "exitCode": 0,
+      "evidence": "artifacts/m5/mac-companion/host-20261115-223824-foreign-corrupt/result.json"
+    }
+  },
+  "authentication": {
+    "ownerSuccess": true,
+    "manualCancelDenied": true,
+    "preCancelDenied": true,
+    "evidence": [
+      "artifacts/m5/mac-companion/host-20261115-222020-normal/result.json",
+      "artifacts/m5/mac-companion/host-20261115-222220-normal/result.json"
+    ]
+  },
+  "permissionLifecycle": {
+    "passed": true,
+    "evidence": "artifacts/m5/closeout/permission-lifecycle.json",
+    "originalRevokeLog": "artifacts/m5/closeout/permission-lifecycle-initial.log"
+  },
+  "realSpeechRouting": {
+    "passed": true,
+    "continuousSeconds": 60,
+    "foregroundCycles": 3,
+    "checks": 10,
+    "evidence": "artifacts/m5/closeout/hardware-routing.json"
+  },
+  "limits": [
+    "Windows Hello owner success/cancel and new-package Windows physical regression require a Windows machine.",
+    "Linux V4L2/PulseAudio, actual X11 desktop media/lyrics and espeak require a Linux machine and devices.",
+    "Physical removal requires a removable external camera/microphone; built-in Mac devices were used here.",
+    "External AI endpoint credentials, real Chinese speech/model quality and loudspeaker echo are not covered by deterministic fixtures or the 60-second capture test.",
+    "Developer ID signing, notarization and upgrade authorization stability belong to M7; no valid signing identity exists on this Mac."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "pluginId": "SystemTools",
+  "version": "3.0.0.0",
+  "channel": "rc",
+  "hostApiVersion": "2.2.0.0",
+  "hostLine": "ClassIsland Avalonia/Misha",
+  "runtimeIds": ["win-x64", "linux-x64", "osx-arm64"],
+  "sdk": "10.0.403",
+  "legacyPluginIds": ["SystemTools-Cross-platform", "SystemTools.CrossPlatform"],
+  "stableRequires": ["nativeSameSourceAggregate", "packageAudit", "dependencyAudit", "platformLifecycleEvidence", "developerIdSignature", "appleNotarization", "explicitPublicationApproval"],
+  "optionalDependencies": ["Vosk language model", "FFmpeg", "SAI", "Linux desktop tools", "m1ddc", "ddcutil"],
+  "macSigning": {"bundleId": "io.github.programmer-mrwang.systemtools.companion", "stableCertificateType": "Developer ID Application", "candidateSignature": "ad-hoc"}
+}

@@ -1,4 +1,6 @@
 import AppKit
+import Vision
+import ImageIO
 import ScreenCaptureKit
 import Foundation
 import IOKit
@@ -463,6 +465,8 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
 
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
+    if operation == "ocr.probe" { return ["state": "Available"] }
+    if operation == "ocr.recognize" { return try recognizeBackgroundText(request) }
     if operation == "background.probe" { return screenCapability() }
     if operation == "background.region" {
         return try mainThread {
@@ -610,4 +614,27 @@ func materialWindow(_ request: [String: Any]) throws -> NSWindow {
     if let window = object as? NSWindow { return window }
     if let view = object as? NSView, let window = view.window { return window }
     throw NativeFailure(state: "Unsupported", message: "句柄不是原生窗口或视图。")
+}
+
+func recognizeBackgroundText(_ request: [String: Any]) throws -> [String: Any] {
+    guard !Thread.isMainThread, let value = request["png"] as? String, value.count <= 48_000_000,
+          let data = Data(base64Encoded: value), let source = CGImageSourceCreateWithData(data as CFData, nil),
+          let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [String: Any],
+          let width = properties[kCGImagePropertyPixelWidth as String] as? Int,
+          let height = properties[kCGImagePropertyPixelHeight as String] as? Int,
+          width > 0, height > 0, width <= 16384, height <= 16384, width * height <= 16_000_000,
+          let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+        throw NativeFailure(state: "Unsupported", message: "OCR 图像无效、过大或不在后台线程。")
+    }
+    let recognition = VNRecognizeTextRequest()
+    recognition.recognitionLevel = .accurate
+    recognition.recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US"]
+    recognition.usesLanguageCorrection = true
+    try VNImageRequestHandler(cgImage: image, options: [:]).perform([recognition])
+    let boxes = (recognition.results ?? []).prefix(500).compactMap { observation -> [String: Any]? in
+        guard let candidate = observation.topCandidates(1).first else { return nil }
+        let box = observation.boundingBox
+        return ["x": box.minX, "y": 1 - box.maxY, "width": box.width, "height": box.height, "confidence": candidate.confidence]
+    }
+    return ["state": "Available", "boxes": boxes]
 }

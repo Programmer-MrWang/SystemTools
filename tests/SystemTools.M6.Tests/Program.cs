@@ -20,6 +20,14 @@ Check(policy.Observe(128, 2) is null && policy.Observe(130, 2) is null, "迟滞�
 Check(policy.Observe(255, 2) is null && policy.Observe(0, 2) is null && policy.Observe(255, 2) is null, "交替噪声不会切换主题");
 Check(policy.Observe(double.NaN, 2) is null, "拒绝无效亮度");
 
+var ocr = new SystemTools.Common.Layout.TextOcclusionPolicy();
+var region = new ScreenRegion(0, 0, 200, 100);
+RecognizedText[] hits = [new(new(10, 10, 80, 20), .9)];
+Check(!ocr.Observe(region, hits) && ocr.Observe(region, hits), "连续两次命中才隐藏");
+Check(ocr.Observe(region, []) && ocr.Observe(region, []) && !ocr.Observe(region, []), "隐藏后连续三次清空恢复");
+Check(!ocr.Observe(region, [new(new(10, 10, 80, 20), .2)]) && !ocr.Observe(region, [new(new(220, 10, 80, 20), .99)]), "忽略低置信度和区域外文字");
+ocr.Observe(region, hits); ocr.Observe(region, hits); ocr.Reset(); Check(!ocr.Hidden, "故障与停用清除隐藏状态");
+
 sealed class Resource : IBackgroundCapture, ITextRecognition, IDisposable
 {
     public int Disposals; public bool Fails;

@@ -41,6 +41,11 @@ public static class NativeHostRegistration
             if (catalog.CanCreate("SystemTools.AutoSwitchClassIslandTheme")) services.AddAction<NativeBackgroundThemeAction, NativeBackgroundSettingsControl>();
         }
         if (native.Camera is not null) MediaHostRegistration.RegisterCamera(services, catalog, native.Camera);
+        if (native.Advanced.Background is { } textBackground && native.Advanced.TextRecognition is { } recognition)
+        {
+            catalog.BindForRegistration("SystemTools.AutoHideMainWindowWhenOccluded", () => !GlobalConstants.MainConfig!.Data.IsActionEnabled("SystemTools.AutoHideMainWindowWhenOccluded") ? new(CapabilityState.Disabled, "用户已关闭。") : !textBackground.Probe().CanExecute ? textBackground.Probe() : recognition.Probe());
+            if (catalog.CanCreate("SystemTools.AutoHideMainWindowWhenOccluded")) services.AddAction<NativeTextOcclusionAction, NativeBackgroundSettingsControl>();
+        }
         if (native.ScreenCapture is not null)
         {
             services.AddSingleton(native.ScreenCapture);
@@ -99,7 +104,7 @@ public static class NativeHostRegistration
         }
         var group = new ActionMenuTreeGroup("系统原生功能", "\uE079");
         foreach (var status in catalog.Snapshot().Where(x => x.Feature.Kind == "action" && x.Capability.CanExecute &&
-                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot" or "SystemTools.AutoOpenUsbDriveOnInsert" or "SystemTools.SimulateKeyboard" or "SystemTools.SimulateKeyCombination" or "SystemTools.EnterKey" or "SystemTools.EscKey" or "SystemTools.F11Key" or "SystemTools.WindowOperation" or "SystemTools.ShowFloatingWindow" or "SystemTools.ToggleFloatingWindowLayer" or "SystemTools.SwitchFloatingWindowTheme" or "SystemTools.ToggleFloatingWindowProfile" or "SystemTools.ChangeWallpaper"))
+                     x.Feature.Id is "SystemTools.SetVolume" or "SystemTools.ScreenShot" or "SystemTools.AutoOpenUsbDriveOnInsert" or "SystemTools.SimulateKeyboard" or "SystemTools.SimulateKeyCombination" or "SystemTools.EnterKey" or "SystemTools.EscKey" or "SystemTools.F11Key" or "SystemTools.WindowOperation" or "SystemTools.ShowFloatingWindow" or "SystemTools.ToggleFloatingWindowLayer" or "SystemTools.SwitchFloatingWindowTheme" or "SystemTools.ToggleFloatingWindowProfile" or "SystemTools.ChangeWallpaper" or "SystemTools.AutoSwitchClassIslandTheme" or "SystemTools.AutoHideMainWindowWhenOccluded"))
             group.Children.Add(new ActionMenuTreeItem(status.Feature.Id, status.Feature.Name, "\uE079"));
         if (group.Children.Count > 0) IActionService.ActionMenuTree.Add(group);
     }

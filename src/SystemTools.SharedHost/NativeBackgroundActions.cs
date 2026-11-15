@@ -24,6 +24,17 @@ public sealed class NativeBackgroundThemeAction(MainConfigHandler config, Featur
         return Task.CompletedTask;
     }
 }
+[ActionInfo("SystemTools.AutoHideMainWindowWhenOccluded", "遮挡文字时隐藏主界面", "\uEEE3", false)]
+public sealed class NativeTextOcclusionAction(MainConfigHandler config, FeatureCatalog catalog) : ActionBase<NativeBackgroundSettings>
+{
+    protected override Task OnInvoke()
+    {
+        if (Settings.Enable) catalog.EnsureExecutable(ActionItem.Id);
+        config.Data.AutoHideMainWindowWhenOccluded = Settings.Enable; config.Save();
+        NativeActionFeedback.Notify(Settings.NotifyOnExecute, Settings.Enable ? "已开启文字避让" : "已关闭文字避让");
+        return Task.CompletedTask;
+    }
+}
 public sealed class NativeBackgroundSettingsControl : ActionSettingsControlBase<NativeBackgroundSettings>
 {
     protected override void OnInitialized()

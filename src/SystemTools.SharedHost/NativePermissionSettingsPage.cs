@@ -25,6 +25,11 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
         theme.IsEnabled = services.Advanced.Background?.Probe().CanExecute == true;
         theme.IsCheckedChanged += (_, _) => { Shared.GlobalConstants.MainConfig!.Data.AutoSwitchClassIslandTheme = theme.IsChecked == true; Shared.GlobalConstants.MainConfig.Save(); };
         panel.Children.Add(theme);
+        Add("文字识别", services.Advanced.TextRecognition);
+        var occlusion = new CheckBox { Content = "遮挡文字时隐藏主界面（无文字后自动恢复）", IsChecked = Shared.GlobalConstants.MainConfig!.Data.AutoHideMainWindowWhenOccluded };
+        occlusion.IsEnabled = services.Advanced.Background?.Probe().CanExecute == true && services.Advanced.TextRecognition?.Probe().CanExecute == true;
+        occlusion.IsCheckedChanged += (_, _) => { Shared.GlobalConstants.MainConfig!.Data.AutoHideMainWindowWhenOccluded = occlusion.IsChecked == true; Shared.GlobalConstants.MainConfig.Save(); };
+        panel.Children.Add(occlusion);
         Content = new ScrollViewer { Content = panel };
         void Add(string name, INativeCapability? capability)
         {

@@ -69,6 +69,7 @@ public static class SharedHostRegistration
         if (catalog.CanCreate("SystemTools.OpenProfileEditor")) services.AddAction<OpenProfileEditorAction, ShortcutKeyNotificationSettingsControl>();
         if (catalog.CanCreate("SystemTools.OpenClassSwapWindow")) services.AddAction<OpenClassSwapWindowAction, ShortcutKeyNotificationSettingsControl>();
         if (catalog.CanCreate("SystemTools.TriggerCustomTrigger")) services.AddAction<TriggerCustomTriggerAction, TriggerCustomTriggerSettingsControl>();
+        PortableSharedFeatures.Register(services, catalog);
         var group = new ActionMenuTreeGroup("SystemTools 行动", "\uE079");
         foreach (var status in catalog.Snapshot().Where(x => x.Feature.Kind == "action" && x.Capability.CanExecute))
             group.Children.Add(new ActionMenuTreeItem(status.Feature.Id, status.Feature.Name, "\uE079"));

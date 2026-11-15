@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 import m1
 
 POLICY = json.loads((m1.ROOT / 'eng/release-policy.json').read_text(encoding='utf-8'))
-SHARED = '''Copy Move Delete ToggleWorkflow LoadTemporaryClassPlan ClearAllNotifications OpenAppSettings OpenProfileEditor OpenClassSwapWindow TriggerCustomTrigger ReadFile NetworkStatus ClipboardContent LocalQuote NextClassDisplay BetterCarouselContainer ScrollingText ProcessRunningRule UsingClassPlanRule UsingTimeLayoutRule InTimePeriodRule'''.split()
+SHARED = '''ActionFlowExecutionConfirmation BackgroundPlayAudio BlackScreenHtml ActionInProgressTrigger MainWindowClickTrigger Copy Move Delete ToggleWorkflow LoadTemporaryClassPlan ClearAllNotifications OpenAppSettings OpenProfileEditor OpenClassSwapWindow TriggerCustomTrigger ReadFile NetworkStatus ClipboardContent LocalQuote NextClassDisplay BetterCarouselContainer ScrollingText ProcessRunningRule UsingClassPlanRule UsingTimeLayoutRule InTimePeriodRule'''.split()
 NATIVE = '''SetVolume LongIdleTrigger CloneDisplay ExtendDisplay InternalDisplay ExternalDisplay AdjustScreenBrightness AutoSwitchClassIslandTheme AutoHideMainWindowWhenOccluded ScreenShot UsbDeviceTrigger AutoOpenUsbDriveOnInsert SimulateKeyboard SimulateKeyCombination EnterKey EscKey F11Key HotkeyTrigger WindowOperation ShowFloatingWindow ToggleFloatingWindowLayer SwitchFloatingWindowTheme ToggleFloatingWindowProfile FloatingWindowTrigger ChangeWallpaper CameraCapture MediaMusicPlayingRule LyricsDisplay KeywordTrigger ShowAiChatDialog WakeUpVoiceConversationAi EnableVoiceWakeAi'''.split()
 
 
@@ -26,6 +26,8 @@ def capabilities():
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '共享实现；需设置与现场条件'
         if suffix in NATIVE:
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '原生接入；需权限/依赖/设备'
+        if suffix == 'MainWindowClickTrigger':
+            for rid in ('linux-x64', 'osx-arm64'): states[rid] = '主界面实际点击；穿透模式不触发'
         if suffix in ('AutoSwitchClassIslandTheme', 'AutoHideMainWindowWhenOccluded'): states['linux-x64'] = '不支持可靠排除自身捕获'
         if suffix in ('InternalDisplay', 'ExternalDisplay'): states['osx-arm64'] = '公共 API 不提供关闭单屏'
         if suffix in ('LyricsDisplay', 'MediaMusicPlayingRule'): states['osx-arm64'] = '未提供通用媒体会话'

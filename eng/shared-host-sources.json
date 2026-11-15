@@ -115,7 +115,14 @@
     "Config/KeywordTriggerConfig.cs",
     "Settings/EnableVoiceWakeAiActionSettings.cs",
     "Models/ComponentSettings/LyricsDisplaySettings.cs",
-    "Rules/MediaMusicPlayingRuleSettings.cs"
+    "Rules/MediaMusicPlayingRuleSettings.cs",
+    "Actions/ActionFlowExecutionConfirmationAction.cs",
+    "Settings/ActionFlowExecutionConfirmationSettings.cs",
+    "Controls/ActionFlowExecutionConfirmationSettingsControl.cs",
+    "Settings/BackgroundPlayAudioSettings.cs",
+    "Config/ActionInProgressTriggerConfig.cs",
+    "Config/MainWindowClickTriggerConfig.cs",
+    "Settings/ActionInProgressTriggerSettings.cs"
   ],
   "xaml": [
     "Controls/Components/BetterCarouselContainerComponent.axaml",

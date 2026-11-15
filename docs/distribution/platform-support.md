@@ -4,7 +4,7 @@
 
 | 稳定 ID | 名称 | Windows x64 | Linux x64 X11 | macOS ARM64 |
 | --- | --- | --- | --- | --- |
-| SystemTools.ActionFlowExecutionConfirmation | 行动流执行确认 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.ActionFlowExecutionConfirmation | 行动流执行确认 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.AdjustScreenBrightness | 调整屏幕亮度 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.AdvancedShutdown | 高级计时关机 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
 | SystemTools.AltF4 | 按下 Alt+F4 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
@@ -12,8 +12,8 @@
 | SystemTools.AutoHideMainWindowWhenOccluded | 遮挡文字时隐藏主界面 | 保留实现；需设置与现场条件 | 不支持可靠排除自身捕获 | 原生接入；需权限/依赖/设备 |
 | SystemTools.AutoOpenUsbDriveOnInsert | 自动播放 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.AutoSwitchClassIslandTheme | 自动切换 ClassIsland 主题 | 保留实现；需设置与现场条件 | 不支持可靠排除自身捕获 | 原生接入；需权限/依赖/设备 |
-| SystemTools.BackgroundPlayAudio | 后台播放音频 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.BlackScreenHtml | 黑屏html | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.BackgroundPlayAudio | 后台播放音频 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
+| SystemTools.BlackScreenHtml | 黑屏html | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.CameraCapture | 摄像头抓拍 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.CancelShutdown | 取消关机计划 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
 | SystemTools.ChangeWallpaper | 切换壁纸 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
@@ -73,12 +73,12 @@
 | SystemTools.NetworkStatus | 网络延迟检测 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.NextClassDisplay | 下节课是 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.ScrollingText |  LED 文本仿真显示框 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
-| SystemTools.ActionInProgressTrigger | 行动进行时 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.ActionInProgressTrigger | 行动进行时 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.FloatingWindowTrigger | 从悬浮窗触发 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.HotkeyTrigger | 按下自定义热键时 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.KeywordTrigger | 关键词触发 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.LongIdleTrigger | 长时间未操作电脑时 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.MainWindowClickTrigger | 点击主界面时 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.MainWindowClickTrigger | 点击主界面时 | 保留实现；需设置与现场条件 | 主界面实际点击；穿透模式不触发 | 主界面实际点击；穿透模式不触发 |
 | SystemTools.UsbDeviceTrigger | USB设备插入时 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ProcessRunningRule | 程序正在运行 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.UsingClassPlanRule | 正在使用某课程表 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |

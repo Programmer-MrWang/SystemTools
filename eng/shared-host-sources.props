@@ -134,5 +134,12 @@
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/EnableVoiceWakeAiActionSettings.cs" Link="Settings/EnableVoiceWakeAiActionSettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Models/ComponentSettings/LyricsDisplaySettings.cs" Link="Models/ComponentSettings/LyricsDisplaySettings.cs" />
     <SharedHostSource Include="$(MSBuildThisFileDirectory)../Rules/MediaMusicPlayingRuleSettings.cs" Link="Rules/MediaMusicPlayingRuleSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Actions/ActionFlowExecutionConfirmationAction.cs" Link="Actions/ActionFlowExecutionConfirmationAction.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ActionFlowExecutionConfirmationSettings.cs" Link="Settings/ActionFlowExecutionConfirmationSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Controls/ActionFlowExecutionConfirmationSettingsControl.cs" Link="Controls/ActionFlowExecutionConfirmationSettingsControl.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/BackgroundPlayAudioSettings.cs" Link="Settings/BackgroundPlayAudioSettings.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/ActionInProgressTriggerConfig.cs" Link="Config/ActionInProgressTriggerConfig.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Config/MainWindowClickTriggerConfig.cs" Link="Config/MainWindowClickTriggerConfig.cs" />
+    <SharedHostSource Include="$(MSBuildThisFileDirectory)../Settings/ActionInProgressTriggerSettings.cs" Link="Settings/ActionInProgressTriggerSettings.cs" />
   </ItemGroup>
 </Project>

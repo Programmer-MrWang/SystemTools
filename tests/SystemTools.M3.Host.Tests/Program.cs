@@ -33,9 +33,9 @@ try
     services.AddSingleton(catalog);
     SharedHostRegistration.Initialize(configFolder, temporary, services, catalog);
     Check(catalog.CanCreate("SystemTools.Copy") && !catalog.CanCreate("SystemTools.CameraCapture"), "共享注册仅开放已接入实现");
-    Check(IAutomationService.RegisteredTriggers.Count == 0 && IRulesetService.Rules.Count == 4, "共享注册不捏造原生触发器并提供四项基础规则");
+    Check(IAutomationService.RegisteredTriggers.Count == 2 && IRulesetService.Rules.Count == 4, "共享注册提供两项已实现触发器和四项基础规则");
     Check(ComponentRegistryService.Registered.Count == 6, "六项基础组件完成真实宿主契约注册");
-    Check(services.Count(x => x.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService)) == 1 && services.Count(x => x.ServiceType == typeof(SystemToolsNotificationProvider)) == 1, "通知提供方与托管服务各注册一次");
+    Check(services.Count(x => x.ServiceType == typeof(Microsoft.Extensions.Hosting.IHostedService)) == 2 && services.Count(x => x.ServiceType == typeof(SystemToolsNotificationProvider)) == 1, "通知提供方和自有窗口生命周期各注册一次");
     using var provider = services.BuildServiceProvider();
     var main = provider.GetRequiredService<MainConfigHandler>();
     main.Data.FloatingWindowLiquidGlass.CornerRadius = 21;

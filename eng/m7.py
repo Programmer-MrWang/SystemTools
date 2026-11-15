@@ -24,7 +24,7 @@ POLICY = release_inventory.POLICY
 
 def check():
     m6.check()
-    results = list(json.loads((ROOT / 'artifacts/m6/checks.json').read_text())['checks'])
+    results = list(json.loads((ROOT / 'artifacts/m6/checks.json').read_text(encoding='utf-8'))['checks'])
     commands = [('m7-contracts', ['dotnet', 'run', '--project', 'tests/SystemTools.M7.Tests', '-c', 'Release']),
                 ('m7-lifecycle', [sys.executable, '-B', 'eng/test_release_lifecycle.py']),
                 ('m7-migration', [sys.executable, '-B', 'eng/test_migration_cli.py']),
@@ -86,22 +86,22 @@ def audit(package, output=None):
         manifest = (root / 'manifest.yml').read_text(encoding='utf-8')
         for key, expected in [('id', POLICY['pluginId']), ('version', POLICY['version']), ('apiVersion', POLICY['hostApiVersion'])]:
             if not re.search(r'^' + key + r':\s*' + re.escape(expected) + r'\s*$', manifest, re.M): raise RuntimeError('插件身份/版本/API 不符：' + key)
-        policy = json.loads((root / 'release/policy.json').read_text())
+        policy = json.loads((root / 'release/policy.json').read_text(encoding='utf-8'))
         if policy != POLICY or policy['channel'] != 'rc': raise RuntimeError('候选策略不符。')
-        capabilities = json.loads((root / 'release/capabilities.json').read_text())
+        capabilities = json.loads((root / 'release/capabilities.json').read_text(encoding='utf-8'))
         if capabilities != release_inventory.capabilities(): raise RuntimeError('能力文档与源码台账不同。')
-        if (root / 'release/platform-support.md').read_text() != release_inventory.support_markdown(capabilities): raise RuntimeError('平台表未由同一台账生成。')
+        if (root / 'release/platform-support.md').read_text(encoding='utf-8') != release_inventory.support_markdown(capabilities): raise RuntimeError('平台表未由同一台账生成。')
         for rid in POLICY['runtimeIds']:
-            dependency = json.loads((root / ('release/dependency-audit-' + rid + '.json')).read_text())
+            dependency = json.loads((root / ('release/dependency-audit-' + rid + '.json')).read_text(encoding='utf-8'))
             if (not dependency.get('passed') or dependency.get('vulnerabilities') or dependency.get('commit') != metadata['commit']
                     or dependency.get('sourceHash') != metadata['sourceHash'] or dependency.get('runtimeId') != rid):
                 raise RuntimeError('依赖审计缺失、失败或未绑定当前来源：' + rid)
-            legal = json.loads((root / ('release/licenses-' + rid + '.json')).read_text())
+            legal = json.loads((root / ('release/licenses-' + rid + '.json')).read_text(encoding='utf-8'))
             if not legal.get('packages'): raise RuntimeError('缺少依赖许可证清单。')
             for item in legal['packages']:
                 for notice in item['notices']:
                     if not m2.safe_name(notice['file']) or m1.sha(root / notice['file']) != notice['sha256']: raise RuntimeError('许可证内容损坏。')
-        worker = json.loads((root / 'release/worker-dependency-audit-win-x64.json').read_text())
+        worker = json.loads((root / 'release/worker-dependency-audit-win-x64.json').read_text(encoding='utf-8'))
         if not worker.get('passed') or worker.get('vulnerabilities') or worker.get('commit') != metadata['commit'] or worker.get('sourceHash') != metadata['sourceHash']:
             raise RuntimeError('Windows Worker 依赖审计不符。')
         binaries = {m2.MAC_NATIVE: 'osx-arm64', m2.MAC_COMPANION_EXECUTABLE: 'osx-arm64',
@@ -120,7 +120,7 @@ def audit(package, output=None):
 
 def gate(package, lifecycle=None, output=None, publication_approved=False):
     report = audit(package)
-    proof = json.loads(Path(lifecycle).read_text()) if lifecycle else {}
+    proof = json.loads(Path(lifecycle).read_text(encoding='utf-8')) if lifecycle else {}
     lifecycle_passed = bool(proof.get('passed') and proof.get('packageSha256') == report['packageSha256'])
     platform_passed = lifecycle_passed and set(proof.get('runtimeIds', [])) == set(POLICY['runtimeIds']) and proof.get('fullPlatformAcceptance') is True
     signature = False; notarization = False

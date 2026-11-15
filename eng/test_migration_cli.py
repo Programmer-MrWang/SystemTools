@@ -27,18 +27,18 @@ class MigrationCliTests(unittest.TestCase):
 
     def test_preview_apply_and_rollback(self):
         self.assertEqual(self.run_cli('preview', self.plan).returncode, 0)
-        self.assertEqual(self.target.read_text(), '{"original":true}')
+        self.assertEqual(self.target.read_text(encoding='utf-8'), '{"original":true}')
         self.assertEqual(self.run_cli('apply', self.reviewed).returncode, 0)
-        migrated = json.loads(self.target.read_text()); self.assertEqual(migrated['unknown'], 17); self.assertEqual(migrated['key'], 'opaque')
+        migrated = json.loads(self.target.read_text(encoding='utf-8')); self.assertEqual(migrated['unknown'], 17); self.assertEqual(migrated['key'], 'opaque')
         journal = next((self.root / '.migrations').glob('*/journal.json'))
         self.assertEqual(self.run_cli('rollback', journal).returncode, 0)
-        self.assertEqual(self.target.read_text(), '{"original":true}')
+        self.assertEqual(self.target.read_text(encoding='utf-8'), '{"original":true}')
 
     def test_changed_source_and_target_are_rejected(self):
         self.assertEqual(self.run_cli('preview', self.plan).returncode, 0)
         self.source.write_text('{"changed":true}')
         self.assertNotEqual(self.run_cli('apply', self.reviewed).returncode, 0)
-        self.assertEqual(self.target.read_text(), '{"original":true}')
+        self.assertEqual(self.target.read_text(encoding='utf-8'), '{"original":true}')
 
     def test_unreviewed_plan_and_replacing_preview_are_rejected(self):
         self.assertNotEqual(self.run_cli('apply', self.plan).returncode, 0)

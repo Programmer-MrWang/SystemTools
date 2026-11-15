@@ -13,7 +13,7 @@ import release_inventory as inventory
 
 class M7PackagingTests(unittest.TestCase):
     def test_generated_matrix_covers_exactly_the_runtime_ledger(self):
-        actual = inventory.capabilities(); expected = json.loads((m1.ROOT / 'src/SystemTools.Contracts/Features.json').read_text())
+        actual = inventory.capabilities(); expected = json.loads((m1.ROOT / 'src/SystemTools.Contracts/Features.json').read_text(encoding='utf-8'))
         self.assertEqual([x['Id'] for x in actual['features']], [x['Id'] for x in expected])
         self.assertEqual(len({x['Id'] for x in actual['features']}), len(expected))
         self.assertIn('SystemTools.CameraCapture', inventory.support_markdown(actual))
@@ -28,7 +28,7 @@ class M7PackagingTests(unittest.TestCase):
         self.assertIn('原未注册', rows['SystemTools.ClickSimulation']['platforms']['win-x64'])
 
     def test_workflow_keeps_supported_architectures_and_locked_sdk(self):
-        workflow = (m1.ROOT / '.github/workflows/m1-cross-platform.yml').read_text()
+        workflow = (m1.ROOT / '.github/workflows/m1-cross-platform.yml').read_text(encoding='utf-8')
         for rid in m7.POLICY['runtimeIds']: self.assertIn(rid, workflow)
         self.assertNotIn('arm74', workflow)
         self.assertIn(m7.POLICY['sdk'], workflow)

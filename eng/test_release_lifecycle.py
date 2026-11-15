@@ -75,7 +75,7 @@ class LifecycleTests(unittest.TestCase):
     def test_new_data_after_seal_is_never_overwritten(self):
         journal = self.install(); lifecycle.seal(self.root, journal); (self.config / 'extra.json').write_text('new')
         with self.assertRaisesRegex(RuntimeError, '拒绝覆盖'): lifecycle.rollback(self.root, journal)
-        self.assertEqual((self.config / 'extra.json').read_text(), 'new')
+        self.assertEqual((self.config / 'extra.json').read_text(encoding='utf-8'), 'new')
 
     def test_corrupt_backup_prevents_all_rollback_writes(self):
         journal = self.install(); current = lifecycle.tree(self.root / lifecycle.OWNED[0])

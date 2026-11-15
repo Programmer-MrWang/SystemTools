@@ -50,7 +50,7 @@ def run_host(host_app, root, label, expected='Loaded', kind='M7', timeout=55):
             try: process.wait(timeout=5)
             except subprocess.TimeoutExpired: process.kill(); process.wait(timeout=5)
     after = m1.sha(global_path) if global_path.exists() else None
-    acceptance = json.loads((run / 'acceptance.json').read_text()) if (run / 'acceptance.json').exists() else None
+    acceptance = json.loads((run / 'acceptance.json').read_text(encoding='utf-8')) if (run / 'acceptance.json').exists() else None
     result = dict(label=label, expected=expected, packageKind=kind, hostSha256=m1.sha(host), host=str(host_app), run=str(run),
                   exitCode=process.returncode, timedOut=timed_out, forcedStop=forced, globalUnchanged=before == after, acceptance=acceptance)
     result['passed'] = bool(acceptance and acceptance['passed'] and process.returncode == 0 and not timed_out and not forced and before == after)
@@ -60,7 +60,7 @@ def run_host(host_app, root, label, expected='Loaded', kind='M7', timeout=55):
 
 
 def verify_boundary(baseline):
-    data = json.loads(Path(baseline).read_text()); checked = 0
+    data = json.loads(Path(baseline).read_text(encoding='utf-8')); checked = 0
     for name, info in data['repos'].items():
         root = Path(name)
         if subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip() != info['head']: raise RuntimeError('宿主 HEAD 变化。')

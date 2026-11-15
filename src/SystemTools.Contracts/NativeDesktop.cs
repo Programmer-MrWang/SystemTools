@@ -77,6 +77,7 @@ public sealed class NativeDesktopServices : IDisposable
     public IWindowOperations? Windows { get; init; }
     public IDesktopWallpaper? Wallpaper { get; init; }
     public ICameraCapture? Camera { get; init; }
+    public AdvancedDesktopServices Advanced { get; init; } = new();
     private readonly CancellationTokenSource _stop = new();
     public CancellationToken Stopping => _stop.Token;
     private int _disposed;
@@ -87,7 +88,7 @@ public sealed class NativeDesktopServices : IDisposable
         List<Exception> failures = [];
         try { _stop.Cancel(); } catch (Exception error) { failures.Add(error); }
         var seen = new HashSet<object>(ReferenceEqualityComparer.Instance);
-        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices, Keyboard, Hotkeys, Windows, Wallpaper, Camera }.OfType<IDisposable>())
+        foreach (var resource in new object?[] { Volume, Idle, ScreenCapture, UsbDevices, Keyboard, Hotkeys, Windows, Wallpaper, Camera, Advanced }.OfType<IDisposable>())
             if (seen.Add(resource))
                 try { resource.Dispose(); } catch (Exception error) { failures.Add(error); }
         if (failures.Count != 0) throw new AggregateException("部分平台资源清理失败。", failures);

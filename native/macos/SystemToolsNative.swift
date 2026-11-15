@@ -463,6 +463,13 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
 
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
+    if operation == "background.probe" { return screenCapability() }
+    if operation == "background.capture" {
+        guard #available(macOS 14.0, *), CGPreflightScreenCaptureAccess() else {
+            throw NativeFailure(state: "PermissionRequired", message: "背景捕获需要 macOS 14 和屏幕录制权限。")
+        }
+        return try captureBackground(request)
+    }
     if operation.hasPrefix("camera.") || operation.hasPrefix("microphone.") {
         return ["state": "Unsupported", "reason": "相机和麦克风由 SystemTools 采集助手提供，请通过插件媒体设置连接。"]
     }
@@ -536,3 +543,52 @@ public func nativeCall(_ pointer: UnsafePointer<CChar>?) -> UnsafeMutablePointer
 
 @_cdecl("systemtools_native_free")
 public func nativeFree(_ pointer: UnsafeMutableRawPointer?) { free(pointer) }
+
+// ScreenCaptureKit excludes the entire host application, including hidden and newly opened plugin windows.
+@available(macOS 14.0, *)
+func captureBackground(_ request: [String: Any]) throws -> [String: Any] {
+    guard !Thread.isMainThread, let x = request["x"] as? Double, let y = request["y"] as? Double,
+          let width = request["width"] as? Double, let height = request["height"] as? Double,
+          [x, y, width, height].allSatisfy({ $0.isFinite }), width > 0, height > 0, width <= 8192, height <= 8192 else {
+        throw NativeFailure(state: "Unsupported", message: "背景采集区域无效或不在后台线程。")
+    }
+    let region = CGRect(x: x, y: y, width: width, height: height)
+    let completed = DispatchSemaphore(value: 0)
+    let lock = NSLock()
+    var result: [String: Any]?
+    var failure: Error?
+    let task = Task {
+        do {
+            let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: false)
+            guard let display = content.displays.first(where: { CGDisplayBounds($0.displayID).contains(region) }) else {
+                throw NativeFailure(state: "MissingDevice", message: "区域跨越显示器或显示器已移除，请移动窗口后重试。")
+            }
+            let bounds = CGDisplayBounds(display.displayID)
+            let scale = Double(CGDisplayPixelsWide(display.displayID)) / bounds.width
+            let configuration = SCStreamConfiguration()
+            configuration.sourceRect = CGRect(x: x - bounds.minX, y: y - bounds.minY, width: width, height: height)
+            configuration.width = Int(ceil(width * scale))
+            configuration.height = Int(ceil(height * scale))
+            guard configuration.width * configuration.height <= 16_000_000 else {
+                throw NativeFailure(state: "Unsupported", message: "背景区域像素过大，请缩小窗口。")
+            }
+            configuration.showsCursor = false
+            let filter = SCContentFilter(display: display, excludingApplications: content.applications.filter { $0.processID == getpid() }, exceptingWindows: [])
+            let image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: configuration)
+            try Task.checkCancellation()
+            guard let png = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]) else {
+                throw NativeFailure(state: "MissingDevice", message: "无法编码背景。")
+            }
+            lock.withLock { result = ["state": "Available", "png": png.base64EncodedString(), "width": image.width,
+                                      "height": image.height, "excludedProcessId": getpid()] }
+        } catch { lock.withLock { failure = error } }
+        completed.signal()
+    }
+    guard completed.wait(timeout: .now() + 15) == .success else {
+        task.cancel()
+        throw NativeFailure(state: "MissingDevice", message: "背景捕获超时，画面未保存。")
+    }
+    if let error = lock.withLock({ failure }) { throw error }
+    guard let reply = lock.withLock({ result }) else { throw NativeFailure(state: "MissingDevice", message: "背景没有返回画面。") }
+    return reply
+}

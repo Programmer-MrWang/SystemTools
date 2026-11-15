@@ -112,7 +112,8 @@ def stage(target=None, milestone='M4'):
             shutil.copy2(path, output)
         native = windows / 'runtimes/win-x64'
         if native.is_dir():
-            shutil.copytree(native, destination / m2.PRIVATE / 'runtimes/win-x64')
+            shutil.copytree(native, destination / m2.PRIVATE / 'runtimes/win-x64',
+                            ignore=lambda folder, names: [name for name in names if name.casefold() in shared or name.casefold().startswith(m2.HOST_PREFIXES)])
         shutil.copytree(ROOT / 'VoskWorker/bin/Release/net10.0/win-x64', destination / m2.PRIVATE / 'VoskWorker')
         for name in m2.EXTRAS:
             shutil.copy2(ROOT / name, destination / name)

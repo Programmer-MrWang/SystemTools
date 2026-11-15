@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 PIN = json.loads((ROOT / 'eng/npoi-source.json').read_text(encoding='utf-8'))
 PROVENANCE = dict(PIN, buildScriptSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), sdk='10.0.403',
-    patches=['System.Security.Cryptography.Xml 10.0.10 -> 10.0.15', 'Explicit ordinal compile input order across operating systems'], targetFramework='net10.0')
+    patches=['System.Security.Cryptography.Xml 10.0.10 -> 10.0.15', 'Explicit ordinal compile input order across operating systems', 'Canonical uncompressed NuGet ZIP metadata'], targetFramework='net10.0')
 WORK = ROOT / 'artifacts/dependencies/npoi'
 PACKAGE = WORK / 'feed' / (PIN['packageId'] + '.' + PIN['packageVersion'] + '.nupkg')
 
@@ -94,9 +94,9 @@ def build():
     files.update({'lib/net10.0/' + name: (binaries / name).read_bytes() for name in names})
     PACKAGE.parent.mkdir(exist_ok=True)
     temporary = PACKAGE.with_suffix('.writing')
-    with zipfile.ZipFile(temporary, 'w', zipfile.ZIP_DEFLATED) as output:
+    with zipfile.ZipFile(temporary, 'w', zipfile.ZIP_STORED) as output:
         for name, data in sorted(files.items()):
-            entry = zipfile.ZipInfo(name, (2020, 1, 1, 0, 0, 0)); entry.compress_type = zipfile.ZIP_DEFLATED
+            entry = zipfile.ZipInfo(name, (2020, 1, 1, 0, 0, 0)); entry.compress_type = zipfile.ZIP_STORED; entry.create_system = 3; entry.external_attr = 0o100644 << 16
             output.writestr(entry, data)
     os.replace(temporary, PACKAGE)
     print('SOURCE NPOI:', PACKAGE, flush=True)

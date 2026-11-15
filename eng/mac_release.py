@@ -73,8 +73,8 @@ def preflight(package, identity=None, team=None, profile=None):
                             'submit ZIP using Keychain profile', 'require Accepted', 'staple companion', 'verify signatures and Gatekeeper', 'repack new CIPX'])
 
 
-def repack(root, metadata, output, state, proof):
-    metadata['macDistribution'] = dict(state=state, proof=proof, affectsOnly='SystemTools-owned assets')
+def repack(root, metadata, output, state, proof, team=None):
+    metadata['macDistribution'] = dict(state=state, teamId=team, proof=proof, affectsOnly='SystemTools-owned assets')
     metadata['files'] = {p.relative_to(root).as_posix(): m1.sha(p) for p in root.rglob('*') if p.is_file() and p.name != 'm2-package.json'}
     m1.write_json(root / 'm2-package.json', metadata)
     return m2.package(root, output)
@@ -95,7 +95,7 @@ def process(operation, package, output=None, identity=None, team=None, profile=N
         if operation == 'sign':
             for arguments in sign_commands(root, identity, team): command(arguments)
             proof = verify_tree(root, team)
-            return repack(root, metadata, output, 'developer-id-not-notarized', proof)
+            return repack(root, metadata, output, 'developer-id-not-notarized', proof, team)
         if not profile: raise RuntimeError('公证需要事先在本机配置的 Keychain profile；不要在聊天或参数中放密码。')
         verify_tree(root, team)
         submission = Path(temporary) / 'SystemTools.zip'
@@ -104,7 +104,7 @@ def process(operation, package, output=None, identity=None, team=None, profile=N
         if proof.get('status') != 'Accepted': raise RuntimeError('Apple 公证未接受：' + json.dumps(proof))
         command(['xcrun', 'stapler', 'staple', root / m2.MAC_COMPANION])
         verify_tree(root, team, notarized=True)
-        return repack(root, metadata, output, 'developer-id-notarized', proof)
+        return repack(root, metadata, output, 'developer-id-notarized', proof, team)
 
 
 def main():

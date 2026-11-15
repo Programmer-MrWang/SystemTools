@@ -54,6 +54,11 @@ def safe_name(name):
     return (bool(parts) and not name.startswith('/') and '\\' not in name and ':' not in name
             and all(part not in ('.', '..', '') for part in name.split('/')))
 
+def release_asset(name):
+    if not name.startswith('release/') or not safe_name(name): return False
+    if name.startswith('release/licenses/') and name.endswith('.txt'): return True
+    return (len(PurePosixPath(name).parts) == 2 and name.endswith(('.json', '.md', '.txt')))
+
 def verify_files(names, manifest, read):
     expected = set(manifest['files']) | {'m2-package.json'}
     if len(names) != len(set(name.casefold() for name in names)) or set(names) != expected:
@@ -81,11 +86,11 @@ def verify_files(names, manifest, read):
         if '/' not in name:
             if name not in set(m1.COMMON + MODULES + EXTRAS):
                 raise RuntimeError('Unexpected root file: ' + name)
-        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/') and name != MAC_NATIVE and name not in MEDIA_NATIVE.values() and name not in MAC_COMPANION_FILES:
+        elif not name.startswith(PRIVATE + '/') and not name.startswith(SHARED_PRIVATE + '/') and name != MAC_NATIVE and name not in MEDIA_NATIVE.values() and name not in MAC_COMPANION_FILES and not release_asset(name):
             raise RuntimeError('Unexpected platform asset: ' + name)
     if not set(m1.COMMON + MODULES).issubset(names):
         raise RuntimeError('Missing entry, contract or platform module.')
-    if manifest.get('milestone') in ('M5', 'M6') and not set(MAC_COMPANION_FILES).issubset(names):
+    if manifest.get('milestone') in ('M5', 'M6', 'M7') and not set(MAC_COMPANION_FILES).issubset(names):
         raise RuntimeError('M5 requires the independent Mac capture companion.')
 
 def validate(directory):

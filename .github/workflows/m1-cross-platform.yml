@@ -1,4 +1,4 @@
-name: M6 native builds and package aggregation
+name: M7 native candidate builds and package aggregation
 
 on:
   workflow_dispatch:
@@ -42,26 +42,26 @@ jobs:
         run: python -c "import sys; sys.path.insert(0, 'eng'); import m1; assert m1.native_rid() == '${{ matrix.rid }}'"
       - name: Native clean restore and build
         run: python eng/m1.py build --clean
-      - name: Shared and M6 regression without desktop mutation
-        run: python eng/m6.py check
+      - name: Shared and M7 regression without desktop mutation
+        run: python eng/m7.py check
       - name: Verify same-OS reproducible paths
         if: runner.os != 'Linux'
         run: python eng/check_reproducible.py
       # CI builds and pure contracts do not assert real X11, TCC or USB device acceptance.
-      - name: Stage M6 native outputs and private dependencies
-        run: python eng/m6.py stage --target ${{ matrix.rid }}
+      - name: Stage M7 native outputs and private dependencies
+        run: python eng/m7.py stage --target ${{ matrix.rid }}
       - uses: actions/upload-artifact@v4
         with:
-          name: m6-stage-${{ matrix.rid }}
-          path: artifacts/m6/stages/${{ matrix.rid }}
+          name: m7-stage-${{ matrix.rid }}
+          path: artifacts/m7/stages/${{ matrix.rid }}
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: m6-checks-${{ matrix.rid }}
+          name: m7-checks-${{ matrix.rid }}
           path: |
-            artifacts/m6/*.json
-            artifacts/m6/*.log
+            artifacts/m7/*.json
+            artifacts/m7/*.log
             artifacts/m3/*.log
             artifacts/m1/reproducibility-failure/**
           if-no-files-found: ignore
@@ -76,20 +76,20 @@ jobs:
           python-version: '3.12'
       - uses: actions/download-artifact@v4
         with:
-          pattern: m6-stage-*
-          path: artifacts/m6/downloads
+          pattern: m7-stage-*
+          path: artifacts/m7/downloads
       - name: Require matching source, SDK, shared binaries and native provenance
         run: >-
-          python eng/m6.py aggregate
-          --input artifacts/m6/downloads/m6-stage-win-x64
-          artifacts/m6/downloads/m6-stage-linux-x64
-          artifacts/m6/downloads/m6-stage-osx-arm64
-          --output artifacts/m6/SystemTools.M6.Native.cipx
+          python eng/m7.py aggregate
+          --input artifacts/m7/downloads/m7-stage-win-x64
+          artifacts/m7/downloads/m7-stage-linux-x64
+          artifacts/m7/downloads/m7-stage-osx-arm64
+          --output artifacts/m7/SystemTools.M7.Native.cipx
       - uses: actions/upload-artifact@v4
         with:
-          name: SystemTools-M6-native-build-aggregate
+          name: SystemTools-M7-native-build-aggregate
           path: |
-            artifacts/m6/SystemTools.M6.Native.cipx
-            artifacts/m6/SystemTools.M6.Native.cipx.sha256
-            artifacts/m6/aggregate-native/m2-package.json
+            artifacts/m7/SystemTools.M7.Native.cipx
+            artifacts/m7/SystemTools.M7.Native.cipx.sha256
+            artifacts/m7/aggregate-native/m2-package.json
           if-no-files-found: error

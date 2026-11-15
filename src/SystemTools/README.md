@@ -1,17 +1,13 @@
-# SystemTools 跨平台开发预览
+# SystemTools 3.0 候选版
 
-仅用于独立测试宿主数据目录。此包沿用正式 SystemTools 身份，不能覆盖日常插件或与原版并装。
+本包使用正式 SystemTools 身份和 3.0.0.0 版本，渠道为 rc。安装前退出宿主，先预览和备份旧插件与配置。不能与旧跨平台预览同时启用。支持 ClassIsland Avalonia/Misha API 2.2 宿主线；实际 Mac 验收宿主显示 2.1.1.1，不代表覆盖全部官方稳定版。
 
-Windows 已接入原版设置页、主题、行动、触发器、组件、规则、AI 与可选扩展。插件沿用 SystemTools 身份和旧配置键；沉浸式时钟按产品决定移除，原版未注册的 ClickSimulation 不新增入口。缺少扩展时保留配置并提供失败反馈；启用摄像头、认证和语音仍需要对应权限、组件与模型。
+随包 release/platform-support.md 和 release/capabilities.json 由功能台账生成，逐项说明 Windows x64、Linux x64 原生 X11、macOS Apple Silicon ARM64 的实现状态。条件接入仍受设置、系统权限、设备和依赖限制；构建通过不代表实体设备全部验收。
 
-Linux x64 原生 X11 与 macOS Apple Silicon ARM64 已接入共享文件行动、档案入口、基础规则、六项基础组件和主题。M4 新增系统音量、空闲触发、主屏 PNG 截图、USB 卷就绪检测与自动播放、全局热键、逻辑按键及 Unicode 输入、活动窗口操作、共享浮窗和壁纸/取色联动。共享配置、AI 会话与工具、Excel 和 SAI 公共代码使用同一份实现。
+Mac 相机和麦克风由独立 SystemTools Companion.app 实际采集并回传，授权对象为 SystemTools 采集助手；插件断开即停止设备。宿主源码和应用不需修改。首次使用通过“相机、语音与媒体”页明确申请权限。候选使用 ad-hoc 签名，未完成 Developer ID、公证和正式升级授权稳定性验证。
 
-Mac 截图需要录屏权限，模拟输入与外部窗口操作需要辅助功能权限；请通过“系统功能与权限”页明确请求。Mac 暂不支持等价置底、壁纸平铺和跨屏拼接。Linux 需要原生 X11，依赖 pactl、Xss、XRandR、xdotool、wmctrl、lsblk 等工具或系统库；壁纸提供 GNOME/KDE 适配，Wayland/XWayland 和其他桌面壁纸环境明确不可用。缺依赖或权限时保留原配置并反馈原因。
+离线语音需显式选择语言匹配的完整 Vosk 模型；FFmpeg、SAI、Linux 桌面工具、m1ddc/ddcutil 等按功能选配。Mac 模拟输入需辅助功能权限，背景与截图需录屏权限。Linux Wayland/XWayland 不提供同等入口；Linux 背景/OCR 和认证、Mac 通用媒体会话及关闭单屏等能力不伪装支持。
 
-M5 的 Mac 相机和麦克风由插件自带的 SystemTools Companion.app 实际采集，通过仅当前用户可访问的本地连接向插件回传图像与音频。首次使用请在“相机、语音与媒体”页申请两项权限，系统授权对象为 SystemTools 采集助手。助手提供菜单栏停止入口；插件退出或连接断开后停止设备并退出。此方案不要求修改 ClassIsland 源码或宿主用途声明。
+Windows 保留原功能和系统凭据保护；Mac/Linux 会话密钥只在内存使用，原有系统密文保持原样。旧版数据导入先预览冲突再选择，后续重启生效；升级快照和条件回退工具见源码 docs/distribution/install-upgrade-rollback.md。卸载保留配置和恢复资料。
 
-离线语音需要显式选择语言匹配的完整 Vosk 模型。当前助手采用本机开发签名，正式签名、公证和升级后的授权稳定性仍待发行阶段验证；重新编译可能需要重新授权。Windows 保留原有采集实现，Linux 继续使用对应平台后端。
-
-代码可在 Mac 上编译 Windows/Linux 后端；这类产物标记为交叉编译开发预览。原生三端汇总要求同一源码、提交、SDK 及公共程序集哈希。本机 Mac 候选包沿用历史异平台资产，明确标记为开发预览。Mac 本机结果、Windows/Linux 实机、USB 插拔、多屏、锁屏/唤醒和权限撤销分别记录，构建不代表全部系统运行通过。
-
-M3 提供“旧版本数据导入”设置页，先预览冲突再选择导入；导入后立即重启应用。来源文件保留，数据回退使用迁移日志。完整记录见 docs/validation/2026-11-14-m3.md。真实设备、权限和正式升级验收仍独立追踪，此包为开发预览。
+依赖版本、漏洞公告查询、来源与许可证随包保存。NPOI 从固定 Apache 源码构建，未使用需要额外 OSMF 条款的官方二进制。沉浸式时钟保持移除；原未注册 ClickSimulation 不新增入口。正式签名、公证、跨端实体设备和明确发布批准不足时，发行工具阻止提升为 stable。本候选不自动发布到市场或创建公开 Release。

@@ -2,6 +2,7 @@ using NPOI.HSSF.UserModel;
 using NPOI.XSSF.UserModel;
 using NPOI.SS.UserModel;
 using SystemTools;
+using SystemTools.Common.Migration;
 
 var checks = 0;
 void Check(bool value, string name) { if (!value) throw new Exception(name); Console.WriteLine($"PASS {++checks}: {name}"); }
@@ -31,5 +32,19 @@ try
     }
     Check(!AppDomain.CurrentDomain.GetAssemblies().Any(x => x.GetName().Name == "SixLabors.ImageSharp"), "Excel 与图片处理不加载旧 ImageSharp");
 
+    var folder = Path.Combine(root, "config"); Directory.CreateDirectory(Path.Combine(folder, "Attachments"));
+    File.WriteAllText(Path.Combine(folder, "Main.json"), "{\"unknown\":7,\"aiApiKey\":\"dpapi:opaque\"}");
+    File.WriteAllBytes(Path.Combine(folder, "Attachments", "data.bin"), [0, 1, 255]);
+    foreach (var invalid in new[] { "", ".", "..", "../escape" })
+        try { UpgradeSnapshot.Ensure(folder, invalid); throw new Exception("无效版本被接受"); }
+        catch (ArgumentException) { Check(true, "拒绝无效快照版本：" + invalid); }
+    var snapshot = UpgradeSnapshot.Ensure(folder, "3.0.0.0");
+    Check(File.ReadAllText(Path.Combine(snapshot, "files", "Main.json")).Contains("dpapi:opaque"), "升级前快照逐字节保留未知字段和密文");
+    Check(File.ReadAllBytes(Path.Combine(snapshot, "files", "Attachments", "data.bin")).SequenceEqual(new byte[] { 0, 1, 255 }), "升级前快照保留附件");
+    File.WriteAllText(Path.Combine(folder, "Main.json"), "{\"new\":true}");
+    Check(UpgradeSnapshot.Ensure(folder, "3.0.0.0") == snapshot && File.ReadAllText(Path.Combine(snapshot, "files", "Main.json")).Contains("unknown"), "同版本重启不覆盖升级前快照");
+    if (!OperatingSystem.IsWindows()) Check((File.GetUnixFileMode(snapshot) & (UnixFileMode.GroupRead | UnixFileMode.OtherRead)) == 0, "升级备份仅当前用户可读");
+    File.WriteAllText(Path.Combine(snapshot, "files", "Main.json"), "tampered");
+    try { UpgradeSnapshot.Ensure(folder, "3.0.0.0"); throw new Exception("损坏快照被接受"); } catch (IOException) { Check(true, "损坏快照阻止后续升级写入"); }
 }
 finally { Directory.Delete(root, recursive: true); }

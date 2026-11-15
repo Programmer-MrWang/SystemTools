@@ -33,6 +33,7 @@ public sealed class Plugin : PluginBase
                     System.Text.Json.JsonSerializer.Serialize(new { passed = false, error = ex.ToString() }));
             throw;
         }
+        ReleaseStartup.Prepare(PluginConfigFolder, Info.Manifest.Version);
         var catalog = new FeatureCatalog(backend.Describe().RuntimeId);
         services.AddSingleton(catalog);
         if (backend is IPlatformPlugin platformPlugin)

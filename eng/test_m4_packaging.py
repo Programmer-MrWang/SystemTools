@@ -157,5 +157,35 @@ class M4PackagingTests(unittest.TestCase):
             self.aggregate()
 
 
+    def prepare_m6(self, companion=True):
+        for stage, rid in zip(self.stages, m1.MODULES):
+            names = ([m2.MEDIA_NATIVE[rid]] if rid in m2.MEDIA_NATIVE else [])
+            if rid == 'osx-arm64' and companion: names += list(m2.MAC_COMPANION_FILES)
+            for name in names:
+                path = stage / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('M6 native fixture')
+            self.manifest(stage, rid, milestone='M6')
+
+    def test_m6_aggregate_requires_original_native_bridge(self):
+        self.prepare_m6()
+        self.assertTrue(self.aggregate().is_file())
+        (self.stages[2] / m2.MAC_NATIVE).unlink()
+        self.manifest(self.stages[2], 'osx-arm64', milestone='M6')
+        with self.assertRaisesRegex(RuntimeError, 'Missing required'):
+            self.aggregate()
+
+    def test_m6_cannot_drop_companion(self):
+        self.prepare_m6(companion=False)
+        with self.assertRaisesRegex(RuntimeError, 'Missing required'):
+            self.aggregate()
+
+    def test_m6_and_m5_sources_cannot_be_mixed(self):
+        self.prepare_m6()
+        self.manifest(self.stages[1], 'linux-x64', milestone='M5')
+        with self.assertRaisesRegex(RuntimeError, 'different commits'):
+            self.aggregate()
+
+
 if __name__ == '__main__':
     unittest.main()

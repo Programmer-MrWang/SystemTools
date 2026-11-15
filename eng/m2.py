@@ -85,7 +85,7 @@ def verify_files(names, manifest, read):
             raise RuntimeError('Unexpected platform asset: ' + name)
     if not set(m1.COMMON + MODULES).issubset(names):
         raise RuntimeError('Missing entry, contract or platform module.')
-    if manifest.get('milestone') == 'M5' and not set(MAC_COMPANION_FILES).issubset(names):
+    if manifest.get('milestone') in ('M5', 'M6') and not set(MAC_COMPANION_FILES).issubset(names):
         raise RuntimeError('M5 requires the independent Mac capture companion.')
 
 def validate(directory):

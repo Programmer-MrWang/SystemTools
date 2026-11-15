@@ -19,7 +19,7 @@ public sealed class HardwareBrightnessService : IHardwareBrightness
     }
     public Capability Probe()
     {
-        try { return ListAsync(default).GetAwaiter().GetResult().Count > 0 ? new(CapabilityState.Available) : new(CapabilityState.MissingDevice, "没有可写 sysfs 背光或可读取的 DDC 显示器，请检查设备、ddcutil 和权限。"); }
+        try { return Task.Run(() => ListAsync(default)).GetAwaiter().GetResult().Count > 0 ? new(CapabilityState.Available) : new(CapabilityState.MissingDevice, "没有可写 sysfs 背光或可读取的 DDC 显示器，请检查设备、ddcutil 和权限。"); }
         catch (Exception error) { return new(CapabilityState.PermissionRequired, error.Message); }
     }
     public async Task<IReadOnlyList<BrightnessDevice>> ListAsync(CancellationToken token)

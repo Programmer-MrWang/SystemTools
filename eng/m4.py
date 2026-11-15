@@ -24,7 +24,7 @@ def verify_stage(stage):
     stage = Path(stage).resolve()
     manifest = json.loads((stage / 'm4-stage.json').read_text(encoding='utf-8'))
     target = manifest.get('runtimeId')
-    if (manifest.get('schemaVersion') != 1 or manifest.get('milestone') not in ('M4', 'M5')
+    if (manifest.get('schemaVersion') != 1 or manifest.get('milestone') not in ('M4', 'M5', 'M6')
             or target not in m1.MODULES or manifest.get('buildRuntime') not in m1.MODULES
             or manifest.get('kind') not in ('native', 'cross-compiled')
             or (manifest['kind'] == 'native') != (target == manifest['buildRuntime'])
@@ -34,9 +34,9 @@ def verify_stage(stage):
     required = set(m1.COMMON + [m1.module_name(target)])
     if target == 'osx-arm64': required.add(m2.MAC_NATIVE)
     if target == 'win-x64': required.update(WINDOWS_REQUIRED)
-    if manifest.get('milestone') == 'M5' and target in m2.MEDIA_NATIVE:
+    if manifest.get('milestone') in ('M5', 'M6') and target in m2.MEDIA_NATIVE:
         required.add(m2.MEDIA_NATIVE[target])
-    if manifest.get('milestone') == 'M5' and target == 'osx-arm64':
+    if manifest.get('milestone') in ('M5', 'M6') and target == 'osx-arm64':
         required.update(m2.MAC_COMPANION_FILES)
     if not required.issubset(manifest['files']):
         raise RuntimeError('Missing required stage assets.')
@@ -88,14 +88,14 @@ def stage(target=None, milestone='M4'):
             raise RuntimeError('Mac stage requires the native Swift bridge, compiled on a Mac.')
         (destination / m2.MAC_NATIVE).parent.mkdir(parents=True)
         shutil.copy2(native, destination / m2.MAC_NATIVE)
-        if milestone == 'M5':
+        if milestone in ('M5', 'M6'):
             for name in m2.MAC_COMPANION_FILES:
                 output = destination / name
                 output.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(entry / name, output)
     if target in m2.MEDIA_NATIVE:
         speech = entry / m2.MEDIA_NATIVE[target]
-        if milestone == 'M5' and not speech.is_file():
+        if milestone in ('M5', 'M6') and not speech.is_file():
             raise RuntimeError('M5 requires the current platform speech library.')
         if speech.is_file():
             (destination / m2.MEDIA_NATIVE[target]).parent.mkdir(parents=True, exist_ok=True)

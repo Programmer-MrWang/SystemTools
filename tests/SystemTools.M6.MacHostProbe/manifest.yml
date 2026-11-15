@@ -1,0 +1,11 @@
+id: SystemTools.M6.MacHostProbe
+name: M6 Mac 桌面能力隔离验收
+entranceAssembly: SystemTools.M6.MacHostProbe.dll
+version: 1.0.0.0
+apiVersion: 2.2.0.0
+author: SystemTools
+supportedOSPlatforms:
+- macOS
+dependencies:
+- id: SystemTools
+  isRequired: false

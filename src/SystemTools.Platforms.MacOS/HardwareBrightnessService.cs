@@ -19,7 +19,7 @@ public sealed class HardwareBrightnessService : IHardwareBrightness
     }
     public Capability Probe()
     {
-        try { return ListAsync(default).GetAwaiter().GetResult().Count > 0 ? new(CapabilityState.Available) : new(CapabilityState.Unsupported, "本机没有可读写的公共 IOKit 背光后端；外屏需安装 m1ddc 且显示器/端口支持 DDC，软件遮罩不作为背光替代。"); }
+        try { return Task.Run(() => ListAsync(default)).GetAwaiter().GetResult().Count > 0 ? new(CapabilityState.Available) : new(CapabilityState.Unsupported, "本机没有可读写的公共 IOKit 背光后端；外屏需安装 m1ddc 且显示器/端口支持 DDC，软件遮罩不作为背光替代。"); }
         catch (Exception error) { return new(CapabilityState.MissingDevice, error.Message); }
     }
     public async Task<IReadOnlyList<BrightnessDevice>> ListAsync(CancellationToken token)

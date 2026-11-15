@@ -25,7 +25,7 @@ public sealed class DisplayConfigurationService : IDisplayConfiguration, IDispos
         try
         {
             using var connection = new X11Connection();
-            XrandrLayout.ApplyArguments(Read(default).GetAwaiter().GetResult(), layout);
+            XrandrLayout.ApplyArguments(Task.Run(() => Read(default)).GetAwaiter().GetResult(), layout);
             return new(CapabilityState.Available);
         }
         catch (Exception error) when (error is IOException or InvalidOperationException or TimeoutException or System.ComponentModel.Win32Exception or DllNotFoundException)

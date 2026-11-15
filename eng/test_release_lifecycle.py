@@ -5,6 +5,9 @@ from unittest.mock import patch
 import json
 import os
 import tempfile
+import subprocess
+import sys
+import time
 import unittest
 import m1
 import m2
@@ -106,6 +109,30 @@ class LifecycleTests(unittest.TestCase):
         with patch.object(lifecycle.os, 'replace', side_effect=crash):
             with self.assertRaises(SystemExit): lifecycle.rollback(self.root, journal)
         lifecycle.rollback(self.root, journal); self.restored()
+
+    def test_killed_installer_process_recovers_from_durable_journal(self):
+        marker = self.folder / 'installer-paused'
+        script = """import sys,time,os
+from pathlib import Path
+import release_lifecycle as module
+original=os.replace
+def replace(source,target):
+ if Path(source).name=='candidate':
+  Path(sys.argv[3]).write_text('ready')
+  while True: time.sleep(.1)
+ return original(source,target)
+module.os.replace=replace
+module.install(sys.argv[1],sys.argv[2])
+"""
+        child = subprocess.Popen([sys.executable, '-c', script, str(self.root), str(self.package), str(marker)], cwd=m1.ROOT / 'eng', stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        try:
+            deadline = time.monotonic() + 15
+            while not marker.exists() and child.poll() is None and time.monotonic() < deadline: time.sleep(.05)
+            self.assertTrue(marker.exists(), 'child installer never reached durable crash gap')
+        finally:
+            if child.poll() is None: child.kill()
+            child.communicate(timeout=5)
+        lifecycle.rollback(self.root, self.journal()); self.restored()
 
     def test_disable_enable_uninstall_only_changes_host_markers(self):
         self.install(); config = lifecycle.tree(self.config)

@@ -9,7 +9,7 @@ import m2
 def main(working_tree=False):
     dirty = subprocess.check_output(['git', 'status', '--porcelain', '--', 'src', 'global.json',
         'SystemTools.slnx', 'icon.png', 'Plugin.cs', 'DlibExtensions.cs', 'DriveUtils.cs',
-        'NativeMethods.txt', 'eng/shared-host-sources.props', 'eng/shared-host-sources.json', 'Actions', 'Config', 'ConfigHandlers', 'Controls', 'Converters',
+        'NativeMethods.txt', 'eng/shared-host-sources.props', 'eng/shared-host-sources.json', 'eng/build_npoi.py', 'eng/npoi-source.json', 'eng/release-policy.json', 'NuGet.Config', 'Actions', 'Config', 'ConfigHandlers', 'Controls', 'Converters',
         'Helpers', 'Models', 'Properties', 'Rules', 'Services', 'Settings', 'SettingsPage',
         'Shared', 'Themes', 'ThirdParty', 'Triggers', 'Version', 'Views', 'VoskWorker', 'native'], cwd=m1.ROOT).decode()
     if dirty and not working_tree:
@@ -38,6 +38,10 @@ def main(working_tree=False):
         if m1.native_rid() == 'osx-arm64':
             names.append('platforms/osx-arm64/libSystemToolsNative.dylib')
             names.extend(m2.MAC_COMPANION_FILES)
+        import build_npoi
+        dependency = 'artifacts/dependencies/npoi/feed/' + build_npoi.PACKAGE.name
+        if m1.sha(m1.ROOT / dependency) != m1.sha(clone / dependency):
+            raise RuntimeError('Non-reproducible source dependency package: ' + dependency)
         hashes = {}
         for name in names:
             first = m1.ROOT / 'src/SystemTools/bin/Release/net10.0' / name

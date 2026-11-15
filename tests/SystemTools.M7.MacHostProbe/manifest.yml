@@ -1,0 +1,11 @@
+id: SystemTools.M7.MacHostProbe
+name: M7 Mac 安装生命周期隔离验收
+entranceAssembly: SystemTools.M7.MacHostProbe.dll
+version: 1.0.0.0
+apiVersion: 2.2.0.0
+author: SystemTools
+supportedOSPlatforms:
+- macOS
+dependencies:
+- id: SystemTools
+  isRequired: false

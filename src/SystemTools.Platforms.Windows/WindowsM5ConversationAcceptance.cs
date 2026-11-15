@@ -39,6 +39,8 @@ internal static class WindowsM5ConversationAcceptance
         var calls = 0;
         var denied = 0;
         var authenticated = true;
+        var releaseLateReply = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var lateReplyFinished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var server = Task.Run(async () =>
         {
             while (!stop.IsCancellationRequested)
@@ -64,14 +66,18 @@ internal static class WindowsM5ConversationAcceptance
                     2 => new { actionIds = new[] { "SystemTools.Copy" } },
                     _ => new { summary = "隔离验收：请求复制夹具文件", actions = new[] { new { id = "SystemTools.Copy", settings = new { operationType = "文件", sourcePath = source, destinationPath = target } } } }
                 };
+                if (round == 6) await releaseLateReply.Task.WaitAsync(stop.Token);
                 object message = round <= 4
                     ? new { role = "assistant", content = "", tool_calls = new[] { new { id = "fixture-" + round, type = "function", function = new { name, arguments = JsonSerializer.Serialize(arguments) } } } }
-                    : new { role = "assistant", content = "M5_APPROVAL_REJECTED" };
+                    : new { role = "assistant", content = round == 6 ? "M5_LATE_REPLY_MUST_BE_DISCARDED" : "M5_APPROVAL_REJECTED" };
                 var body = JsonSerializer.SerializeToUtf8Bytes(new { id = "m5-fixture", model = "m5-fixture", choices = new[] { new { index = 0, message, finish_reason = round <= 4 ? "tool_calls" : "stop" } } });
                 context.Response.ContentType = "application/json";
+                if (round == 7) context.Response.StatusCode = 503;
                 context.Response.ContentLength64 = body.Length;
-                await context.Response.OutputStream.WriteAsync(body, stop.Token);
-                context.Response.Close();
+                try { await context.Response.OutputStream.WriteAsync(body, stop.Token); }
+                catch (HttpListenerException) when (round == 6) { }
+                catch (IOException) when (round == 6) { }
+                finally { context.Response.Close(); if (round == 6) lateReplyFinished.TrySetResult(); }
             }
         }, stop.Token);
         NativeVoiceService? voice = null;
@@ -108,6 +114,21 @@ internal static class WindowsM5ConversationAcceptance
             }
             check(calls == 5 && authenticated, "真实兼容 HTTP 客户端完成五轮目录、契约、执行与拒绝结果交换");
             check(approvals == 1 && denied == 2 && !File.Exists(target), "本地审批拒绝后不执行且同轮再次执行不重复弹窗");
+            async Task SendAsync(string text) => await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                window!.GetVisualDescendants().OfType<TextBox>().Single(item => item.Name == "MessageInput").Text = text;
+                window.GetVisualDescendants().OfType<Button>().Single(item => item.Name == "SendMessage").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            });
+            await SendAsync("测试打断请求");
+            while (Volatile.Read(ref calls) < 6) await Task.Delay(50, timeout.Token);
+            await Dispatcher.UIThread.InvokeAsync(() => window!.GetVisualDescendants().OfType<Button>().Single(item => Equals(item.Content, "打断回复与朗读")).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)));
+            releaseLateReply.TrySetResult();
+            await lateReplyFinished.Task.WaitAsync(timeout.Token);
+            await Task.Delay(200, timeout.Token);
+            check(await Dispatcher.UIThread.InvokeAsync(() => !window!.GetVisualDescendants().OfType<TextBox>().Single(item => item.Name == "ConversationTranscript").Text!.Contains("M5_LATE_REPLY", StringComparison.Ordinal)), "真实 HTTP 请求被打断后迟到回复不进入界面");
+            await SendAsync("测试网络失败");
+            while (voice.LastError is null) { if (server.IsFaulted) await server; await Task.Delay(50, timeout.Token); }
+            check(calls == 7 && !string.IsNullOrWhiteSpace(voice.LastError) && !File.Exists(target), "真实 HTTP 503 显示错误且不执行行动");
             config.Save();
             check(!Directory.EnumerateFiles(GlobalConstants.PluginConfigFolder!, "*.json", SearchOption.AllDirectories).Any(path => File.ReadAllText(path).Contains(fixtureKey, StringComparison.Ordinal)), "会话 API 密钥没有进入配置或对话文件");
         }

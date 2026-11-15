@@ -30,6 +30,14 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
         occlusion.IsEnabled = services.Advanced.Background?.Probe().CanExecute == true && services.Advanced.TextRecognition?.Probe().CanExecute == true;
         occlusion.IsCheckedChanged += (_, _) => { Shared.GlobalConstants.MainConfig!.Data.AutoHideMainWindowWhenOccluded = occlusion.IsChecked == true; Shared.GlobalConstants.MainConfig.Save(); };
         panel.Children.Add(occlusion);
+        Add("原生窗口材质", services.Advanced.Material);
+        var floatingGlass = new CheckBox { Content = "悬浮窗使用系统玻璃材质", IsChecked = Shared.GlobalConstants.MainConfig!.Data.FloatingWindowAppearanceStyle == 1 };
+        floatingGlass.IsEnabled = services.Advanced.Material?.Probe().CanExecute == true;
+        floatingGlass.IsCheckedChanged += (_, _) => { Shared.GlobalConstants.MainConfig!.Data.FloatingWindowAppearanceStyle = floatingGlass.IsChecked == true ? 1 : 0; Shared.GlobalConstants.MainConfig.Save(); };
+        var chatGlass = new CheckBox { Content = "对话窗口使用系统玻璃材质", IsChecked = Shared.GlobalConstants.MainConfig!.Data.AiConversationFloatingWindowStyle == 1 };
+        chatGlass.IsEnabled = floatingGlass.IsEnabled;
+        chatGlass.IsCheckedChanged += (_, _) => { Shared.GlobalConstants.MainConfig!.Data.AiConversationFloatingWindowStyle = chatGlass.IsChecked == true ? 1 : 0; Shared.GlobalConstants.MainConfig.Save(); };
+        panel.Children.Add(floatingGlass); panel.Children.Add(chatGlass);
         Content = new ScrollViewer { Content = panel };
         void Add(string name, INativeCapability? capability)
         {

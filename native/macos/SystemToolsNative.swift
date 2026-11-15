@@ -465,6 +465,7 @@ func handleWallpaper(_ request: [String: Any], operation: String) throws -> [Str
 
 func dispatch(_ request: [String: Any]) throws -> [String: Any] {
     guard let operation = request["operation"] as? String else { throw NativeFailure(state: "Unsupported", message: "缺少操作。") }
+    if operation.hasPrefix("material.") { return try mainThread { try handleMaterial(request, operation: operation) } }
     if operation == "ocr.probe" { return ["state": "Available"] }
     if operation == "ocr.recognize" { return try recognizeBackgroundText(request) }
     if operation == "background.probe" { return screenCapability() }
@@ -637,4 +638,83 @@ func recognizeBackgroundText(_ request: [String: Any]) throws -> [String: Any] {
         return ["x": box.minX, "y": 1 - box.maxY, "width": box.width, "height": box.height, "confidence": candidate.confidence]
     }
     return ["state": "Available", "boxes": boxes]
+}
+
+final class MaterialLease {
+    let window: NSWindow
+    let original: NSView
+    let background: NSColor
+    let opaque: Bool
+    let requested: String
+    var observer: NSObjectProtocol?
+    var wrapper: NSView?
+    var applied = "Solid"
+    var reason = ""
+    init(window: NSWindow, requested: String) throws {
+        guard let original = window.contentView else { throw NativeFailure(state: "Unsupported", message: "原生内容视图尚未就绪。") }
+        self.window = window; self.original = original; self.requested = requested
+        background = window.backgroundColor; opaque = window.isOpaque
+        refresh()
+        observer = NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification, object: nil, queue: .main) { [weak self] _ in self?.refresh() }
+    }
+    func refresh() {
+        original.removeFromSuperview()
+        window.contentView = original
+        let frame = original.frame
+        let solid = requested == "Solid" || NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency || NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
+        let surface: NSView
+        if !solid && requested == "SystemGlass" {
+            if #available(macOS 26.0, *) {
+                let glass = NSGlassEffectView(frame: frame)
+                glass.style = .regular; glass.cornerRadius = 16
+                glass.contentView = original
+                surface = glass; applied = "SystemGlass"; reason = "macOS 原生玻璃"
+            } else {
+                let effect = NSVisualEffectView(frame: frame)
+                effect.material = .hudWindow; effect.blendingMode = .behindWindow; effect.state = .followsWindowActiveState
+                effect.addSubview(original); surface = effect
+                applied = "SystemMaterial"; reason = "当前系统使用原生磨砂材质"
+            }
+        } else if !solid {
+            let effect = NSVisualEffectView(frame: frame)
+            effect.material = .hudWindow; effect.blendingMode = .behindWindow; effect.state = .followsWindowActiveState
+            effect.addSubview(original); surface = effect
+            applied = "SystemMaterial"; reason = "macOS 原生磨砂材质"
+        } else {
+            surface = NSView(frame: frame); surface.wantsLayer = true
+            surface.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+            surface.addSubview(original); applied = "Solid"; reason = "实色表面（尊重系统减少透明度与增强对比度设置）"
+        }
+        window.isOpaque = solid; window.backgroundColor = solid ? .windowBackgroundColor : .clear
+        original.frame = CGRect(origin: .zero, size: frame.size)
+        original.autoresizingMask = [.width, .height]
+        surface.autoresizingMask = [.width, .height]
+        wrapper = surface; window.contentView = surface
+    }
+    func restore() {
+        if let observer = observer { NSWorkspace.shared.notificationCenter.removeObserver(observer) }
+        observer = nil
+        if window.contentView === wrapper {
+            original.removeFromSuperview(); window.contentView = original
+            window.backgroundColor = background; window.isOpaque = opaque
+        }
+        wrapper = nil
+    }
+}
+var materialLeases: [String: MaterialLease] = [:]
+func handleMaterial(_ request: [String: Any], operation: String) throws -> [String: Any] {
+    if operation == "material.probe" { return ["state": "Available"] }
+    guard let id = request["id"] as? String, !id.isEmpty else { throw NativeFailure(state: "Unsupported", message: "缺少材质租约。") }
+    if operation == "material.release" {
+        materialLeases.removeValue(forKey: id)?.restore(); return ["state": "Available"]
+    }
+    guard operation == "material.apply", let material = request["material"] as? String,
+          ["Solid", "SystemMaterial", "SystemGlass"].contains(material), materialLeases[id] == nil else {
+        throw NativeFailure(state: "Unsupported", message: "材质类型或租约无效。")
+    }
+    let window = try materialWindow(request)
+    guard !materialLeases.values.contains(where: { $0.window === window }) else { throw NativeFailure(state: "Unsupported", message: "此窗口已有材质租约。") }
+    let lease = try MaterialLease(window: window, requested: material)
+    materialLeases[id] = lease
+    return ["state": "Available", "applied": lease.applied, "reason": lease.reason]
 }

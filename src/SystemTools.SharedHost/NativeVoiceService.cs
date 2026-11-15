@@ -14,7 +14,7 @@ namespace SystemTools;
 public sealed class NativeVoiceService(PortableSpeechService input, PlatformMediaServices media,
     MediaPreferencesStore preferences, MainConfigHandler config, IOpenAiCompatibleService ai,
     AiPromptService prompt, AiChatOperationGate gate, AiConversationStore conversations,
-    ClassIslandActionAiService actions, ClassIslandProfileAiService profiles) : IHostedService
+    ClassIslandActionAiService actions, ClassIslandProfileAiService profiles, NativeWindowMaterial material) : IHostedService
 {
     private IDisposable? _wake;
     private Window? _window;
@@ -33,6 +33,7 @@ public sealed class NativeVoiceService(PortableSpeechService input, PlatformMedi
     private void PreferencesChanged(object? sender, EventArgs args) => ApplyConfig();
     private void Changed(object? sender, PropertyChangedEventArgs args)
     {
+        if (args.PropertyName == nameof(MainConfigData.AiConversationFloatingWindowStyle)) Dispatcher.UIThread.Post(() => { if (_window is { } window) material.Update(window, config.Data.AiConversationFloatingWindowStyle); });
         if (args.PropertyName is nameof(MainConfigData.EnableVoiceWakeAi) or nameof(MainConfigData.AiWakeWord) or nameof(MainConfigData.EnableAiService)) ApplyConfig();
     }
     public void ApplyConfig()
@@ -156,6 +157,7 @@ public sealed class NativeVoiceService(PortableSpeechService input, PlatformMedi
             finally { session.Dispose(); if (ReferenceEquals(_window, window)) { _window = null; _session = null; _turns = null; } }
         };
         window.Show();
+        material.Update(window, config.Data.AiConversationFloatingWindowStyle);
         _listening = listen ? Listen() : Task.CompletedTask;
         async Task Listen()
         {

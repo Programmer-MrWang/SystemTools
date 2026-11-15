@@ -17,7 +17,7 @@ using SystemTools.Services;
 namespace SystemTools;
 
 public sealed class NativeFloatingWindowService(MainConfigHandler config, FloatingWindowProfileManager profiles,
-    NativeDesktopServices native, NativeDesktopAppearance appearance, ILogger<NativeFloatingWindowService> logger) : IHostedService
+    NativeDesktopServices native, NativeDesktopAppearance appearance, NativeWindowMaterial material, ILogger<NativeFloatingWindowService> logger) : IHostedService
 {
     private readonly Dictionary<NativeFloatingTrigger, string> _entries = [];
     private Window? _window;
@@ -149,6 +149,7 @@ public sealed class NativeFloatingWindowService(MainConfigHandler config, Floati
         _window.Opacity = data.FloatingWindowOpacity / 100d;
         _window.RequestedThemeVariant = data.FloatingWindowTheme switch { 1 => ThemeVariant.Light, 2 => ThemeVariant.Dark, 3 => appearance.IsDark ? ThemeVariant.Dark : ThemeVariant.Light, _ => ThemeVariant.Default };
         _window.Show();
+        material.Update(_window, data.FloatingWindowAppearanceStyle);
         if (_layer != data.FloatingWindowLayer)
         {
             _window.Topmost = data.FloatingWindowLayer == 1;

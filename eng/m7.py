@@ -29,7 +29,8 @@ def check():
                 ('m7-lifecycle', [sys.executable, '-B', 'eng/test_release_lifecycle.py']),
                 ('m7-migration', [sys.executable, '-B', 'eng/test_migration_cli.py']),
                 ('m7-mac-release', [sys.executable, '-B', 'eng/test_mac_release.py']),
-                ('m7-package', [sys.executable, '-B', 'eng/test_m7_packaging.py'])]
+                ('m7-package', [sys.executable, '-B', 'eng/test_m7_packaging.py']),
+                ('m7-dependency-audit', [sys.executable, '-B', 'eng/test_dependency_audit.py'])]
     for name, arguments in commands:
         completed = subprocess.run(arguments, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8', errors='replace')
         (ARTIFACTS / (name + '.log')).write_text(completed.stdout, encoding='utf-8')

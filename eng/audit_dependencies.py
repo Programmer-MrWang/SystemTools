@@ -17,7 +17,12 @@ def audit(output, project='src/SystemTools/SystemTools.csproj'):
     if completed.returncode or completed.stderr.strip():
         raise RuntimeError('Dependency audit unavailable: ' + completed.stderr + completed.stdout)
     query = json.loads(completed.stdout)
-    if query.get('errors') or not query.get('projects'):
+    def query_failed(value):
+        if isinstance(value, dict):
+            return any(key in ('errors', 'problems') and bool(item) or query_failed(item) for key, item in value.items())
+        if isinstance(value, list): return any(query_failed(item) for item in value)
+        return False
+    if query_failed(query) or not query.get('projects'):
         raise RuntimeError('Dependency audit returned incomplete results.')
     vulnerabilities = []
     for item in query['projects']:

@@ -181,7 +181,8 @@ def extract(package_path, destination):
         archive.extractall(destination)
     return manifest
 
-def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', experimental=False, graceful_stop=False):
+def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', experimental=False, graceful_stop=False,
+          rejection_probe=None):
     if m1.native_rid() != 'win-x64':
         raise RuntimeError('Windows M2 desktop acceptance must run on Windows x64.')
     host, source = Path(host).resolve(), Path(source).resolve()
@@ -212,6 +213,13 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
                    'HasEditModeTutorialShown': True})
     config = sandbox / 'data/Config/Plugins/SystemTools'
     config.mkdir(parents=True)
+    if rejection_probe is not None:
+        if case != 'missing-backend' or not graceful_stop:
+            raise ValueError('The rejection probe requires the missing-backend case and graceful shutdown.')
+        probe = sandbox / 'data/Plugins/SystemTools.M4.WindowsProbe'
+        probe.mkdir(parents=True)
+        for name in ('SystemTools.M4.WindowsProbe.dll', 'manifest.yml'):
+            shutil.copy2(Path(rejection_probe) / name, probe / name)
     original = {'enableAiService': True, 'enableFloatingWindowFeature': True,
                 'enableExperimentalFeatures': experimental,
                 'aiApiKey': 'dpapi-current-user:v1:not-a-real-user-secret',
@@ -222,6 +230,9 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
     environment = os.environ.copy()
     environment['ClassIsland_PackageRoot'] = str(sandbox)
     environment['SystemTools_M2_Acceptance'] = '1'
+    environment.pop('SystemTools_M4_RejectionRoot', None)
+    if rejection_probe is not None:
+        environment['SystemTools_M4_RejectionRoot'] = str(config)
     if graceful_stop and case != 'missing-backend':
         environment['SystemTools_M3_GracefulStop'] = '1'
     else:
@@ -235,6 +246,8 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
     global_path = m1.global_storage_path()
     before = m1.sha(global_path) if global_path.exists() else None
     proof = None
+    forced_stop = False
+    timed_out = False
     with (run / 'host.log').open('wb') as log:
         process = subprocess.Popen([str(host), '--quiet', '--skip-oobe', '--verbose'],
                                    cwd=host.parent, env=environment, stdout=log,
@@ -243,6 +256,8 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
         try:
             deadline = time.monotonic() + timeout
             evidence = 'M1.LoadFailure.json' if case == 'missing-backend' else 'M2.Acceptance.json'
+            if rejection_probe is not None:
+                evidence = 'M4.Rejection.json'
             while time.monotonic() < deadline:
                 path = config / evidence
                 if path.is_file():
@@ -254,12 +269,20 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
                 if process.poll() is not None:
                     break
                 time.sleep(.2)
-            if graceful_stop and case != 'missing-backend' and proof and proof.get('passed'):
+            timed_out = proof is None and time.monotonic() >= deadline
+            if graceful_stop and proof and (case != 'missing-backend' or rejection_probe is not None):
                 process.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            timed_out = True
         finally:
             if process.poll() is None:
+                forced_stop = True
                 process.terminate()
-                process.wait(timeout=10)
+                try:
+                    process.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait(timeout=10)
     after = m1.sha(global_path) if global_path.exists() else None
     saved = json.loads((config / 'Main.json').read_text(encoding='utf-8'))
     keys = ['aiApiKey', 'm2UnknownField']
@@ -268,17 +291,20 @@ def smoke(host, source, timeout=40, missing_dependencies=False, case='normal', e
     preserved = all(saved.get(key) == original[key] for key in keys)
     if case == 'missing-backend':
         expected = bool(proof and 'FileNotFoundException' in proof.get('error', '')
-                        and 'SystemTools.Platforms.Windows' in proof.get('error', ''))
+                        and 'SystemTools.Platforms.Windows' in proof.get('error', '')
+                        and (rejection_probe is None or proof.get('passed')))
     else:
         expected = bool(proof and proof.get('passed'))
-    shutdown_path = config / 'M3.Shutdown.json'
+    shutdown_path = config / ('M4.RejectionShutdown.json' if rejection_probe is not None else 'M3.Shutdown.json')
     shutdown = json.loads(shutdown_path.read_text(encoding='utf-8')) if shutdown_path.is_file() else None
-    graceful_passed = (not graceful_stop or case == 'missing-backend' or bool(shutdown and shutdown.get('passed') and process.returncode == 0))
-    result = dict(m1.identity(), passed=expected and preserved and before == after and graceful_passed,
+    graceful_passed = (not graceful_stop or (case == 'missing-backend' and rejection_probe is None)
+                       or bool(shutdown and shutdown.get('passed') and process.returncode == 0 and not forced_stop))
+    result = dict(m1.identity(), passed=expected and preserved and before == after and graceful_passed and not timed_out,
                   case=case, proof=proof, host=str(host), hostSha256=m1.sha(host),
                   source=str(source), packageSha256=m1.sha(source) if source.is_file() else None,
                   globalUnchanged=before == after, configContractPreserved=preserved,
                   run=str(run), hostExitCode=process.returncode,
+                  processId=process.pid, forcedStop=forced_stop, timedOut=timed_out,
                   missingDependenciesRequested=missing_dependencies, experimental=experimental, shutdown=shutdown, gracefulStopRequested=graceful_stop)
     m1.write_json(run / 'result.json', result)
     print(json.dumps(result, ensure_ascii=False, indent=2), flush=True)

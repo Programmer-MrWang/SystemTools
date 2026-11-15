@@ -210,6 +210,31 @@ def smoke(host, package):
     if not report['passed']: raise RuntimeError('M4 isolated desktop acceptance failed.')
 
 
+def smoke_windows(host, package, timeout=90):
+    if m1.native_rid() != 'win-x64':
+        raise RuntimeError('This smoke command requires native Windows x64.')
+    host, package = Path(host).resolve(), Path(package).resolve()
+    if not host.is_file() or not package.is_file():
+        raise FileNotFoundError('Provide an existing desktop host and explicit final M4 package.')
+    m1.command('dotnet', 'build', 'tests/SystemTools.M4.WindowsProbe', '-c', 'Release', '--nologo', '-v', 'minimal')
+    probe = ROOT / 'tests/SystemTools.M4.WindowsProbe/bin/Release/net10.0'
+    previous_artifacts = m2.ARTIFACTS
+    m2.ARTIFACTS = ARTIFACTS / 'windows'
+    try:
+        results = [m2.smoke(host, package, timeout=timeout, missing_dependencies=True,
+                           experimental=True, graceful_stop=True, case=case,
+                           rejection_probe=probe if case == 'missing-backend' else None)
+                   for case in ('normal', 'foreign-corrupt', 'missing-backend')]
+    finally:
+        m2.ARTIFACTS = previous_artifacts
+    report = dict(m1.identity(), passed=all(item['passed'] for item in results), executionOS=sys.platform,
+                  package=str(package), packageSha256=m1.sha(package), scenarios=results,
+                  scope='Windows M2/M3 business acceptance of the explicit M4 package; no Mac/Linux or hardware claim.')
+    m1.write_json(ARTIFACTS / 'windows/desktop.json', report)
+    if not report['passed']:
+        raise RuntimeError('M4 Windows isolated desktop acceptance failed.')
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -224,8 +249,13 @@ if __name__ == '__main__':
     desktop = commands.add_parser('smoke-mac')
     desktop.add_argument('--host-bin', required=True)
     desktop.add_argument('--package', required=True)
+    windows = commands.add_parser('smoke-windows')
+    windows.add_argument('--host-bin', required=True)
+    windows.add_argument('--package', required=True)
+    windows.add_argument('--timeout', type=int, default=90)
     args = parser.parse_args()
     if args.command == 'stage': stage(args.target)
     elif args.command == 'aggregate': aggregate(args.input, args.output, args.preview)
     elif args.command == 'check': check(args.desktop_read)
+    elif args.command == 'smoke-windows': smoke_windows(args.host_bin, args.package, args.timeout)
     else: smoke(args.host_bin, args.package)

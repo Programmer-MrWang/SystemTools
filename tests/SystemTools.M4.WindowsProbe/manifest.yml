@@ -1,0 +1,11 @@
+id: SystemTools.M4.WindowsProbe
+name: M4 Windows 隔离拒绝场景验收
+entranceAssembly: SystemTools.M4.WindowsProbe.dll
+version: 1.0.0.0
+apiVersion: 2.2.0.0
+author: SystemTools
+supportedOSPlatforms:
+- Windows
+dependencies:
+- id: SystemTools
+  isRequired: false

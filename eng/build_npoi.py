@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 PIN = json.loads((ROOT / 'eng/npoi-source.json').read_text(encoding='utf-8'))
 PROVENANCE = dict(PIN, buildScriptSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(), sdk='10.0.403',
-    patches=['System.Security.Cryptography.Xml 10.0.10 -> 10.0.15'], targetFramework='net10.0')
+    patches=['System.Security.Cryptography.Xml 10.0.10 -> 10.0.15', 'Explicit ordinal compile input order across operating systems'], targetFramework='net10.0')
 WORK = ROOT / 'artifacts/dependencies/npoi'
 PACKAGE = WORK / 'feed' / (PIN['packageId'] + '.' + PIN['packageVersion'] + '.nupkg')
 
@@ -54,6 +54,20 @@ def build():
     old = 'Include="System.Security.Cryptography.Xml" Version="10.0.10"'
     if original.count(old) != 1: raise RuntimeError('Pinned NPOI dependency patch no longer applies.')
     central.write_text(original.replace(old, 'Include="System.Security.Cryptography.Xml" Version="10.0.15"'), encoding='utf-8')
+    # MSBuild glob order differs by OS case rules. Freeze the compiler input order from the same archive.
+    for project in ['main/NPOI.Core.csproj', 'ooxml/NPOI.OOXML.Core.csproj',
+                    'openxml4Net/NPOI.OpenXml4Net.Core.csproj', 'OpenXmlFormats/NPOI.OpenXmlFormats.Core.csproj']:
+        path = source / project
+        document = ET.parse(path); element = document.getroot()
+        properties = ET.SubElement(element, 'PropertyGroup')
+        ET.SubElement(properties, 'EnableDefaultCompileItems').text = 'false'
+        excluded = {item.attrib['Remove'].replace('\\', '/') for item in element.iter('Compile') if 'Remove' in item.attrib}
+        items = ET.SubElement(element, 'ItemGroup')
+        for file in sorted(path.parent.rglob('*.cs'), key=lambda file: file.relative_to(path.parent).as_posix()):
+            if (not {'bin', 'obj'}.intersection(file.relative_to(path.parent).parts)
+                    and file.relative_to(path.parent).as_posix() not in excluded):
+                ET.SubElement(items, 'Compile', {'Include': file.relative_to(path.parent).as_posix()})
+        document.write(path, encoding='utf-8', xml_declaration=True)
     command = ['dotnet', 'build', str(source / 'ooxml/NPOI.OOXML.Core.csproj'), '-c', 'Release', '-m:1',
         '-p:TargetFrameworks=net10.0', '-p:ContinuousIntegrationBuild=true', '-p:Deterministic=true',
         '-p:DebugType=none', '-p:DebugSymbols=false', '-p:EnableSourceLink=false', '-p:EnableSourceControlManagerQueries=false',

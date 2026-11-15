@@ -3,8 +3,6 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using ClassIsland.Core.Abstractions.Automation;
 using ClassIsland.Core.Attributes;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SystemTools.Common.Automation;
 using SystemTools.Contracts;
 using SystemTools.Settings;
@@ -81,8 +79,8 @@ public sealed class NativeWallpaperAction(IDesktopWallpaper wallpaper, NativeDes
             var temporary = target + "." + Guid.NewGuid().ToString("N") + ".tmp";
             try
             {
-                using var image = new Image<Rgba32>(16, 16, new Rgba32(color.R, color.G, color.B));
-                await image.SaveAsPngAsync(temporary, token);
+                token.ThrowIfCancellationRequested();
+                await Task.Run(() => NativeRasterImage.WriteSolid(temporary, 16, 16, color.R, color.G, color.B), token);
                 File.Move(temporary, target, overwrite: true);
             }
             finally { if (File.Exists(temporary)) File.Delete(temporary); }

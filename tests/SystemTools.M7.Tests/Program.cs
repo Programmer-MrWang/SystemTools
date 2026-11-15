@@ -1,0 +1,35 @@
+using NPOI.HSSF.UserModel;
+using NPOI.XSSF.UserModel;
+using NPOI.SS.UserModel;
+using SystemTools;
+
+var checks = 0;
+void Check(bool value, string name) { if (!value) throw new Exception(name); Console.WriteLine($"PASS {++checks}: {name}"); }
+var root = Path.Combine(Path.Combine(Directory.GetCurrentDirectory(), "artifacts", "m7"), "systemtools-m7-" + Guid.NewGuid().ToString("N"));
+Directory.CreateDirectory(root);
+try
+{
+    var png = Path.Combine(root, "picture.png"); NativeRasterImage.WriteSolid(png, 32, 24, 20, 40, 60);
+    foreach (var xlsx in new[] { false, true })
+    {
+        using IWorkbook workbook = xlsx ? new XSSFWorkbook() : new HSSFWorkbook();
+        var sheet = workbook.CreateSheet("中文课表");
+        var row = sheet.CreateRow(0); row.CreateCell(0).SetCellValue("语文"); row.CreateCell(1).SetCellValue(42);
+        row.CreateCell(2).SetCellFormula("B1*2");
+        var font = workbook.CreateFont(); font.IsBold = true;
+        var style = workbook.CreateCellStyle(); style.SetFont(font); row.GetCell(0).CellStyle = style;
+        var picture = workbook.AddPicture(File.ReadAllBytes(png), PictureType.PNG);
+        var anchor = workbook.GetCreationHelper().CreateClientAnchor(); anchor.Col1 = 0; anchor.Row1 = 2;
+        sheet.CreateDrawingPatriarch().CreatePicture(anchor, picture).Resize();
+        sheet.AutoSizeColumn(0);
+        using var output = new MemoryStream(); workbook.Write(output, leaveOpen: true);
+        output.Position = 0;
+        using var decoded = WorkbookFactory.Create(output);
+        Check(decoded.GetSheetAt(0).GetRow(0).GetCell(0).StringCellValue == "语文", $"源码 NPOI {(xlsx ? "XLSX" : "XLS")} 中文与样式读写");
+        Check(decoded.GetAllPictures().Count == 1, "源码 NPOI 保留实际 PNG 嵌入图片");
+        Check(decoded.GetCreationHelper().CreateFormulaEvaluator().Evaluate(decoded.GetSheetAt(0).GetRow(0).GetCell(2)).NumberValue == 84, "源码 NPOI 公式计算与读取");
+    }
+    Check(!AppDomain.CurrentDomain.GetAssemblies().Any(x => x.GetName().Name == "SixLabors.ImageSharp"), "Excel 与图片处理不加载旧 ImageSharp");
+
+}
+finally { Directory.Delete(root, recursive: true); }

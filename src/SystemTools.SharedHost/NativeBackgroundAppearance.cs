@@ -5,13 +5,10 @@ using Avalonia.VisualTree;
 using ClassIsland.Core;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SystemTools.Common.Layout;
 using SystemTools.ConfigHandlers;
 using SystemTools.Contracts;
 using SystemTools.Services;
-using Image = SixLabors.ImageSharp.Image;
 
 namespace SystemTools;
 
@@ -116,13 +113,12 @@ public sealed partial class NativeBackgroundAppearance(NativeDesktopServices nat
     private partial Task ProcessTextAsync(BackgroundFrame frame, CancellationToken token);
     public static double ReadLuminance(BackgroundFrame frame)
     {
-        var info = Image.Identify(frame.Png);
-        if (info is null || (long)info.Width * info.Height > 16_000_000) throw new IOException("背景图片无效或过大。");
-        using var image = Image.Load<Rgba32>(frame.Png);
+        using var stream = new MemoryStream(frame.Png, writable: false);
+        using var image = NativeRasterImage.Read(stream, 16_000_000);
         double total = 0; var count = 0;
         for (var y = 0; y < image.Height; y += Math.Max(1, image.Height / 64))
             for (var x = 0; x < image.Width; x += Math.Max(1, image.Width / 64))
-            { var pixel = image[x, y]; if (pixel.A < 16) continue; total += .2126 * pixel.R + .7152 * pixel.G + .0722 * pixel.B; count++; }
+            { var pixel = image.GetPixel(x, y); if (pixel.Alpha < 16) continue; total += .2126 * pixel.Red + .7152 * pixel.Green + .0722 * pixel.Blue; count++; }
         if (count == 0) throw new IOException("背景没有可见像素。");
         return total / count;
     }

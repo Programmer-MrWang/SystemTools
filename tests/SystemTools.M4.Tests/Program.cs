@@ -106,13 +106,12 @@ Directory.CreateDirectory(colorFolder);
 try
 {
     var path = Path.Combine(colorFolder, "sample.png");
-    using (var image = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(8, 8, new SixLabors.ImageSharp.PixelFormats.Rgba32(20, 40, 60)))
-        SixLabors.ImageSharp.ImageExtensions.SaveAsPng(image, path);
+    SystemTools.NativeRasterImage.WriteSolid(path, 8, 8, 20, 40, 60);
     var color = SystemTools.NativeDesktopAppearance.ReadColor(path);
     Check(color.R == 20 && color.G == 40 && color.B == 60, "共享壁纸取色读取实际 PNG");
     File.WriteAllText(Path.Combine(colorFolder, "broken.png"), "invalid image");
     try { SystemTools.NativeDesktopAppearance.ReadColor(Path.Combine(colorFolder, "broken.png")); throw new Exception("Broken image accepted"); }
-    catch (Exception error) when (error is IOException or SixLabors.ImageSharp.UnknownImageFormatException) { Check(true, "损坏壁纸在更改系统前拒绝"); }
+    catch (Exception error) when (error is IOException) { Check(true, "损坏壁纸在更改系统前拒绝"); }
 }
 finally { Directory.Delete(colorFolder, true); }
 if (OperatingSystem.IsMacOS()) Check(new SystemTools.Platforms.MacOS.WallpaperService().Probe().CanExecute, "Mac 壁纸原生模块只读检测");

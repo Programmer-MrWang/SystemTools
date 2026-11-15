@@ -8,7 +8,9 @@
     <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" ExcludeAssets="runtime;native" />
     <PackageReference Include="Avalonia" Version="12.1.4" ExcludeAssets="runtime;native" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" ExcludeAssets="runtime;native" />
-    <PackageReference Include="NPOI" Version="2.7.2" />
+    <PackageReference Include="SystemTools.NPOI" Version="2.8.1-source.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.15" />
     <PackageReference Include="SuperAutoIsland.Interface" Version="0.3.9.2-dev.3" />
     <ProjectReference Include="../SystemTools.Common/SystemTools.Common.csproj" />
   </ItemGroup>

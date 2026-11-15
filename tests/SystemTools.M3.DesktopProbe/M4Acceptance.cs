@@ -70,7 +70,8 @@ public sealed partial class Plugin
             var directory = Path.Combine(_root, "m4-screen");
             await InvokeM4Async("SystemTools.ScreenShot", new ScreenShotSettings { SaveFolder = directory });
             var png = Directory.GetFiles(directory, "*.png").Single();
-            using var image = SixLabors.ImageSharp.Image.Load(png);
+            using var imageStream = File.OpenRead(png);
+            using var image = NativeRasterImage.Read(imageStream, 100_000_000);
             Check(image.Width > 0 && image.Height > 0, "ScreenCaptureKit 实际 PNG 可解码且非空");
         }
         else _pendingM4.Add("真实录屏授权后采集：" + screen.Reason);
@@ -145,8 +146,7 @@ public sealed partial class Plugin
         var wallpaper = _native!.Wallpaper!;
         var original = await wallpaper.ReadAsync(default);
         var path = Path.Combine(_root, "m4-synthetic-wallpaper.png");
-        using (var image = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(64, 64, new SixLabors.ImageSharp.PixelFormats.Rgba32(24, 48, 72)))
-            SixLabors.ImageSharp.ImageExtensions.SaveAsPng(image, path);
+        NativeRasterImage.WriteSolid(path, 64, 64, 24, 48, 72);
         WallpaperState? applied = null;
         try
         {

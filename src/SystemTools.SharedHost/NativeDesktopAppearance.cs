@@ -2,8 +2,6 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using SystemTools.ConfigHandlers;
 using SystemTools.Contracts;
 using SystemTools.Services;
@@ -99,16 +97,15 @@ public sealed class NativeDesktopAppearance(NativeDesktopServices native, MainCo
     }
     public static Color ReadColor(string path)
     {
-        var info = Image.Identify(path) ?? throw new IOException("无法识别壁纸图片。");
-        if ((long)info.Width * info.Height > 100_000_000) throw new IOException("壁纸图片过大，请缩小后重试。");
-        using var image = Image.Load<Rgba32>(path);
+        using var stream = File.OpenRead(path);
+        using var image = NativeRasterImage.Read(stream, 100_000_000);
         long red = 0, green = 0, blue = 0, samples = 0;
         for (var y = 0; y < image.Height; y += Math.Max(1, image.Height / 64))
             for (var x = 0; x < image.Width; x += Math.Max(1, image.Width / 64))
             {
-                var pixel = image[x, y];
-                if (pixel.A < 16) continue;
-                red += pixel.R; green += pixel.G; blue += pixel.B; samples++;
+                var pixel = image.GetPixel(x, y);
+                if (pixel.Alpha < 16) continue;
+                red += pixel.Red; green += pixel.Green; blue += pixel.Blue; samples++;
             }
         if (samples == 0) throw new IOException("壁纸图片没有可见颜色。");
         return Color.FromRgb((byte)(red / samples), (byte)(green / samples), (byte)(blue / samples));

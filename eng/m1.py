@@ -44,7 +44,7 @@ def global_storage_path():
 
 def identity():
     # Content identity includes uncommitted new source too. Ignore bin/obj outputs.
-    paths = [ROOT / 'global.json', ROOT / 'SystemTools.slnx', ROOT / 'eng/shared-host-sources.props', ROOT / 'eng/shared-host-sources.json']
+    paths = [ROOT / 'global.json', ROOT / 'SystemTools.slnx', ROOT / 'eng/shared-host-sources.props', ROOT / 'eng/shared-host-sources.json', ROOT / 'eng/npoi-source.json', ROOT / 'eng/build_npoi.py', ROOT / 'NuGet.Config']
     paths += [p for p in (ROOT / 'src').rglob('*') if p.is_file() and not {'bin', 'obj'}.intersection(p.relative_to(ROOT).parts)]
     # M2 compiles the preserved Windows tree as linked inputs, so include its bytes.
     for name in ('Plugin.cs', 'DlibExtensions.cs', 'DriveUtils.cs', 'NativeMethods.txt', 'icon.png'):
@@ -89,6 +89,8 @@ def build(clean=False):
                         raise RuntimeError('Clean output is outside the project: ' + str(output))
                     shutil.rmtree(output)
                     print('CLEAN OUTPUT:', output, flush=True)
+    import build_npoi
+    build_npoi.build()
     command('dotnet', 'restore', 'SystemTools.slnx', '--nologo')
     command('dotnet', 'build', 'SystemTools.slnx', '-c', 'Release', '--no-restore', '--nologo', '-v', 'minimal')
     output = ROOT / 'src/SystemTools/bin/Release/net10.0'

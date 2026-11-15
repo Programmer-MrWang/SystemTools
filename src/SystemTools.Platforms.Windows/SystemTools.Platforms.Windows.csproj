@@ -17,7 +17,9 @@
     <PackageReference Include="ClassIsland.PluginSdk" Version="2.1.1.1" />
     <PackageReference Include="DlibDotNet" Version="19.21.0.20220724" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.10" />
-    <PackageReference Include="NPOI" Version="2.7.2" GeneratePathProperty="true" />
+    <PackageReference Include="SystemTools.NPOI" Version="2.8.1-source.1" GeneratePathProperty="true" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.15" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.298">

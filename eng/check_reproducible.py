@@ -32,6 +32,7 @@ def main(working_tree=False):
                 'import json,sys; sys.path.insert(0,"eng"); import m1; print(json.dumps(m1.identity()))'], cwd=clone))
             if copied_identity != m1.identity():
                 raise RuntimeError('Working-tree snapshot differs from current build inputs.')
+        subprocess.run(['python3' if m1.native_rid() != 'win-x64' else 'python', '-B', 'eng/build_npoi.py'], cwd=clone, check=True)
         subprocess.run(['dotnet', 'build', 'SystemTools.slnx', '-c', 'Release', '--nologo', '-v', 'minimal'], cwd=clone, check=True)
         names = m1.COMMON + [m1.module_name(m1.native_rid())]
         if m1.native_rid() == 'osx-arm64':

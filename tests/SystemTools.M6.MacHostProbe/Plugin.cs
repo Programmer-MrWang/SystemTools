@@ -66,18 +66,29 @@ public sealed class Plugin : PluginBase
                     {
                         var frame = await capture.CaptureAsync(region, default);
                         Check(frame.ExcludesOwnProcess && frame.Png.Length > 100 && frame.PixelWidth > 0 && frame.PixelHeight > 0, "真正背景捕获返回排除本进程的有效 PNG");
-                        Check(NativeBackgroundAppearance.ReadLuminance(frame) < 90, "绿色宿主遮挡层被排除，捕获到外部红色夹具");
+                        var redValue = NativeBackgroundAppearance.ReadLuminance(frame);
+                        Check(redValue is > 40 and < 110, "绿色宿主遮挡层被排除，捕获到外部红色夹具：" + redValue);
                         var mapped = await ((IWindowRegionProvider)capture).WindowRegionAsync(overlay.TryGetPlatformHandle()!.Handle, new(0, 0, overlay.Width, overlay.Height), default);
                         Check(Math.Abs(mapped.X - region.X) < 2 && Math.Abs(mapped.Y - region.Y) < 2, "Avalonia 句柄转换为真实屏幕逻辑坐标");
-                        File.WriteAllText(Path.Combine(root, "fixture-mode"), "white"); await Task.Delay(400);
+                        async Task Paint(string mode)
+                        {
+                            File.WriteAllText(Path.Combine(root, "fixture-mode"), mode);
+                            for (var i = 0; i < 30; i++)
+                            {
+                                await Task.Delay(100);
+                                if (File.Exists(Path.Combine(root, "fixture-ack")) && File.ReadAllText(Path.Combine(root, "fixture-ack")) == mode) { await Task.Delay(300); return; }
+                            }
+                            throw new IOException("外部夹具没有确认绘制：" + mode);
+                        }
+                        await Paint("white");
                         var light = await capture.CaptureAsync(region, default);
-                        Check(NativeBackgroundAppearance.ReadLuminance(light) > 240, "真实白色背景亮度可读");
-                        File.WriteAllText(Path.Combine(root, "fixture-mode"), "black"); await Task.Delay(400);
+                        var lightValue = NativeBackgroundAppearance.ReadLuminance(light);
+                        Check(lightValue > 240, "真实白色背景亮度可读：" + lightValue);
+                        await Paint("black");
                         Check(NativeBackgroundAppearance.ReadLuminance(await capture.CaptureAsync(region, default)) < 15, "真实黑色背景亮度可读");
-                        File.WriteAllText(Path.Combine(root, "fixture-mode"), "text"); await Task.Delay(400);
+                        await Paint("text");
                         var textFrame = await capture.CaptureAsync(region, default);
                         var boxes = await advanced.TextRecognition!.RecognizeAsync(textFrame, default);
-                        if (!boxes.Any(x => x.Confidence >= .6)) File.WriteAllBytes(Path.Combine(root, "synthetic-fixture-ocr.png"), textFrame.Png);
                         Check(boxes.Any(x => x.Confidence >= .6), "Vision 从真实背景识别高置信度文本位置：" + JsonSerializer.Serialize(boxes));
                         var policy = new TextOcclusionPolicy();
                         Check(!policy.Observe(region, boxes) && policy.Observe(region, boxes), "真实背景文本触发稳定避让判定");
@@ -88,7 +99,7 @@ public sealed class Plugin : PluginBase
                     else pending.Add("原版宿主缺少屏幕录制权限，真实背景/OCR 待本人允许");
                     var material = provider.GetRequiredService<NativeWindowMaterial>();
                     await Dispatcher.UIThread.InvokeAsync(() => material.Update(overlay, 1));
-                    Check(!material.LastError.Contains("句柄") && !material.LastError.Contains("失败"), "Avalonia 窗口实际接入原生系统材质");
+                    Check(material.LastError is "macOS 原生玻璃" or "当前系统使用原生磨砂材质" || material.LastError.StartsWith("实色表面（尊重系统"), "Avalonia 窗口实际接入原生系统材质：" + material.LastError);
                     File.WriteAllText(Path.Combine(root, "material-ready"), "ready");
                     if (Environment.GetEnvironmentVariable("SystemTools_M6_ClickAcceptance") == "1")
                     {

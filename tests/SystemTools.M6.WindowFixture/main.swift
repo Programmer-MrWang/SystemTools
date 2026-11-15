@@ -19,6 +19,11 @@ window.isReleasedWhenClosed = false
 let view = FixtureView(frame: window.contentView!.bounds)
 view.autoresizingMask = [.width, .height]
 window.contentView = view
+window.level = .floating
+window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+window.hidesOnDeactivate = false
+window.makeKeyAndOrderFront(nil)
+app.activate(ignoringOtherApps: true)
 window.orderFrontRegardless()
 let frame = window.frame
 let reply: [String: Any] = ["x": frame.minX, "y": (NSScreen.screens.first?.frame.maxY ?? 0) - frame.maxY, "width": frame.width, "height": frame.height]
@@ -26,7 +31,8 @@ try JSONSerialization.data(withJSONObject: reply).write(to: root.appendingPathCo
 let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
     if let mode = try? String(contentsOf: root.appendingPathComponent("fixture-mode"), encoding: .utf8), mode != view.mode {
         if mode == "close" { app.terminate(nil); return }
-        view.mode = mode; view.needsDisplay = true
+        view.mode = mode; view.needsDisplay = true; view.display(); window.displayIfNeeded()
+        try? mode.write(to: root.appendingPathComponent("fixture-ack"), atomically: true, encoding: .utf8)
     }
 }
 app.run()

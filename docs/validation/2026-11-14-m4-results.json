@@ -178,7 +178,7 @@
     "Idle threshold, lock/sleep/wake",
     "Hotkey callback, keyboard layout, cancellation and permission revocation",
     "Multi-monitor, Spaces and wallpaper/theme interactions",
-    "Windows desktop, upgrade/uninstall and Linux native X11 GNOME/KDE runtime acceptance"
+    "Windows full hardware and upgrade/uninstall; Linux native X11 GNOME/KDE runtime acceptance"
   ],
   "globalStorageSha256": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be",
   "checks": {
@@ -225,5 +225,14 @@
       }
     ],
     "note": "Native permissions, USB hardware and other OS desktop behavior require separate acceptance."
+  },
+  "finalWindowsDesktop": {
+    "passed": true,
+    "date": "2026-11-15",
+    "executionOS": "win32",
+    "packageSha256": "693ad40a4e28df2250a1eeeb6df65181055ed88c7d7b141125ec119cbcbdc75c",
+    "sourceHash": "02dd16669e1e6cdce24c82b219725dfbc1b8272aac1b5bf900574dfd3051e995",
+    "report": "2026-11-15-m4-windows-results.json",
+    "scope": "Windows business, isolation and graceful-stop regression; not full hardware or upgrade acceptance."
   }
 }

@@ -1,0 +1,349 @@
+{
+  "milestone": "M4",
+  "date": "2026-11-15",
+  "timezone": "Asia/Shanghai",
+  "developmentComplete": true,
+  "windowsFinalPackageRegressionComplete": true,
+  "fullDesktopAndHardwareAcceptanceComplete": false,
+  "executionOS": "win32",
+  "nativeRuntime": "win-x64",
+  "validationSourceHead": "f2b479422a27d4af67a1e8e8f7dce506c485250c",
+  "toolingCommit": "656104ba2f96fa51cc4b8732df23f44f4fe3ce87",
+  "sourceHash": "02dd16669e1e6cdce24c82b219725dfbc1b8272aac1b5bf900574dfd3051e995",
+  "packageCodeCommit": "3359948fe3c09dceb3f887f101c60c454bec8763",
+  "package": {
+    "sha256": "693ad40a4e28df2250a1eeeb6df65181055ed88c7d7b141125ec119cbcbdc75c",
+    "bytes": 149581289,
+    "payloadFiles": 307,
+    "crcVerified": true,
+    "payloadHashesVerified": true
+  },
+  "environment": {
+    "os": "Windows 11 Home China x64",
+    "osVersion": "10.0.26300",
+    "sdk": "10.0.403",
+    "runtime": "10.0.14",
+    "python": "3.12.10",
+    "git": "2.54.0.windows.1",
+    "sdkInstall": "workspace-local",
+    "sdkArchiveSha512Verified": true
+  },
+  "host": {
+    "commit": "1d532ce6755dc1396b48beb9f045b1acbdf2b6fa",
+    "sha256": "7f535c4c8df304bd29d8a38fc1704119fcd7aac3658551bfbe67275380839bdb",
+    "ordinaryBuildPassed": false,
+    "verificationBuildPassed": true,
+    "verificationWarnings": 1503,
+    "verificationOverride": "-p:EnableSourceControlManagerQueries=false",
+    "sourceEdited": false,
+    "reason": "SourceLink 8 cannot read reftable refstorage; only source indexing disabled for this build."
+  },
+  "checks": {
+    "passed": true,
+    "total": 184,
+    "groups": [
+      {
+        "name": "shared-regression",
+        "passed": true,
+        "checks": 123
+      },
+      {
+        "name": "loader",
+        "passed": true,
+        "checks": 19
+      },
+      {
+        "name": "m4-contracts",
+        "passed": true,
+        "checks": 29
+      },
+      {
+        "name": "m4-package",
+        "passed": true,
+        "checks": 12
+      },
+      {
+        "name": "entrance-identity",
+        "passed": true,
+        "checks": 1
+      }
+    ],
+    "evidence": {
+      "path": "artifacts/m4/checks.json",
+      "sha256": "140e4d68d2634e3ac952a79fda99e72f0d352882239429bba0b530389aec59f8"
+    }
+  },
+  "reproducible": {
+    "passed": true,
+    "files": 9,
+    "scope": "Same OS only. Cross-OS common hash comparison remains enforced by package aggregation.",
+    "evidence": {
+      "path": "artifacts/m1/reproducible-build.json",
+      "sha256": "2fd0b69379e0ce4663138af780f06137255228a3c7c3d9629c23ddc9f21cafe1"
+    }
+  },
+  "nativeStage": {
+    "passed": true,
+    "kind": "native",
+    "sdk": "10.0.403",
+    "files": 304,
+    "commit": "f2b479422a27d4af67a1e8e8f7dce506c485250c",
+    "mixedWithForeignStages": false,
+    "evidence": {
+      "path": "artifacts/m4/stages/win-x64/m4-stage.json",
+      "sha256": "4becfe9053629e6ea066c49bf6641cd8db2df049145106d25ef9ad536656736d"
+    }
+  },
+  "desktop": {
+    "passed": true,
+    "evidence": {
+      "path": "artifacts/m4/windows/desktop.json",
+      "sha256": "03c46bc6697ad66a5e093f68d880aecf35f51c4f486b6b6b2fecf5a362712ec1"
+    },
+    "scenarios": [
+      {
+        "case": "normal",
+        "passed": true,
+        "exitCode": 0,
+        "forcedStop": false,
+        "timedOut": false,
+        "processId": 10304,
+        "globalStorageUnchanged": true,
+        "configContractPreserved": true,
+        "run": "artifacts/m4/windows/runs/20261115-164708-normal",
+        "result": {
+          "path": "artifacts/m4/windows/runs/20261115-164708-normal/result.json",
+          "sha256": "1ac878d653236cce4662b025d31cab26210856dd7b1cdab1b8cd74072f7be34b"
+        },
+        "hostLog": {
+          "path": "artifacts/m4/windows/runs/20261115-164708-normal/host.log",
+          "sha256": "45b1f8f1910013f0b2ad29100d1a832c2f327f37371ef2871abb2d2f4bc78d3a"
+        },
+        "shutdown": {
+          "passed": true,
+          "cleanupFailures": 0,
+          "isSessionEnding": false,
+          "shutdownPlanHandled": true,
+          "ordinaryShutdownAbortPreserved": true,
+          "eventSubscriptionsRemoved": true,
+          "singleStop": true
+        },
+        "settingsPages": 8,
+        "actionFactories": 61,
+        "registeredActions": 61,
+        "components": 7,
+        "triggers": 7,
+        "rules": 5,
+        "themes": 3,
+        "passedFlags": [
+          "legacyImageUris",
+          "fileActions",
+          "screenshot",
+          "excel",
+          "unavailableCamera",
+          "nativeLibraries",
+          "registrations",
+          "credentials",
+          "migrationInteraction",
+          "floatingSnapshots",
+          "isolated",
+          "configSaved"
+        ],
+        "directoryValidation": {
+          "outcome": "permission-denied-original-baseline-also-fails",
+          "baselineExitCode": 16,
+          "sourceAndTargetPreserved": true,
+          "originalCopyAllSemanticsRetained": true,
+          "privilegedSuccessRuntimeVerified": false
+        }
+      },
+      {
+        "case": "foreign-corrupt",
+        "passed": true,
+        "exitCode": 0,
+        "forcedStop": false,
+        "timedOut": false,
+        "processId": 52220,
+        "globalStorageUnchanged": true,
+        "configContractPreserved": true,
+        "run": "artifacts/m4/windows/runs/20261115-164719-foreign-corrupt",
+        "result": {
+          "path": "artifacts/m4/windows/runs/20261115-164719-foreign-corrupt/result.json",
+          "sha256": "df92a28d5b581fb2ba84e4d53b5d7e7c011d90a9e7299ad0b9a43918c1f91677"
+        },
+        "hostLog": {
+          "path": "artifacts/m4/windows/runs/20261115-164719-foreign-corrupt/host.log",
+          "sha256": "a0f82833ae9f52d72299bdfa2f6ed9542f15e1e6e7c7034716ad15e277086b33"
+        },
+        "shutdown": {
+          "passed": true,
+          "cleanupFailures": 0,
+          "isSessionEnding": false,
+          "shutdownPlanHandled": true,
+          "ordinaryShutdownAbortPreserved": true,
+          "eventSubscriptionsRemoved": true,
+          "singleStop": true
+        },
+        "settingsPages": 8,
+        "actionFactories": 61,
+        "registeredActions": 61,
+        "components": 7,
+        "triggers": 7,
+        "rules": 5,
+        "themes": 3,
+        "passedFlags": [
+          "legacyImageUris",
+          "fileActions",
+          "screenshot",
+          "excel",
+          "unavailableCamera",
+          "nativeLibraries",
+          "registrations",
+          "credentials",
+          "migrationInteraction",
+          "floatingSnapshots",
+          "isolated",
+          "configSaved"
+        ],
+        "directoryValidation": {
+          "outcome": "permission-denied-original-baseline-also-fails",
+          "baselineExitCode": 16,
+          "sourceAndTargetPreserved": true,
+          "originalCopyAllSemanticsRetained": true,
+          "privilegedSuccessRuntimeVerified": false
+        }
+      },
+      {
+        "case": "missing-backend",
+        "passed": true,
+        "exitCode": 0,
+        "forcedStop": false,
+        "timedOut": false,
+        "processId": 11880,
+        "globalStorageUnchanged": true,
+        "configContractPreserved": true,
+        "run": "artifacts/m4/windows/runs/20261115-164728-missing-backend",
+        "result": {
+          "path": "artifacts/m4/windows/runs/20261115-164728-missing-backend/result.json",
+          "sha256": "06c14e2dbf73848265ef81f599ee492068757473cd625401e91905b9540537cd"
+        },
+        "hostLog": {
+          "path": "artifacts/m4/windows/runs/20261115-164728-missing-backend/host.log",
+          "sha256": "f5e4192cbe4f25439fac02f3b45562eb94668757ab51830c365edfc426eac183"
+        },
+        "shutdown": {
+          "passed": true,
+          "appStoppingObserved": true
+        },
+        "expectedRejection": true,
+        "loadStatus": "Error",
+        "businessInitialized": false,
+        "appStoppingObserved": true
+      }
+    ]
+  },
+  "preserved": {
+    "originalIdeaHash": {
+      "unchanged": true,
+      "sha256": "1293dd570cb77ff3e1c10b4c780e1465d70b81a11047fe30c96de8b6accff8d5"
+    },
+    "originalReportHash": {
+      "unchanged": true,
+      "sha256": "deb4fed667554ed416fbee6f6dfaf4c516949c49a1332a8960301136e0c0c15c"
+    },
+    "machineGlobalHash": {
+      "unchanged": true,
+      "sha256": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be"
+    }
+  },
+  "initialFailure": {
+    "run": "artifacts/m4/windows/runs/20261115-164456-missing-backend",
+    "exitCode": 1,
+    "reason": "Legacy test runner terminated the host after detecting expected rejection; not a graceful exit."
+  },
+  "pending": [
+    {
+      "id": "M4-P01",
+      "platform": "osx-arm64",
+      "item": "Mac 最小化实际成功及 AppKit 基线复验"
+    },
+    {
+      "id": "M4-P02",
+      "platform": "osx-arm64",
+      "item": "真实热键回调、组合键/布局、取消和权限撤销"
+    },
+    {
+      "id": "M4-P03",
+      "platform": "macOS/Linux/Windows",
+      "item": "USB 实物多分区插拔、卷竞争和自动播放"
+    },
+    {
+      "id": "M4-P04",
+      "platform": "macOS/Linux/Windows",
+      "item": "真实空闲阈值、锁屏、睡眠和唤醒"
+    },
+    {
+      "id": "M4-P05",
+      "platform": "macOS/Linux/Windows",
+      "item": "多屏/Spaces/热插拔、壁纸和主题交错"
+    },
+    {
+      "id": "M4-P06",
+      "platform": "linux-x64",
+      "item": "原生 X11 GNOME/KDE 桌面运行，runtimeVerified=false"
+    },
+    {
+      "id": "M4-P07",
+      "platform": "win-x64",
+      "item": "Robocopy /copyall 对应权限下的完整成功路径"
+    },
+    {
+      "id": "M4-P08",
+      "platform": "all",
+      "item": "完整真实旧数据升级、回退、卸载及发行矩阵，进入 M7 追踪"
+    }
+  ],
+  "processIds": [
+    10304,
+    52220,
+    11880
+  ],
+  "scope": "Final existing native package on a real Windows host; permission-limited and other-OS hardware paths remain pending.",
+  "nativeCiRegression": {
+    "id": 43696195206,
+    "commit": "656104ba2f96fa51cc4b8732df23f44f4fe3ce87",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 132757142531,
+        "name": "native-build (windows-2025, win-x64)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132757142719,
+        "name": "native-build (ubuntu-24.04, linux-x64)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132757142729,
+        "name": "native-build (macos-15, osx-arm64)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 132757897099,
+        "name": "aggregate",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "note": "Regression of the tooling commit. Desktop evidence remains tied to the original explicitly verified M4 CIPX hash.",
+    "evidence": {
+      "path": "artifacts/m4/windows/native-ci-regression.json",
+      "sha256": "8cc4dca97b172bf2e1c7e6d1c510a41e28282a9ffa7e74fe28a27a20e6b6bfce"
+    }
+  }
+}

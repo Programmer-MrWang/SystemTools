@@ -27,6 +27,7 @@ def check():
     print(result.stdout, end='')
     if result.returncode:
         raise RuntimeError('M5 tests failed.')
+    subprocess.run([sys.executable, '-B', 'eng/test_m5_acceptance.py'], cwd=ROOT, check=True)
 
 
 def smoke_windows(host, package, preferences, wave, device):
@@ -48,6 +49,8 @@ def smoke_windows(host, package, preferences, wave, device):
         media_preferences=preferences) for case in ('normal', 'foreign-corrupt', 'missing-backend')]
     m1.write_json(ARTIFACTS / 'windows/desktop.json', dict(m1.identity(), passed=all(item['passed'] for item in results),
         packageSha256=m1.sha(package), executionOS=sys.platform, scenarios=results))
+    if not all(item['passed'] for item in results):
+        raise RuntimeError('M5 Windows desktop acceptance failed; see windows/desktop.json.')
 
 
 def main():

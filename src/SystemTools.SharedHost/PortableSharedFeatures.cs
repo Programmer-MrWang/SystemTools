@@ -46,9 +46,16 @@ public static class PortableSharedFeatures
 public sealed class PortableSurfaceLifetime : IHostedService
 {
     private readonly HashSet<Window> _windows = [];
+    private readonly Dictionary<object,Window> _owned = new(ReferenceEqualityComparer.Instance);
     private readonly CancellationTokenSource _stop = new();
     public CancellationToken Stopping => _stop.Token;
     public void Track(Window window) { _windows.Add(window); window.Closed += (_, _) => _windows.Remove(window); }
+    public void Track(Window window,object owner)
+    {
+        Close(owner);_owned[owner]=window;Track(window);
+        window.Closed+=(_,_)=>{if(_owned.TryGetValue(owner,out var current)&&ReferenceEquals(current,window))_owned.Remove(owner);};
+    }
+    public void Close(object owner){if(_owned.Remove(owner,out var window))window.Close();}
     public Task StartAsync(CancellationToken token) => Task.CompletedTask;
     public async Task StopAsync(CancellationToken token)
     {
@@ -111,15 +118,15 @@ public sealed class PortableBlackScreenAction(PortableSurfaceLifetime lifetime) 
         InterruptCancellationToken.ThrowIfCancellationRequested();
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            _window?.Close();
+            lifetime.Close(ActionItem);
             var window = new Window { Title = "SystemTools 黑屏 · Esc 或单击退出", Background = Brushes.Black, WindowState = WindowState.FullScreen,
                 Topmost = true, ShowInTaskbar = false, WindowDecorations = WindowDecorations.None };
             window.KeyDown += (_, args) => { if (args.Key == Key.Escape) window.Close(); };
             window.PointerPressed += (_, _) => window.Close();
-            lifetime.Track(window); _window = window; window.Show();
+            lifetime.Track(window,ActionItem); _window = window; window.Show();
         });
     }
-    protected override async Task OnInterrupted() => await Dispatcher.UIThread.InvokeAsync(() => _window?.Close());
+    protected override async Task OnInterrupted() => await Dispatcher.UIThread.InvokeAsync(() => lifetime.Close(ActionItem));
     protected override Task OnRevert() => OnInterrupted();
 }
 

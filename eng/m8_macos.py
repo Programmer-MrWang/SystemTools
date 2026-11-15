@@ -42,7 +42,7 @@ def launch(root,host_app):
     environment=dict(os.environ)
     for name in list(environment):
         if name.startswith('SystemTools_M') or name in ('ClassIsland_DebugForceMonoPluginLoadBehavior','ClassIsland_DebugSuppressMacOSPluginLoadBehavior','ClassIsland_WaitDebuggers'):environment.pop(name)
-    environment.update(ClassIsland_PackageRoot=str(root/'sandbox'),SystemTools_M8_ProbeRoot=str(root))
+    environment.update(ClassIsland_PackageRoot=str(root/'sandbox'),SystemTools_M8_ProbeRoot=str(root),SystemTools_M8_CleanupReferences=str(ROOT/'artifacts/m8/synthetic-keychain-cleanup.json'))
     global_path=m1.global_storage_path()
     before=m1.sha(global_path) if global_path.exists() else None
     fixture_log=(root/'fixture.log').open('a')

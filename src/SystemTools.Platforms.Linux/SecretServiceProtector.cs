@@ -36,6 +36,8 @@ public sealed class SecretServiceProtector : IStoredCredentialProtector
         return id.Length == 32 && Guid.TryParseExact(id, "N", out _);
     }
     private (bool Success, string Value) Run(string operation, string id, string? secret)
+        => RunAsync(operation, id, secret).GetAwaiter().GetResult();
+    private async Task<(bool Success, string Value)> RunAsync(string operation, string id, string? secret)
     {
         if (!Availability.CanExecute) return (false, "");
         try
@@ -47,13 +49,24 @@ public sealed class SecretServiceProtector : IStoredCredentialProtector
             if (operation == "store") info.ArgumentList.Add("--label=SystemTools API credential");
             foreach (var argument in new[] { "application", "io.github.programmer-mrwang.systemtools", "credential-id", id }) info.ArgumentList.Add(argument);
             using var process = Process.Start(info)!;
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             var output = process.StandardOutput.ReadToEndAsync(); var error = process.StandardError.ReadToEndAsync();
-            if (secret is not null) process.StandardInput.Write(secret);
-            process.StandardInput.Close();
-            if (!process.WaitForExit(15000)) { process.Kill(entireProcessTree: true); process.WaitForExit(5000); return (false, ""); }
-            Task.WhenAll(output, error).Wait(TimeSpan.FromSeconds(2));
-            return process.ExitCode == 0 && output.IsCompletedSuccessfully ? (true, output.Result) : (false, "");
+            try
+            {
+                if (secret is not null) await process.StandardInput.WriteAsync(secret.AsMemory(), deadline.Token).ConfigureAwait(false);
+                process.StandardInput.Close();
+                await process.WaitForExitAsync(deadline.Token).ConfigureAwait(false);
+                await Task.WhenAll(output, error).WaitAsync(deadline.Token).ConfigureAwait(false);
+                return process.ExitCode == 0 ? (true, output.Result) : (false, "");
+            }
+            catch
+            {
+                try { if (!process.HasExited) process.Kill(entireProcessTree: true); } catch (InvalidOperationException) { }
+                await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+                throw;
+            }
         }
-        catch (Exception error) when (error is IOException or System.ComponentModel.Win32Exception or InvalidOperationException or AggregateException) { return (false, ""); }
+        catch (Exception error) when (error is IOException or System.ComponentModel.Win32Exception or InvalidOperationException or OperationCanceledException or TimeoutException)
+        { return (false, ""); }
     }
 }

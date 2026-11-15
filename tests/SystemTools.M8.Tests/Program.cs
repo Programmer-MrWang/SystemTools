@@ -6,6 +6,17 @@ using SystemTools.ConfigHandlers;
 using SystemTools.Contracts;
 using SystemTools.Shared;
 
+if(args.FirstOrDefault()=="credential-cleanup")
+{
+    var references=JsonSerializer.Deserialize<string[]>(File.ReadAllText(args[1]))!;
+    var store=new SystemTools.Platforms.MacOS.KeychainProtector();
+    var deleted=0;
+    foreach(var reference in references)
+        if(store.Delete(reference))deleted++;
+    Console.WriteLine($"Synthetic references deleted: {deleted}/{references.Length}");
+    if(deleted!=references.Length) { Console.Error.WriteLine("Some synthetic references require the unlocked original host for cleanup.");Environment.ExitCode=1; }
+    return;
+}
 if (args.FirstOrDefault() == "credential-child")
 {
     var state = JsonSerializer.Deserialize<CredentialState>(File.ReadAllText(args[1]))!;
@@ -70,6 +81,33 @@ try
     foreach(var type in new[]{typeof(SystemTools.PortableUndoAction),typeof(SystemTools.PortableCloseKeyAction),typeof(SystemTools.PortableSwitchAppAction),
         typeof(SystemTools.PortableRestartAction),typeof(SystemTools.NativeEnterAction),typeof(SystemTools.NativeMirrorDisplayAction)})
         Check(type.BaseType!.GetGenericArguments().FirstOrDefault()==typeof(SystemTools.Settings.ShortcutKeyNotificationSettings),"宿主 JSON 行动工厂可识别设置类型："+type.Name);
+    using(var schedule = new SystemTools.Common.Automation.ScheduledOperation())
+    {
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        schedule.Schedule(TimeSpan.Zero,async _=> { entered.TrySetResult();await release.Task;throw new IOException("old operation"); },default);
+        var old = schedule.Completion;await entered.Task;
+        schedule.Schedule(TimeSpan.FromHours(1),_=>Task.CompletedTask,default);
+        release.TrySetResult();await old;
+        Check(schedule.LastError is null && schedule.Due is not null,"替换计划后旧操作的迟到错误不污染新计划");
+        schedule.Cancel();await schedule.Completion;
+    }
+    var appearance = new FixtureSession();
+    var transactions = new SystemTools.Common.Automation.SettingRestoreTransactions();var group=Guid.NewGuid();var owner=new object();
+    await transactions.ApplyAsync(appearance,group,owner,"theme","dark",true,default);
+    await transactions.RevertAsync(appearance,group,owner);
+    Check(appearance.Value=="light","外观恢复状态存于共享服务，可跨行动实例恢复");
+    await transactions.ApplyAsync(appearance,group,owner,"theme","dark",true,default);appearance.Value="manual";
+    await transactions.RevertAsync(appearance,group,owner);
+    Check(appearance.Value=="manual","外观回退不覆盖用户后续手动修改");
+    using(var schedule=new SystemTools.Common.Automation.ScheduledOperation())
+    {
+        var first=new object();var second=new object();
+        schedule.Schedule(TimeSpan.FromHours(1),_=>Task.CompletedTask,default,first);
+        schedule.Schedule(TimeSpan.FromHours(1),_=>Task.CompletedTask,default,second);
+        schedule.Cancel(first);Check(schedule.Due is not null,"旧行动恢复不会取消另一行动新建的关机计划");
+        schedule.Cancel(second);await schedule.Completion;Check(schedule.Due is null,"计划所属行动可取消自己的计时");
+    }
     var pointer=new FixturePointer();
     using(var stop=new CancellationTokenSource())
     {
@@ -133,4 +171,13 @@ public sealed class FixturePointer : IPointerInput
         if(operation=="down") { Pressed?.Invoke();if(Fail)throw new IOException("partial"); }
         return Task.CompletedTask;
     }
+}
+
+
+public sealed class FixtureSession:IDesktopSession
+{
+    public string Value="light";
+    public Capability Probe(string operation)=>new(CapabilityState.Available);
+    public Task<string> ExecuteAsync(string operation,string? value,CancellationToken token)
+    {token.ThrowIfCancellationRequested();if(operation.EndsWith(".set"))Value=value!;return Task.FromResult(Value);}
 }

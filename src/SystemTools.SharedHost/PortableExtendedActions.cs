@@ -46,6 +46,7 @@ public static class PortableExtendedActions
         if (native.Session is { } session)
         {
             services.AddSingleton(session);
+            services.AddSingleton<SettingRestoreTransactions>();
             services.AddSingleton<PortableShutdownService>();
             services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<PortableShutdownService>());
             foreach (var (suffix, operation) in new[] { ("ImmediateShutdown","shutdown"),("ImmediateRestart","restart"),("Sleep","sleep"),("LockScreen","lock"),("ShowDesktop","desktop"),
@@ -158,20 +159,40 @@ public sealed class PortableDesktopAction(IDesktopSession session,NativeDesktopS
 public sealed class PortableShutdownService(IDesktopSession session,NativeDesktopServices native,ILogger<PortableShutdownService> logger):IHostedService,IDisposable
 {
     public ScheduledOperation Schedule {get;}=new();
-    public void Start(int seconds)
+    public void Start(int seconds, object? owner = null)
     {
-        Schedule.Schedule(TimeSpan.FromSeconds(seconds),async token=> { await session.ExecuteAsync("shutdown",null,token); },native.Stopping);
+        Schedule.Schedule(TimeSpan.FromSeconds(seconds),async token=> { await session.ExecuteAsync("shutdown",null,token); },native.Stopping,owner);
         _=Schedule.Completion.ContinueWith(_=> { if(Schedule.LastError is {} error)logger.LogError(error,"计时关机被系统拒绝。"); },TaskScheduler.Default);
+    }
+    public async Task ShowAsync(PortableSurfaceLifetime lifetime,object owner)
+    {
+        await Dispatcher.UIThread.InvokeAsync(()=>
+        {
+            lifetime.Close(owner);
+            var remaining=new TextBlock();var cancel=new Button{Content="取消关机计划"};var extend=new Button{Content="延长 1 分钟"};
+            var status=new TextBlock{TextWrapping=TextWrapping.Wrap};
+            var window=new Window{Title="SystemTools 计时关机",Width=430,Height=250,Content=new StackPanel{Margin=new Avalonia.Thickness(24),Spacing=12,Children={remaining,extend,cancel,status}}};
+            var timer=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(250)};
+            void Refresh()
+            {
+                remaining.Text=Schedule.Due is {} due ? "距离关机："+Math.Max(0,(int)Math.Ceiling((due-DateTimeOffset.UtcNow).TotalSeconds))+" 秒" : "计划已结束";
+                if(Schedule.LastError is not null)status.Text="系统拒绝了关机请求，请检查自动化或系统权限。";
+            }
+            timer.Tick+=(_,_)=>Refresh();window.Closed+=(_,_)=>timer.Stop();
+            cancel.Click+=(_,_)=>{Schedule.Cancel();window.Close();};
+            extend.Click+=(_,_)=>{if(Schedule.Due is {} due)Start((int)Math.Clamp(Math.Ceiling((due-DateTimeOffset.UtcNow).TotalSeconds)+60,0,604800),owner);};
+            Refresh();timer.Start();lifetime.Track(window,owner);window.Show();
+        });
     }
     public Task StartAsync(CancellationToken token)=>Task.CompletedTask;
     public Task StopAsync(CancellationToken token) { Schedule.Cancel(); return Schedule.Completion; }
     public void Dispose()=>Schedule.Dispose();
 }
 [ActionInfo("SystemTools.Shutdown","计时关机","\uE4C4",false)]
-public sealed class PortableShutdownAction(PortableShutdownService service):ActionBase<ShutdownSettings>
+public sealed class PortableShutdownAction(PortableShutdownService service,PortableSurfaceLifetime lifetime):ActionBase<ShutdownSettings>
 {
-    protected override Task OnInvoke() { InterruptCancellationToken.ThrowIfCancellationRequested(); service.Start(Settings.Seconds); NativeActionFeedback.Notify(Settings.NotifyOnExecute,"已建立插件计时关机计划；退出宿主会取消");return Task.CompletedTask; }
-    protected override Task OnInterrupted(){service.Schedule.Cancel();return Task.CompletedTask;}
+    protected override async Task OnInvoke() { InterruptCancellationToken.ThrowIfCancellationRequested(); service.Start(Settings.Seconds,ActionItem); if(Settings.ShowPrompt)await service.ShowAsync(lifetime,ActionItem); NativeActionFeedback.Notify(Settings.NotifyOnExecute,"已建立插件计时关机计划；退出宿主会取消"); }
+    protected override async Task OnInterrupted(){service.Schedule.Cancel(ActionItem);await Dispatcher.UIThread.InvokeAsync(()=>lifetime.Close(ActionItem));}
     protected override Task OnRevert()=>OnInterrupted();
 }
 [ActionInfo("SystemTools.CancelShutdown","取消关机计划","\uE4C4",false)]
@@ -180,58 +201,36 @@ public sealed class PortableCancelShutdownAction(PortableShutdownService service
 [ActionInfo("SystemTools.AdvancedShutdown","高级计时关机","\uE4C4",false)]
 public sealed class PortableAdvancedShutdownAction(PortableShutdownService service,PortableSurfaceLifetime lifetime):ActionBase<AdvancedShutdownSettings>
 {
-    private Window? _window;
     protected override async Task OnInvoke()
     {
-        InterruptCancellationToken.ThrowIfCancellationRequested();service.Start(checked(Settings.Minutes*60));
-        await Dispatcher.UIThread.InvokeAsync(()=>
-        {
-            _window?.Close();
-            var remaining=new TextBlock();var cancel=new Button{Content="取消关机计划"};var extend=new Button{Content="延长 1 分钟"};
-            var status=new TextBlock{TextWrapping=TextWrapping.Wrap};
-            var window=new Window{Title="SystemTools 计时关机",Width=430,Height=250,Content=new StackPanel{Margin=new Avalonia.Thickness(24),Spacing=12,Children={remaining,extend,cancel,status}}};
-            var timer=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(250)};
-            void Refresh()
-            {
-                remaining.Text=service.Schedule.Due is {} due ? "距离关机："+Math.Max(0,(int)Math.Ceiling((due-DateTimeOffset.UtcNow).TotalSeconds))+" 秒" : "计划已结束";
-                if(service.Schedule.LastError is not null)status.Text="系统拒绝了关机请求，请检查自动化或系统权限。";
-            }
-            timer.Tick+=(_,_)=>Refresh();window.Closed+=(_,_)=>timer.Stop();
-            cancel.Click+=(_,_)=>{service.Schedule.Cancel();window.Close();};
-            extend.Click+=(_,_)=>{if(service.Schedule.Due is {} due)service.Start((int)Math.Clamp(Math.Ceiling((due-DateTimeOffset.UtcNow).TotalSeconds)+60,0,604800));};
-            Refresh();timer.Start();lifetime.Track(window);_window=window;window.Show();
-        });
+        InterruptCancellationToken.ThrowIfCancellationRequested();service.Start(checked(Settings.Minutes*60),ActionItem);
+        await service.ShowAsync(lifetime,ActionItem);
     }
-    protected override async Task OnInterrupted(){service.Schedule.Cancel();await Dispatcher.UIThread.InvokeAsync(()=>_window?.Close());}
+    protected override async Task OnInterrupted(){service.Schedule.Cancel(ActionItem);await Dispatcher.UIThread.InvokeAsync(()=>lifetime.Close(ActionItem));}
     protected override Task OnRevert()=>OnInterrupted();
 }
 [ActionInfo("SystemTools.SwitchTheme","切换系统主题","\uF42F",false)]
-public sealed class PortableThemeAction(IDesktopSession session,FeatureCatalog catalog):ActionBase<ThemeSettings>
+public sealed class PortableThemeAction(IDesktopSession session, FeatureCatalog catalog, SettingRestoreTransactions snapshots):ActionBase<ThemeSettings>
 {
-    private string? _before,_applied;
     protected override async Task OnInvoke()
     {
-        _before=await session.ExecuteAsync("theme.read",null,InterruptCancellationToken);
-        _applied=catalog.RuntimeId=="osx-arm64" ? (Settings.Theme=="深色" ? "dark":"light") : (Settings.Theme=="深色" ? "prefer-dark":"default");
-        await session.ExecuteAsync("theme.set",_applied,InterruptCancellationToken);
-        if(catalog.RuntimeId=="osx-arm64" && await session.ExecuteAsync("theme.read",null,InterruptCancellationToken)!=_applied)throw new IOException("系统未确认主题变更。");
+        var value=catalog.RuntimeId=="osx-arm64" ? (Settings.Theme=="深色" ? "dark":"light") : (Settings.Theme=="深色" ? "prefer-dark":"default");
+        await snapshots.ApplyAsync(session,ActionSet.Guid,ActionItem,"theme",value,IsRevertable,InterruptCancellationToken);
         NativeActionFeedback.Notify(Settings.NotifyOnExecute,"系统主题已切换");
     }
-    protected override async Task OnRevert(){if(_before is not null && await session.ExecuteAsync("theme.read",null,default)==_applied)await session.ExecuteAsync("theme.set",_before,default);}
+    protected override Task OnRevert()=>snapshots.RevertAsync(session,ActionSet.Guid,ActionItem);
 }
 [ActionInfo("SystemTools.SwitchSystemAccentColor","切换系统强调色","\uE523",false)]
-public sealed class PortableAccentAction(IDesktopSession session):ActionBase<AccentColorSettings>
+public sealed class PortableAccentAction(IDesktopSession session,SettingRestoreTransactions snapshots):ActionBase<AccentColorSettings>
 {
     public static readonly (string Name,string Hex)[] Palette=[("blue","#3584E4"),("teal","#2190A4"),("green","#3A944A"),("yellow","#C88800"),("orange","#ED5B00"),("red","#E62D42"),("pink","#D56199"),("purple","#9141AC"),("slate","#6F8396")];
-    private string? _before,_applied;
     protected override async Task OnInvoke()
     {
         var color=Color.Parse(Settings.ColorHex);
-        _applied=Palette.OrderBy(x=>{var other=Color.Parse(x.Hex);return Math.Pow(other.R-color.R,2)+Math.Pow(other.G-color.G,2)+Math.Pow(other.B-color.B,2);}).First().Name;
-        _before=await session.ExecuteAsync("accent.read",null,InterruptCancellationToken);
-        await session.ExecuteAsync("accent.set",_applied,InterruptCancellationToken);
+        var value=Palette.OrderBy(x=>{var other=Color.Parse(x.Hex);return Math.Pow(other.R-color.R,2)+Math.Pow(other.G-color.G,2)+Math.Pow(other.B-color.B,2);}).First().Name;
+        await snapshots.ApplyAsync(session,ActionSet.Guid,ActionItem,"accent",value,IsRevertable,InterruptCancellationToken);
     }
-    protected override async Task OnRevert(){if(_before is not null && await session.ExecuteAsync("accent.read",null,default)==_applied)await session.ExecuteAsync("accent.set",_before,default);}
+    protected override Task OnRevert()=>snapshots.RevertAsync(session,ActionSet.Guid,ActionItem);
 }
 public sealed class PortableAccentSettingsControl:ClassIsland.Core.Abstractions.Controls.ActionSettingsControlBase<AccentColorSettings>
 {

@@ -4,16 +4,17 @@ public sealed class ScheduledOperation : IDisposable
 {
     private readonly object _gate = new();
     private CancellationTokenSource? _pending;
+    private object? _owner;
     public DateTimeOffset? Due { get; private set; }
     public Exception? LastError { get; private set; }
     public Task Completion { get; private set; } = Task.CompletedTask;
-    public void Schedule(TimeSpan delay, Func<CancellationToken, Task> execute, CancellationToken stopping)
+    public void Schedule(TimeSpan delay, Func<CancellationToken, Task> execute, CancellationToken stopping, object? owner = null)
     {
         if (delay < TimeSpan.Zero || delay > TimeSpan.FromDays(7)) throw new ArgumentOutOfRangeException(nameof(delay), "计时必须在 0 到 7 天内。");
         lock (_gate)
         {
             Cancel(); LastError = null;
-            var stop = CancellationTokenSource.CreateLinkedTokenSource(stopping); _pending = stop;
+            var stop = CancellationTokenSource.CreateLinkedTokenSource(stopping); _pending = stop; _owner = owner;
             Due = DateTimeOffset.UtcNow + delay;
             Completion = Run(delay, execute, stop);
         }
@@ -27,9 +28,9 @@ public sealed class ScheduledOperation : IDisposable
             await execute(stop.Token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
-        catch (Exception error) { lock (_gate) LastError = error; }
-        finally { lock (_gate) { if (ReferenceEquals(_pending, stop)) { _pending = null; Due = null; } stop.Dispose(); } }
+        catch (Exception error) { lock (_gate) { if (ReferenceEquals(_pending, stop)) LastError = error; } }
+        finally { lock (_gate) { if (ReferenceEquals(_pending, stop)) { _pending = null; _owner = null; Due = null; } stop.Dispose(); } }
     }
-    public void Cancel() { lock (_gate) { _pending?.Cancel(); Due = null; } }
+    public void Cancel(object? owner = null) { lock (_gate) { if(owner is not null && !ReferenceEquals(owner,_owner))return; _pending?.Cancel(); Due = null; } }
     public void Dispose() => Cancel();
 }

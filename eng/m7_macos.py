@@ -22,7 +22,7 @@ def seed(root):
     m1.write_json(root / 'data/Settings.json', dict(IsWelcomeWindowShowed=True, IsSplashEnabled=False, HasEditModeTutorialShown=True))
     config = root / 'data/Config/Plugins/SystemTools'; config.mkdir(parents=True, exist_ok=True)
     m1.write_json(config / 'Main.json', dict(enableAiService=False, enableFloatingWindowFeature=False, autoSwitchClassIslandTheme=False,
-        autoHideMainWindowWhenOccluded=False, aiApiKey='dpapi:opaque-test', m7Unknown=dict(keep=17)))
+        autoHideMainWindowWhenOccluded=False, aiApiKey='dpapi-current-user:v1:opaque-test', m7Unknown=dict(keep=17)))
     (config / 'Attachment.bin').write_bytes(bytes([0, 255, 1, 17]))
 
 

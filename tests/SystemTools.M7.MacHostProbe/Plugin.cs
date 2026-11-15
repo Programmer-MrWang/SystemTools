@@ -62,7 +62,7 @@ public sealed class Plugin : PluginBase
                 var config = Path.Combine(Environment.GetEnvironmentVariable("ClassIsland_PackageRoot")!, "data/Config/Plugins/SystemTools/Main.json");
                 using var document = JsonDocument.Parse(File.ReadAllText(config));
                 Check(document.RootElement.GetProperty("m7Unknown").GetProperty("keep").GetInt32() == 17, "宿主启动后保留未知配置字段");
-                Check(document.RootElement.GetProperty("aiApiKey").GetString() == "dpapi:opaque-test", "宿主启动后不改写不属于本平台的密文");
+                Check(document.RootElement.GetProperty("aiApiKey").GetString() == "dpapi-current-user:v1:opaque-test", "宿主启动后不改写不属于本平台的密文");
             }
             catch (Exception error) { failures.Add(error.ToString()); }
             finally

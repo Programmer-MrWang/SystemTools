@@ -931,6 +931,8 @@ func handleCredentials(_ request: [String: Any], operation: String) throws -> [S
         }
         return ["state": "Available", "secret": secret]
     } else if operation == "credentials.delete" {
+        let context = LAContext(); context.interactionNotAllowed = true
+        query[kSecUseAuthenticationContext as String] = context
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else { throw NativeFailure(state: "PermissionRequired", message: "钥匙串删除被拒绝。") }
     } else { throw NativeFailure(state: "Unsupported", message: "未知凭据操作。") }

@@ -71,7 +71,7 @@ public sealed class Plugin:PluginBase
                 button.IsEnabled=false;
                 try {await operation();}
                 catch(Exception error){_failures.Add(title+": "+error);_status.Text="失败："+error.Message;Write();}
-                finally{button.IsEnabled=true;if(!title.StartsWith("打开黑屏")&&!title.StartsWith("结束")&&!title.StartsWith("准备真实主界面"))_window.Activate();}
+                finally{button.IsEnabled=true;if(!title.StartsWith("打开黑屏")&&!title.StartsWith("结束")&&!title.StartsWith("准备真实主界面")&&!title.StartsWith("显示系统玻璃"))_window.Activate();}
             };
             panel.Children.Add(button);
         }
@@ -128,6 +128,16 @@ public sealed class Plugin:PluginBase
             Check(reference.StartsWith("keychain:v1:"),"真实宿主写入 macOS Keychain 引用");
             Check(!File.ReadAllText(Path.Combine(PluginConfigFolder,"..","SystemTools","Main.json")).Contains("m8-host-synthetic-"),"真实宿主配置不包含新密钥明文");
             File.WriteAllText(Path.Combine(_root,"credential-saved"),reference);
+        });
+        Button("清理本轮历史合成凭据",async()=>
+        {
+            var path=Environment.GetEnvironmentVariable("SystemTools_M8_CleanupReferences")??throw new InvalidOperationException("没有本轮合成凭据清理清单。");
+            var references=JsonSerializer.Deserialize<string[]>(File.ReadAllText(path))!;
+            var store=(IStoredCredentialProtector)SystemTools.Shared.CredentialProtection.Provider;
+            var deleted=0;
+            foreach(var reference in references)if(await Task.Run(()=>store.Delete(reference)))deleted++;
+            File.WriteAllText(Path.Combine(_root,"credential-cleanup.json"),JsonSerializer.Serialize(new{deleted,total=references.Length,passed=deleted==references.Length}));
+            Check(deleted==references.Length,"原版宿主删除本轮历史合成凭据："+deleted);
         });
         Button("删除合成系统凭据",async()=>
         {

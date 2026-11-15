@@ -26,6 +26,8 @@ def capabilities():
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '共享实现；需设置与现场条件'
         if suffix in NATIVE:
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '原生接入；需权限/依赖/设备'
+        if suffix in ('EnableDevice','DisableDevice','EnableMouse','DisableMouse','RestartAsAdmin','ShowToast'):
+            for rid in ('linux-x64','osx-arm64'): states[rid]='Windows 专属；本平台不提供对应入口'
         if suffix in ('Shutdown', 'AdvancedShutdown', 'CancelShutdown'):
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '插件计时；宿主退出取消；系统授权后执行'
         if suffix == 'ShowDesktop': states['osx-arm64'] = '无可靠通用公开接口'

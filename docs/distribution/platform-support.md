@@ -23,10 +23,10 @@
 | SystemTools.Copy | 复制 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.CtrlZ | 按下 Ctrl+Z | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 映射为 Command+W / Command+Tab / Command+Z 对应系统语义 |
 | SystemTools.Delete | 删除 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
-| SystemTools.DisableDevice | 禁用硬件设备 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.DisableMouse | 禁用鼠标 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.EnableDevice | 启用硬件设备 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
-| SystemTools.EnableMouse | 启用鼠标 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.DisableDevice | 禁用硬件设备 | 保留实现；需设置与现场条件 | Windows 专属；本平台不提供对应入口 | Windows 专属；本平台不提供对应入口 |
+| SystemTools.DisableMouse | 禁用鼠标 | 保留实现；需设置与现场条件 | Windows 专属；本平台不提供对应入口 | Windows 专属；本平台不提供对应入口 |
+| SystemTools.EnableDevice | 启用硬件设备 | 保留实现；需设置与现场条件 | Windows 专属；本平台不提供对应入口 | Windows 专属；本平台不提供对应入口 |
+| SystemTools.EnableMouse | 启用鼠标 | 保留实现；需设置与现场条件 | Windows 专属；本平台不提供对应入口 | Windows 专属；本平台不提供对应入口 |
 | SystemTools.EnableVoiceWakeAi | 启用语音唤醒 AI | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.EnterKey | 按下 Enter 键 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.EscKey | 按下 Esc 键 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
@@ -44,13 +44,13 @@
 | SystemTools.OpenAppSettings | 打开应用设置 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.OpenClassSwapWindow | 打开换课窗口 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.OpenProfileEditor | 打开档案编辑 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
-| SystemTools.RestartAsAdmin | 重启应用为管理员身份 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.RestartAsAdmin | 重启应用为管理员身份 | 保留实现；需设置与现场条件 | Windows 专属；本平台不提供对应入口 | Windows 专属；本平台不提供对应入口 |
 | SystemTools.ScreenShot | 屏幕截图 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.SetVolume | 设置系统音量 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ShowAiChatDialog | 显示AI对话框 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ShowDesktop | 显示桌面 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 无可靠通用公开接口 |
 | SystemTools.ShowFloatingWindow | 显示悬浮窗 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.ShowToast | 拉起自定义Windows通知 | 保留实现；需设置与现场条件 | 未接入 | 未接入 |
+| SystemTools.ShowToast | 拉起自定义Windows通知 | 保留实现；需设置与现场条件 | Windows 专属；本平台不提供对应入口 | Windows 专属；本平台不提供对应入口 |
 | SystemTools.Shutdown | 计时关机 | 保留实现；需设置与现场条件 | 插件计时；宿主退出取消；系统授权后执行 | 插件计时；宿主退出取消；系统授权后执行 |
 | SystemTools.SimulateKeyboard | 模拟键盘 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.SimulateKeyCombination | 模拟组合键 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |

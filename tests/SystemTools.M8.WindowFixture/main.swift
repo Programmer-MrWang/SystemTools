@@ -44,6 +44,24 @@ final class FixtureAppDelegate: NSObject, NSApplicationDelegate {
 }
 let appDelegate=FixtureAppDelegate();app.delegate=appDelegate
 Timer.scheduledTimer(withTimeInterval:0.2,repeats:true){_ in
+    let background=root.appendingPathComponent("background-command.json")
+    if let bytes=try? Data(contentsOf:background),let state=try? JSONSerialization.jsonObject(with:bytes) as? [String:Any] {
+        try? FileManager.default.removeItem(at:background)
+        if state["mode"] as? String == "restore" {
+            window.styleMask=[.titled,.closable,.resizable,.miniaturizable]
+            window.setFrame(NSRect(x:220,y:220,width:600,height:380),display:true)
+            text.string="";window.backgroundColor = .windowBackgroundColor
+        } else {
+            let x=state["x"] as? Double ?? 100;let y=state["y"] as? Double ?? 100
+            let width=state["width"] as? Double ?? 600;let height=state["height"] as? Double ?? 120
+            window.styleMask=[.borderless];window.backgroundColor = .white
+            window.setFrame(NSRect(x:x,y:(NSScreen.screens.first?.frame.height ?? 0)-y-height,width:width,height:height),display:true)
+            scroll.frame=NSRect(x:0,y:0,width:width,height:height);text.frame=scroll.bounds
+            text.font=NSFont.boldSystemFont(ofSize:18);text.backgroundColor = .white;text.textColor = .black
+            text.string=state["mode"] as? String == "text" ? "BACKGROUND TEXT 12345" : ""
+            window.orderFront(nil)
+        }
+    }
     let command=root.appendingPathComponent("fixture-command")
     if let operation=try? String(contentsOf:command,encoding:.utf8) {
         try? FileManager.default.removeItem(at:command)

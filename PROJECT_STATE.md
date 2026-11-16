@@ -2,6 +2,16 @@
 
 更新：2026-11-15，Asia/Shanghai。正式开发：`C:\STWork-Windows\SystemTools`；宿主：`C:\STWork-Windows\ClassIsland`。本文件替代 M4 收尾状态，历史证据仍保留。
 
+## 最新进展：2026-11-16 M8 Mac 专项收尾
+
+本段优先于后文。本台可完成专项已收尾，最小化按用户要求跳过，Linux 固定为原生 X11，Wayland/XWayland 不支持。修复 Vision 中英文背景低置信度，业务提交 88c3d8dc5de51b1b2a4427b34adf897be96ce251，源码指纹 cf02139a1eef7a7f164f2c2b2ca16aa5c8283f22c91e54c76944c4a21884c291；CI 43839032538 三端及聚合通过，Windows 318、Linux 315、Mac 379。
+
+实际 CI 包 artifacts/m8/mac-closeout/final-native/SystemTools.M8.Native.cipx，SHA-256 780d60d2f0ccc7d05921ec3ad2b62e06a9d73541a2e7855c6c48aff218d8c48b，完成四种布局 12 项行为检查、17/17/1 项加载矩阵和 11 场景/82 项生命周期，均正常退出无超时强停。同源本机预览另累计有效桌面 7202 秒、1374 次背景刷新及真实锁屏/约 50 秒睡眠后相机、PCM、背景/OCR 恢复；该两小时结论不冒充实际 CI 包长时验收。
+
+睡眠切换一次显示器暂不可用错误与旧探针零错误断言失败原样保留，按真实睡眠事件和后续恢复证据单列；更早一次锁屏前后宿主异常退出原因未知也保留。原 SleepDisabled=1 已读回恢复，隔离布局/课表与设置恢复，日常配置不变，ClassIsland 源码/安装应用及原 dirty 的 4290 项基线通过。不同助手签名或启动责任环境可能要求重新授权；正式升级授权稳定性未承诺。
+
+报告 docs/validation/2026-11-16-m8-mac-closeout.md、-results.json；平台可行路线 docs/research/2026-11-16-platform-boundary-options.md。外屏/USB/旧系统、全部用户布局、实际 CI 包两小时及 Windows/Linux 实体条件独立待验；Developer ID、公证与公开发行门禁仍关闭，不自动发布。原 IDE、docs/reports 与迁移纠正继续保留。
+
 ## 最新进展：2026-11-16 M8 开发与本机补充验收
 
 本段优先于后文。可迁移功能与 Mac Keychain/Linux Secret Service 已实现，逐批自审、中文提交/代理推送。用户解锁后已完成旧候选包材质回退、实际 JSON 行动、凭据保存/重启读取/删除、7 项合成凭据清理、真实一分钟阈值触发及 11 场景/82 项生命周期与 17/17/1 项加载矩阵。用户再次解锁后，音频修复后新包的后台播放/取消、受控窗口快捷键与最终矩阵也已通过，本次解锁后复验完成。allRequestedWorkComplete=false，最小化及平台/硬件/发行待验单列。

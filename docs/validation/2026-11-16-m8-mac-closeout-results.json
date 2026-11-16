@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-16",
+  "timezone": "Asia/Shanghai",
+  "localFeasibleCloseoutComplete": true,
+  "allPlatformAcceptanceComplete": false,
+  "stableReleaseAllowed": false,
+  "hostSourceModified": false,
+  "minimizationSkippedByOwner": true,
+  "linuxScope": "linux-x64 native X11 only; Wayland and XWayland unsupported",
+  "sourceCommit": "88c3d8dc5de51b1b2a4427b34adf897be96ce251",
+  "sourceHash": "cf02139a1eef7a7f164f2c2b2ca16aa5c8283f22c91e54c76944c4a21884c291",
+  "ci": {
+    "id": 43839032538,
+    "conclusion": "success",
+    "checks": {
+      "windows": 318,
+      "linux": 315,
+      "mac": 379
+    }
+  },
+  "candidate": {
+    "path": "artifacts/m8/mac-closeout/final-native/SystemTools.M8.Native.cipx",
+    "sha256": "780d60d2f0ccc7d05921ec3ad2b62e06a9d73541a2e7855c6c48aff218d8c48b",
+    "kind": "native-build-aggregate",
+    "advancedScenarios": 3,
+    "advancedChecks": [
+      17,
+      17,
+      1
+    ],
+    "lifecycleScenarios": 11,
+    "lifecycleChecks": 82,
+    "fourLayouts": {
+      "startedUtc": "2026-11-16T12:23:06.951141Z",
+      "updatedUtc": "2026-11-16T12:24:19.396792Z",
+      "completed": true,
+      "passed": true,
+      "awakeSeconds": 0,
+      "requiredAwakeSeconds": 0,
+      "captureSuccesses": 0,
+      "currentLayout": "三行大字号",
+      "layouts": [
+        {
+          "name": "单行基础",
+          "rows": 1,
+          "region": {
+            "X": 553.5,
+            "Y": 33,
+            "Width": 363,
+            "Height": 40
+          },
+          "darkTheme": 2,
+          "lightTheme": 1,
+          "passed": true
+        },
+        {
+          "name": "单行长文字",
+          "rows": 1,
+          "region": {
+            "X": 443,
+            "Y": 33,
+            "Width": 583.5,
+            "Height": 40
+          },
+          "darkTheme": 2,
+          "lightTheme": 1,
+          "passed": true
+        },
+        {
+          "name": "双行",
+          "rows": 2,
+          "region": {
+            "X": 443,
+            "Y": 33,
+            "Width": 583.5,
+            "Height": 85
+          },
+          "darkTheme": 2,
+          "lightTheme": 1,
+          "passed": true
+        },
+        {
+          "name": "三行大字号",
+          "rows": 3,
+          "region": {
+            "X": 289,
+            "Y": 33,
+            "Width": 892,
+            "Height": 130
+          },
+          "darkTheme": 2,
+          "lightTheme": 1,
+          "passed": true
+        }
+      ],
+      "recoveries": [],
+      "samples": [],
+      "errors": [],
+      "unexpectedErrors": [],
+      "processId": 7337,
+      "workingSet": 602669056,
+      "scope": "Four representative component layouts only; no device, session recovery or long-run acceptance."
+    },
+    "restoration": {
+      "utc": "2026-11-16T12:24:20.331328Z",
+      "layoutRestored": true,
+      "profileRestored": true,
+      "hideRestored": true,
+      "themeRestored": true,
+      "visibilityRestored": true
+    },
+    "exitCode": 0,
+    "exactCiCandidateTwoHourTested": false
+  },
+  "sameSourcePreviewSoak": {
+    "activeSeconds": 7202.376582999989,
+    "targetReached": true,
+    "refreshSuccesses": 1374,
+    "fourLayoutsPassed": true,
+    "finalRecoveryPassed": true,
+    "rawProbeCompleted": false,
+    "rawProbePassed": false,
+    "rawErrors": [
+      "2026/11/16 11:35:46 区域跨越显示器或显示器已移除，请移动窗口后重试。",
+      "System.Exception: 两小时运行没有未处理的捕获错误\n   at SystemTools.M8.MacHostProbe.Plugin.Check(Boolean value, String label)\n   at SystemTools.M8.MacHostProbe.Plugin.RunCloseout()"
+    ],
+    "sleepEvidence": {
+      "passed": true,
+      "realSystemSleepObserved": true,
+      "sameHostPid": 97403,
+      "sameHelperPid": true,
+      "lockUnlockRecovery": true,
+      "sleepWakeRecovery": true,
+      "preservedCaptureInterruptions": [
+        {
+          "error": "2026/11/16 11:35:46 区域跨越显示器或显示器已移除，请移动窗口后重试。",
+          "expectedSleepTransition": true,
+          "nearEvents": [
+            {
+              "kind": "workspace",
+              "name": "NSWorkspaceWillSleepNotification",
+              "uptime": 248070.76667570835,
+              "utc": "2026-11-16T11:35:42Z"
+            }
+          ],
+          "recovery": [
+            {
+              "label": "sleep-wake",
+              "utc": "2026-11-16T11:37:35.741069Z",
+              "identity": {
+                "bundleId": "io.github.programmer-mrwang.systemtools.companion",
+                "pid": 97613,
+                "parentPid": 1,
+                "protocol": 1
+              },
+              "pngBytes": 567472,
+              "ocrBoxes": 0,
+              "passed": true
+            }
+          ]
+        }
+      ],
+      "originalSleepDisabled": 1,
+      "systemPolicyRestored": true,
+      "scope": "Same-source local preview active host, actual system sleep and wake; not actual final CI package long-run acceptance."
+    },
+    "resources": {
+      "samples": 128,
+      "firstRss": 456835072,
+      "lastRss": 495796224,
+      "minRss": 200032256,
+      "maxRss": 621821952,
+      "cpuDelta": 692.219155
+    },
+    "restored": {
+      "syntheticProfileRemoved": true,
+      "originalLayoutHasSingleLine": true,
+      "autoHideDisabled": true,
+      "autoThemeDisabled": true,
+      "dailyGlobalUnchanged": true
+    },
+    "runtimeScope": "Same-source local preview; not exact final CI package two-hour acceptance",
+    "lab": "artifacts/m8/mac/20261116-174603-a620ae",
+    "observedGoalsMet": true,
+    "expectedSleepInterruptions": 1,
+    "obsoleteStrictAssertionFailed": true,
+    "unclassifiedCaptureErrors": [],
+    "hostExit": {
+      "exitCode": 0,
+      "utc": "2026-11-16T12:16:56Z"
+    }
+  },
+  "helperUpgrade": {
+    "passed": true,
+    "previousPackageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
+    "newPackageSha256": "780d60d2f0ccc7d05921ec3ad2b62e06a9d73541a2e7855c6c48aff218d8c48b",
+    "helperFileCount": 3,
+    "helperPayloadIdentical": true,
+    "signatureChanged": false,
+    "scope": "Actual CI M8 previous -> OCR-fixed CI M8: companion payload unchanged; this comparison alone does not assert permission continuity for differently signed versions or untested download/paths.",
+    "olderM7Comparison": {
+      "differentExecutable": true,
+      "beforeSha256": "d3852db103cc9eb9faa504ca301f96e4efd57280f5fb9b981c6644adc206ac8c",
+      "localAfterSha256": "7d74ac95a75cfc86b0b58424c61dd2862f8c42b81e6a6164f08f5f0d4b03b09d",
+      "existingPermissionTestPassed": false,
+      "requiresOwnerReauthorization": true
+    },
+    "sameLocalHelperAccessTest": {
+      "path": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/mac-closeout/companion-upgrade/unchanged-helper-results/native-devices.json",
+      "checks": 18,
+      "passed": true,
+      "scope": "Local preview helper bytes; not actual CI helper TCC evidence"
+    },
+    "actualCiHelperExistingPermissionProbe": {
+      "passed": false,
+      "log": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/mac-closeout/actual-ci-helper.log",
+      "helperPayloadMatchesFinalCandidate": true,
+      "scope": "Same CI helper path launched by dotnet test process; camera authorization not reusable in this responsibility context. Do not generalize from same bundleId or unchanged bytes."
+    }
+  },
+  "priorLockSession": {
+    "lab": "artifacts/m8/mac/20261116-172536-dc6c2a",
+    "endedUnexpectedly": true,
+    "exitCauseUnknown": true,
+    "passed": false
+  },
+  "hostBoundary": {
+    "passed": true,
+    "files": 4290,
+    "baselineSha256": "85a98582aef9d2625d1f03cc839a137ada52b887f183c65555befd54c4e87432"
+  },
+  "dailyGlobalUnchanged": true,
+  "gate": {
+    "candidatePackageReady": true,
+    "localLifecycleValidated": true,
+    "stableAllowed": false,
+    "blockedBy": [
+      "platformLifecycleEvidence",
+      "developerIdSignature",
+      "appleNotarization",
+      "explicitPublicationApproval"
+    ]
+  },
+  "pending": [
+    "最小化按本人要求跳过",
+    "外屏/不同 DPI/热插拔/DDC、USB 与旧 macOS",
+    "实际 CI 包两小时运行、全部用户布局及更长日常使用",
+    "Windows/Linux 实体桌面与硬件、Windows 旧 2.x 生命周期",
+    "正式 Developer ID、公证、跨签名升级授权与公开发行"
+  ],
+  "evidence": [
+    {
+      "path": "artifacts/m8/mac-closeout/final-ci.json",
+      "sha256": "6a5db09075ea03da6242ef96dcec81b3d3c562e647e672c7dea6060301b1ca4d"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/package-audit.json",
+      "sha256": "21bc62477dc538ac63ba8418ca0cf9bb1e6a5e1fb18e7252fca9e211d4d69483"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/mac-signatures.json",
+      "sha256": "89019b1dc980a9612e678583aad53d655bfdf0f3fbc4f964ac352e50fc88cd15"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/release-gate.json",
+      "sha256": "6745d1a0b949a89882d17b055e50b7650331dfccc8aa23cb429a22689644e1f7"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/soak-observed-summary.json",
+      "sha256": "5db99b313fddc7ca30150e577ec60833d4d5d1f8ade4df03db10541090f7ff48"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/sleep-wake-evidence.json",
+      "sha256": "98529e8d6fe6821013364faa78404437d6b180b82066b4539e1fc712903c4ef7"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/final-native-ocr.json",
+      "sha256": "79c7c8a7178f041dfa5f193509c8ff23fb139242fdf3cbc6ac5144e0c25da823"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/companion-upgrade-comparison.json",
+      "sha256": "d40ab402ccd9b43e3ddd3f603c1c5fdb25248d999a289f0549311d2cbe02544e"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/preview-final-comparison.json",
+      "sha256": "0ced246ce104189fb088bd0efdee20d6f0b3a1dd3e698bc543340e5239ed2aa1"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/final-mac-advanced.json",
+      "sha256": "84ed78a1ea9ad0c9f4040cddbe44be67dbf446f0e521857fdd5acc2b0ce5c4f6"
+    },
+    {
+      "path": "artifacts/m8/mac-closeout/final-mac-lifecycle.json",
+      "sha256": "7c0ffd9f35b43bce12e3de0e1fe4e041b7d5f95e6cb909af2834996eaf2250c6"
+    },
+    {
+      "path": "artifacts/m8/mac/20261116-202106-88679d/layout-closeout.json",
+      "sha256": "dd54bdb78381821432e0a4b14ed886b9c7de611f7157d4225c360d975d9d4d7e"
+    },
+    {
+      "path": "artifacts/m8/mac/20261116-202106-88679d/closeout-restored.json",
+      "sha256": "ef6274dd328ec11422ac852d25b0fcb434c74cb01a999ae8b62edb573c5ca4dc"
+    },
+    {
+      "path": "artifacts/m8/mac/20261116-202106-88679d/host-exit.json",
+      "sha256": "d96f96ebed073eba6f1c6bf6314f569e05af830169cababadc2109c72a097849"
+    },
+    {
+      "path": "artifacts/m8/mac/20261116-174603-a620ae/mac-closeout.json",
+      "sha256": "956cc3c95932aca4aa0bb45ba072fbe64f212ccc5fa63b2cc8a486c540c221d3"
+    },
+    {
+      "path": "artifacts/m8/mac/20261116-174603-a620ae/session-evidence.json",
+      "sha256": "f6c98e98f5a6d837c6eea769c05b9b01b00021575302f532b2083640ac07105a"
+    },
+    {
+      "path": "artifacts/m8/mac/20261116-174603-a620ae/interaction.json",
+      "sha256": "3fff9cbaab4a8fd1db497d9a33214c694bfe5eeb92753878e775218d362af050"
+    },
+    {
+      "path": "artifacts/m8/mac/20261116-174603-a620ae/host-exit.json",
+      "sha256": "80f1a42eb5306941ae7992ea3a8173b660b3a8a33b77b03e72a9a8c9116e417a"
+    }
+  ]
+}

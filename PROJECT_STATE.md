@@ -2,6 +2,12 @@
 
 更新：2026-11-15，Asia/Shanghai。正式开发：`C:\STWork-Windows\SystemTools`；宿主：`C:\STWork-Windows\ClassIsland`。本文件替代 M4 收尾状态，历史证据仍保留。
 
+## 最新范围决定：2026-11-16 Mac 明确不做项
+
+用户明确 Mac 媒体状态与歌词适配、关闭指定显示器不做，不在 Mac 生效，不再列为后续开发任务。对应稳定 ID 为 SystemTools.MediaMusicPlayingRule、SystemTools.LyricsDisplay、SystemTools.InternalDisplay、SystemTools.ExternalDisplay；当前已有 Unsupported 门禁与注册检查，旧 ID/配置保留。Linux Wayland/XWayland 继续明确不支持。产品范围见 docs/distribution/product-scope.md，优先于旧研究中的建议顺序。
+
+Mac 显示桌面与任意系统强调色本轮只核实可行性，未要求实现：显示桌面可按用户确认的系统快捷键有条件实现；任意 RGB 全局系统强调色未发现可交付公开写入路线，系统预设色板 UI 自动化与文字高亮色不是同一承诺。当前两项仍不可用，详见 docs/research/2026-11-16-mac-desktop-accent-options.md。本轮只更新范围与研究资料，业务源码、实际候选包及其绑定的历史验收保持原身份。
+
 ## 最新进展：2026-11-16 M8 Mac 专项收尾
 
 本段优先于后文。本台可完成专项已收尾，最小化按用户要求跳过，Linux 固定为原生 X11，Wayland/XWayland 不支持。修复 Vision 中英文背景低置信度，业务提交 88c3d8dc5de51b1b2a4427b34adf897be96ce251，源码指纹 cf02139a1eef7a7f164f2c2b2ca16aa5c8283f22c91e54c76944c4a21884c291；CI 43839032538 三端及聚合通过，Windows 318、Linux 315、Mac 379。

@@ -4,9 +4,9 @@
 
 ## 最新进展：2026-11-16 M8 开发与本机补充验收
 
-本段优先于后文。可迁移功能与 Mac Keychain/Linux Secret Service 已实现，逐批自审、中文提交/代理推送。用户解锁后已完成旧候选包材质回退、实际 JSON 行动、凭据保存/重启读取/删除、7 项合成凭据清理、真实一分钟阈值触发及 11 场景/82 项生命周期与 17/17/1 项加载矩阵。音频修复后新包尚需解锁复验，不能宣称所有工作关闭。allRequestedWorkComplete=false，平台/硬件及发行门禁单列。
+本段优先于后文。可迁移功能与 Mac Keychain/Linux Secret Service 已实现，逐批自审、中文提交/代理推送。用户解锁后已完成旧候选包材质回退、实际 JSON 行动、凭据保存/重启读取/删除、7 项合成凭据清理、真实一分钟阈值触发及 11 场景/82 项生命周期与 17/17/1 项加载矩阵。用户再次解锁后，音频修复后新包的后台播放/取消、受控窗口快捷键与最终矩阵也已通过，本次解锁后复验完成。allRequestedWorkComplete=false，最小化及平台/硬件/发行待验单列。
 
-音频自审复现并修复宿主正常结束行动组导致后台播放提前取消，新增 6 项回归。当前业务提交 3f751a1fea6fdc88a4440ab0ceb655896aada114，指纹 342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc；CI 43768083962 全通过，Windows 318、Linux 315、Mac 373。包 artifacts/m8/final-native/SystemTools.M8.Native.cipx，SHA-256 45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427。新包文件/架构/依赖/许可证/自签及离线回退通过；新包后台音频/窗口快捷键和桌面矩阵仍待再次解锁复验，旧包实机证据不混用。
+音频自审复现并修复宿主正常结束行动组导致后台播放提前取消，新增 6 项回归。当前业务提交 3f751a1fea6fdc88a4440ab0ceb655896aada114，指纹 342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc；CI 43768083962 全通过，Windows 318、Linux 315、Mac 373。包 artifacts/m8/final-native/SystemTools.M8.Native.cipx，SHA-256 45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427。新包文件/架构/依赖/许可证/自签及离线回退通过。新包真实后台音频持续/自然释放、等待/中断取消、受控 Command+Tab/Command+W 和注册共 27 项；11 场景/82 项生命周期及 17/17/1 项加载矩阵通过，退出 0、无超时强停，finalDesktopAcceptanceComplete=true（本次复验范围），完整跨平台实体验收仍 false。两次受宿主通知阻挡的超时记录保留，前后包证据不混用。
 
 报告 docs/validation/2026-11-16-m8-development.md、-results.json；剩余 -remaining.md。最小化本机基线未成功，外屏/USB/旧系统/数小时使用及非本机实体环境待验。ClassIsland 4290 项基线、日常配置与原 dirty 不变。正式签名、公证和公开发行未完成，不发布。
 

@@ -5,9 +5,9 @@
   "userScope": "Portable feature gaps, available local Mac interaction validation, Mac/Linux system credential storage",
   "developmentImplemented": true,
   "allRequestedWorkComplete": false,
-  "finalDesktopAcceptanceComplete": false,
+  "finalDesktopAcceptanceComplete": true,
   "fullPlatformAcceptance": false,
-  "state": "源码与新原生候选包完成；已补解锁后的旧候选包真实验收，新音频修复候选桌面复验受再次锁屏阻挡",
+  "state": "开发及本次解锁后候选包复验完成；最小化、硬件、其他系统与正式发行继续独立待验",
   "ci": {
     "id": 43768083962,
     "status": "completed",
@@ -697,7 +697,7 @@
     "dependencyAudit": true,
     "fullPlatformAcceptance": false,
     "candidatePackageReady": true,
-    "localLifecycleValidated": false,
+    "localLifecycleValidated": true,
     "stableAllowed": false,
     "conditions": {
       "nativeSameSourceAggregate": true,
@@ -1625,9 +1625,501 @@
       }
     }
   },
-  "finalCandidateInteractions": [],
-  "finalCandidateLifecycle": null,
-  "finalCandidateAdvanced": null,
+  "finalCandidateInteractions": [
+    {
+      "path": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/mac/20261116-062040-a5bf55/interaction.json",
+      "packageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
+      "report": {
+        "passed": true,
+        "checks": [
+          "真实宿主正常结束行动组后后台音频仍在播放",
+          "真实后台音频自然完成并释放播放状态",
+          "真实等待模式保持行动运行",
+          "真实行动中断取消音频并释放状态",
+          "实际行动完成：SystemTools.AltTab",
+          "真实 Command+Tab 切换离开受控应用",
+          "关闭前重新确认前台为本轮受控夹具",
+          "实际行动完成：SystemTools.AltF4",
+          "真实 Command+W 关闭受控窗口且夹具正常退出",
+          "实际宿主注册：ActionFlowExecutionConfirmation",
+          "实际宿主注册：BackgroundPlayAudio",
+          "实际宿主注册：BlackScreenHtml",
+          "实际宿主注册：KillProcess",
+          "实际宿主注册：Shutdown",
+          "实际宿主注册：AdvancedShutdown",
+          "实际宿主注册：CancelShutdown",
+          "实际宿主注册：ImmediateShutdown",
+          "实际宿主注册：ImmediateRestart",
+          "实际宿主注册：Sleep",
+          "实际宿主注册：LockScreen",
+          "实际宿主注册：TypeContent",
+          "实际宿主注册：SimulateMouse",
+          "实际宿主注册：AltF4",
+          "实际宿主注册：AltTab",
+          "实际宿主注册：CtrlZ",
+          "实际宿主注册：SwitchTheme",
+          "实际宿主注册两项共享触发器"
+        ],
+        "failures": [],
+        "pending": []
+      }
+    }
+  ],
+  "finalCandidateLifecycle": {
+    "commit": "ab51e5a6a8b927ad27c52b927874ed566c99acb4",
+    "sourceHash": "342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc",
+    "schemaVersion": 1,
+    "passed": true,
+    "packageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
+    "previousPackageSha256": "bff62a7f1b9601d158bc87b09b608c720a726030869966d54b41e743028af227",
+    "runtimeIds": [
+      "osx-arm64"
+    ],
+    "finalCandidate": true,
+    "fullPlatformAcceptance": false,
+    "scenarios": [
+      {
+        "label": "fresh-install",
+        "expected": "Loaded",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-fresh-install-8d219595",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "restart",
+        "expected": "Loaded",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-restart-9e3e2687",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "disabled",
+        "expected": "Disabled",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-disabled-a43f866a",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Disabled，预期：Disabled",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Disabled",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "re-enabled",
+        "expected": "Loaded",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-re-enabled-b9dd3cbd",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "uninstalled",
+        "expected": "Absent",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-uninstalled-21eed3d1",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "宿主卸载后不再发现 SystemTools 插件",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Absent",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "previous-m7",
+        "expected": "Loaded",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-previous-m7-fd989d48",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "upgraded-m8",
+        "expected": "Loaded",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-upgraded-m8-20c6fc32",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "upgrade-restart",
+        "expected": "Loaded",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-upgrade-restart-24496e49",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "rolled-back-m7",
+        "expected": "Loaded",
+        "packageKind": "M7",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-rolled-back-m7-8f0ea6d7",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "synthetic-legacy-conflict",
+        "expected": "Error",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-synthetic-legacy-conflict-cfe43fb4",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Error，预期：Error",
+            "旧预览身份冲突明确阻止正式插件重复注册",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Error",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      },
+      {
+        "label": "legacy-explicitly-disabled",
+        "expected": "Loaded",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-082754-2ab6cb/run-legacy-explicitly-disabled-84634f66",
+        "exitCode": 0,
+        "timedOut": false,
+        "forcedStop": false,
+        "globalUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主插件状态：Loaded，预期：Loaded",
+            "正式插件身份与数字版本保持",
+            "最终候选包运行时功能台账 82 项",
+            "首次加载在写入配置前建立升级快照",
+            "真实宿主使用最终候选的 Skia PNG 编解码",
+            "真实宿主运行自建 NPOI 并写出 XLSX",
+            "最终插件未引入旧 ImageSharp 程序集",
+            "宿主启动后保留未知配置字段",
+            "宿主启动后不改写不属于本平台的密文"
+          ],
+          "failures": [],
+          "expected": "Loaded",
+          "fullPlatformAcceptance": false
+        },
+        "passed": true
+      }
+    ],
+    "assertions": [
+      "同版本重启保留原快照",
+      "宿主真实卸载保留配置、附件和恢复资料",
+      "真实 M7 包到 M8 同数字版本升级、回退逐字节恢复且旧包可重新加载",
+      "合成旧身份冲突在真实宿主阻止重复注册；显式停用旧包后加载恢复"
+    ],
+    "hostBoundary": {
+      "passed": true,
+      "files": 4290,
+      "baselineSha256": "85a98582aef9d2625d1f03cc839a137ada52b887f183c65555befd54c4e87432"
+    },
+    "scope": "Isolated Mac package lifecycle; M7 3.0.0.0 -> M8 3.0.0.0. Not Windows 2.x, formal signing, device/TCC or Linux acceptance."
+  },
+  "finalCandidateAdvanced": {
+    "passed": true,
+    "scenarios": [
+      {
+        "commit": "ab51e5a6a8b927ad27c52b927874ed566c99acb4",
+        "sourceHash": "342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc",
+        "case": "normal",
+        "packageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主加载 M6 插件",
+            "Mac 不注册 Windows 专属设备与提权入口",
+            "实际宿主创建全部原生能力设置页",
+            "读取实际显示器拓扑",
+            "Mac 不冒充公共 API 可关闭单屏",
+            "本机无可靠背光时明确不可用",
+            "真正背景捕获返回排除本进程的有效 PNG",
+            "绿色宿主遮挡层被排除，捕获到外部红色夹具：88.7506000000107",
+            "Avalonia 句柄转换为真实屏幕逻辑坐标",
+            "真实白色背景亮度可读：254.99970348258702",
+            "真实黑色背景亮度可读",
+            "Vision 从真实背景识别高置信度文本位置：[{\"Bounds\":{\"X\":300.0000031999999,\"Y\":539.99999984,\"Width\":319.99999999999994,\"Height\":35.999999999999986},\"Confidence\":1}]",
+            "真实背景文本触发稳定避让判定",
+            "无文字后恢复判定不会因已隐藏而停止",
+            "预取消不进行背景捕获",
+            "Avalonia 窗口实际接入原生系统材质：macOS 原生玻璃",
+            "材质切回经典表面并释放租约"
+          ],
+          "failures": [],
+          "pending": [
+            "本机未连接第二屏，镜像/扩展和热插拔待外屏验收"
+          ],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      },
+      {
+        "commit": "ab51e5a6a8b927ad27c52b927874ed566c99acb4",
+        "sourceHash": "342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc",
+        "case": "foreign-corrupt",
+        "packageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "原版宿主加载 M6 插件",
+            "Mac 不注册 Windows 专属设备与提权入口",
+            "实际宿主创建全部原生能力设置页",
+            "读取实际显示器拓扑",
+            "Mac 不冒充公共 API 可关闭单屏",
+            "本机无可靠背光时明确不可用",
+            "真正背景捕获返回排除本进程的有效 PNG",
+            "绿色宿主遮挡层被排除，捕获到外部红色夹具：88.7506000000107",
+            "Avalonia 句柄转换为真实屏幕逻辑坐标",
+            "真实白色背景亮度可读：254.99970348258702",
+            "真实黑色背景亮度可读",
+            "Vision 从真实背景识别高置信度文本位置：[{\"Bounds\":{\"X\":300.0000031999999,\"Y\":539.99999984,\"Width\":319.99999999999994,\"Height\":35.999999999999986},\"Confidence\":1}]",
+            "真实背景文本触发稳定避让判定",
+            "无文字后恢复判定不会因已隐藏而停止",
+            "预取消不进行背景捕获",
+            "Avalonia 窗口实际接入原生系统材质：macOS 原生玻璃",
+            "材质切回经典表面并释放租约"
+          ],
+          "failures": [],
+          "pending": [
+            "本机未连接第二屏，镜像/扩展和热插拔待外屏验收"
+          ],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      },
+      {
+        "commit": "ab51e5a6a8b927ad27c52b927874ed566c99acb4",
+        "sourceHash": "342dee42a42f80a68982713bf4dfb00a185e0aaabf86a13517cc23be351f3bbc",
+        "case": "missing-backend",
+        "packageSha256": "45e19db4f3b3ddb5bd048014afb4987bbae131a3acd422776b9b451263a3a427",
+        "kind": "native-build-aggregate",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "hostExecutableSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "timedOut": false,
+        "exitCode": 0,
+        "globalStorageUnchanged": true,
+        "acceptance": {
+          "passed": true,
+          "checks": [
+            "缺少本机模块时宿主明确拒绝插件"
+          ],
+          "failures": [],
+          "pending": [],
+          "fullPlatformAcceptance": false
+        },
+        "fullPlatformAcceptance": false,
+        "passed": true
+      }
+    ],
+    "hostBoundary": {
+      "passed": true,
+      "files": 4290,
+      "baselineSha256": "85a98582aef9d2625d1f03cc839a137ada52b887f183c65555befd54c4e87432"
+    }
+  },
   "hostBoundary": {
     "passed": true,
     "files": 4290,
@@ -1647,7 +2139,6 @@
     "newChecks": 6
   },
   "pending": [
-    "音频修复后新候选包的后台音频/取消、受控窗口快捷键和最终宿主矩阵待解锁复验；前一候选包证据按原哈希保留。",
     "本机最小化从未确认成功，AppKit 自身、系统按钮和 AX 基线均失败；保留具体错误。",
     "无外接显示器及 USB 存储设备；多屏/不同 DPI/热插拔、DDC 与旧 macOS 需要对应条件。",
     "数小时真实使用、全部课表布局、睡眠/唤醒及 Windows/Linux 实体桌面与硬件继续待验。",
@@ -1658,5 +2149,53 @@
     "Mac arbitrary system accent/display-desktop/disable-one-display have no validated reliable public path",
     "Linux background/OCR, system authentication and Wayland remain unsupported; appearance conditional on GNOME schema",
     "Mac general media session/lyrics remain unsupported"
-  ]
+  ],
+  "unlockedFollowupComplete": true,
+  "finalDesktopAcceptanceScope": "Focused actual-final-package regression: background/wait/cancel audio, controlled app switch/close, action registration, 11 lifecycle scenarios and 3 advanced load cases. Material, idle threshold, Keychain and background OCR retain separately identified pre-audio-fix package evidence.",
+  "dailyGlobal": {
+    "unchanged": true,
+    "sha256": "adf5aef13c7072c92d685576e3468ffcfed7e83c03dd82023373291f6223b3be"
+  },
+  "unsuccessfulFinalCandidateStartupAttempts": [
+    {
+      "path": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-081716-cf5595/run-fresh-install-ae72c8e0/result.json",
+      "reason": "Host developer preview notice was not dismissed within the UI timeout; plugin checks did not begin",
+      "result": {
+        "label": "fresh-install",
+        "expected": "Loaded",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-081716-cf5595/run-fresh-install-ae72c8e0",
+        "exitCode": -15,
+        "timedOut": true,
+        "forcedStop": true,
+        "globalUnchanged": true,
+        "acceptance": null,
+        "passed": false
+      }
+    },
+    {
+      "path": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-081914-05be3b/run-disabled-d703b9b0/result.json",
+      "reason": "Host developer preview notice was not dismissed within the UI timeout; plugin checks did not begin",
+      "result": {
+        "label": "disabled",
+        "expected": "Disabled",
+        "packageKind": "M8",
+        "hostSha256": "9d528960e5d096e5efea15968320ea4d4076fb0ac28852fc116defa61cd01e10",
+        "host": "/Applications/ClassIsland.Desktop.app",
+        "run": "/Library/root directory/My github project/SystemTools-Mac-Resume-2026-11-15-Ready/SystemTools/artifacts/m8/followup-lifecycle/mac/20261116-081914-05be3b/run-disabled-d703b9b0",
+        "exitCode": -15,
+        "timedOut": true,
+        "forcedStop": true,
+        "globalUnchanged": true,
+        "acceptance": null,
+        "passed": false
+      }
+    }
+  ],
+  "manualNoticeHandling": {
+    "timeoutSeconds": 600,
+    "reason": "Allow computer use to dismiss the installed host developer-preview notice; all final accepted runs exited normally without timeout or forced stop"
+  }
 }

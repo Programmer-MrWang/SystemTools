@@ -56,7 +56,7 @@ def prepare(package,existing=None):
     m1.command('xcrun','swiftc','-swift-version','5','-O','tests/SystemTools.M8.WindowFixture/main.swift','-o',app/'MacOS/fixture')
     return root
 
-def launch(root,host_app):
+def launch(root,host_app,observe_exit=False):
     m7_macos.lifecycle.stopped()
     m7_macos.require_unlocked_desktop()
     root=Path(root).absolute();host=Path(host_app)/'Contents/MacOS/ClassIsland.Desktop'
@@ -81,11 +81,15 @@ def launch(root,host_app):
     m1.write_json(root/'processes.json',dict(hostPid=process.pid,fixturePid=fixture_pid,globalBefore=before,hostSha256=m1.sha(host)))
     m1.write_json(ROOT/'artifacts/m8/current-lab.json',dict(root=str(root),hostPid=process.pid,fixturePid=fixture_pid))
     print(json.dumps(dict(root=str(root),hostPid=process.pid,fixturePid=fixture_pid)),flush=True)
+    if observe_exit:
+        code=process.wait()
+        m1.write_json(root/'host-exit.json',dict(exitCode=code,utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())))
+        print('Host exit code',code,flush=True)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='operation',required=True)
     command=sub.add_parser('preview');command.add_argument('--base',required=True);command.add_argument('--output',required=True)
-    command=sub.add_parser('launch');command.add_argument('--package',required=True);command.add_argument('--existing');command.add_argument('--host-app',default='/Applications/ClassIsland.Desktop.app')
+    command=sub.add_parser('launch');command.add_argument('--package',required=True);command.add_argument('--existing');command.add_argument('--host-app',default='/Applications/ClassIsland.Desktop.app');command.add_argument('--observe-exit',action='store_true')
     args=parser.parse_args()
     if args.operation=='preview':print(preview(args.base,args.output))
-    else:launch(prepare(args.package,args.existing),args.host_app)
+    else:launch(prepare(args.package,args.existing),args.host_app,args.observe_exit)

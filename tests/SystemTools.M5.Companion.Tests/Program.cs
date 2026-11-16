@@ -14,11 +14,13 @@ void Check(bool condition, string message)
     checks.Add(message); Console.WriteLine($"PASS {checks.Count}: {message}");
 }
 var output = Path.GetFullPath("artifacts/m5/mac-companion");
+if(Array.IndexOf(args,"--output-dir") is var outputIndex&&outputIndex>=0)output=Path.GetFullPath(args[outputIndex+1]);
 Directory.CreateDirectory(output);
 if (args.Contains("--native"))
 {
     if (!OperatingSystem.IsMacOS()) throw new PlatformNotSupportedException();
     var app = Path.GetFullPath("src/SystemTools.Platforms.MacOS/bin/Release/net10.0/SystemTools Companion.app");
+    if(Array.IndexOf(args,"--application") is var applicationIndex&&applicationIndex>=0)app=Path.GetFullPath(args[applicationIndex+1]);
     using var client = new CompanionClient(app, async (application, session, token) =>
     {
         var start = new ProcessStartInfo("/usr/bin/open") { UseShellExecute = false };
@@ -53,7 +55,8 @@ if (args.Contains("--native"))
     {
         foreach (var device in new[] { "camera", "microphone" })
         {
-            capabilities[device] = await client.RequestAccessAsync(device, default);
+            if(args.Contains("--require-existing-access"))Check(capabilities[device].CanExecute,device+" 原有系统授权无需重新请求仍可用");
+            else capabilities[device] = await client.RequestAccessAsync(device, default);
             Console.WriteLine(device + " permission: " + capabilities[device].State);
         }
         File.WriteAllText(Path.Combine(output, "permissions.json"), JsonSerializer.Serialize(new { identity = client.Identity, capabilities }, new JsonSerializerOptions { WriteIndented = true }));

@@ -1,6 +1,13 @@
 import AppKit
 import Foundation
 
+var workspaceEvents:[[String:Any]]=[]
+for name in [NSWorkspace.willSleepNotification,NSWorkspace.didWakeNotification,NSWorkspace.sessionDidResignActiveNotification,NSWorkspace.sessionDidBecomeActiveNotification,NSWorkspace.screensDidSleepNotification,NSWorkspace.screensDidWakeNotification] {
+    NSWorkspace.shared.notificationCenter.addObserver(forName:name,object:nil,queue:.main){note in
+        workspaceEvents.append(["name":note.name.rawValue,"utc":ISO8601DateFormatter().string(from:Date()),"uptime":ProcessInfo.processInfo.systemUptime])
+    }
+}
+
 let root: URL
 if CommandLine.arguments.count > 1 { root = URL(fileURLWithPath: CommandLine.arguments[1]) }
 else if Bundle.main.bundleURL.pathExtension == "app" { root = Bundle.main.bundleURL.deletingLastPathComponent() }
@@ -33,9 +40,10 @@ text.setAccessibilityIdentifier("M8Input")
 scroll.documentView=text
 final class BackgroundView:NSView {
     var showText=false
+    var black=false
     override func draw(_ dirtyRect:NSRect) {
-        NSColor.white.setFill();bounds.fill()
-        if showText { ("BACKGROUND TEXT 12345" as NSString).draw(at:NSPoint(x:5,y:bounds.height-25),withAttributes:[.font:NSFont.boldSystemFont(ofSize:18),.foregroundColor:NSColor.black]) }
+        (black ? NSColor.black : NSColor.white).setFill();bounds.fill()
+        if showText { ("Hello world" as NSString).draw(at:NSPoint(x:5,y:bounds.height-18),withAttributes:[.font:NSFont.systemFont(ofSize:12),.foregroundColor:NSColor.black]) }
     }
 }
 let normalContent=window.contentView!
@@ -73,7 +81,8 @@ Timer.scheduledTimer(withTimeInterval:0.2,repeats:true){_ in
             window.contentView=backgroundView;window.level = .floating
             window.collectionBehavior=[.canJoinAllSpaces,.fullScreenAuxiliary];window.hidesOnDeactivate=false
             window.setFrame(NSRect(x:x,y:(NSScreen.screens.first?.frame.height ?? 0)-y-height,width:width,height:height),display:true)
-            backgroundView.showText=state["mode"] as? String == "text";backgroundView.needsDisplay=true;backgroundView.display()
+            backgroundView.showText=state["mode"] as? String == "text"
+            backgroundView.black=state["mode"] as? String == "black";backgroundView.needsDisplay=true;backgroundView.display()
             window.orderFrontRegardless()
         }
     }
@@ -88,6 +97,7 @@ Timer.scheduledTimer(withTimeInterval:0.2,repeats:true){_ in
     let position=button.convert(button.bounds,to:nil)
     let screen=window.convertToScreen(position)
     let state:[String:Any]=["text":text.string,"canUndo":text.undoManager?.canUndo ?? false,"clicks":hits,"minimized":window.isMiniaturized,"visible":window.isVisible,
+        "workspaceEvents":workspaceEvents,"utc":ISO8601DateFormatter().string(from:Date()),"uptime":ProcessInfo.processInfo.systemUptime,
         "x":frame.minX,"y":height-frame.maxY,"width":frame.width,"height":frame.height,
         "buttonX":screen.midX,"buttonY":height-screen.midY,"pid":getpid()]
     if let bytes=try? JSONSerialization.data(withJSONObject:state,options:[.sortedKeys]) {try? bytes.write(to:root.appendingPathComponent("fixture.json"),options:.atomic)}

@@ -22,7 +22,7 @@ using SystemTools.Settings;
 namespace SystemTools.M8.MacHostProbe;
 
 [PluginEntrance]
-public sealed class Plugin:PluginBase
+public sealed partial class Plugin:PluginBase
 {
     private readonly List<string> _checks=[];
     private readonly List<string> _failures=[];
@@ -82,6 +82,8 @@ public sealed class Plugin:PluginBase
             Check(IAutomationService.RegisteredTriggers.Any(x=>x.Id=="SystemTools.ActionInProgressTrigger")&&IAutomationService.RegisteredTriggers.Any(x=>x.Id=="SystemTools.MainWindowClickTrigger"),"实际宿主注册两项共享触发器");
             return Task.CompletedTask;
         });
+        Button("开始 Mac 布局与两小时运行验收",StartCloseout);
+        Button("检查恢复后的设备与后台能力",()=>CloseoutRecovery("manual"));
         Button("打开行动流确认",()=>Invoke("SystemTools.ActionFlowExecutionConfirmation",new ActionFlowExecutionConfirmationSettings{PromptName="M8 合成自动化"}));
         Button("打开黑屏（Esc 或单击退出）",async()=>
         {

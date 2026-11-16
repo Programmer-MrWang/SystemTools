@@ -8,6 +8,6 @@
 - Windows/Linux 实体桌面和硬件、Windows 旧 2.x 升级生命周期仍待对应环境。
 - 不同助手签名或启动责任环境可能要求重新授权；Developer ID、公证与正式升级授权稳定性仍需证书和本人交互，公开发行门禁关闭。
 
-Linux 明确只支持 x64 原生 X11，Wayland/XWayland 均不支持，不列作待完成项。用户已明确 Mac 媒体状态、歌词适配和关闭指定显示器不做；对应入口在 Mac 不生效，不再作为开发待办。详见 [产品范围](../distribution/product-scope.md)。
+Linux 明确只支持 x64 原生 X11，Wayland/XWayland 均不支持，不列作待完成项。用户已明确 Mac 媒体状态、歌词适配、关闭指定显示器及任意系统强调色不做；对应入口在 Mac 不生效，不再作为开发待办。详见 [产品范围](../distribution/product-scope.md)。
 
-Linux X11 背景/OCR、系统认证仍是尚未交付的可研究功能，见 [平台边界可行性](../research/2026-11-16-platform-boundary-options.md)。Mac 显示桌面及任意系统强调色本轮只研究可行性、未实现或启用，见 [专项说明](../research/2026-11-16-mac-desktop-accent-options.md)。
+Linux X11 背景/OCR、系统认证仍是尚未交付的可研究功能，见 [平台边界可行性](../research/2026-11-16-platform-boundary-options.md)。Mac 显示桌面已按用户配置的系统快捷键接入；用户要求本轮先不测试，真实输入/桌面效果、Spaces/全屏与取消仍待后续验收。仅本机编译与代码自审，未生成或验收含此功能的新候选包，旧 CI 包证据不推广到本轮源码。

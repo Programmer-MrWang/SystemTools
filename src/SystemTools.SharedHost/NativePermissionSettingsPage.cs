@@ -17,6 +17,8 @@ public sealed class NativePermissionSettingsPage : SettingsPageBase
         Add("屏幕截图", services.ScreenCapture);
         Add("USB 设备", services.UsbDevices);
         Add("键盘输入", services.Keyboard);
+        if (Shared.GlobalConstants.Features?.RuntimeId == "osx-arm64")
+            panel.Children.Add(new MacDesktopShortcutEditor(Shared.GlobalConstants.MainConfig!));
         Add("全局热键", services.Hotkeys);
         Add("窗口操作", services.Windows);
         Add("桌面壁纸", services.Wallpaper);

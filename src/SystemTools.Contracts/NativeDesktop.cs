@@ -46,6 +46,12 @@ public interface IKeyboardInput : INativeCapability
     Task TextAsync(string text, string target, CancellationToken token);
 }
 
+public interface ISystemShortcutInput
+{
+    Capability ProbeShortcut();
+    Task SendShortcutAsync(IReadOnlyList<string> keys, CancellationToken token);
+}
+
 public interface IGlobalHotkeys : INativeCapability
 {
     IDisposable Register(string key, int modifiers, Action pressed);

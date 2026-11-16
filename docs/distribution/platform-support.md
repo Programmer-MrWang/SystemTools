@@ -31,12 +31,12 @@
 | SystemTools.EnterKey | 按下 Enter 键 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.EscKey | 按下 Esc 键 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ExtendDisplay | 扩展屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.ExternalDisplay | 仅第二屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 公共 API 不提供关闭单屏 |
+| SystemTools.ExternalDisplay | 仅第二屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 明确不做；Mac 不生效 |
 | SystemTools.F11Key | 按下 F11 键 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.FullscreenClock | 沉浸式时钟 | 产品移除 | 产品移除 | 产品移除 |
 | SystemTools.ImmediateRestart | 立即重启 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ImmediateShutdown | 立即关机 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.InternalDisplay | 仅电脑屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 公共 API 不提供关闭单屏 |
+| SystemTools.InternalDisplay | 仅电脑屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 明确不做；Mac 不生效 |
 | SystemTools.KillProcess | 退出进程 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.LoadTemporaryClassPlan | 加载临时课表 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.LockScreen | 锁定屏幕 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
@@ -48,7 +48,7 @@
 | SystemTools.ScreenShot | 屏幕截图 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.SetVolume | 设置系统音量 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ShowAiChatDialog | 显示AI对话框 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.ShowDesktop | 显示桌面 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 无可靠通用公开接口 |
+| SystemTools.ShowDesktop | 显示桌面 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 发送用户配置的系统快捷键；需辅助功能；本轮待实测 |
 | SystemTools.ShowFloatingWindow | 显示悬浮窗 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ShowToast | 拉起自定义Windows通知 | 保留实现；需设置与现场条件 | Windows 专属；本平台不提供对应入口 | Windows 专属；本平台不提供对应入口 |
 | SystemTools.Shutdown | 计时关机 | 保留实现；需设置与现场条件 | 插件计时；宿主退出取消；系统授权后执行 | 插件计时；宿主退出取消；系统授权后执行 |
@@ -57,7 +57,7 @@
 | SystemTools.SimulateMouse | 模拟鼠标 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.Sleep | 睡眠 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.SwitchFloatingWindowTheme | 切换悬浮窗主题 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
-| SystemTools.SwitchSystemAccentColor | 切换系统强调色 | 保留实现；需设置与现场条件 | GNOME 公开固定色板；其他桌面未开放 | 无任意系统强调色公开写入接口 |
+| SystemTools.SwitchSystemAccentColor | 切换系统强调色 | 保留实现；需设置与现场条件 | GNOME 公开固定色板；其他桌面未开放 | 明确不做；Mac 不生效 |
 | SystemTools.SwitchTheme | 切换主题色 | 保留实现；需设置与现场条件 | GNOME 公开 color-scheme；其他桌面未开放 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ToggleFloatingWindowLayer | 切换悬浮窗层级 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
 | SystemTools.ToggleFloatingWindowProfile | 切换悬浮窗配置方案 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 原生接入；需权限/依赖/设备 |
@@ -69,7 +69,7 @@
 | SystemTools.BetterCarouselContainer | 更好的轮播容器 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.ClipboardContent | 显示剪切板内容 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.LocalQuote | 本地一言 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
-| SystemTools.LyricsDisplay | 音乐软件歌词显示 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 未提供通用媒体会话 |
+| SystemTools.LyricsDisplay | 音乐软件歌词显示 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 明确不做；Mac 不生效 |
 | SystemTools.NetworkStatus | 网络延迟检测 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.NextClassDisplay | 下节课是 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.ScrollingText |  LED 文本仿真显示框 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
@@ -84,7 +84,7 @@
 | SystemTools.UsingClassPlanRule | 正在使用某课程表 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.UsingTimeLayoutRule | 正在使用某时间表 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 | SystemTools.InTimePeriodRule | 是否在某时间段 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
-| SystemTools.MediaMusicPlayingRule | 正在播放媒体音乐 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 未提供通用媒体会话 |
+| SystemTools.MediaMusicPlayingRule | 正在播放媒体音乐 | 保留实现；需设置与现场条件 | 原生接入；需权限/依赖/设备 | 明确不做；Mac 不生效 |
 | SystemTools.ReadFile | 读取文件 | 保留实现；需设置与现场条件 | 共享实现；需设置与现场条件 | 共享实现；需设置与现场条件 |
 
 系统认证：Windows 使用既有系统认证，Mac 使用本人 LocalAuthentication；Linux 不开放。Mac 使用原生系统玻璃/材质，旧系统回落，Linux 材质只提供可靠能力。

@@ -2,6 +2,12 @@
 
 更新：2026-11-15，Asia/Shanghai。正式开发：`C:\STWork-Windows\SystemTools`；宿主：`C:\STWork-Windows\ClassIsland`。本文件替代 M4 收尾状态，历史证据仍保留。
 
+## 最新开发：2026-11-16 Mac 显示桌面快捷键
+
+用户要求实现通过原生输入发送用户配置的“显示桌面”快捷键，先不测试。已在自有插件接入稳定 ID SystemTools.ShowDesktop，系统功能与权限页提供修饰键/普通键选择、保存与清除；默认留空、未配置或无辅助功能拒绝，保存即时生效。使用独立系统快捷键输入契约和原生 CGEvent 序列，复用键盘互斥、预建按下/逆序释放、派发前取消与派发后释放，不依赖前台普通窗口。仅做 Release 编译与代码自审，未运行测试、真实输入或桌面验收；提交跳过自动 CI。历史 780d60d2… 候选不含该实现，新包及三端/实机验证仍待恢复测试后完成。
+
+Mac 任意系统强调色由用户新增为明确不做，与媒体状态、歌词适配和关闭指定显示器一起不在 Mac 生效；旧 ID/配置保留。平台能力表及生成器、产品范围和剩余清单已同步。ClassIsland 源码/安装应用不改，原 IDE、迁移纠正与 docs/reports 保留。
+
 ## 最新范围决定：2026-11-16 Mac 明确不做项
 
 用户明确 Mac 媒体状态与歌词适配、关闭指定显示器不做，不在 Mac 生效，不再列为后续开发任务。对应稳定 ID 为 SystemTools.MediaMusicPlayingRule、SystemTools.LyricsDisplay、SystemTools.InternalDisplay、SystemTools.ExternalDisplay；当前已有 Unsupported 门禁与注册检查，旧 ID/配置保留。Linux Wayland/XWayland 继续明确不支持。产品范围见 docs/distribution/product-scope.md，优先于旧研究中的建议顺序。

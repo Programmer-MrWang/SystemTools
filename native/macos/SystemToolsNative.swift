@@ -181,7 +181,65 @@ func inputTarget() throws -> String {
     return "\(application.processIdentifier):\(number)"
 }
 
+func sendSystemShortcut(_ request: [String: Any]) throws -> [String: Any] {
+    guard !Thread.isMainThread else {
+        throw NativeFailure(state: "Unsupported", message: "系统快捷键必须在后台执行。")
+    }
+    guard AXIsProcessTrusted() else {
+        throw NativeFailure(state: "PermissionRequired", message: "请先允许 ClassIsland 使用辅助功能。")
+    }
+    let modifierFlags: [String: CGEventFlags] = ["Control": .maskControl, "Alt": .maskAlternate,
+        "Shift": .maskShift, "Meta": .maskCommand, "Fn": .maskSecondaryFn]
+    guard let keys = request["keys"] as? [String], !keys.isEmpty, keys.count <= 6,
+          Set(keys).count == keys.count, keys.dropLast().allSatisfy({ modifierFlags[$0] != nil }),
+          let main = keys.last, modifierFlags[main] == nil, logicalKeys[main] != nil else {
+        throw NativeFailure(state: "Unsupported", message: "系统快捷键必须包含一个支持的普通按键和可选修饰键。")
+    }
+    let codes = try keys.map { key -> CGKeyCode in
+        if key == "Fn" { return 63 }
+        guard let code = keyCode(key) else {
+            throw NativeFailure(state: "Unsupported", message: "当前键盘布局无法发送此快捷键，请重新配置。")
+        }
+        return code
+    }
+    let modifiers: CGEventFlags = [.maskControl, .maskAlternate, .maskShift, .maskCommand, .maskSecondaryFn]
+    guard CGEventSource.flagsState(.combinedSessionState).intersection(modifiers).isEmpty,
+          inputFlags.intersection(modifiers).isEmpty,
+          !codes.contains(where: { CGEventSource.keyState(.combinedSessionState, key: $0) }) else {
+        throw NativeFailure(state: "Disabled", message: "请先松开按键和修饰键，再执行显示桌面。")
+    }
+    guard let source = CGEventSource(stateID: .privateState) else {
+        throw NativeFailure(state: "MissingDevice", message: "无法创建系统快捷键事件源。")
+    }
+    var flags = CGEventFlags()
+    var events: [CGEvent] = []
+    for (index, key) in keys.enumerated() {
+        if let modifier = modifierFlags[key] { flags.formUnion(modifier) }
+        guard let event = CGEvent(keyboardEventSource: source, virtualKey: codes[index], keyDown: true) else {
+            throw NativeFailure(state: "MissingDevice", message: "无法创建系统快捷键按下事件。")
+        }
+        event.flags = flags
+        events.append(event)
+    }
+    for index in keys.indices.reversed() {
+        if let modifier = modifierFlags[keys[index]] { flags.subtract(modifier) }
+        guard let event = CGEvent(keyboardEventSource: source, virtualKey: codes[index], keyDown: false) else {
+            throw NativeFailure(state: "MissingDevice", message: "无法创建系统快捷键释放事件。")
+        }
+        event.flags = flags
+        events.append(event)
+    }
+    // 先创建完整的按下/释放序列；一旦开始发送，即使托管请求取消也完成释放。
+    for (index, event) in events.enumerated() {
+        event.post(tap: .cghidEventTap)
+        if index == keys.count - 1 { Thread.sleep(forTimeInterval: 0.02) }
+    }
+    return ["state": "Available"]
+}
+
 func handleInput(_ request: [String: Any], operation: String) throws -> [String: Any] {
+    if operation == "input.shortcut.probe" { return inputCapability() }
+    if operation == "input.shortcut" { return try sendSystemShortcut(request) }
     if operation == "input.probe" { return inputCapability() }
     if operation == "input.request" {
         _ = mainThread { AXIsProcessTrustedWithOptions([kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary) }

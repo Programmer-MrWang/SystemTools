@@ -30,17 +30,17 @@ def capabilities():
             for rid in ('linux-x64','osx-arm64'): states[rid]='Windows 专属；本平台不提供对应入口'
         if suffix in ('Shutdown', 'AdvancedShutdown', 'CancelShutdown'):
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '插件计时；宿主退出取消；系统授权后执行'
-        if suffix == 'ShowDesktop': states['osx-arm64'] = '无可靠通用公开接口'
+        if suffix == 'ShowDesktop': states['osx-arm64'] = '发送用户配置的系统快捷键；需辅助功能；本轮待实测'
         if suffix == 'SwitchSystemAccentColor':
-            states['osx-arm64'] = '无任意系统强调色公开写入接口'
+            states['osx-arm64'] = '明确不做；Mac 不生效'
             states['linux-x64'] = 'GNOME 公开固定色板；其他桌面未开放'
         if suffix == 'SwitchTheme': states['linux-x64'] = 'GNOME 公开 color-scheme；其他桌面未开放'
         if suffix in ('AltF4','AltTab','CtrlZ'): states['osx-arm64'] = '映射为 Command+W / Command+Tab / Command+Z 对应系统语义'
         if suffix == 'MainWindowClickTrigger':
             for rid in ('linux-x64', 'osx-arm64'): states[rid] = '主界面实际点击；穿透模式不触发'
         if suffix in ('AutoSwitchClassIslandTheme', 'AutoHideMainWindowWhenOccluded'): states['linux-x64'] = '不支持可靠排除自身捕获'
-        if suffix in ('InternalDisplay', 'ExternalDisplay'): states['osx-arm64'] = '公共 API 不提供关闭单屏'
-        if suffix in ('LyricsDisplay', 'MediaMusicPlayingRule'): states['osx-arm64'] = '未提供通用媒体会话'
+        if suffix in ('InternalDisplay', 'ExternalDisplay'): states['osx-arm64'] = '明确不做；Mac 不生效'
+        if suffix in ('LyricsDisplay', 'MediaMusicPlayingRule'): states['osx-arm64'] = '明确不做；Mac 不生效'
         if suffix in ('FullscreenClock', 'ClickSimulation'):
             states = {rid: ('产品移除' if suffix == 'FullscreenClock' else '原未注册；不新增入口') for rid in POLICY['runtimeIds']}
         rows.append(dict(item, platforms=states, runtimeVerified=False))

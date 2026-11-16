@@ -22,6 +22,7 @@ public static class PortableExtendedActions
     public static void Register(IServiceCollection services, FeatureCatalog catalog, NativeDesktopServices native)
     {
         var names = new List<string>();
+        var macDesktopRegistered = false;
         void Bind(string suffix, Func<Capability> probe)
         {
             var id = "SystemTools." + suffix; names.Add(id);
@@ -35,6 +36,18 @@ public static class PortableExtendedActions
             if (catalog.CanCreate("SystemTools.AltTab")) services.AddAction<PortableSwitchAppAction, ShortcutKeyNotificationSettingsControl>();
             if (catalog.CanCreate("SystemTools.CtrlZ")) services.AddAction<PortableUndoAction, ShortcutKeyNotificationSettingsControl>();
             if (catalog.CanCreate("SystemTools.TypeContent")) services.AddAction<PortableTypeAction, TypeContentSettingsControl>();
+            if (catalog.RuntimeId == "osx-arm64")
+            {
+                const string desktopId = "SystemTools.ShowDesktop";
+                names.Add(desktopId);
+                catalog.Bind(desktopId, () => !GlobalConstants.MainConfig!.Data.IsActionEnabled(desktopId)
+                    ? new(CapabilityState.Disabled, "用户已关闭。") : MacShowDesktopAction.Probe(keyboard, GlobalConstants.MainConfig.Data));
+                if (GlobalConstants.MainConfig!.Data.IsActionEnabled(desktopId) && keyboard is ISystemShortcutInput)
+                {
+                    services.AddAction<MacShowDesktopAction, MacShowDesktopActionSettingsControl>();
+                    macDesktopRegistered = true;
+                }
+            }
         }
         if (native.Pointer is { } pointer)
         {
@@ -49,14 +62,18 @@ public static class PortableExtendedActions
             services.AddSingleton<SettingRestoreTransactions>();
             services.AddSingleton<PortableShutdownService>();
             services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<PortableShutdownService>());
-            foreach (var (suffix, operation) in new[] { ("ImmediateShutdown","shutdown"),("ImmediateRestart","restart"),("Sleep","sleep"),("LockScreen","lock"),("ShowDesktop","desktop"),
+            foreach (var (suffix, operation) in new[] { ("ImmediateShutdown","shutdown"),("ImmediateRestart","restart"),("Sleep","sleep"),("LockScreen","lock"),
                 ("Shutdown","shutdown"),("AdvancedShutdown","shutdown"),("CancelShutdown","cancel"),("SwitchTheme","theme.set"),("SwitchSystemAccentColor","accent.set") })
                 Bind(suffix, () => operation == "cancel" ? new(CapabilityState.Available) : session.Probe(operation));
             if (catalog.CanCreate("SystemTools.ImmediateShutdown")) services.AddAction<PortableShutdownNowAction, ShortcutKeyNotificationSettingsControl>();
             if (catalog.CanCreate("SystemTools.ImmediateRestart")) services.AddAction<PortableRestartAction, ShortcutKeyNotificationSettingsControl>();
             if (catalog.CanCreate("SystemTools.Sleep")) services.AddAction<PortableSleepAction, ShortcutKeyNotificationSettingsControl>();
             if (catalog.CanCreate("SystemTools.LockScreen")) services.AddAction<PortableLockAction, ShortcutKeyNotificationSettingsControl>();
-            if (catalog.CanCreate("SystemTools.ShowDesktop")) services.AddAction<PortableDesktopAction, ShortcutKeyNotificationSettingsControl>();
+            if (catalog.RuntimeId != "osx-arm64")
+            {
+                Bind("ShowDesktop", () => session.Probe("desktop"));
+                if (catalog.CanCreate("SystemTools.ShowDesktop")) services.AddAction<PortableDesktopAction, ShortcutKeyNotificationSettingsControl>();
+            }
             if (catalog.CanCreate("SystemTools.Shutdown")) services.AddAction<PortableShutdownAction, ShutdownSettingsControl>();
             if (catalog.CanCreate("SystemTools.AdvancedShutdown")) services.AddAction<PortableAdvancedShutdownAction, AdvancedShutdownSettingsControl>();
             if (catalog.CanCreate("SystemTools.CancelShutdown")) services.AddAction<PortableCancelShutdownAction, ShortcutKeyNotificationSettingsControl>();
@@ -65,7 +82,8 @@ public static class PortableExtendedActions
         }
         var group = new ActionMenuTreeGroup("更多系统行动", "\uE079");
         foreach (var id in names)
-            if (catalog.CanCreate(id)) group.Children.Add(new ActionMenuTreeItem(id, catalog.Snapshot().Single(x => x.Feature.Id == id).Feature.Name, "\uE079"));
+            if (catalog.CanCreate(id) || (id == "SystemTools.ShowDesktop" && macDesktopRegistered))
+                group.Children.Add(new ActionMenuTreeItem(id, catalog.Snapshot().Single(x => x.Feature.Id == id).Feature.Name, "\uE079"));
         if (group.Children.Count > 0) ClassIsland.Core.Abstractions.Services.IActionService.ActionMenuTree.Add(group);
     }
 }

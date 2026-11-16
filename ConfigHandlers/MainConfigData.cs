@@ -114,6 +114,9 @@ public class MainConfigData : INotifyPropertyChanged
         }
     }
 
+    [JsonPropertyName("macShowDesktopShortcut")]
+    public List<string> MacShowDesktopShortcut { get; set; } = [];
+
     bool _autoSwitchClassIslandTheme;
 
     [JsonPropertyName("autoSwitchClassIslandTheme")]

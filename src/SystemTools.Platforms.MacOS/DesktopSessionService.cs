@@ -10,8 +10,8 @@ public sealed class DesktopSessionService : IDesktopSession, IDisposable
     {
         "shutdown" or "restart" or "sleep" or "lock" or "theme.read" or "theme.set" =>
             new(CapabilityState.Available, "通过自有助手执行；首次使用可能需要允许助手自动化 System Events。"),
-        "desktop" => new(CapabilityState.Unsupported, "macOS 没有可在此验证的通用公开显示桌面接口；不依赖用户可改的快捷键。"),
-        "accent.read" or "accent.set" => new(CapabilityState.Unsupported, "macOS 不提供此插件可用的任意系统强调色写入接口。"),
+        "desktop" => new(CapabilityState.Unsupported, "请使用“显示桌面”行动及“系统功能与权限”中配置的原生系统快捷键。"),
+        "accent.read" or "accent.set" => new(CapabilityState.Unsupported, "Mac 任意系统强调色属于明确不做范围，原配置已保留。"),
         _ => new(CapabilityState.Unsupported, "未知系统操作。")
     };
     public async Task<string> ExecuteAsync(string operation, string? value, CancellationToken token)

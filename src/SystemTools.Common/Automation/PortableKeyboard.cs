@@ -34,6 +34,16 @@ public static class PortableKeyboard
         finally { gate.Release(); }
     }
 
+    public static async Task ExecuteSystemShortcutAsync(IKeyboardInput keyboard, IReadOnlyList<string> keys, CancellationToken token)
+    {
+        if (keyboard is not ISystemShortcutInput shortcut)
+            throw new NativeFeatureException(CapabilityState.Unsupported, "当前输入后端不支持系统快捷键。");
+        var gate = Gates.GetValue(keyboard, _ => new SemaphoreSlim(1, 1));
+        await gate.WaitAsync(token);
+        try { await shortcut.SendShortcutAsync(keys, token); }
+        finally { gate.Release(); }
+    }
+
     private static async Task ExecuteCoreAsync(IKeyboardInput keyboard, IReadOnlyList<(string Key, int Kind, long Delay)> sequence, string text, CancellationToken token)
     {
         var target = keyboard.CaptureTarget();

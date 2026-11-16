@@ -83,6 +83,7 @@ public sealed partial class Plugin:PluginBase
             return Task.CompletedTask;
         });
         Button("开始 Mac 布局与两小时运行验收",StartCloseout);
+        Button("仅验证四种布局（不计长时与设备验收）",()=>StartCloseout(true));
         Button("检查恢复后的设备与后台能力",()=>CloseoutRecovery("manual"));
         Button("打开行动流确认",()=>Invoke("SystemTools.ActionFlowExecutionConfirmation",new ActionFlowExecutionConfirmationSettings{PromptName="M8 合成自动化"}));
         Button("打开黑屏（Esc 或单击退出）",async()=>

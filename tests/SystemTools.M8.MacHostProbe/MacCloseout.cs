@@ -31,10 +31,13 @@ public sealed partial class Plugin
     private DateTime _closeoutStarted;
     private ComponentProfile? _originalLayout;
     private Profile? _originalProfile;
+    private bool _layoutsOnly;
 
-    private Task StartCloseout()
+    private Task StartCloseout()=>StartCloseout(false);
+    private Task StartCloseout(bool layoutsOnly)
     {
         if(_closeout is not null)throw new InvalidOperationException("持续验收已经开始。");
+        _layoutsOnly=layoutsOnly;
         _closeout=RunCloseout();
         return Task.CompletedTask;
     }
@@ -42,12 +45,12 @@ public sealed partial class Plugin
     {
         var process=Process.GetCurrentProcess();process.Refresh();
         var unexpected=_soakErrors.Where(error=>!ExpectedSleepInterruption(error)).ToArray();
-        File.WriteAllText(Path.Combine(_root,"mac-closeout.json"),JsonSerializer.Serialize(new{
+        File.WriteAllText(Path.Combine(_root,_layoutsOnly?"layout-closeout.json":"mac-closeout.json"),JsonSerializer.Serialize(new{
             startedUtc=_closeoutStarted,updatedUtc=DateTime.UtcNow,completed,passed=completed&&unexpected.Length==0,
-            awakeSeconds=_awakeSeconds,requiredAwakeSeconds=7200,captureSuccesses=_captureSuccesses,
+            awakeSeconds=_awakeSeconds,requiredAwakeSeconds=_layoutsOnly?0:7200,captureSuccesses=_captureSuccesses,
             currentLayout=_layoutName,layouts=_layoutResults,recoveries=_recoveries,samples=_soakSamples,
             errors=_soakErrors,unexpectedErrors=unexpected,processId=Environment.ProcessId,workingSet=process.WorkingSet64,
-            scope="Four representative component layouts with synthetic timetable; not all user configurations or older macOS. Minimize skipped at user request."},new JsonSerializerOptions{WriteIndented=true}));
+            scope=_layoutsOnly?"Four representative component layouts only; no device, session recovery or long-run acceptance.":"Four representative component layouts with synthetic timetable; not all user configurations or older macOS. Minimize skipped at user request."},new JsonSerializerOptions{WriteIndented=true}));
     }
     private bool ExpectedSleepInterruption(string error)
     {
@@ -189,8 +192,13 @@ public sealed partial class Plugin
         try
         {
             SeedCloseoutTimetable();
-            await CloseoutRecovery("initial");
+            if(!_layoutsOnly)await CloseoutRecovery("initial");
             for(var i=0;i<4;i++)await ValidateLayout(i);
+            if(_layoutsOnly)
+            {
+                CloseoutReport(true);File.WriteAllText(Path.Combine(_root,"closeout-layouts-completed"),"done");
+                return;
+            }
             File.WriteAllText(Path.Combine(_root,"closeout-session-ready"),"ready");
             var last=Stopwatch.GetTimestamp();var lastSample=DateTime.UtcNow;var layout=3;var cycles=0;
             while(_awakeSeconds<7200&&!_native.Stopping.IsCancellationRequested)
@@ -230,6 +238,14 @@ public sealed partial class Plugin
             if(_originalProfile is not null){var profiles=_services.GetRequiredService<IProfileService>();profiles.Profile=_originalProfile;profiles.SaveProfile();}
             if(visible is {} originalVisible)settings.SetMainWindowVisible(originalVisible);
             await PaintCloseout("restore");
+            File.WriteAllText(Path.Combine(_root,"closeout-restored.json"),JsonSerializer.Serialize(new{
+                utc=DateTime.UtcNow,
+                layoutRestored=ReferenceEquals(components.CurrentComponents,_originalLayout),
+                profileRestored=ReferenceEquals(_services.GetRequiredService<IProfileService>().Profile,_originalProfile),
+                hideRestored=config.Data.AutoHideMainWindowWhenOccluded==originalHide,
+                themeRestored=config.Data.AutoSwitchClassIslandTheme==originalTheme,
+                visibilityRestored=settings.GetMainWindowVisible()==visible
+            },new JsonSerializerOptions{WriteIndented=true}));
         }
     }
 }

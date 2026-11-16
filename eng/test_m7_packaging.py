@@ -30,8 +30,9 @@ class M7PackagingTests(unittest.TestCase):
     def test_unsupported_features_do_not_become_available_in_docs(self):
         rows = {x['Id']:x for x in inventory.capabilities()['features']}
         self.assertIn('不支持', rows['SystemTools.AutoSwitchClassIslandTheme']['platforms']['linux-x64'])
-        self.assertIn('不提供', rows['SystemTools.InternalDisplay']['platforms']['osx-arm64'])
-        self.assertIn('未提供', rows['SystemTools.LyricsDisplay']['platforms']['osx-arm64'])
+        self.assertIn('明确不做', rows['SystemTools.InternalDisplay']['platforms']['osx-arm64'])
+        self.assertIn('明确不做', rows['SystemTools.LyricsDisplay']['platforms']['osx-arm64'])
+        self.assertIn('明确不做', rows['SystemTools.SwitchSystemAccentColor']['platforms']['osx-arm64'])
         self.assertIn('产品移除', rows['SystemTools.FullscreenClock']['platforms']['win-x64'])
         self.assertIn('原未注册', rows['SystemTools.ClickSimulation']['platforms']['win-x64'])
 

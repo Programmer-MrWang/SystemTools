@@ -677,9 +677,19 @@ func recognizeBackgroundText(_ request: [String: Any]) throws -> [String: Any] {
     let recognition = VNRecognizeTextRequest()
     recognition.recognitionLevel = .accurate
     recognition.recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US"]
+    if #available(macOS 13.0, *) { recognition.automaticallyDetectsLanguage = true }
     recognition.usesLanguageCorrection = true
     try VNImageRequestHandler(cgImage: image, options: [:]).perform([recognition])
-    let boxes = (recognition.results ?? []).prefix(500).compactMap { observation -> [String: Any]? in
+    var observations = recognition.results ?? []
+    // 同一行混排时自动语言检测仍可能压低英文置信度；补英文识别，保留 Vision 原始分数。
+    if observations.contains(where: { ($0.topCandidates(1).first?.confidence ?? 0) < 0.6 }) {
+        let english = VNRecognizeTextRequest()
+        english.recognitionLevel = .accurate; english.recognitionLanguages = ["en-US"]
+        english.usesLanguageCorrection = true
+        try VNImageRequestHandler(cgImage: image, options: [:]).perform([english])
+        observations.append(contentsOf: english.results ?? [])
+    }
+    let boxes = observations.sorted { ($0.topCandidates(1).first?.confidence ?? 0) > ($1.topCandidates(1).first?.confidence ?? 0) }.prefix(500).compactMap { observation -> [String: Any]? in
         guard let candidate = observation.topCandidates(1).first else { return nil }
         let box = observation.boundingBox
         return ["x": box.minX, "y": 1 - box.maxY, "width": box.width, "height": box.height, "confidence": candidate.confidence]

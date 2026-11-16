@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from pathlib import Path
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -23,7 +24,9 @@ class MigrationCliTests(unittest.TestCase):
 
     def tearDown(self): self.temp.cleanup()
     def run_cli(self, operation, file):
-        return subprocess.run(['dotnet', str(self.dll), operation, str(file)], cwd=m1.ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace')
+        environment = dict(os.environ, SystemTools_MigrationTest='1')
+        return subprocess.run(['dotnet', str(self.dll), operation, str(file)], cwd=m1.ROOT, env=environment,
+                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace')
 
     def test_preview_apply_and_rollback(self):
         self.assertEqual(self.run_cli('preview', self.plan).returncode, 0)

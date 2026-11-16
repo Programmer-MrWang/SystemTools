@@ -56,7 +56,7 @@ public static class SharedHostRegistration
         foreach (var suffix in actions)
         {
             var id = "SystemTools." + suffix;
-            catalog.BindForRegistration(id, () => config.Data.IsActionEnabled(id) ? new(CapabilityState.Available, "共享实现已接入，尚待本平台运行验证。" ) : new(CapabilityState.Disabled, "用户已关闭。" ));
+            catalog.BindForRegistration(id, () => config.Data.IsActionEnabled(id) ? new(CapabilityState.Available) : new(CapabilityState.Disabled, "用户已关闭。" ));
         }
         catalog.BindForRegistration("SystemTools.ReadFile", () => new(CapabilityState.Available, "共享实现已接入。" ));
         if (catalog.CanCreate("SystemTools.Copy")) services.AddAction<CopyAction, CopySettingsControl>();
@@ -78,7 +78,7 @@ public static class SharedHostRegistration
         {
             var id = status.Feature.Id;
             if (id == "SystemTools.LyricsDisplay") continue;
-            catalog.BindForRegistration(id, () => config.Data.IsComponentEnabled(id) ? new(CapabilityState.Available, "共享组件已接入，尚待本平台运行验证。" ) : new(CapabilityState.Disabled, "用户已关闭。" ));
+            catalog.BindForRegistration(id, () => config.Data.IsComponentEnabled(id) ? new(CapabilityState.Available) : new(CapabilityState.Disabled, "用户已关闭。" ));
         }
         if (catalog.CanCreate("SystemTools.NetworkStatus")) services.AddComponent<NetworkStatusComponent, NetworkStatusSettingsControl>();
         if (catalog.CanCreate("SystemTools.ClipboardContent")) services.AddComponent<ClipboardContentComponent, ClipboardContentSettingsControl>();

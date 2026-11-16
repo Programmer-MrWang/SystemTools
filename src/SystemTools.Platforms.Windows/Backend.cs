@@ -7,7 +7,7 @@ using SystemTools.Common.Media;
 namespace SystemTools.Platforms.Windows;
 public sealed class Backend : IPlatformBackend, IPlatformPlugin
 {
-    public PlatformDescriptor Describe() => new("win-x64", "Windows x64", "M2 Windows 业务接入");
+    public PlatformDescriptor Describe() => new("win-x64", "Windows x64", "Windows 原生功能与共享业务");
 
     public void Initialize(PluginBase entrance, HostBuilderContext context, IServiceCollection services)
     {

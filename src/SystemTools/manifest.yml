@@ -1,6 +1,6 @@
 id: SystemTools
-name: SystemTools 3.0 候选版
-description: 统一配置与跨平台候选版；支持矩阵和权限条件见随包发行说明，实体设备验收分别记录。
+name: SystemTools 3.0 跨平台版
+description: 统一配置与跨平台支持；支持矩阵和权限条件见随包发行说明。
 entranceAssembly: SystemTools.dll
 url: https://github.com/Programmer-MrWang/SystemTools
 version: 3.0.0.0

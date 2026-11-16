@@ -11,5 +11,5 @@ public sealed class Backend : INativeDesktopBackend, IMediaPlatformBackend, ICre
     }
     public NativeDesktopServices CreateServices() => new() { Advanced = new() { Background = new SystemTools.Common.Layout.UnsupportedBackgroundCapture(), Displays = new DisplayConfigurationService(), Brightness = new HardwareBrightnessService() }, Volume = new SystemVolumeService(), Idle = new UserIdleService(), ScreenCapture = new ScreenCaptureService(), UsbDevices = new UsbDevicesService(), Keyboard = new KeyboardService(), Pointer = new PointerService(), Session = new DesktopSessionService(), Hotkeys = new HotkeysService(), Windows = new WindowOperationsService(), Wallpaper = new WallpaperService(), Camera = new SystemTools.Common.Media.FfmpegCamera("linux-x64", () => SystemTools.Common.Media.MediaFiles.FindExecutable("ffmpeg", _preferences().FfmpegPath)) };
     public ICredentialProtector CreateCredentialProtector() => new SecretServiceProtector();
-    public PlatformDescriptor Describe() => new("linux-x64", "Linux x64 / X11", "M4 原生与共享业务；仅原生 X11 会话");
+    public PlatformDescriptor Describe() => new("linux-x64", "Linux x64 / X11", "Linux X11 原生功能与共享业务");
 }

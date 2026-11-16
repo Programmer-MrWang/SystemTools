@@ -115,6 +115,7 @@ class LifecycleTests(unittest.TestCase):
         script = """import sys,time,os
 from pathlib import Path
 import release_lifecycle as module
+module.stopped=lambda:None
 original=os.replace
 def replace(source,target):
  if Path(source).name=='candidate':

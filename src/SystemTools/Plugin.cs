@@ -65,19 +65,22 @@ public sealed class Plugin : PluginBase
         services.AddSettingsPage<DiagnosticsSettingsPage>();
         services.AddSingleton(new MigrationLocation(PluginConfigFolder));
         services.AddSettingsPage<MigrationSettingsPage>();
-        services.AddAction<RecordDiagnosticsAction>();
+        if (InternalDiagnostics.Enabled)
+            services.AddAction<RecordDiagnosticsAction>();
         EventHandler started = async (_, _) =>
         {
             if (Interlocked.Exchange(ref _started, 1) != 0) return;
             try
             {
+                if (!InternalDiagnostics.Enabled)
+                    return;
                 diagnostics.Capture("host-started");
                 if (Environment.GetEnvironmentVariable("SystemTools_M1_SmokeTest") == "1")
                     await diagnostics.RunHostSmokeAsync();
             }
             catch (Exception ex)
             {
-                IAppHost.TryGetService<ILogger<Plugin>>()?.LogError(ex, "M1 诊断保存失败。");
+                IAppHost.TryGetService<ILogger<Plugin>>()?.LogError(ex, "平台诊断保存失败。");
             }
         };
         AppBase.Current.AppStarted += started;

@@ -14,14 +14,14 @@ namespace SystemTools;
 
 public sealed class DiagnosticService(IPlatformBackend backend, string configDirectory)
 {
-    public string Summary => $"平台：{backend.Describe().DisplayName}\n{backend.Describe().Scope}\n诊断目录：{configDirectory}";
+    public string Summary => $"平台：{backend.Describe().DisplayName}\n{backend.Describe().Scope}";
 
     public object Capture(string source)
     {
         var context = AssemblyLoadContext.GetLoadContext(typeof(Plugin).Assembly)!;
         var report = new
         {
-            schemaVersion = 1, milestone = "M3-shared-preview", source,
+            schemaVersion = 1, productVersion = "3.0.0.0", source,
             runtimeId = backend.Describe().RuntimeId,
             os = RuntimeInformation.OSDescription,
             architecture = RuntimeInformation.ProcessArchitecture.ToString(),

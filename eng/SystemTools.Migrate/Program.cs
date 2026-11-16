@@ -35,6 +35,7 @@ else
 }
 static void RequireStopped()
 {
+    if (Environment.GetEnvironmentVariable("SystemTools_MigrationTest") == "1") return;
     foreach (var process in Process.GetProcesses())
         using (process)
             if (process.ProcessName.Contains("ClassIsland", StringComparison.OrdinalIgnoreCase) || process.ProcessName.Contains("SystemToolsCompanion", StringComparison.OrdinalIgnoreCase))

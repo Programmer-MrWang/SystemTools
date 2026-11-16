@@ -43,6 +43,13 @@ class M7PackagingTests(unittest.TestCase):
         self.assertIn(m7.POLICY['sdk'], workflow)
         self.assertTrue('python eng/m7.py aggregate' in workflow or 'python eng/m8.py aggregate' in workflow)
 
+    def test_distribution_metadata_uses_product_labels(self):
+        manifest = (m1.ROOT / 'src/SystemTools/manifest.yml').read_text(encoding='utf-8')
+        readme = (m1.ROOT / 'src/SystemTools/README.md').read_text(encoding='utf-8')
+        self.assertIn('name: SystemTools 3.0 跨平台版', manifest)
+        self.assertNotRegex(manifest, r'\bM[1-8]\b')
+        self.assertNotRegex(readme, r'\bM[1-8]\b')
+
     def test_metadata_allowlist_never_allows_extra_executable(self):
         self.assertTrue(m2.release_asset('release/capabilities.json'))
         self.assertTrue(m2.release_asset('release/licenses/osx-arm64/NPOI/LICENSE.txt'))

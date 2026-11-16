@@ -16,7 +16,7 @@ public sealed record PlatformEnvironment(string OS, Architecture Architecture,
 
 public sealed record PlatformDescriptor(string RuntimeId, string DisplayName, string Scope);
 
-// M1 only describes a backend. Add real OS services when a feature requires them.
+// Platform-neutral backend description; OS-specific services are supplied by the selected module.
 public interface IPlatformBackend
 {
     PlatformDescriptor Describe();
@@ -33,7 +33,7 @@ public static class PlatformSelection
             !string.IsNullOrWhiteSpace(environment.Display) &&
             string.IsNullOrWhiteSpace(environment.WaylandDisplay) => "linux-x64",
         _ => throw new PlatformNotSupportedException(
-            "M1 支持 Windows x64、Linux x64 原生 X11、macOS Apple Silicon 原生 ARM64。" +
+            "支持范围：Windows x64、Linux x64 原生 X11、macOS Apple Silicon 原生 ARM64。" +
             $"当前 OS={environment.OS}, Architecture={environment.Architecture}, Session={environment.SessionType ?? "unknown"}。")
     };
 

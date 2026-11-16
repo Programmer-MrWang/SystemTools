@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using Avalonia;
@@ -40,12 +41,22 @@ public sealed partial class Plugin
     private void CloseoutReport(bool completed=false)
     {
         var process=Process.GetCurrentProcess();process.Refresh();
+        var unexpected=_soakErrors.Where(error=>!ExpectedSleepInterruption(error)).ToArray();
         File.WriteAllText(Path.Combine(_root,"mac-closeout.json"),JsonSerializer.Serialize(new{
-            startedUtc=_closeoutStarted,updatedUtc=DateTime.UtcNow,completed,passed=completed&&_soakErrors.Count==0,
+            startedUtc=_closeoutStarted,updatedUtc=DateTime.UtcNow,completed,passed=completed&&unexpected.Length==0,
             awakeSeconds=_awakeSeconds,requiredAwakeSeconds=7200,captureSuccesses=_captureSuccesses,
             currentLayout=_layoutName,layouts=_layoutResults,recoveries=_recoveries,samples=_soakSamples,
-            errors=_soakErrors,processId=Environment.ProcessId,workingSet=process.WorkingSet64,
+            errors=_soakErrors,unexpectedErrors=unexpected,processId=Environment.ProcessId,workingSet=process.WorkingSet64,
             scope="Four representative component layouts with synthetic timetable; not all user configurations or older macOS. Minimize skipped at user request."},new JsonSerializerOptions{WriteIndented=true}));
+    }
+    private bool ExpectedSleepInterruption(string error)
+    {
+        if(error.Length<19||!DateTime.TryParse(error[..19],CultureInfo.InvariantCulture,DateTimeStyles.AssumeUniversal|DateTimeStyles.AdjustToUniversal,out var utc))return false;
+        if(!error.Contains("显示器",StringComparison.Ordinal)&&!error.Contains("背景捕获超时",StringComparison.Ordinal))return false;
+        var notes=Fixture.GetProperty("workspaceEvents").EnumerateArray();
+        return notes.Any(note=>(note.GetProperty("name").GetString() is "NSWorkspaceWillSleepNotification" or "NSWorkspaceDidWakeNotification")&&
+            Math.Abs((DateTime.Parse(note.GetProperty("utc").GetString()!,CultureInfo.InvariantCulture,DateTimeStyles.AdjustToUniversal)-utc).TotalSeconds)<=15)&&
+            _recoveries.Select(value=>JsonSerializer.SerializeToElement(value)).Any(recovery=>recovery.GetProperty("label").GetString()=="sleep-wake"&&recovery.GetProperty("passed").GetBoolean()&&recovery.GetProperty("utc").GetDateTime()>utc);
     }
     private static bool DesktopLocked()
     {
@@ -207,7 +218,7 @@ public sealed partial class Plugin
             }
             Check(_awakeSeconds>=7200,"实际解锁运行累计达到两小时");
             await CloseoutRecovery("soak-finished");
-            Check(_soakErrors.Count==0,"两小时运行没有未处理的捕获错误");
+            Check(_soakErrors.All(ExpectedSleepInterruption),"两小时运行无未恢复错误；睡眠切换瞬态保留并验证恢复");
             CloseoutReport(true);File.WriteAllText(Path.Combine(_root,"closeout-soak-completed"),"done");
         }
         catch(Exception error){_soakErrors.Add(error.ToString());_failures.Add("Mac 收尾："+error);Write();CloseoutReport();_status.Text="收尾失败："+error.Message;}
